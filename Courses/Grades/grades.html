@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grades Dashboard</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- CSS -->
+    <link rel="stylesheet" href="grades.css">
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>Course Content</h2>
+            <div class="sidebar-progress">
+                <span class="progress-text">2 of 8 lectures completed</span>
+                <div class="progress-bar-container">
+                    <div class="progress-fill" style="width: 25%"></div>
+                </div>
+            </div>
+        </div>
+
+        <ul class="nav-menu">
+            <li class="nav-item"><a href="#" class="nav-link"><i class="fa-solid fa-book-open"></i> Course Overview</a></li>
+            <li class="nav-item"><a href="#" class="nav-link"><i class="fa-solid fa-video"></i> Videos</a></li>
+            <li class="nav-item"><a href="#" class="nav-link"><i class="fa-regular fa-file-lines"></i> Assignments</a></li>
+            <li class="nav-item"><a href="#" class="nav-link"><i class="fa-regular fa-folder"></i> Projects</a></li>
+            <!-- Grades is Active -->
+            <li class="nav-item"><a href="#" class="nav-link active"><i class="fa-solid fa-award"></i> Grades</a></li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <button class="back-btn">
+                <i class="fa-solid fa-arrow-left-long" style="margin-right:8px"></i> Return to Courses
+            </button>
+            <div class="course-meta">
+                <h4>CS 101: Web Development</h4>
+                <span>Fall 2024 • Week 4</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        
+        <!-- TOP BAR (Toggle Button) -->
+        <div class="top-bar">
+            <div class="breadcrumbs"></div> <!-- Spacer -->
+            <button class="theme-toggle-btn" id="themeBtn">
+                <i class="fa-solid fa-sun"></i> <span>Light Mode</span>
+            </button>
+        </div>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="header-text">
+                <h1>Grades</h1>
+                <p>CS 101: Web Development • Fall 2024</p>
+            </div>
+            <button class="btn-download"><i class="fa-solid fa-download"></i> Download Report</button>
+        </div>
+
+        <!-- Stats Overview Cards -->
+        <div class="stats-overview" id="stats-container">
+            <!-- JS Injected -->
+        </div>
+
+        <div class="dashboard-grid">
+            
+            <!-- LEFT COLUMN (Main Grades) -->
+            <div class="left-column">
+                
+                <!-- Grade Breakdown -->
+                <section class="card">
+                    <div class="card-header-simple">
+                        <h3>Grade Breakdown by Category</h3>
+                    </div>
+                    <div class="breakdown-list" id="breakdown-container">
+                        <!-- JS Injected -->
+                    </div>
+                </section>
+
+                <!-- All Grades List -->
+                <section class="card">
+                    <div class="card-header-simple">
+                        <h3>All Grades</h3>
+                    </div>
+                    <div class="grades-list" id="grades-list-container">
+                        <!-- JS Injected -->
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- RIGHT COLUMN (Sidebar Widgets) -->
+            <div class="right-column">
+                
+                <!-- Grading Scale -->
+                <section class="card">
+                    <div class="card-header-simple">
+                        <h3>Grading Scale</h3>
+                    </div>
+                    <div class="scale-list" id="scale-container">
+                        <!-- JS Injected -->
+                    </div>
+                </section>
+
+                <!-- What-If Scenario -->
+                <section class="card">
+                    <div class="card-header-simple">
+                        <h3>What-If Scenario</h3>
+                    </div>
+                    <p class="widget-desc">Calculate what you need on remaining work to achieve your desired grade.</p>
+                    
+                    <div class="input-group">
+                        <label>Target Grade</label>
+                        <select class="input-select">
+                            <option>A (93%)</option>
+                            <option>A- (90%)</option>
+                            <option>B+ (87%)</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn-primary-full">Calculate</button>
+                </section>
+
+                <!-- Grade Information -->
+                <section class="card">
+                    <div class="card-header-simple">
+                        <h3>Grade Information</h3>
+                    </div>
+                    <p class="widget-desc">Your final grade is calculated based on the weighted average of all categories.</p>
+                    
+                    <div class="info-list" id="weights-container">
+                        <!-- JS Injected -->
+                    </div>
+                </section>
+
+            </div>
+        </div>
+
+    </main>
+
+    <script src="grades.js"></script>
+</body>
+</html>
