@@ -143,6 +143,10 @@ body {
 .card-title-group { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .card-title-group h3 { font-size: 1rem; font-weight: 600; }
 
+a {
+    text-decoration: none;
+}
+
 .status-badge {
     font-size: 0.7rem; padding: 2px 8px; border-radius: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px; white-space: nowrap;
 }

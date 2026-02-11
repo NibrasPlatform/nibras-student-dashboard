@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const navLinks = document.querySelectorAll('.nav-link');
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
-            e.preventDefault(); 
             navLinks.forEach(n => n.classList.remove('active'));
             link.classList.add('active');
         });
@@ -146,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
         themeIcon.className = 'fa-regular fa-sun';
         if(appLogo) appLogo.src = '../../assets/images/logo-dark.png';
     } else {
-        if(appLogo) appLogo.src = 'logo-light.png';
+        if(appLogo) appLogo.src = '../../assets/images/logo-light.png';
     }
 
     themeBtn.addEventListener('click', () => {
@@ -154,10 +153,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const current = html.getAttribute('data-theme');
         if (current === 'light') {
             html.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
             themeIcon.className = 'fa-regular fa-sun';
             if(appLogo) appLogo.src = '../../assets/images/logo-dark.png';
         } else {
             html.setAttribute('data-theme', 'light');
+            localStorage.setItem('theme', 'light');
             themeIcon.className = 'fa-regular fa-moon';
             if(appLogo) appLogo.src = '../../assets/images/logo-light.png';
         }

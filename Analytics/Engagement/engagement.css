@@ -116,7 +116,7 @@ body { background-color: var(--bg-body); color: var(--text-primary); display: fl
 
 /* TABS */
 .analytics-tabs { display: inline-flex; border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; gap: 0; padding: 0; margin-bottom: 2rem; }
-.ana-tab { background: transparent; border: none; padding: 0.6rem 1.5rem; font-size: 0.9rem; color: var(--text-secondary); cursor: pointer; border-right: 1px solid var(--border-color); }
+.ana-tab { background: transparent; border: none; padding: 0.6rem 1.5rem; font-size: 0.9rem; color: var(--text-secondary); cursor: pointer; border-right: 1px solid var(--border-color);text-decoration: none; }
 .ana-tab:last-child { border-right: none; }
 .ana-tab.active { background-color: var(--ana-tab-active-bg); color: var(--ana-tab-active-text); }
 

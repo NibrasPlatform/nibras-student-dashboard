@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const navLinks = document.querySelectorAll('.nav-link');
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
-            e.preventDefault();
             navLinks.forEach(n => n.classList.remove('active'));
             link.classList.add('active');
         });
@@ -22,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const current = html.getAttribute('data-theme');
         const newTheme = current === 'light' ? 'dark' : 'light';
         html.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
         updateThemeBtn(newTheme);
     });
 

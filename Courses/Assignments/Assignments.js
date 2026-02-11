@@ -5,8 +5,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
-            // Prevent default jump for this demo (remove this line if integrating real routing)
-            e.preventDefault();
             
             // Remove 'active' class from all links
             navLinks.forEach(nav => nav.classList.remove('active'));
@@ -32,9 +30,11 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (current === 'light') {
             html.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark'); // Save preference
             updateThemeBtn('dark');
         } else {
             html.setAttribute('data-theme', 'light');
+            localStorage.setItem('theme', 'light'); // Save preference
             updateThemeBtn('light');
         }
     });
@@ -70,7 +70,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 dueDate: "Dec 20, 2024",
                 dueTime: "11:59 PM",
                 type: "File Upload",
-                action: "View Details"
+                action: "View Details",
+                page: "../Assignments/Assignments Content/AssignmentContent.html"
             },
             {
                 id: 2,
@@ -224,9 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <i class="${typeIcon}"></i> ${item.type}
                             </div>
                         </div>
-                        <button class="action-btn" onclick="console.log('Action: ${item.action} for ID ${item.id}')">
-                            ${item.action}
-                        </button>
+                        <a href="${item.page ? item.page : '#'}" class="action-btn" ${item.page ? '' : 'disabled'}>${item.action}</a>
                     </div>
                 </div>
             `;
