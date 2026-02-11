@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nibras - Smart Routing</title>
+    <title>Nibras - Learning Insights</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="smart_routing.css">
+    <link rel="stylesheet" href="learning-insights.css">
 </head>
 <body>
 
@@ -75,25 +75,38 @@
             <div class="ai-tabs-container">
                 <button class="ai-tab">AI Tutor</button>
                 <button class="ai-tab">Recommendations</button>
-                <button class="ai-tab">Learning Insights</button>
-                <button class="ai-tab active">Smart Routing</button>
+                <button class="ai-tab active">Learning Insights</button>
+                <button class="ai-tab">Smart Routing</button>
             </div>
 
-            <!-- Routing Content -->
-            <div class="routing-container">
-                <div class="card-header-simple">
-                    <h3><i class="fa-solid fa-bolt" style="color:var(--accent-blue); margin-right:8px;"></i> Smart Question Routing</h3>
-                    <p class="section-desc">AI automatically routes questions to the most qualified mentors and TAs</p>
-                </div>
+            <!-- Insights Grid -->
+            <div class="insights-grid">
+                
+                <!-- Learning Analytics Card -->
+                <section class="card insight-card">
+                    <div class="card-header-simple">
+                        <h3>Learning Analytics</h3>
+                    </div>
+                    <div class="analytics-list" id="analytics-container">
+                        <!-- JS Injected -->
+                    </div>
+                </section>
 
-                <div class="routing-list" id="routing-list-container">
-                    <!-- JS Injected -->
-                </div>
+                <!-- Strength & Weakness Analysis Card -->
+                <section class="card insight-card">
+                    <div class="card-header-simple">
+                        <h3>Strength & Weakness Analysis</h3>
+                    </div>
+                    <div class="strength-list" id="strength-container">
+                        <!-- JS Injected -->
+                    </div>
+                </section>
+
             </div>
 
         </div>
     </main>
 
-    <script src="smart_routing.js"></script>
+    <script src="learning-insights.js"></script>
 </body>
 </html>

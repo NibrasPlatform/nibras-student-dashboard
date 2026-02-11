@@ -1,96 +1,110 @@
 # Nibras Backend API
 
-Express.js backend for the Nibras Student Dashboard.
+Express.js + MongoDB backend for the Nibras Student Dashboard.
 
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
-# Install dependencies
 npm install
-
-# Start development server
+cp .env.example .env
 npm run dev
+```
 
-# Start production server
+Production:
+
+```bash
 npm start
 ```
 
-## 📁 Structure
+## Backend Structure
 
-```
+```text
 server/
 ├── src/
-│   ├── app.js              # Express app entry point
+│   ├── app.js
 │   ├── config/
-│   │   └── database.js     # MongoDB connection
+│   │   └── database.js
 │   ├── middleware/
-│   │   ├── auth.js         # JWT authentication
-│   │   └── errorHandler.js # Centralized error handling
+│   │   ├── auth.js
+│   │   └── errorHandler.js
 │   ├── models/
-│   │   ├── User.js         # User schema
-│   │   ├── Course.js       # Course schema
-│   │   └── Achievement.js  # Achievement schema
+│   │   ├── User.js
+│   │   ├── Course.js
+│   │   └── Achievement.js
 │   └── routes/
-│       ├── auth.routes.js        # POST /api/auth/register, /login
-│       ├── user.routes.js        # GET /api/users/me, /:id
-│       ├── leaderboard.routes.js # GET /api/leaderboard
-│       ├── course.routes.js      # GET /api/courses, /:id, POST /:id/enroll
-│       └── achievement.routes.js # GET /api/achievements
-├── .env                    # Environment variables
+│       ├── auth.routes.js
+│       ├── user.routes.js
+│       ├── leaderboard.routes.js
+│       ├── course.routes.js
+│       └── achievement.routes.js
+├── .env.example
 └── package.json
 ```
 
-## 🔌 API Endpoints
+## Runtime Behavior
+
+- Security middleware (`helmet`, `cors`) is applied before static serving.
+- Static frontend assets are served from `../client`.
+- `morgan("dev")` logging is enabled when `NODE_ENV !== "production"`.
+- Graceful shutdown closes the HTTP server and MongoDB connection.
+- Global process handlers are configured for:
+  - `SIGINT`
+  - `SIGTERM`
+  - `unhandledRejection`
+  - `uncaughtException`
+
+## Environment Variables
+
+```env
+# Server
+PORT=3000
+NODE_ENV=development
+
+# Database (Option A: full URI)
+MONGODB_URI=
+
+# Database (Option B: from parts, used if MONGODB_URI is empty)
+MONGODB_HOST=localhost
+MONGODB_PORT=27017
+MONGODB_DB=nibras
+MONGODB_USER=your-mongodb-username
+MONGODB_PASSWORD=your-mongodb-password
+MONGODB_AUTH_SOURCE=admin
+
+# Auth
+JWT_SECRET=your-super-secret-jwt-key-change-this
+JWT_EXPIRES_IN=7d
+
+# CORS
+FRONTEND_URL=http://localhost:3000
+```
+
+## API Endpoints
 
 ### Authentication
 
-| Method | Endpoint             | Description       |
-| ------ | -------------------- | ----------------- |
-| POST   | `/api/auth/register` | Register new user |
-| POST   | `/api/auth/login`    | Login user        |
+- `POST /api/auth/register`
+- `POST /api/auth/login`
 
 ### Users
 
-| Method | Endpoint         | Description                      |
-| ------ | ---------------- | -------------------------------- |
-| GET    | `/api/users/me`  | Get current user (auth required) |
-| PUT    | `/api/users/me`  | Update profile (auth required)   |
-| GET    | `/api/users/:id` | Get user public profile          |
+- `GET /api/users/me` (auth required)
+- `PUT /api/users/me` (auth required)
+- `GET /api/users/:id`
 
 ### Leaderboard
 
-| Method | Endpoint                   | Description                                          |
-| ------ | -------------------------- | ---------------------------------------------------- |
-| GET    | `/api/leaderboard`         | Get rankings (filter: overall, weekly, achievements) |
-| GET    | `/api/leaderboard/my-rank` | Get user's rank (auth required)                      |
+- `GET /api/leaderboard`
+- `GET /api/leaderboard/my-rank` (auth required)
 
 ### Courses
 
-| Method | Endpoint                  | Description                      |
-| ------ | ------------------------- | -------------------------------- |
-| GET    | `/api/courses`            | List all courses                 |
-| GET    | `/api/courses/:id`        | Get course details               |
-| POST   | `/api/courses/:id/enroll` | Enroll in course (auth required) |
+- `GET /api/courses`
+- `GET /api/courses/:id`
+- `POST /api/courses/:id/enroll` (auth required)
 
 ### Achievements
 
-| Method | Endpoint                 | Description                             |
-| ------ | ------------------------ | --------------------------------------- |
-| GET    | `/api/achievements`      | List all achievements                   |
-| GET    | `/api/achievements/my`   | Get user's achievements (auth required) |
-| POST   | `/api/achievements/seed` | Seed default achievements               |
-
-## ⚙️ Environment Variables
-
-```env
-PORT=3000
-MONGODB_URI=mongodb://localhost:27017/nibras
-JWT_SECRET=your-secret-key
-JWT_EXPIRES_IN=7d
-FRONTEND_URL=http://localhost:5500
-```
-
-## 📋 Prerequisites
-
-- Node.js 18+
-- MongoDB running locally or MongoDB Atlas URI
+- `GET /api/achievements`
+- `GET /api/achievements/my` (auth required)
+- `POST /api/achievements/seed`

@@ -1,66 +1,61 @@
 # Nibras Student Dashboard
 
-A comprehensive student dashboard for managing courses, competitions, community, achievements, and AI tutoring.
+Full-stack student platform with an Express/MongoDB backend and modular frontend pages served from a unified `client/` directory.
 
-## 🏗️ Project Structure
+## Project Structure
 
-```
+```text
 nibras-student-dashboard/
-├── server/                 # Express.js Backend API
-│   └── src/
-│       ├── config/         # Database configuration
-│       ├── middleware/      # Auth & error handling
-│       ├── models/         # Mongoose schemas (User, Course, Achievement)
-│       └── routes/         # API endpoints
-├── dashboard/              # Main dashboard page
-├── courses/                # Course browsing & management
-│   ├── assignments/        # Student assignments
-│   ├── course-description/ # Course detail view
-│   ├── grades/             # Grade tracking
-│   ├── projects/           # Course projects
-│   └── videos/             # Video lessons
-├── competitions/           # Contests, practice, history, rankings
-├── community/              # Discussion forum & Q&A
-├── achievements/           # Achievements, leaderboard, reputation
-├── ai-tutor/               # AI tutor, insights, recommendations
-├── analytics/              # Analytics dashboard (instructor/admin)
-├── settings/               # User settings
-└── assets/                 # Static assets (images)
+├── client/                       # Frontend (HTML/CSS/JS modules)
+│   ├── dashboard/
+│   ├── courses/
+│   ├── competitions/
+│   ├── community/
+│   ├── achievements/
+│   ├── analytics/
+│   ├── ai-tutor/
+│   ├── settings/
+│   └── assets/
+├── server/                       # Backend API
+│   ├── src/
+│   │   ├── app.js
+│   │   ├── config/
+│   │   ├── middleware/
+│   │   ├── models/
+│   │   └── routes/
+│   ├── .env.example
+│   └── package.json
+└── README.md
 ```
 
-## 🚀 Quick Start
+## Backend Highlights
+
+- Security middleware (`helmet`, `cors`) runs before static file serving.
+- Request logging with `morgan` in non-production environments.
+- MongoDB connection supports:
+  - direct `MONGODB_URI`
+  - or URI built from auth-aware env vars (`MONGODB_USER`, `MONGODB_PASSWORD`, etc.).
+- Graceful shutdown on `SIGINT`/`SIGTERM` with HTTP server and MongoDB connection close.
+- Global handlers for `unhandledRejection` and `uncaughtException`.
+
+## Quick Start
 
 ```bash
-# Start the backend
 cd server
 npm install
-npm run dev          # Development (with hot-reload)
-
-# The dashboard is served at http://localhost:3000
+cp .env.example .env
+npm run dev
 ```
 
-## 🔧 Tech Stack
+Open `http://localhost:3000` for the dashboard entry page.
 
-| Layer    | Technology              |
-| -------- | ----------------------- |
-| Backend  | Express.js, Node.js     |
-| Database | MongoDB + Mongoose      |
-| Auth     | JWT + bcrypt            |
-| Frontend | Vanilla HTML / CSS / JS |
+## Frontend Entry Examples
 
-## 📖 API Documentation
+- Dashboard: `/dashboard/dashboard.html`
+- Courses: `/courses/courses.html`
+- Competitions: `/competitions/contests/contest.html`
+- Community: `/community/community.html`
 
-See [server/README.md](server/README.md) for full API endpoint docs.
+## API Documentation
 
-## 🗺️ Routes / Pages
-
-| Route           | Description                                              |
-| --------------- | -------------------------------------------------------- |
-| `/`             | Dashboard — KPIs, activities, deadlines, progress        |
-| `/courses`      | Courses — All / Core / Electives / Competitive           |
-| `/competitions` | Competitions — Contests / Practice / History / Rankings  |
-| `/community`    | Community — Recent / Popular / Unanswered / My Questions |
-| `/achievements` | Achievements / Leaderboard / Reputation                  |
-| `/ai-tutor`     | AI Tutor / Recommendations / Insights / Smart Routing    |
-| `/analytics`    | Analytics — Overview / Students / Courses / Engagement   |
-| `/settings`     | User settings                                            |
+Backend details and endpoints: [server/README.md](server/README.md)
