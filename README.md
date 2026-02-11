@@ -56,6 +56,4 @@ Open `http://localhost:3000` for the dashboard entry page.
 - Competitions: `/competitions/contests/contest.html`
 - Community: `/community/community.html`
 
-## API Documentation
-
-Backend details and endpoints: [server/README.md](server/README.md)
+## API Documentation [server/README.md](server/README.md)
