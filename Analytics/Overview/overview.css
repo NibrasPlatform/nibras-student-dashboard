@@ -139,7 +139,7 @@ body { background-color: var(--bg-body); color: var(--text-primary); display: fl
 .analytics-tabs { 
     display: inline-flex; border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; gap: 0; padding: 0;
 }
-.ana-tab { border-bottom: none; border-right: 1px solid var(--border-color); padding: 0.6rem 1.5rem; }
+.ana-tab { border-bottom: none; border-right: 1px solid var(--border-color); padding: 0.6rem 1.5rem; text-decoration: none; }
 .ana-tab:last-child { border-right: none; }
 .ana-tab.active { background-color: var(--ana-tab-active-bg); color: var(--ana-tab-active-text); }
 

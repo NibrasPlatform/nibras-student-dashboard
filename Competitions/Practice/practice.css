@@ -172,6 +172,10 @@ body { background-color: var(--bg-body); color: var(--text-primary); display: fl
 .btn-review { background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); }
 .btn-review:hover { opacity: 0.8; }
 
+a {
+    text-decoration: none;
+}
+
 @media (max-width: 1024px) {
     .sidebar { display: none; }
     .main-content { margin-left: 0; }

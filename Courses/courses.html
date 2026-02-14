@@ -1,9 +1,17 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nibras - Courses</title>
+    <script>
+    (function () {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        }
+    })();
+</script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="courses.css">
@@ -19,14 +27,14 @@
         </div>
 
         <ul class="nav-menu">
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fa-solid fa-house"></i> Dashboard</a></li>
-            <li class="nav-item"><a href="#" class="nav-link active"><i class="fa-solid fa-book-open"></i> Courses</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fa-solid fa-trophy"></i> Competitions</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fa-solid fa-users"></i> Community</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fa-solid fa-medal"></i> Achievements</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fa-solid fa-robot"></i> AI Tutor</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fa-solid fa-chart-simple"></i> Analytics</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fa-solid fa-gear"></i> Settings</a></li>
+            <li class="nav-item"><a href="../dashboard/dashboard.html" class="nav-link"><i class="fa-solid fa-house"></i> Dashboard</a></li>
+            <li class="nav-item"><a href="../courses/courses.html" class="nav-link active"><i class="fa-solid fa-book-open"></i> Courses</a></li>
+            <li class="nav-item"><a href="../competitions/Contests/contest.html" class="nav-link"><i class="fa-solid fa-trophy"></i> Competitions</a></li>
+            <li class="nav-item"><a href="../community/community.html" class="nav-link"><i class="fa-solid fa-users"></i> Community</a></li>
+            <li class="nav-item"><a href="../Achievements/Achievements/achievements.html" class="nav-link"><i class="fa-solid fa-medal"></i> Achievements</a></li>
+            <li class="nav-item"><a href="../Ai-tutor/Ai Tutor/ai_tutor.html" class="nav-link"><i class="fa-solid fa-robot"></i> AI Tutor</a></li>
+            <li class="nav-item"><a href="../Analytics/Overview/overview.html" class="nav-link"><i class="fa-solid fa-chart-simple"></i> Analytics</a></li>
+            <li class="nav-item"><a href="../Settings/settings.html" class="nav-link"><i class="fa-solid fa-gear"></i> Settings</a></li>
         </ul>
 
         <div class="user-profile">

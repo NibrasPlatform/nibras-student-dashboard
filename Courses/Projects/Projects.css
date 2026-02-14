@@ -212,6 +212,11 @@ body {
 .resource-link:hover { background-color: var(--border-color); }
 .resource-link i { color: var(--accent-blue); }
 
+a {
+    text-decoration: none;
+}
+
+
 /* Responsive */
 @media (max-width: 1024px) {
     .sidebar { display: none; }

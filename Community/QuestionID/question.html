@@ -1,9 +1,17 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nibras - Community</title>
+    <title>Nibras - Question Detail</title>
+    <script>
+    (function () {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        }
+    })();
+</script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="question.css">
@@ -13,19 +21,20 @@
     <!-- SIDEBAR -->
     <aside class="sidebar">
         <div class="logo-area">
+            <!-- Adjusted path based on your previous input -->
             <img src="../../assets/images/logo-light.png" alt="Nibras Logo" class="sidebar-logo" id="app-logo">
         </div>
 
         <ul class="nav-menu">
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fa-solid fa-house"></i> Dashboard</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fa-solid fa-book-open"></i> Courses</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fa-solid fa-trophy"></i> Competitions</a></li>
+            <li class="nav-item"><a href="../../Dashboard/dashboard.html" class="nav-link"><i class="fa-solid fa-house"></i> Dashboard</a></li>
+            <li class="nav-item"><a href="../../Courses/courses.html" class="nav-link"><i class="fa-solid fa-book-open"></i> Courses</a></li>
+            <li class="nav-item"><a href="../../Competitions/Contests/contest.html" class="nav-link"><i class="fa-solid fa-trophy"></i> Competitions</a></li>
             <!-- Active State -->
-            <li class="nav-item"><a href="#" class="nav-link active"><i class="fa-solid fa-users"></i> Community</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fa-solid fa-medal"></i> Achievements</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fa-solid fa-robot"></i> AI Tutor</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fa-solid fa-chart-simple"></i> Analytics</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fa-solid fa-gear"></i> Settings</a></li>
+            <li class="nav-item"><a href="../community.html" class="nav-link active"><i class="fa-solid fa-users"></i> Community</a></li>
+            <li class="nav-item"><a href="../../Achievements/Achievements/achievements.html" class="nav-link"><i class="fa-solid fa-medal"></i> Achievements</a></li>
+            <li class="nav-item"><a href="../../Ai-tutor/Ai Tutor/ai_tutor.html" class="nav-link"><i class="fa-solid fa-robot"></i> AI Tutor</a></li>
+            <li class="nav-item"><a href="../../Analytics/Overview/overview.html" class="nav-link"><i class="fa-solid fa-chart-simple"></i> Analytics</a></li>
+            <li class="nav-item"><a href="../../Settings/settings.html" class="nav-link"><i class="fa-solid fa-gear"></i> Settings</a></li>
         </ul>
 
         <div class="user-profile">
@@ -63,68 +72,20 @@
             </div>
         </header>
 
-        <!-- VIEW 1: FEED VIEW (Main List) -->
-        <div class="content-wrapper" id="feed-view">
-            <div class="page-title-section">
-                <h1>Community</h1>
-                <p>Ask questions, share knowledge and learn together</p>
-            </div>
-
-            <!-- Toolbar -->
-            <div class="community-toolbar">
-                <div class="search-bar-local">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" id="question-search" placeholder="Search questions, tags, or content...">
-                </div>
-                <button class="btn-primary" id="openAskModalBtn"><i class="fa-solid fa-plus"></i> Ask Question</button>
-            </div>
-
-            <!-- Main Grid -->
-            <div class="community-grid">
-                <!-- Feed -->
-                <div class="feed-column">
-                    <div class="feed-tabs">
-                        <button class="feed-tab active">Recent</button>
-                        <button class="feed-tab">Popular</button>
-                        <button class="feed-tab">Unanswered</button>
-                        <button class="feed-tab">My Questions</button>
-                    </div>
-                    <div class="question-list" id="questions-container">
-                        <!-- JS Injected -->
-                    </div>
-                </div>
-
-                <!-- Right Widgets -->
-                <div class="widgets-column">
-                    <div class="widget-card">
-                        <h4>Popular Tags</h4>
-                        <div class="tags-list" id="tags-container"></div>
-                    </div>
-                    <div class="widget-card">
-                        <h4>Top Contributors</h4>
-                        <div class="contributors-list" id="contributors-container"></div>
-                    </div>
-                    <div class="widget-card">
-                        <h4>Community Stats</h4>
-                        <div class="com-stats-list" id="com-stats-container"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- VIEW 2: QUESTION DETAIL VIEW (Hidden by default) -->
-        <div class="content-wrapper hidden" id="detail-view">
-            <button class="btn-back" id="backToFeedBtn"><i class="fa-solid fa-chevron-left"></i> Back</button>
+        <!-- QUESTION DETAIL VIEW (Always Visible) -->
+        <div class="content-wrapper">
             
             <div class="detail-container">
-                
+                <a href="../community.html" class="btn-back">
+                    <i class="fa-solid fa-chevron-left"></i> Back
+                </a>
                 <!-- Main Question Card -->
                 <div class="q-full-card" id="q-main-content">
                     <!-- JS Injected -->
                 </div>
 
                 <!-- Answers Header -->
-                <h3 class="section-header-text" id="answers-count-header">3 Answers</h3>
+                <h3 class="section-header-text" id="answers-count-header">Loading Answers...</h3>
 
                 <!-- Answers List -->
                 <div class="answers-list" id="answers-container">
@@ -144,47 +105,6 @@
         </div>
 
     </main>
-
-    <!-- ASK QUESTION MODAL -->
-    <div class="modal-overlay" id="askModal">
-        <div class="modal-container">
-            <div class="modal-header">
-                <h2>Ask a Question</h2>
-                <button class="close-modal" id="closeAskModal"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="info-box">
-                    <h4>Writing a good question</h4>
-                    <ul>
-                        <li>Be specific and provide context about your problem</li>
-                        <li>Include what you've tried and what isn't working</li>
-                        <li>Use proper formatting and code blocks if applicable</li>
-                        <li>Add relevant tags to help others find your question</li>
-                    </ul>
-                </div>
-                <div class="form-group">
-                    <label>Question Title <span class="required">*</span></label>
-                    <input type="text" placeholder="e.g., How to implement a binary search tree efficiently?">
-                </div>
-                <div class="form-group">
-                    <label>Select Course <span class="required">*</span></label>
-                    <select><option>Choose a course...</option><option>CS 201</option></select>
-                </div>
-                <div class="form-group">
-                    <label>Question Details <span class="required">*</span></label>
-                    <textarea placeholder="Provide detailed information..." rows="6"></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Tags (up to 5)</label>
-                    <input type="text" placeholder="Press Enter to add tags">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-secondary" id="cancelAskBtn">Cancel</button>
-                <button class="btn-primary">Post Question</button>
-            </div>
-        </div>
-    </div>
 
     <script src="question.js"></script>
 </body>

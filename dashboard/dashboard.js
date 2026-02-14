@@ -1,14 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- 1. SIDEBAR LOGIC ---
-    const navLinks = document.querySelectorAll('.nav-link');
+    const navLinks = document.querySelectorAll('nav a');
     navLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault(); 
-            navLinks.forEach(n => n.classList.remove('active'));
-            link.classList.add('active');
-        });
+    link.addEventListener('click', () => {
+        navLinks.forEach(n => n.classList.remove('active'));
+        link.classList.add('active');
     });
+});
+
 
     // --- 2. BACKEND DATA ---
     // Note: 'Calculate' is the default value, but if GPA is saved in localStorage, we use it.
@@ -234,18 +234,21 @@ document.addEventListener('DOMContentLoaded', () => {
         if(appLogo) appLogo.src = '../assets/images/logo-light.png';
     }
 
-    themeBtn.addEventListener('click', () => {
-        const html = document.documentElement;
-        const current = html.getAttribute('data-theme');
-        if (current === 'light') {
-            html.setAttribute('data-theme', 'dark');
-            themeIcon.className = 'fa-regular fa-sun';
-            if(appLogo) appLogo.src = '../assets/images/logo-dark.png';
-        } else {
-            html.setAttribute('data-theme', 'light');
-            themeIcon.className = 'fa-regular fa-moon';
-            if(appLogo) appLogo.src = '../assets/images/logo-light.png';
-        }
-    });
+themeBtn.addEventListener('click', () => {
+    const html = document.documentElement;
+    const current = html.getAttribute('data-theme');
+    const newTheme = current === 'light' ? 'dark' : 'light';
+
+    html.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+
+    if (newTheme === 'dark') {
+        themeIcon.className = 'fa-regular fa-sun';
+        if(appLogo) appLogo.src = '../assets/images/logo-dark.png';
+    } else {
+        themeIcon.className = 'fa-regular fa-moon';
+        if(appLogo) appLogo.src = '../assets/images/logo-light.png';
+    }
+});
 
 });

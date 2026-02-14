@@ -175,6 +175,10 @@ body {
 .info-list { display: flex; flex-direction: column; gap: 0.75rem; }
 .info-row { display: flex; justify-content: space-between; font-size: 0.85rem; }
 
+a {
+    text-decoration: none;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
     .sidebar { display: none; }

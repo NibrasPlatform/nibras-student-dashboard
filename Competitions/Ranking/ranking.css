@@ -154,6 +154,10 @@ body { background-color: var(--bg-body); color: var(--text-primary); display: fl
     padding: 4px 12px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; display: inline-block;
 }
 
+a {
+    text-decoration: none;
+}
+
 @media (max-width: 1024px) {
     .sidebar { display: none; }
     .main-content { margin-left: 0; }

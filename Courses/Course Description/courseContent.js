@@ -11,11 +11,13 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (currentTheme === 'light') {
             htmlEl.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
             themeIcon.classList.remove('fa-moon');
             themeIcon.classList.add('fa-sun');
             themeText.textContent = 'Light Mode';
         } else {
             htmlEl.setAttribute('data-theme', 'light');
+            localStorage.setItem('theme', 'light');
             themeIcon.classList.remove('fa-sun');
             themeIcon.classList.add('fa-moon');
             themeText.textContent = 'Dark Mode';

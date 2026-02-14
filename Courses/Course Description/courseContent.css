@@ -190,6 +190,10 @@ body {
 .quick-link:hover { background-color: var(--border-color); }
 .quick-link i { color: var(--accent-blue); width: 16px; }
 
+a {
+    text-decoration: none;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
     .dashboard-grid { grid-template-columns: 1fr; }

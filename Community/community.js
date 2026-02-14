@@ -3,8 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 1. SIDEBAR LOGIC ---
     const navLinks = document.querySelectorAll('.nav-link');
     navLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault(); 
+        link.addEventListener('click', (e) => { 
             navLinks.forEach(n => n.classList.remove('active'));
             link.classList.add('active');
         });
@@ -22,7 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 votes: 12, answers: 3, views: 245, time: "2 hours ago",
                 tags: ["data-structures", "trees", "algorithms"],
                 course: "CS 281",
-                replies: []
+                replies: [],
+                page: "../Community/QuestionID/question.html"
             },
             {
                 id: 2,
@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <div class="q-content">
                         <div class="q-header">
-                            <a href="#" class="q-title" data-id="${q.id}">${q.title}</a>
+                            <a href="${q.page}" class="q-title" data-id="${q.id}">${q.title}</a>
                             <div style="display:flex; align-items:center; gap:8px;">
                                 <i class="fa-regular fa-circle-check" style="color:var(--accent-blue)"></i>
                                 <span class="q-course-badge">${q.course}</span>
@@ -175,7 +175,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         // Handle Title Click (Detail View)
         else if (e.target.classList.contains('q-title')) {
-            e.preventDefault();
             const id = parseInt(e.target.dataset.id);
             // Call your existing openDetailView(id) here
             // Note: Since I merged code, ensure openDetailView is defined in scope or global
@@ -280,10 +279,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const current = html.getAttribute('data-theme');
         if (current === 'light') {
             html.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
             themeIcon.className = 'fa-regular fa-sun';
             if(appLogo) appLogo.src = '../assets/images/logo-dark.png';
         } else {
             html.setAttribute('data-theme', 'light');
+            localStorage.setItem('theme', 'light');
             themeIcon.className = 'fa-regular fa-moon';
             if(appLogo) appLogo.src = '../assets/images/logo-light.png';
         }
