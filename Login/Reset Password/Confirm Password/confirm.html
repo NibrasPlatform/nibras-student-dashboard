@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nibras - Set New Password</title>
+    <script>
+    (function () {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        }
+    })();
+</script>
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <!-- Icons -->
@@ -58,7 +66,7 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn-login" style="margin-top: 1.5rem;">Reset</button>
+                <a href="../Message/message.html" type="submit" class="btn-login" style="margin-top: 1.5rem;">Reset</a>
 
             </form>
 

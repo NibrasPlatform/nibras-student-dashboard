@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nibras - Instructor Sign Up</title>
+    <script>
+    (function () {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        }
+    })();
+</script>
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Icons -->
@@ -24,7 +32,7 @@
     <header class="auth-header">
         <div class="logo-area">
             <!-- Logo must be White because background is dark in both modes -->
-            <img src="../../../Assets/images/logo-dark.png" alt="Nibras Logo" class="auth-logo">
+            <img src="../../../../Assets/images/logo-dark.png" alt="Nibras Logo" class="auth-logo">
         </div>
         
         <!-- Theme Toggle Button -->
@@ -57,17 +65,17 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn-login" style="margin-top: 1.5rem;">Sign Up</button>
+                <a href="../Pending Instructor/pending.html" type="submit" class="btn-login" style="margin-top: 1.5rem;">Sign Up</a>
 
                 <!-- Footer Links -->
                 <div class="signup-link">
                     <span style="color: inherit; opacity: 0.7;">Are You Student ?</span> 
-                    <a href="signup.html">Sign Up</a>
+                    <a href="../../signup.html">Sign Up</a>
                 </div>
 
                 <div class="signup-link" style="margin-top: 0.5rem;">
                     <span style="color: inherit; opacity: 0.7;">Already Have An Account ?</span> 
-                    <a href="login.html">Log In</a>
+                    <a href="../../../loginPage/login.html">Log In</a>
                 </div>
             </form>
 

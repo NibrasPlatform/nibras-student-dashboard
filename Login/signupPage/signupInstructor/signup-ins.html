@@ -17,7 +17,7 @@
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- CSS -->
-    <link rel="stylesheet" href="signup.css">
+    <link rel="stylesheet" href="signup-ins.css">
 </head>
 <body class="signup-page">
 
@@ -32,7 +32,7 @@
     <header class="auth-header">
         <div class="logo-area">
             <!-- Logo is white in both designs -->
-            <img src="../../Assets/images/logo-dark.png" alt="Nibras Logo" class="auth-logo">
+            <img src="../../../Assets/images/logo-dark.png" alt="Nibras Logo" class="auth-logo">
         </div>
         
         <!-- Theme Toggle Button -->
@@ -69,12 +69,12 @@
                     </div>
                 </div>
 
-                <a href="../../Dashboard/dashboard.html" type="submit" class="btn-login" style="margin-top: 1rem;">Sign Up</a>
+                <a href="department/department.html" type="submit" class="btn-login" style="margin-top: 1rem;">Sign Up</a>
 
                 <!-- Role Toggle Link -->
                 <div class="signup-link">
-                    <span id="roleQuestion">Are You Instructor ?</span> 
-                    <a href="signupInstructor/signup-ins.html" id="roleToggleBtn" onclick="toggleRole(event)">Sign Up</a>
+                    <span id="roleQuestion">Are You student ?</span> 
+                    <a href="../signup.html" id="roleToggleBtn" onclick="toggleRole(event)">Sign Up</a>
                 </div>
 
                 <div class="signup-link" style="margin-top: 0.5rem;">
@@ -85,6 +85,6 @@
         </div>
     </div>
 
-    <script src="signup.js"></script>
+    <script src="signup-ins.js"></script>
 </body>
 </html>

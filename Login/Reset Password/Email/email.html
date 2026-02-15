@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nibras - Reset Password</title>
+    <script>
+    (function () {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        }
+    })();
+</script>
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Icons -->
@@ -45,10 +53,10 @@
                     <input type="email" placeholder="name@gmail.com" class="form-control">
                 </div>
 
-                <button type="submit" class="btn-login" style="margin-top: 1.5rem;">Continue</button>
+                <a href="../Confirm Password/confirm.html" type="submit" class="btn-login" style="margin-top: 1.5rem;">Continue</a>
                 
                 <div class="signup-link" style="margin-top: 1rem;">
-                    <a href="login.html" style="font-weight: 500; font-size: 0.9rem;">Back to Login</a>
+                    <a href="../../loginPage/login.html" style="font-weight: 500; font-size: 0.9rem;">Back to Login</a>
                 </div>
 
             </form>

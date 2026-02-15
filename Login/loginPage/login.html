@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nibras - Login</title>
+    <script>
+    (function () {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        }
+    })();
+</script>
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Icons -->
@@ -64,7 +72,7 @@
                     <div class="form-group">
                         <div class="label-row">
                             <label>Password</label>
-                            <a href="#" class="forgot-link">Forgot ?</a>
+                            <a href="../Reset Password/Email/email.html" class="forgot-link">Forgot ?</a>
                         </div>
                         <div class="password-input-wrapper">
                             <input type="password" placeholder="Enter your password" id="passwordInput">
@@ -83,7 +91,7 @@
                     <button type="submit" class="btn-login">Login now</button>
 
                     <div class="signup-link">
-                        Don't Have An Account ? <a href="#">Sign Up</a>
+                        Don't Have An Account ? <a href="../signupPage/signup.html">Sign Up</a>
                     </div>
                 </form>
             </div>

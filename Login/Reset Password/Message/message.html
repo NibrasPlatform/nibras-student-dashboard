@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nibras - Password Reset Successful</title>
+    <script>
+    (function () {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        }
+    })();
+</script>
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <!-- Icons -->
@@ -50,7 +58,7 @@
 
             <div class="divider"></div>
 
-            <a href="login.html" class="btn-login" style="display: block; text-decoration: none; line-height: 1.5;">
+            <a href="../../loginPage/login.html" class="btn-login" style="display: block; text-decoration: none; line-height: 1.5;">
                 Log in
             </a>
 

@@ -17,9 +17,11 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (current === 'light') {
             html.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
             themeIcon.className = 'fa-regular fa-sun';
         } else {
             html.setAttribute('data-theme', 'light');
+            localStorage.setItem('theme', 'light');
             themeIcon.className = 'fa-regular fa-moon';
         }
     });
