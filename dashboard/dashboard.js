@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 isClickable: true    
             }
         ],
-        // NEW: Milestones Data
+        // Milestones Data
         milestones: [
             { title: "E-Commerce Platform", completed: 60, status: "On Track", color: "#3b82f6", due: "Jan 15" },
             { title: "Portfolio Website", completed: 85, status: "Reviewing", color: "#10b981", due: "Dec 20" },
@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // NEW: Render Milestones
+    // Render Milestones
     function renderMilestones(milestones) {
         const container = document.getElementById('milestone-container');
         container.innerHTML = '';
