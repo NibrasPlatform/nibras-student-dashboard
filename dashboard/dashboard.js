@@ -1,17 +1,17 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- 1. SIDEBAR LOGIC ---
-    const navLinks = document.querySelectorAll('nav a');
+    const navLinks = document.querySelectorAll('.nav-link'); // Fixed selector
     navLinks.forEach(link => {
-    link.addEventListener('click', () => {
-        navLinks.forEach(n => n.classList.remove('active'));
-        link.classList.add('active');
+        link.addEventListener('click', (e) => {
+             // Removed preventDefault so links work
+             // e.preventDefault(); 
+            navLinks.forEach(n => n.classList.remove('active'));
+            link.classList.add('active');
+        });
     });
-});
-
 
     // --- 2. BACKEND DATA ---
-    // Note: 'Calculate' is the default value, but if GPA is saved in localStorage, we use it.
     const savedGPA = localStorage.getItem('calculatedGPA');
     
     const dashboardData = {
@@ -21,7 +21,6 @@ document.addEventListener('DOMContentLoaded', () => {
             { label: "Problems Solved", value: "142", icon: "fa-solid fa-bullseye", color: "orange" },
             { label: "Contest Rating", value: "1,847", icon: "fa-solid fa-heart", color: "green" },
             { label: "Study Streak", value: "12 days", icon: "fa-regular fa-clock", color: "blue" },
-            // NEW GPA CARD
             { 
                 label: "Total GPA", 
                 value: savedGPA ? `${savedGPA}/4.0` : "Calculate", 
@@ -30,6 +29,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 id: "gpa-box",       
                 isClickable: true    
             }
+        ],
+        // NEW: Milestones Data
+        milestones: [
+            { title: "E-Commerce Platform", completed: 60, status: "On Track", color: "#3b82f6", due: "Jan 15" },
+            { title: "Portfolio Website", completed: 85, status: "Reviewing", color: "#10b981", due: "Dec 20" },
+            { title: "AI Chatbot", completed: 30, status: "At Risk", color: "#f59e0b", due: "Dec 25" }
         ],
         activities: [
             { title: "Data Structures Assignment 3", sub: "CS 201", tag: "2 days", tagColor: "#2563eb", borderColor: "#f59e0b" },
@@ -92,11 +97,9 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         });
 
-        // Initialize GPA Modal Event Listeners
         initGPAModal();
-
-        // Render Lists
         renderLists(data);
+        renderMilestones(data.milestones); // Call new render function
     }
 
     function renderLists(data) {
@@ -129,6 +132,34 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // NEW: Render Milestones
+    function renderMilestones(milestones) {
+        const container = document.getElementById('milestone-container');
+        container.innerHTML = '';
+        
+        milestones.forEach(ms => {
+            let statusClass = 'status-track';
+            if(ms.status === 'Reviewing' || ms.completed > 90) statusClass = 'status-completed';
+            if(ms.status === 'At Risk') statusClass = 'status-atrisk';
+
+            container.innerHTML += `
+                <div class="milestone-item">
+                    <div class="ms-header">
+                        <span class="ms-title">${ms.title}</span>
+                        <span class="ms-percentage">${ms.completed}%</span>
+                    </div>
+                    <div class="ms-bar-track">
+                        <div class="ms-bar-fill" style="width: ${ms.completed}%; background-color: ${ms.color}"></div>
+                    </div>
+                    <div class="ms-meta">
+                        <span class="ms-status ${statusClass}">${ms.status}</span>
+                        <span>Due: ${ms.due}</span>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
     // --- 4. GPA CALCULATOR LOGIC ---
     function initGPAModal() {
         const gpaBox = document.getElementById('gpa-box');
@@ -143,22 +174,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!gpaBox) return;
 
-        // Open Modal
-        gpaBox.addEventListener('click', () => {
-            gpaModal.style.display = 'flex';
-        });
+        gpaBox.addEventListener('click', () => { gpaModal.style.display = 'flex'; });
+        closeBtn.addEventListener('click', () => { gpaModal.style.display = 'none'; });
+        window.addEventListener('click', (e) => { if (e.target === gpaModal) gpaModal.style.display = 'none'; });
 
-        // Close Modal
-        closeBtn.addEventListener('click', () => {
-            gpaModal.style.display = 'none';
-        });
-
-        // Close on Click Outside
-        window.addEventListener('click', (e) => {
-            if (e.target === gpaModal) gpaModal.style.display = 'none';
-        });
-
-        // Add New Course Row
         addCourseBtn.addEventListener('click', () => {
             const row = document.createElement('div');
             row.className = 'course-input-row';
@@ -183,17 +202,13 @@ document.addEventListener('DOMContentLoaded', () => {
             courseInputs.appendChild(row);
         });
 
-        // Calculate Logic
         calculateBtn.addEventListener('click', () => {
             const rows = document.querySelectorAll('.course-input-row');
-            let totalPoints = 0;
-            let totalCredits = 0;
-            let count = 0;
+            let totalPoints = 0, totalCredits = 0, count = 0;
 
             rows.forEach(row => {
                 const grade = parseFloat(row.querySelector('.course-grade').value);
                 const credits = parseInt(row.querySelector('.course-credits').value);
-
                 if (!isNaN(grade) && !isNaN(credits) && credits > 0) {
                     totalPoints += (grade * credits);
                     totalCredits += credits;
@@ -201,23 +216,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            if (count === 0 || totalCredits === 0) {
-                alert("Please enter valid grades and credits for at least one course.");
-                return;
-            }
-
-            const gpa = totalPoints / totalCredits;
-            const finalGPA = gpa.toFixed(2);
-
-            // Update Modal UI
+            if (count === 0 || totalCredits === 0) { alert("Please enter valid data."); return; }
+            
+            const finalGPA = (totalPoints / totalCredits).toFixed(2);
             gpaResultValue.textContent = finalGPA;
             gpaResultDetails.innerHTML = `<span>${count} Courses</span> <span>${totalCredits} Credits</span>`;
             gpaResult.style.display = 'block';
-
-            // Update Dashboard Card
             document.getElementById('gpa-box-value').textContent = `${finalGPA}/4.0`;
-
-            // Persist
             localStorage.setItem('calculatedGPA', finalGPA);
         });
     }
@@ -234,21 +239,21 @@ document.addEventListener('DOMContentLoaded', () => {
         if(appLogo) appLogo.src = '../assets/images/logo-light.png';
     }
 
-themeBtn.addEventListener('click', () => {
-    const html = document.documentElement;
-    const current = html.getAttribute('data-theme');
-    const newTheme = current === 'light' ? 'dark' : 'light';
+    themeBtn.addEventListener('click', () => {
+        const html = document.documentElement;
+        const current = html.getAttribute('data-theme');
+        const newTheme = current === 'light' ? 'dark' : 'light';
 
-    html.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
+        html.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
 
-    if (newTheme === 'dark') {
-        themeIcon.className = 'fa-regular fa-sun';
-        if(appLogo) appLogo.src = '../assets/images/logo-dark.png';
-    } else {
-        themeIcon.className = 'fa-regular fa-moon';
-        if(appLogo) appLogo.src = '../assets/images/logo-light.png';
-    }
-});
+        if (newTheme === 'dark') {
+            themeIcon.className = 'fa-regular fa-sun';
+            if(appLogo) appLogo.src = '../assets/images/logo-dark.png';
+        } else {
+            themeIcon.className = 'fa-regular fa-moon';
+            if(appLogo) appLogo.src = '../assets/images/logo-light.png';
+        }
+    });
 
 });

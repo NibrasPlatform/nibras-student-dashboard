@@ -9,9 +9,11 @@
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme) {
             document.documentElement.setAttribute('data-theme', savedTheme);
+        } else {
+            document.documentElement.setAttribute('data-theme', 'light');
         }
     })();
-</script>
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="dashboard.css">
@@ -108,6 +110,18 @@
 
                 <!-- Right Column -->
                 <div class="dash-right">
+                    
+                    <!-- Project Milestones Card -->
+                    <section class="card project-milestone-card">
+                        <div class="section-header" style="margin-bottom: 1rem;">
+                            <h3>Active Projects</h3>
+                            <p class="section-sub">Track your key milestones</p>
+                        </div>
+                        <div class="milestone-list" id="milestone-container">
+                            <!-- JS Injected -->
+                        </div>
+                    </section>
+
                     <section class="card">
                         <div class="section-header">
                             <h3>Upcoming Deadlines</h3>
@@ -128,7 +142,7 @@
         </div>
     </main>
 
-    <!-- GPA CALCULATOR MODAL -->
+    <!-- GPA Modal (Same as before) -->
     <div class="gpa-modal" id="gpaModal">
         <div class="gpa-modal-content">
             <div class="gpa-modal-header">
@@ -139,7 +153,6 @@
                 <div class="gpa-input-section">
                     <p class="gpa-desc">Add your courses to calculate your semester GPA.</p>
                     <div class="course-inputs" id="courseInputs">
-                        <!-- Initial Row -->
                         <div class="course-input-row">
                             <input type="text" placeholder="Course Name" class="course-name">
                             <select class="course-grade">
