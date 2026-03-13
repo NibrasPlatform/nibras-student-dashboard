@@ -3,93 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- [: Output Dynamic Page Title] -->
     <title>Course Projects Platform</title>
+    
+    <!-- Theme Initialization Script to prevent FOUC -->
     <script>
-    (function () {
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) {
-            document.documentElement.setAttribute('data-theme', savedTheme);
-        }
-    })();
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            }
+        })();
     </script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- External CSS -->
     <link rel="stylesheet" href="Projects.css">
 </head>
 <body>
 
     <!-- SIDEBAR -->
     <aside class="sidebar">
-        <div class="course-info">
+        <div class="sidebar-header">
             <h2>Course Content</h2>
-            <!-- [: Output dynamic progress numbers] -->
-            <p class="progress-text">2 of 8 lectures completed</p>
-            <!-- [: Set width inline dynamically, e.g. width: {{ progress_percentage }}%] -->
-            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 25%;"></div></div>
+            <div class="sidebar-progress">
+                <!-- [BACKEND: Output dynamic progress numbers] -->
+                <span class="progress-text">2 of 8 lectures completed</span>
+                <div class="progress-bar-container">
+                    <!-- [BACKEND: Set width inline dynamically] -->
+                    <div class="progress-fill" style="width: 25%"></div>
+                </div>
+            </div>
         </div>
-        
-        <ul class="nav-links">
-            <li>
-                <!-- [: Add logic to conditionally apply 'active' class based on current route] -->
-                <a href="../Course Description/courseContent.html">
-                    <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/></svg> 
-                    Course Overview
+
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="../Course Description/courseContent.html" class="nav-link">
+                    <i class="fa-solid fa-book-open"></i> Course Overview
                 </a>
             </li>
-            <li>
-                <a href="../Videos/videos.html">
-                    <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"/></svg> 
-                    Videos
+            <li class="nav-item">
+                <a href="../Videos/videos.html" class="nav-link">
+                    <i class="fa-solid fa-video"></i> Videos
                 </a>
             </li>
-            <li>
-                <a href="../Assignments/Assignments.html">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg> 
-                    Assignments
+            <li class="nav-item">
+                <a href="../Assignments/assignments.html" class="nav-link">
+                    <i class="fa-regular fa-file-lines"></i> Assignments
                 </a>
             </li>
-            <li class="active">
-                <a href="../Projects/projects.html">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg> 
-                    Projects
+            <li class="nav-item">
+                <!-- Active Class on Projects -->
+                <a href="../Projects/projects.html" class="nav-link active">
+                    <i class="fa-regular fa-folder"></i> Projects
                 </a>
             </li>
-            <li>
-                <a href="../Grades/grades.html">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 15a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/><path d="M10.5 14.5 8 21l4-2 4 2-2.5-6.5"/></svg> 
-                    Grades
+            <li class="nav-item">
+                <a href="../Grades/grades.html" class="nav-link">
+                    <i class="fa-solid fa-award"></i> Grades
                 </a>
             </li>
         </ul>
-        <div class="sidebar-bottom">
-            <button class="return-btn" onclick="window.location.href='/dashboard'">
-                <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> 
+
+        <div class="sidebar-footer">
+            <a href="../courses.html" class="back-btn">
+                <i class="fa-solid fa-arrow-left-long" style="margin-right:8px"></i>
                 Return to Courses
-            </button>
-            <div class="sidebar-course-title">CS 101: Web Development</div>
-            <div class="sidebar-footer-text">Fall 2024 • Week 4</div>
+            </a>
+            <div class="course-meta">
+                <!-- [BACKEND: Output Course Name & Term] -->
+                <h4>CS 101: Web Development</h4>
+                <span>Fall 2024 • Week 4</span>
+            </div>
         </div>
     </aside>
 
     <!-- MAIN CONTENT -->
     <main class="main-content">
+        
+        <!-- TOP BAR (Theme Toggle) -->
+        <div class="top-bar">
+            <div class="breadcrumbs"></div> 
+            <button class="theme-toggle-btn" id="themeBtn">
+                <i class="fa-solid fa-sun"></i> <span>Light Mode</span>
+            </button>
+        </div>
+
         <!-- Header -->
         <header class="page-header">
-            <div class="header-title">
-                <h1>Projects</h1>
-                <!-- [: Output Course Name & Term] -->
-                <p>CS 101: Web Development • Fall 2024</p>
-            </div>
-            <div class="header-actions">
-                <div class="overall-progress-header">
-                    <p>Overall Progress</p>
-                    <div class="pct"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> 
-                        <!-- [: Output Total Course Progress %] -->
+            <div class="header-top-row" style="margin-bottom:0;">
+                <div class="header-titles">
+                    <h1>Projects</h1>
+                    <!-- [BACKEND: Output Course Name & Term] -->
+                    <p>CS 101: Web Development • Fall 2024</p>
+                </div>
+                <div class="header-stats">
+                    <div class="stat-line">
+                        <span>Overall Progress</span>
+                    </div>
+                    <div class="stat-line secondary" style="font-size: 14px; font-weight: 500; color: var(--text-primary);">
+                        <i class="fa-solid fa-chart-line" style="margin-right: 4px; color: var(--text-secondary);"></i> 
+                        <!-- [BACKEND: Output Total Course Progress %] -->
                         60% Complete
                     </div>
                 </div>
-                <button class="theme-toggle" id="themeToggle" title="Toggle Dark/Light Mode">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="themeIcon"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
-                </button>
             </div>
         </header>
 
@@ -106,8 +125,7 @@
             
             <!-- Project Cards (Tabs) -->
             <div class="project-tabs-list" id="projectListTabs">
-                <!-- [ LOOP THROUGH STUDENT'S PROJECTS] -->
-                <!-- Use dynamic ID in the selectProject function parameter (e.g. 'project-{{ project.id }}') -->
+                <!-- [BACKEND: LOOP THROUGH STUDENT'S PROJECTS] -->
                 <div class="project-card-tab active" onclick="selectProject('project-1', event)">
                     <h3>E-Commerce Platform Development</h3>
                     <p>👥 Team • 30% of final grade</p>
@@ -117,15 +135,14 @@
                     <h3>Advanced Portfolio Website</h3>
                     <p>👤 Individual • 20% of final grade</p>
                 </div>
-                <!-- [ END LOOP] -->
+                <!-- [BACKEND: END LOOP] -->
             </div>
 
             <!-- ========================================== -->
             <!-- PROJECT DETAILS CONTAINERS                 -->
             <!-- ========================================== -->
-            <!-- [ LOOP THROUGH STUDENT'S PROJECTS AGAIN TO GENERATE DETAILS] -->
             
-            <!-- Project 1 Details (ID matches the onclick event above) -->
+            <!-- Project 1 Details -->
             <div id="project-1" class="project-details active">
                 <div class="two-col-grid">
                     
@@ -134,7 +151,7 @@
                         <!-- Project Overview -->
                         <div class="card">
                             <div class="card-header"><div class="card-title">Project Overview</div></div>
-                            <h3 style="margin-bottom: 12px; font-weight: 500;">E-Commerce Platform Development</h3>
+                            <h3 style="margin-bottom: 12px; font-weight: 600;">E-Commerce Platform Development</h3>
                             <p class="section-desc">Build a full-stack e-commerce web application with user authentication, product catalog, shopping cart, and payment integration.</p>
                             
                             <div class="meta-grid">
@@ -148,7 +165,6 @@
                                 </div>
                                 <div class="meta-item" style="grid-column: span 2;">
                                     <h4>Duration</h4>
-                                    <!-- [ Format Dates] -->
                                     <p>Nov 1, 2024 → Jan 15, 2025</p>
                                 </div>
                             </div>
@@ -156,11 +172,9 @@
                             <div class="meta-item">
                                 <h4 style="margin-bottom: 12px;">Team Members</h4>
                                 <div class="team-members">
-                                    <!-- [ LOOP THROUGH TEAM MEMBERS] -->
                                     <div class="team-member"><div class="avatar">SJ</div> Sarah Johnson</div>
                                     <div class="team-member"><div class="avatar" style="background:var(--accent-blue)">MC</div> Michael Chen</div>
                                     <div class="team-member"><div class="avatar" style="background:var(--accent-blue)">ED</div> Emma Davis</div>
-                                    <!-- [ END LOOP] -->
                                 </div>
                             </div>
                         </div>
@@ -173,46 +187,51 @@
                             </div>
                             
                             <div class="timeline">
-                                <!-- [ LOOP THROUGH MILESTONES] -->
-                                
-                                <!-- Milestone Output Example (Approved status) -->
+                                <!-- Milestone (Approved) -->
                                 <div class="milestone">
-                                    <!-- [dynamically output class 'approved', 'submitted', or 'pending'] -->
-                                    <div class="m-icon approved"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></div>
+                                    <div class="m-icon m-graded"><i class="fa-solid fa-check"></i></div>
                                     <div class="m-content">
                                         <div class="m-header">
                                             <h4>Project Proposal</h4>
-                                            <!-- [ dynamic status class and text] -->
-                                            <span class="chip approved">Approved</span>
+                                            <span class="status-badge badge-graded">Approved</span>
                                         </div>
                                         <p class="m-desc">Submit detailed project proposal with wireframes and tech stack</p>
-                                        <div class="m-meta"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg> Nov 8, 2024</div>
+                                        <div class="m-meta"><i class="fa-regular fa-calendar"></i> Nov 8, 2024</div>
                                     </div>
                                 </div>
 
-                                <!-- Milestone Output Example (Pending status requiring user action) -->
+                                <!-- Milestone (Submitted) -->
                                 <div class="milestone">
-                                    <div class="m-icon pending"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>
+                                    <div class="m-icon m-submitted"><i class="fa-solid fa-arrow-up-from-bracket"></i></div>
+                                    <div class="m-content">
+                                        <div class="m-header">
+                                            <h4>Frontend Development</h4>
+                                            <span class="status-badge badge-submitted">Submitted</span>
+                                        </div>
+                                        <p class="m-desc">Implement UI components and integrate with backend</p>
+                                        <div class="m-meta"><i class="fa-regular fa-calendar"></i> Dec 15, 2024</div>
+                                    </div>
+                                </div>
+
+                                <!-- Milestone (Pending) -->
+                                <div class="milestone">
+                                    <div class="m-icon m-default"><i class="fa-solid fa-clock"></i></div>
                                     <div class="m-content">
                                         <div class="m-header">
                                             <h4>Testing & Deployment</h4>
-                                            <span class="chip pending">Pending</span>
+                                            <span class="status-badge badge-default">Pending</span>
                                         </div>
                                         <p class="m-desc">Complete testing, bug fixes, and deploy to production</p>
-                                        <div class="m-meta" style="margin-bottom: 12px;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg> Jan 8, 2025</div>
-                                        <!-- [ Pass dynamic Milestone ID and Project ID to JS function] -->
-                                        <button class="btn btn-primary" onclick="openSubmissionModal(1, 4)">Submit</button>
+                                        <div class="m-meta" style="margin-bottom: 12px;"><i class="fa-regular fa-calendar"></i> Jan 8, 2025</div>
+                                        <button class="btn btn-primary" onclick="openSubmissionModal(1, 4)">Submit Milestone</button>
                                     </div>
                                 </div>
-                                
-                                <!-- [ END MILESTONE LOOP] -->
                             </div>
                         </div>
 
                         <!-- Final Submission -->
                         <div class="card">
                             <div class="card-title" style="margin-bottom: 8px;">Final Project Submission</div>
-                            <!-- [ Pass 'final' type and Project ID] -->
                             <div class="final-submission-box" onclick="openSubmissionModal(1, 'final')">
                                 Click to submit final project
                             </div>
@@ -225,8 +244,9 @@
                         <div class="card progress-widget">
                             <div class="card-header" style="margin-bottom: 12px;"><div class="card-title">Overall Progress</div></div>
                             <div class="p-row"><span>Completion</span><span>60%</span></div>
-                            <!-- [ Set width inline dynamically] -->
-                            <div class="p-bar"><div class="p-fill" style="width: 60%;"></div></div>
+                            <div class="progress-bar-container" style="margin-bottom: 16px;">
+                                <div class="progress-fill" style="width: 60%;"></div>
+                            </div>
                             <div class="stat-row"><span>Approved Milestones</span><span class="stat-val green">2/5</span></div>
                             <div class="stat-row"><span>Days Remaining</span><span class="stat-val">28</span></div>
                         </div>
@@ -235,12 +255,10 @@
                         <div class="card">
                             <div class="card-header" style="margin-bottom: 16px;"><div class="card-title">Grading Breakdown</div></div>
                             <ul class="grading-list">
-                                <!-- [ LOOP THROUGH RUBRIC CRITERIA] -->
                                 <li><span>Technical Implementation</span><span>40%</span></li>
                                 <li><span>Design & UX</span><span>25%</span></li>
                                 <li><span>Documentation</span><span>20%</span></li>
                                 <li><span>Presentation</span><span>15%</span></li>
-                                <!-- [ END LOOP] -->
                             </ul>
                         </div>
 
@@ -248,10 +266,9 @@
                         <div class="card">
                             <div class="card-header" style="margin-bottom: 16px;"><div class="card-title">Resources</div></div>
                             <ul class="resource-list">
-                                <!-- [ LOOP THROUGH RESOURCES] -->
-                                <li><a href="/downloads/guidelines.pdf"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg> Project Guidelines</a></li>
-                                <li><a href="/downloads/template.zip"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg> Submission Template</a></li>
-                                <!-- [ END LOOP] -->
+                                <li><a href="#"><i class="fa-solid fa-file-pdf"></i> Project Guidelines</a></li>
+                                <li><a href="#"><i class="fa-solid fa-file-zipper"></i> Submission Template</a></li>
+                                <li><a href="#"><i class="fa-solid fa-link"></i> Example Projects</a></li>
                             </ul>
                         </div>
                     </div>
@@ -268,7 +285,6 @@
                     </div>
                 </div>
             </div>
-            <!-- [ END LOOP FOR PROJECT DETAILS] -->
 
         </section>
 
@@ -278,7 +294,6 @@
         <section class="view-section" id="group-view">
             <div class="card">
                 <div class="card-header">
-                    <!-- [ Output dynamic active project team name] -->
                     <div class="card-title">Group Workspace: E-Commerce Platform</div>
                     <button class="btn btn-primary">Add Contribution Note</button>
                 </div>
@@ -295,29 +310,27 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- [ LOOP THROUGH TEAM MEMBERS' CONTRIBUTIONS] -->
                         <tr>
                             <td><div class="team-member" style="border:none; padding:0"><div class="avatar">SJ</div> Sarah Johnson</div></td>
                             <td>Project Manager / Fullstack</td>
                             <td>Set up Next.js boilerplate, created Jira tickets</td>
                             <td>12 hrs</td>
-                            <td><span class="chip approved">On Track</span></td>
+                            <td><span class="status-badge badge-graded">On Track</span></td>
                         </tr>
                         <tr>
                             <td><div class="team-member" style="border:none; padding:0"><div class="avatar">MC</div> Michael Chen</div></td>
                             <td>Backend Lead</td>
                             <td>Designed Postgres Schema & Prisma models</td>
                             <td>15 hrs</td>
-                            <td><span class="chip approved">On Track</span></td>
+                            <td><span class="status-badge badge-graded">On Track</span></td>
                         </tr>
                         <tr>
                             <td><div class="team-member" style="border:none; padding:0"><div class="avatar">ED</div> Emma Davis</div></td>
                             <td>UI/UX & Frontend</td>
                             <td>Figma wireframes and Tailwind setup</td>
                             <td>10 hrs</td>
-                            <td><span class="chip pending">Needs Review</span></td>
+                            <td><span class="status-badge badge-late">Needs Review</span></td>
                         </tr>
-                        <!-- [ END LOOP] -->
                     </tbody>
                 </table>
             </div>
@@ -328,8 +341,6 @@
     <!-- ========================================== -->
     <!-- MODALS (Backend Ready Form)                -->
     <!-- ========================================== -->
-
-    <!-- Submit Milestone Modal -->
     <div class="modal-overlay" id="submissionModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -337,10 +348,7 @@
                 <button class="close-btn" onclick="closeModal('submissionModal')" type="button">&times;</button>
             </div>
             
-            <!-- [ Set proper action URL. Variables populated by JS] -->
             <form id="milestoneSubmitForm" action="/api/submit-milestone" method="POST">
-                
-                <!-- Hidden fields for backend identification -->
                 <input type="hidden" name="project_id" id="modal_project_id" value="">
                 <input type="hidden" name="milestone_id" id="modal_milestone_id" value="">
                 <input type="hidden" name="is_draft" id="modal_is_draft" value="0">
@@ -366,13 +374,11 @@
 
                 <div class="form-group" style="display: flex; gap: 8px; align-items: center; font-size: 13px;">
                     <input type="checkbox" name="rubric_confirmed" id="rubricCheck" value="1" style="width: auto;" required> 
-                    <label for="rubricCheck" style="margin:0; font-weight: normal;">I confirm all rubric requirements are met.</label>
+                    <label for="rubricCheck" style="margin:0; font-weight: normal; color: var(--text-primary);">I confirm all rubric requirements are met.</label>
                 </div>
 
                 <div class="modal-footer">
-                    <!-- Standard button acts as draft trigger via JS -->
                     <button type="button" class="btn btn-outline" onclick="submitAsDraft()">Save Draft</button>
-                    <!-- Submit button natively triggers the form POST -->
                     <button type="submit" class="btn btn-primary">Submit Milestone</button>
                 </div>
             </form>
