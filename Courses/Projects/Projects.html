@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Projects Dashboard</title>
+    <!-- [: Output Dynamic Page Title] -->
+    <title>Course Projects Platform</title>
     <script>
     (function () {
         const savedTheme = localStorage.getItem('theme');
@@ -11,194 +12,374 @@
             document.documentElement.setAttribute('data-theme', savedTheme);
         }
     })();
-</script>
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- CSS -->
+    </script>
     <link rel="stylesheet" href="Projects.css">
 </head>
 <body>
 
     <!-- SIDEBAR -->
     <aside class="sidebar">
-        <div class="sidebar-header">
+        <div class="course-info">
             <h2>Course Content</h2>
-            <div class="sidebar-progress">
-                <span class="progress-text">2 of 8 lectures completed</span>
-                <div class="progress-bar-container">
-                    <div class="progress-fill" style="width: 25%"></div>
-                </div>
-            </div>
+            <!-- [: Output dynamic progress numbers] -->
+            <p class="progress-text">2 of 8 lectures completed</p>
+            <!-- [: Set width inline dynamically, e.g. width: {{ progress_percentage }}%] -->
+            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 25%;"></div></div>
         </div>
-
-        <ul class="nav-menu">
-            <li class="nav-item"><a href="../Course Description/courseContent.html" class="nav-link"><i class="fa-solid fa-book-open"></i> Course Overview</a></li>
-            <li class="nav-item"><a href="../Videos/videos.html" class="nav-link"><i class="fa-solid fa-video"></i> Videos</a></li>
-            <li class="nav-item"><a href="../Assignments/Assignments.html" class="nav-link"><i class="fa-regular fa-file-lines"></i> Assignments</a></li>
-            <li class="nav-item"><a href="../Projects/projects.html" class="nav-link active"><i class="fa-regular fa-folder"></i> Projects</a></li>
-            <li class="nav-item"><a href="../Grades/grades.html" class="nav-link"><i class="fa-solid fa-award"></i> Grades</a></li>
+        
+        <ul class="nav-links">
+            <li>
+                <!-- [: Add logic to conditionally apply 'active' class based on current route] -->
+                <a href="../Course Description/courseContent.html">
+                    <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/></svg> 
+                    Course Overview
+                </a>
+            </li>
+            <li>
+                <a href="../Videos/videos.html">
+                    <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"/></svg> 
+                    Videos
+                </a>
+            </li>
+            <li>
+                <a href="../Assignments/Assignments.html">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg> 
+                    Assignments
+                </a>
+            </li>
+            <li class="active">
+                <a href="../Projects/projects.html">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg> 
+                    Projects
+                </a>
+            </li>
+            <li>
+                <a href="../Grades/grades.html">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 15a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/><path d="M10.5 14.5 8 21l4-2 4 2-2.5-6.5"/></svg> 
+                    Grades
+                </a>
+            </li>
         </ul>
-
-        <div class="sidebar-footer">
-        <a href="../courses.html" class="back-btn">
-                <i class="fa-solid fa-arrow-left-long" style="margin-right:8px"></i>
-                    Return to Courses
-        </a>
-            <div class="course-meta">
-                <h4>CS 101: Web Development</h4>
-                <span>Fall 2024 • Week 4</span>
-            </div>
+        <div class="sidebar-bottom">
+            <button class="return-btn" onclick="window.location.href='/dashboard'">
+                <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> 
+                Return to Courses
+            </button>
+            <div class="sidebar-course-title">CS 101: Web Development</div>
+            <div class="sidebar-footer-text">Fall 2024 • Week 4</div>
         </div>
     </aside>
 
     <!-- MAIN CONTENT -->
     <main class="main-content">
-        
-        <!-- TOP BAR (Toggle Button) -->
-        <div class="top-bar">
-            <div class="breadcrumbs"></div> <!-- Spacer -->
-            <button class="theme-toggle-btn" id="themeBtn">
-                <i class="fa-solid fa-sun"></i> <span>Light Mode</span>
-            </button>
-        </div>
-
-        <!-- Page Header -->
-        <div class="page-header">
-            <div class="header-text">
+        <!-- Header -->
+        <header class="page-header">
+            <div class="header-title">
                 <h1>Projects</h1>
+                <!-- [: Output Course Name & Term] -->
                 <p>CS 101: Web Development • Fall 2024</p>
             </div>
-            <div class="header-progress-indicator">
-                <div class="progress-label">Overall Progress</div>
-                <div class="progress-val"><i class="fa-regular fa-circle-check"></i> <span id="header-progress-txt">0% Complete</span></div>
+            <div class="header-actions">
+                <div class="overall-progress-header">
+                    <p>Overall Progress</p>
+                    <div class="pct"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> 
+                        <!-- [: Output Total Course Progress %] -->
+                        60% Complete
+                    </div>
+                </div>
+                <button class="theme-toggle" id="themeToggle" title="Toggle Dark/Light Mode">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="themeIcon"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                </button>
             </div>
+        </header>
+
+        <!-- View Context Switcher -->
+        <div class="context-tabs">
+            <button class="context-tab active" onclick="switchView('my-projects-view', event)">My Projects</button>
+            <button class="context-tab" onclick="switchView('group-view', event)">Group Workspace</button>
         </div>
 
-        <!-- Project Selection Tabs -->
-        <div class="project-tabs" id="project-tabs-container">
-            <!-- JS Injected -->
-        </div>
-
-        <div class="dashboard-grid">
+        <!-- ========================================== -->
+        <!-- VIEW 1: MY PROJECTS (Default)              -->
+        <!-- ========================================== -->
+        <section class="view-section active" id="my-projects-view">
             
-            <!-- LEFT COLUMN -->
-            <div class="left-column">
+            <!-- Project Cards (Tabs) -->
+            <div class="project-tabs-list" id="projectListTabs">
+                <!-- [ LOOP THROUGH STUDENT'S PROJECTS] -->
+                <!-- Use dynamic ID in the selectProject function parameter (e.g. 'project-{{ project.id }}') -->
+                <div class="project-card-tab active" onclick="selectProject('project-1', event)">
+                    <h3>E-Commerce Platform Development</h3>
+                    <p>👥 Team • 30% of final grade</p>
+                </div>
                 
-                <!-- Project Overview -->
-                <section class="card">
-                    <div class="card-header-simple">
-                        <h3>Project Overview</h3>
-                    </div>
-                    <div class="overview-content">
-                        <h2 id="proj-title">Loading...</h2>
-                        <p id="proj-desc">...</p>
-                        
-                        <div class="meta-grid">
-                            <div class="meta-box">
-                                <span class="meta-label">Grade Weight</span>
-                                <span class="meta-value" id="proj-weight">...</span>
-                            </div>
-                            <div class="meta-box">
-                                <span class="meta-label">Duration</span>
-                                <span class="meta-value" id="proj-duration">...</span>
-                            </div>
-                            <div class="meta-box">
-                                <span class="meta-label">Supervisor</span>
-                                <span class="meta-value" id="proj-supervisor">...</span>
-                            </div>
-                        </div>
-
-                        <div class="team-section">
-                            <span class="meta-label">Team Members</span>
-                            <div class="team-list" id="team-container">
-                                <!-- JS Injected -->
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Milestones & Phases -->
-                <section class="card">
-                    <div class="card-header-flex">
-                        <h3>Milestones & Phases</h3>
-                        <span class="header-sub" id="milestones-count">0 of 0 completed</span>
-                    </div>
-                    
-                    <div class="timeline-container" id="timeline-container">
-                        <!-- JS Injected -->
-                    </div>
-                </section>
-
-                <!-- Final Submission -->
-                <section class="card">
-                    <div class="card-header-simple">
-                        <h3>Final Project Submission</h3>
-                    </div>
-                    <div class="submission-area">
-                        <button class="dashed-btn">
-                            Click to submit final project
-                        </button>
-                    </div>
-                </section>
-
+                <div class="project-card-tab" onclick="selectProject('project-2', event)">
+                    <h3>Advanced Portfolio Website</h3>
+                    <p>👤 Individual • 20% of final grade</p>
+                </div>
+                <!-- [ END LOOP] -->
             </div>
 
-            <!-- RIGHT COLUMN -->
-            <div class="right-column">
-                
-                <!-- Overall Progress -->
-                <section class="card">
-                    <div class="card-header-simple">
-                        <h3>Overall Progress</h3>
-                    </div>
+            <!-- ========================================== -->
+            <!-- PROJECT DETAILS CONTAINERS                 -->
+            <!-- ========================================== -->
+            <!-- [ LOOP THROUGH STUDENT'S PROJECTS AGAIN TO GENERATE DETAILS] -->
+            
+            <!-- Project 1 Details (ID matches the onclick event above) -->
+            <div id="project-1" class="project-details active">
+                <div class="two-col-grid">
                     
-                    <div class="progress-row">
-                        <span>Completion</span>
-                        <span id="right-progress-txt">0%</span>
-                    </div>
-                    <div class="progress-bar-track">
-                        <div class="progress-bar-fill" id="right-progress-fill" style="width: 0%"></div>
-                    </div>
-                    
-                    <div class="stats-list">
-                        <div class="stat-item border-bottom">
-                            <span>Approved Milestones</span>
-                            <span class="stat-green" id="stat-approved">0/0</span>
+                    <!-- Left Column -->
+                    <div class="left-col">
+                        <!-- Project Overview -->
+                        <div class="card">
+                            <div class="card-header"><div class="card-title">Project Overview</div></div>
+                            <h3 style="margin-bottom: 12px; font-weight: 500;">E-Commerce Platform Development</h3>
+                            <p class="section-desc">Build a full-stack e-commerce web application with user authentication, product catalog, shopping cart, and payment integration.</p>
+                            
+                            <div class="meta-grid">
+                                <div class="meta-item">
+                                    <h4>Grade Weight</h4>
+                                    <p>30% of final grade</p>
+                                </div>
+                                <div class="meta-item">
+                                    <h4>Supervisor</h4>
+                                    <p>Prof. Jane Smith</p>
+                                </div>
+                                <div class="meta-item" style="grid-column: span 2;">
+                                    <h4>Duration</h4>
+                                    <!-- [ Format Dates] -->
+                                    <p>Nov 1, 2024 → Jan 15, 2025</p>
+                                </div>
+                            </div>
+
+                            <div class="meta-item">
+                                <h4 style="margin-bottom: 12px;">Team Members</h4>
+                                <div class="team-members">
+                                    <!-- [ LOOP THROUGH TEAM MEMBERS] -->
+                                    <div class="team-member"><div class="avatar">SJ</div> Sarah Johnson</div>
+                                    <div class="team-member"><div class="avatar" style="background:var(--accent-blue)">MC</div> Michael Chen</div>
+                                    <div class="team-member"><div class="avatar" style="background:var(--accent-blue)">ED</div> Emma Davis</div>
+                                    <!-- [ END LOOP] -->
+                                </div>
+                            </div>
                         </div>
-                        <div class="stat-item">
-                            <span>Days Remaining</span>
-                            <span id="stat-days">0</span>
+
+                        <!-- Milestones & Phases -->
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title">Milestones & Phases</div>
+                                <div class="card-subtitle">2 of 5 completed</div>
+                            </div>
+                            
+                            <div class="timeline">
+                                <!-- [ LOOP THROUGH MILESTONES] -->
+                                
+                                <!-- Milestone Output Example (Approved status) -->
+                                <div class="milestone">
+                                    <!-- [dynamically output class 'approved', 'submitted', or 'pending'] -->
+                                    <div class="m-icon approved"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></div>
+                                    <div class="m-content">
+                                        <div class="m-header">
+                                            <h4>Project Proposal</h4>
+                                            <!-- [ dynamic status class and text] -->
+                                            <span class="chip approved">Approved</span>
+                                        </div>
+                                        <p class="m-desc">Submit detailed project proposal with wireframes and tech stack</p>
+                                        <div class="m-meta"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg> Nov 8, 2024</div>
+                                    </div>
+                                </div>
+
+                                <!-- Milestone Output Example (Pending status requiring user action) -->
+                                <div class="milestone">
+                                    <div class="m-icon pending"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>
+                                    <div class="m-content">
+                                        <div class="m-header">
+                                            <h4>Testing & Deployment</h4>
+                                            <span class="chip pending">Pending</span>
+                                        </div>
+                                        <p class="m-desc">Complete testing, bug fixes, and deploy to production</p>
+                                        <div class="m-meta" style="margin-bottom: 12px;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg> Jan 8, 2025</div>
+                                        <!-- [ Pass dynamic Milestone ID and Project ID to JS function] -->
+                                        <button class="btn btn-primary" onclick="openSubmissionModal(1, 4)">Submit</button>
+                                    </div>
+                                </div>
+                                
+                                <!-- [ END MILESTONE LOOP] -->
+                            </div>
+                        </div>
+
+                        <!-- Final Submission -->
+                        <div class="card">
+                            <div class="card-title" style="margin-bottom: 8px;">Final Project Submission</div>
+                            <!-- [ Pass 'final' type and Project ID] -->
+                            <div class="final-submission-box" onclick="openSubmissionModal(1, 'final')">
+                                Click to submit final project
+                            </div>
                         </div>
                     </div>
-                </section>
 
-                <!-- Grading Breakdown -->
-                <section class="card">
-                    <div class="card-header-simple">
-                        <h3>Grading Breakdown</h3>
-                    </div>
-                    <div class="grading-list" id="grading-container">
-                        <!-- JS Injected -->
-                    </div>
-                </section>
+                    <!-- Right Column -->
+                    <div class="right-col">
+                        <!-- Progress Widget -->
+                        <div class="card progress-widget">
+                            <div class="card-header" style="margin-bottom: 12px;"><div class="card-title">Overall Progress</div></div>
+                            <div class="p-row"><span>Completion</span><span>60%</span></div>
+                            <!-- [ Set width inline dynamically] -->
+                            <div class="p-bar"><div class="p-fill" style="width: 60%;"></div></div>
+                            <div class="stat-row"><span>Approved Milestones</span><span class="stat-val green">2/5</span></div>
+                            <div class="stat-row"><span>Days Remaining</span><span class="stat-val">28</span></div>
+                        </div>
 
-                <!-- Resources -->
-                <section class="card">
-                    <div class="card-header-simple">
-                        <h3>Resources</h3>
-                    </div>
-                    <div class="resource-list" id="resources-container">
-                        <!-- JS Injected -->
-                    </div>
-                </section>
+                        <!-- Grading Breakdown -->
+                        <div class="card">
+                            <div class="card-header" style="margin-bottom: 16px;"><div class="card-title">Grading Breakdown</div></div>
+                            <ul class="grading-list">
+                                <!-- [ LOOP THROUGH RUBRIC CRITERIA] -->
+                                <li><span>Technical Implementation</span><span>40%</span></li>
+                                <li><span>Design & UX</span><span>25%</span></li>
+                                <li><span>Documentation</span><span>20%</span></li>
+                                <li><span>Presentation</span><span>15%</span></li>
+                                <!-- [ END LOOP] -->
+                            </ul>
+                        </div>
 
+                        <!-- Resources -->
+                        <div class="card">
+                            <div class="card-header" style="margin-bottom: 16px;"><div class="card-title">Resources</div></div>
+                            <ul class="resource-list">
+                                <!-- [ LOOP THROUGH RESOURCES] -->
+                                <li><a href="/downloads/guidelines.pdf"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg> Project Guidelines</a></li>
+                                <li><a href="/downloads/template.zip"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg> Submission Template</a></li>
+                                <!-- [ END LOOP] -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
+
+            <!-- Project 2 Details -->
+            <div id="project-2" class="project-details">
+                <div class="card">
+                    <div class="card-header"><div class="card-title">Advanced Portfolio Website</div></div>
+                    <p class="section-desc">You are currently viewing the individual portfolio project workspace. Start by submitting your initial wireframes in the milestone section.</p>
+                    <div class="final-submission-box" onclick="openSubmissionModal(2, 1)">
+                        Click to submit initial wireframes
+                    </div>
+                </div>
+            </div>
+            <!-- [ END LOOP FOR PROJECT DETAILS] -->
+
+        </section>
+
+        <!-- ========================================== -->
+        <!-- VIEW 2: GROUP WORKSPACE                    -->
+        <!-- ========================================== -->
+        <section class="view-section" id="group-view">
+            <div class="card">
+                <div class="card-header">
+                    <!-- [ Output dynamic active project team name] -->
+                    <div class="card-title">Group Workspace: E-Commerce Platform</div>
+                    <button class="btn btn-primary">Add Contribution Note</button>
+                </div>
+                <p class="section-desc">Manage team roles, log contributions, and track team velocity here.</p>
+                
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Member</th>
+                            <th>Role</th>
+                            <th>Latest Contribution</th>
+                            <th>Hours Logged</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- [ LOOP THROUGH TEAM MEMBERS' CONTRIBUTIONS] -->
+                        <tr>
+                            <td><div class="team-member" style="border:none; padding:0"><div class="avatar">SJ</div> Sarah Johnson</div></td>
+                            <td>Project Manager / Fullstack</td>
+                            <td>Set up Next.js boilerplate, created Jira tickets</td>
+                            <td>12 hrs</td>
+                            <td><span class="chip approved">On Track</span></td>
+                        </tr>
+                        <tr>
+                            <td><div class="team-member" style="border:none; padding:0"><div class="avatar">MC</div> Michael Chen</div></td>
+                            <td>Backend Lead</td>
+                            <td>Designed Postgres Schema & Prisma models</td>
+                            <td>15 hrs</td>
+                            <td><span class="chip approved">On Track</span></td>
+                        </tr>
+                        <tr>
+                            <td><div class="team-member" style="border:none; padding:0"><div class="avatar">ED</div> Emma Davis</div></td>
+                            <td>UI/UX & Frontend</td>
+                            <td>Figma wireframes and Tailwind setup</td>
+                            <td>10 hrs</td>
+                            <td><span class="chip pending">Needs Review</span></td>
+                        </tr>
+                        <!-- [ END LOOP] -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
 
     </main>
 
+    <!-- ========================================== -->
+    <!-- MODALS (Backend Ready Form)                -->
+    <!-- ========================================== -->
+
+    <!-- Submit Milestone Modal -->
+    <div class="modal-overlay" id="submissionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Submit Milestone</h2>
+                <button class="close-btn" onclick="closeModal('submissionModal')" type="button">&times;</button>
+            </div>
+            
+            <!-- [ Set proper action URL. Variables populated by JS] -->
+            <form id="milestoneSubmitForm" action="/api/submit-milestone" method="POST">
+                
+                <!-- Hidden fields for backend identification -->
+                <input type="hidden" name="project_id" id="modal_project_id" value="">
+                <input type="hidden" name="milestone_id" id="modal_milestone_id" value="">
+                <input type="hidden" name="is_draft" id="modal_is_draft" value="0">
+
+                <div class="form-group">
+                    <label for="submission_type">Submission Type</label>
+                    <select name="submission_type" id="submission_type" required>
+                        <option value="github">GitHub Repository Link</option>
+                        <option value="file">File Upload (ZIP, PDF)</option>
+                        <option value="url">Text / URL</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="resource_link">Resource Link / Upload</label>
+                    <input type="text" name="resource_link" id="resource_link" placeholder="https://github.com/..." required>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">Notes to Reviewer (Optional)</label>
+                    <textarea name="notes" id="notes" rows="4" placeholder="Any specific areas you want feedback on?"></textarea>
+                </div>
+
+                <div class="form-group" style="display: flex; gap: 8px; align-items: center; font-size: 13px;">
+                    <input type="checkbox" name="rubric_confirmed" id="rubricCheck" value="1" style="width: auto;" required> 
+                    <label for="rubricCheck" style="margin:0; font-weight: normal;">I confirm all rubric requirements are met.</label>
+                </div>
+
+                <div class="modal-footer">
+                    <!-- Standard button acts as draft trigger via JS -->
+                    <button type="button" class="btn btn-outline" onclick="submitAsDraft()">Save Draft</button>
+                    <!-- Submit button natively triggers the form POST -->
+                    <button type="submit" class="btn btn-primary">Submit Milestone</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Link to external JS file -->
     <script src="Projects.js"></script>
 </body>
 </html>
