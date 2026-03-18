@@ -60,7 +60,7 @@ function selectProject(projectId, event) {
     }
 }
 
-// 4. Backend-Ready Modal Controls
+// 4. Backend-Ready Modal Controls (Milestone Submission)
 function openSubmissionModal(projectId, milestoneId) {
     document.getElementById('modal_project_id').value = projectId || '';
     document.getElementById('modal_milestone_id').value = milestoneId || '';
@@ -69,9 +69,17 @@ function openSubmissionModal(projectId, milestoneId) {
     document.getElementById('submissionModal').classList.add('active');
 }
 
+// 5. Backend-Ready Modal Controls (Feedback & History)
+function openFeedbackModal(projectId, milestoneId) {
+
+    document.getElementById('feedbackModal').classList.add('active');
+}
+
+// Generic Close Modal
 function closeModal(modalId) {
     document.getElementById(modalId).classList.remove('active');
     
+    // Clear forms inside the closed modal if applicable
     if(modalId === 'submissionModal') {
         document.getElementById('milestoneSubmitForm').reset();
     }

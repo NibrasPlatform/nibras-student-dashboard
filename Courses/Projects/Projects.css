@@ -181,6 +181,7 @@ ul { list-style: none; }
 
 /* Buttons */
 .btn { padding: 0.6rem 1.2rem; border-radius: 6px; font-size: 0.85rem; font-weight: 500; display: inline-flex; align-items: center; justify-content: center; transition: 0.2s; border: none;}
+.btn-sm { padding: 0.4rem 0.8rem; font-size: 0.75rem; }
 .btn-primary { background-color: var(--accent-blue); color: white; }
 .btn-primary:hover { background-color: var(--accent-blue-hover); }
 .btn-outline { border: 1px solid var(--border-color); background-color: transparent; color: var(--text-primary); }
@@ -221,6 +222,20 @@ ul { list-style: none; }
 .form-group label { display: block; font-size: 0.85rem; font-weight: 500; margin-bottom: 8px; }
 .form-group input[type="text"], .form-group textarea, .form-group select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background-color: var(--bg-body); color: var(--text-primary); font-family: inherit; font-size: 0.9rem;}
 .modal-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+
+.scrollable-content { max-height: 70vh; overflow-y: auto; padding-right: 8px; }
+.scrollable-content::-webkit-scrollbar { width: 6px; }
+.scrollable-content::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 3px; }
+
+/* FEEDBACK STYLES (Req 1.6) */
+.feedback-box { background-color: var(--btn-secondary-bg); border-left: 4px solid var(--accent-blue); padding: 16px; border-radius: 0 8px 8px 0; }
+.instructor-comment { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; font-style: italic; }
+.needs-changes-list { list-style: none; color: var(--text-secondary); font-size: 0.85rem; }
+.needs-changes-list li { margin-bottom: 8px; display: flex; align-items: center; gap: 8px;}
+
+/* HISTORY STYLES (Req 1.5) */
+.history-link { color: var(--accent-blue); font-weight: 500; text-decoration: none; transition: 0.2s;}
+.history-link:hover { text-decoration: underline; color: var(--accent-blue-hover); }
 
 /* Responsive */
 @media (max-width: 1024px) {
