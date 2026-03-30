@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Dashboard</title>
+    <script>
+    (function () {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        }
+    })();
+</script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="courseContent.css">
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>Course Content</h2>
+            <div class="sidebar-progress">
+                <!-- ID added for dynamic data -->
+                <span class="progress-text" id="sidebar-progress-text">Loading...</span>
+                <div class="progress-bar-container">
+                    <div class="progress-fill" id="sidebar-progress-fill" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Static Navigation (Usually doesn't change per user) -->
+        <ul class="nav-menu">
+            <li class="nav-item"><a href="courseContent.html" class="nav-link active"><i class="fa-solid fa-book-open"></i> Course Overview</a></li>
+            <li class="nav-item"><a href="../Videos/videos.html" class="nav-link"><i class="fa-solid fa-video"></i> Videos</a></li>
+            <li class="nav-item"><a href="../Assignments/Assignments.html" class="nav-link"><i class="fa-regular fa-file-lines"></i> Assignments</a></li>
+            <li class="nav-item"><a href="../Projects/Projects.html" class="nav-link"><i class="fa-regular fa-folder"></i> Projects</a></li>
+            <li class="nav-item"><a href="../Grades/grades.html" class="nav-link"><i class="fa-solid fa-award"></i> Grades</a></li>
+        </ul>
+
+        <div class="sidebar-footer">
+        <a href="../courses.html" class="back-btn">
+                <i class="fa-solid fa-arrow-left-long" style="margin-right:8px"></i>
+                    Return to Courses
+        </a>
+
+            <div class="course-meta">
+                <h4 id="sidebar-course-code">...</h4>
+                <span id="sidebar-term">...</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        
+        <!-- TOP BAR  -->
+        <div class="top-bar">
+            <div class="breadcrumbs">Dashboard / Web Development</div>
+            <button class="theme-toggle-btn" id="themeBtn">
+                <i class="fa-solid fa-moon"></i> <span>Dark Mode</span>
+            </button>
+        </div>
+
+        <!-- Blue Banner -->
+        <header class="course-header">
+            <div class="header-left">
+                <h3><i class="fa-solid fa-graduation-cap"></i> <span id="header-code">CS 101</span></h3>
+                <h1 id="header-title">Loading Course...</h1>
+                <p id="header-desc">...</p>
+                <div class="header-stats">
+                    <div><i class="fa-regular fa-calendar"></i> <span id="header-duration">...</span></div>
+                    <div><i class="fa-regular fa-clock"></i> <span id="header-commitment">...</span></div>
+                    <div><i class="fa-solid fa-user-group"></i> <span id="header-students">...</span></div>
+                </div>
+            </div>
+            <div class="week-badge">
+                <h2 id="current-week-num">0</h2>
+                <span>of <span id="total-weeks">0</span></span>
+            </div>
+        </header>
+
+        <div class="dashboard-grid">
+            <!-- Left Column -->
+            <div class="left-column">
+                
+                <!-- Announcements (Dynamic) -->
+                <section class="card">
+                    <div class="card-header">
+                        <i class="fa-regular fa-bell"></i>
+                        <h3>Announcements</h3>
+                    </div>
+                    <!-- Container for JS to inject data -->
+                    <div id="announcements-container"></div>
+                </section>
+
+                <!-- Objectives (Dynamic) -->
+                <section class="card">
+                    <div class="card-header">
+                        <i class="fa-solid fa-bullseye"></i>
+                        <h3>Learning Objectives</h3>
+                    </div>
+                    <p style="margin-bottom: 1rem; font-size: 0.9rem; color: var(--text-secondary);">By the end of this course, you will be able to:</p>
+                    <ul class="objective-list" id="objectives-container"></ul>
+                </section>
+
+                <!-- Curriculum (Dynamic) -->
+                <section class="card">
+                    <div class="card-header">
+                        <i class="fa-solid fa-book-open"></i>
+                        <h3>Course Curriculum</h3>
+                    </div>
+                    <div class="curriculum-list" id="curriculum-container">
+                        <!-- JS will build the timeline here -->
+                    </div>
+                </section>
+
+                <!-- Prerequisites (Dynamic) -->
+                <section class="card">
+                    <div class="card-header">
+                        <i class="fa-regular fa-lightbulb"></i>
+                        <h3>Prerequisites</h3>
+                    </div>
+                    <ul class="prereq-list" id="prereq-container"></ul>
+                </section>
+
+            </div>
+
+            <!-- Right Column -->
+            <div class="right-column">
+                
+                <!-- Instructor (Dynamic) -->
+                <section class="card">
+                    <h5 class="widget-title">Course Instructor</h5>
+                    <div class="instructor-profile">
+                        <div class="avatar" id="instructor-initials">JS</div>
+                        <div class="instructor-info">
+                            <h4 id="instructor-name">...</h4>
+                            <p id="instructor-role">...</p>
+                            <div class="rating">
+                                <i class="fa-solid fa-star"></i> <span id="instructor-rating">...</span> rating
+                            </div>
+                        </div>
+                    </div>
+                    <p class="bio" id="instructor-bio">...</p>
+                    <button class="btn-outline">
+                        <i class="fa-regular fa-envelope"></i> Send Message
+                    </button>
+                </section>
+
+                <!-- Progress (Dynamic) -->
+                <section class="card">
+                    <div class="card-header">
+                        <i class="fa-solid fa-chart-line"></i>
+                        <h3>Your Progress</h3>
+                    </div>
+                    <div class="progress-stats">
+                        <span class="progress-stat-main">Overall Progress</span>
+                        <span style="font-weight: 600;" id="progress-percent-text">0%</span>
+                    </div>
+                    <div class="progress-bar-container" style="margin-bottom: 1.5rem;">
+                        <div class="progress-fill" id="progress-fill-main" style="width: 0%;"></div>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <h3 id="stat-score">0%</h3>
+                            <p>Average Score</p>
+                        </div>
+                        <div class="stat-box">
+                            <h3 id="stat-assignments">0/0</h3>
+                            <p>Assignments</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Grading (Static Structure, could be dynamic but fine for now) -->
+                <section class="card">
+                    <div class="card-header">
+                        <i class="fa-solid fa-medal"></i>
+                        <h3>Grading Breakdown</h3>
+                    </div>
+                    <div class="grading-table">
+                        <div class="grading-row"><span>Assignments</span><span style="font-weight: 600;">40%</span></div>
+                        <div class="grading-row"><span>Projects</span><span style="font-weight: 600;">30%</span></div>
+                        <div class="grading-row"><span>Quizzes</span><span style="font-weight: 600;">20%</span></div>
+                        <div class="grading-row"><span>Participation</span><span style="font-weight: 600;">10%</span></div>
+                    </div>
+                </section>
+
+                <!-- Quick Links -->
+                <section class="card">
+                    <h5 class="widget-title">Quick Links</h5>
+                    <a href="#" class="quick-link"><i class="fa-solid fa-video"></i> Live Sessions</a>
+                    <a href="#" class="quick-link"><i class="fa-solid fa-code"></i> Code Playground</a>
+                    <a href="#" class="quick-link"><i class="fa-solid fa-users"></i> Discussion Forum</a>
+                    <a href="#" class="quick-link"><i class="fa-regular fa-file-pdf"></i> Course Syllabus</a>
+                </section>
+
+            </div>
+        </div>
+    </main>
+
+    <script src="courseContent.js"></script>
+</body>
+</html>

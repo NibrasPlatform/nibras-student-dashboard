@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nibras - AI Recommendations</title>
+    <script>
+    (function () {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        }
+    })();
+</script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="recommendation.css">
+</head>
+<body>
+
+    <!-- MAIN CONTENT (Full Width) -->
+    <main class="main-layout">
+        
+        <!-- HEADER -->
+        <header class="top-header-full">
+            <div class="logo-area">
+                <img src="../Assets/images/logo-light.png" alt="Nibras Logo" class="header-logo" id="app-logo">
+            </div>
+            
+            <div class="header-actions">
+                <button class="icon-btn" id="themeBtn"><i class="fa-regular fa-moon"></i></button>
+                <div class="profile-circle-small">ZA</div>
+            </div>
+        </header>
+
+        <div class="content-wrapper-centered">
+            
+            <!-- Page Title Area -->
+            <div class="rec-intro-section">
+                <h1><i class="fa-solid fa-wand-magic-sparkles" style="color:var(--accent-blue); margin-right:10px;"></i> AI Career Recommendation</h1>
+                <p>Based on your capability profile (Programming, Algorithms, Math, etc.), our ML classifier has predicted the following tracks as your best fits.</p>
+            </div>
+
+            <!-- Recommendation List -->
+            <div class="track-list" id="track-list-container">
+                <!-- JS Injected -->
+            </div>
+
+            <!-- AI Explanation Footer -->
+            <section class="card ai-footer-card">
+                <div class="ai-footer-content">
+                    <div class="ai-icon-box"><i class="fa-solid fa-robot"></i></div>
+                    <div>
+                        <h4>How is this calculated?</h4>
+                        <p>We calculate the <strong>Cosine Similarity</strong> between your capability vector and the ideal profile for each track. The "Top Contributors" section shows which of your specific skills contributed most to this recommendation.</p>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script src="recommendation.js"></script>
+</body>
+</html>

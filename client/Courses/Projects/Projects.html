@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Projects Platform</title>
+    
+    <!-- Theme Initialization Script to prevent FOUC -->
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            }
+        })();
+    </script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- External CSS -->
+    <link rel="stylesheet" href="Projects.css">
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>Course Content</h2>
+            <div class="sidebar-progress">
+                <span class="progress-text">2 of 8 lectures completed</span>
+                <div class="progress-bar-container">
+                    <div class="progress-fill" style="width: 25%"></div>
+                </div>
+            </div>
+        </div>
+
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="../Course Description/courseContent.html" class="nav-link">
+                    <i class="fa-solid fa-book-open"></i> Course Overview
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="../Videos/videos.html" class="nav-link">
+                    <i class="fa-solid fa-video"></i> Videos
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="../Assignments/assignments.html" class="nav-link">
+                    <i class="fa-regular fa-file-lines"></i> Assignments
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="../Projects/Projects.html" class="nav-link active">
+                    <i class="fa-regular fa-folder"></i> Projects
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="../Grades/grades.html" class="nav-link">
+                    <i class="fa-solid fa-award"></i> Grades
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <a href="../../Courses/courses.html" class="back-btn">
+                <i class="fa-solid fa-arrow-left-long" style="margin-right:8px"></i>
+                Return to Courses
+            </a>
+            <div class="course-meta">
+                <h4>CS 101: Web Development</h4>
+                <span>Fall 2024 • Week 4</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        
+        <!-- TOP BAR (Theme Toggle) -->
+        <div class="top-bar">
+            <div class="breadcrumbs"></div> 
+            <button class="theme-toggle-btn" id="themeBtn">
+                <i class="fa-solid fa-sun"></i> <span>Light Mode</span>
+            </button>
+        </div>
+
+        <!-- Header -->
+        <header class="page-header">
+            <div class="header-top-row" style="margin-bottom:0;">
+                <div class="header-titles">
+                    <h1>Projects</h1>
+                    <p>CS 101: Web Development • Fall 2024</p>
+                </div>
+                <div class="header-stats">
+                    <div class="stat-line">
+                        <span>Overall Progress</span>
+                    </div>
+                    <div class="stat-line secondary" style="font-size: 14px; font-weight: 500; color: var(--text-primary);">
+                        <i class="fa-solid fa-chart-line" style="margin-right: 4px; color: var(--text-secondary);"></i> 
+                        60% Complete
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- View Context Switcher -->
+        <div class="context-tabs">
+            <button class="context-tab active" onclick="switchView('my-projects-view', event)">My Projects</button>
+            <button class="context-tab" onclick="switchView('group-view', event)">Group Workspace</button>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 1: MY PROJECTS                        -->
+        <!-- ========================================== -->
+        <section class="view-section active" id="my-projects-view">
+            
+            <!-- Project Cards (Tabs) -->
+            <div class="project-tabs-list" id="projectListTabs">
+                <div class="project-card-tab active" onclick="selectProject('project-1', event)">
+                    <h3>E-Commerce Platform Development</h3>
+                    <p>👥 Team • 30% of final grade</p>
+                </div>
+                
+                <div class="project-card-tab" onclick="selectProject('project-2', event)">
+                    <h3>Advanced Portfolio Website</h3>
+                    <p>👤 Individual • 20% of final grade</p>
+                </div>
+            </div>
+
+            <!-- Project 1 Details -->
+            <div id="project-1" class="project-details active">
+                <div class="two-col-grid">
+                    
+                    <!-- Left Column -->
+                    <div class="left-col">
+                        <!-- Project Overview -->
+                        <div class="card">
+                            <div class="card-header"><div class="card-title">Project Overview</div></div>
+                            <h3 style="margin-bottom: 12px; font-weight: 600;">E-Commerce Platform Development</h3>
+                            <p class="section-desc">Build a full-stack e-commerce web application with user authentication, product catalog, shopping cart, and payment integration.</p>
+                            
+                            <div class="meta-grid">
+                                <div class="meta-item">
+                                    <h4>Grade Weight</h4>
+                                    <p>30% of final grade</p>
+                                </div>
+                                <div class="meta-item">
+                                    <h4>Supervisor</h4>
+                                    <p>Prof. Jane Smith</p>
+                                </div>
+                                <div class="meta-item" style="grid-column: span 2;">
+                                    <h4>Duration</h4>
+                                    <p>Nov 1, 2024 → Jan 15, 2025</p>
+                                </div>
+                            </div>
+
+                            <div class="meta-item">
+                                <h4 style="margin-bottom: 12px;">Team Members</h4>
+                                <div class="team-members">
+                                    <div class="team-member"><div class="avatar">SJ</div> Sarah Johnson</div>
+                                    <div class="team-member"><div class="avatar" style="background:var(--accent-blue)">MC</div> Michael Chen</div>
+                                    <div class="team-member"><div class="avatar" style="background:var(--accent-blue)">ED</div> Emma Davis</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Milestones & Phases -->
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title">Milestones & Phases</div>
+                                <div class="card-subtitle">2 of 5 completed</div>
+                            </div>
+                            
+                            <div class="timeline">
+                                <!-- Milestone 1 (Approved) -->
+                                <div class="milestone">
+                                    <div class="m-icon m-graded"><i class="fa-solid fa-check"></i></div>
+                                    <div class="m-content">
+                                        <div class="m-header">
+                                            <h4>Project Proposal</h4>
+                                            <span class="status-badge badge-graded">Approved</span>
+                                        </div>
+                                        <p class="m-desc">Submit detailed project proposal with wireframes and tech stack</p>
+                                        <div class="m-meta"><i class="fa-regular fa-calendar"></i> Nov 8, 2024</div>
+                                        <button class="btn btn-outline btn-sm" style="margin-top: 10px;" onclick="openFeedbackModal(1, 1)">
+                                            <i class="fa-regular fa-comment-dots" style="margin-right: 6px;"></i> View Feedback & History
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Milestone 2 (Needs Changes) -->
+                                <div class="milestone">
+                                    <div class="m-icon m-default" style="border-color: var(--status-late-text); color: var(--status-late-text);"><i class="fa-solid fa-rotate-right"></i></div>
+                                    <div class="m-content">
+                                        <div class="m-header">
+                                            <h4>Frontend Development</h4>
+                                            <span class="status-badge badge-late">Needs Changes</span>
+                                        </div>
+                                        <p class="m-desc">Implement UI components and integrate with backend</p>
+                                        <div class="m-meta"><i class="fa-regular fa-calendar"></i> Dec 15, 2024</div>
+                                        <!-- Opens the Feedback view so they can see WHAT needs changing -->
+                                        <button class="btn btn-outline btn-sm" style="margin-top: 10px;" onclick="openFeedbackModal(1, 2)">
+                                            <i class="fa-solid fa-triangle-exclamation" style="margin-right: 6px; color: var(--status-late-text);"></i> Review Feedback to Resubmit
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Milestone 3 (Pending) -->
+                                <div class="milestone">
+                                    <div class="m-icon m-default"><i class="fa-solid fa-clock"></i></div>
+                                    <div class="m-content">
+                                        <div class="m-header">
+                                            <h4>Testing & Deployment</h4>
+                                            <span class="status-badge badge-default">Pending</span>
+                                        </div>
+                                        <p class="m-desc">Complete testing, bug fixes, and deploy to production</p>
+                                        <div class="m-meta" style="margin-bottom: 12px;"><i class="fa-regular fa-calendar"></i> Jan 8, 2025</div>
+                                        <button class="btn btn-primary" onclick="openSubmissionModal(1, 3)">Submit Milestone</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Final Submission -->
+                        <div class="card">
+                            <div class="card-title" style="margin-bottom: 8px;">Final Project Submission</div>
+                            <div class="final-submission-box" onclick="openSubmissionModal(1, 'final')">
+                                Click to submit final project
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="right-col">
+                        <!-- Progress Widget -->
+                        <div class="card progress-widget">
+                            <div class="card-header" style="margin-bottom: 12px;"><div class="card-title">Overall Progress</div></div>
+                            <div class="p-row"><span>Completion</span><span>60%</span></div>
+                            <div class="progress-bar-container" style="margin-bottom: 16px;">
+                                <div class="progress-fill" style="width: 60%;"></div>
+                            </div>
+                            <div class="stat-row"><span>Approved Milestones</span><span class="stat-val green">2/5</span></div>
+                            <div class="stat-row"><span>Days Remaining</span><span class="stat-val">28</span></div>
+                        </div>
+
+                        <!-- Grading Breakdown -->
+                        <div class="card">
+                            <div class="card-header" style="margin-bottom: 16px;"><div class="card-title">Grading Breakdown</div></div>
+                            <ul class="grading-list">
+                                <li><span>Technical Implementation</span><span>40%</span></li>
+                                <li><span>Design & UX</span><span>25%</span></li>
+                                <li><span>Documentation</span><span>20%</span></li>
+                                <li><span>Presentation</span><span>15%</span></li>
+                            </ul>
+                        </div>
+
+                        <!-- Resources -->
+                        <div class="card">
+                            <div class="card-header" style="margin-bottom: 16px;"><div class="card-title">Resources</div></div>
+                            <ul class="resource-list">
+                                <li><a href="#"><i class="fa-solid fa-file-pdf"></i> Project Guidelines</a></li>
+                                <li><a href="#"><i class="fa-solid fa-file-zipper"></i> Submission Template</a></li>
+                                <li><a href="#"><i class="fa-solid fa-link"></i> Example Projects</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project 2 Details -->
+            <div id="project-2" class="project-details">
+                <div class="card">
+                    <div class="card-header"><div class="card-title">Advanced Portfolio Website</div></div>
+                    <p class="section-desc">You are currently viewing the individual portfolio project workspace. Start by submitting your initial wireframes in the milestone section.</p>
+                    <div class="final-submission-box" onclick="openSubmissionModal(2, 1)">
+                        Click to submit initial wireframes
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ========================================== -->
+        <!-- VIEW 2: GROUP WORKSPACE                    -->
+        <!-- ========================================== -->
+        <section class="view-section" id="group-view">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Group Workspace: E-Commerce Platform</div>
+                    <button class="btn btn-primary">Add Contribution Note</button>
+                </div>
+                <p class="section-desc">Manage team roles, log contributions, and track team velocity here.</p>
+                
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Member</th>
+                            <th>Role</th>
+                            <th>Latest Contribution</th>
+                            <th>Hours Logged</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><div class="team-member" style="border:none; padding:0"><div class="avatar">SJ</div> Sarah Johnson</div></td>
+                            <td>Project Manager / Fullstack</td>
+                            <td>Set up Next.js boilerplate, created Jira tickets</td>
+                            <td>12 hrs</td>
+                            <td><span class="status-badge badge-graded">On Track</span></td>
+                        </tr>
+                        <tr>
+                            <td><div class="team-member" style="border:none; padding:0"><div class="avatar">MC</div> Michael Chen</div></td>
+                            <td>Backend Lead</td>
+                            <td>Designed Postgres Schema & Prisma models</td>
+                            <td>15 hrs</td>
+                            <td><span class="status-badge badge-graded">On Track</span></td>
+                        </tr>
+                        <tr>
+                            <td><div class="team-member" style="border:none; padding:0"><div class="avatar">ED</div> Emma Davis</div></td>
+                            <td>UI/UX & Frontend</td>
+                            <td>Figma wireframes and Tailwind setup</td>
+                            <td>10 hrs</td>
+                            <td><span class="status-badge badge-late">Needs Review</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ========================================== -->
+    <!-- MODALS                                     -->
+    <!-- ========================================== -->
+    
+    <!-- Submit Milestone Modal (1.4) -->
+    <div class="modal-overlay" id="submissionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Submit Milestone</h2>
+                <button class="close-btn" onclick="closeModal('submissionModal')" type="button">&times;</button>
+            </div>
+            
+            <form id="milestoneSubmitForm" action="/api/submit-milestone" method="POST">
+                <input type="hidden" name="project_id" id="modal_project_id" value="">
+                <input type="hidden" name="milestone_id" id="modal_milestone_id" value="">
+                <input type="hidden" name="is_draft" id="modal_is_draft" value="0">
+
+                <div class="form-group">
+                    <label for="submission_type">Submission Type</label>
+                    <select name="submission_type" id="submission_type" required>
+                        <option value="github">GitHub Repository Link</option>
+                        <option value="file">File Upload (ZIP, PDF)</option>
+                        <option value="url">Text / URL</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="resource_link">Resource Link / Upload</label>
+                    <input type="text" name="resource_link" id="resource_link" placeholder="https://github.com/..." required>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">Notes to Reviewer (Optional)</label>
+                    <textarea name="notes" id="notes" rows="4" placeholder="Any specific areas you want feedback on?"></textarea>
+                </div>
+
+                <div class="form-group" style="display: flex; gap: 8px; align-items: center; font-size: 13px;">
+                    <input type="checkbox" name="rubric_confirmed" id="rubricCheck" value="1" style="width: auto;" required> 
+                    <label for="rubricCheck" style="margin:0; font-weight: normal; color: var(--text-primary);">I confirm all rubric requirements are met.</label>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="submitAsDraft()">Save Draft</button>
+                    <button type="submit" class="btn btn-primary">Submit Milestone</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Feedback & History Modal (1.5 & 1.6) -->
+    <!-- [BACKEND: Populate dynamically based on Milestone ID requested via AJAX, or render server-side] -->
+    <div class="modal-overlay" id="feedbackModal">
+        <div class="modal-content" style="max-width: 650px;">
+            <div class="modal-header">
+                <h2>Milestone Feedback & History</h2>
+                <button class="close-btn" onclick="closeModal('feedbackModal')" type="button">&times;</button>
+            </div>
+            
+            <div class="modal-body scrollable-content">
+                
+                <!-- Section 1.6: Feedback / Review View -->
+                <div class="feedback-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3 style="font-size: 1rem; font-weight: 600;">Latest Feedback</h3>
+                        <span class="status-badge badge-late">Needs Changes</span>
+                    </div>
+                    
+                    <div class="feedback-box">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.9rem;">
+                            <strong>Rubric Score:</strong>
+                            <span style="color: var(--text-secondary);"><span style="color: var(--text-primary); font-weight: 600;">65</span> / 100</span>
+                        </div>
+                        <p class="instructor-comment">"Good start on the UI components and routing. However, accessibility needs major work, and the mobile view is currently breaking on the product catalog page. Please address the checklist below and resubmit."</p>
+                    </div>
+
+                    <h4 style="font-size: 0.9rem; font-weight: 600; margin: 20px 0 12px;">Required Changes Checklist</h4>
+                    <ul class="needs-changes-list">
+                        <!-- [BACKEND: Loop through changes requested] -->
+                        <li><i class="fa-regular fa-square"></i> Fix color contrast on primary buttons</li>
+                        <li><i class="fa-regular fa-square"></i> Add responsive flex-wrap to product grid</li>
+                        <li><i class="fa-regular fa-square"></i> Include ARIA labels on navigation menu</li>
+                    </ul>
+
+                    <div style="margin-top: 20px; text-align: right;">
+                        <button class="btn btn-primary" onclick="closeModal('feedbackModal'); openSubmissionModal(1, 2)">
+                            <i class="fa-solid fa-arrow-up-from-bracket" style="margin-right: 6px;"></i> Resubmit Milestone
+                        </button>
+                    </div>
+                </div>
+
+                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 32px 0;">
+
+                <!-- Section 1.5: Submission History -->
+                <div class="history-section">
+                    <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 16px;">Submission History</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Attempt</th>
+                                <th>Timestamp</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- [BACKEND: Loop through historical submissions] -->
+                            <tr>
+                                <td>Attempt 2</td>
+                                <td>Dec 16, 2024 - 10:45 AM</td>
+                                <td><span class="status-badge badge-late">Needs Changes</span></td>
+                                <td>
+                                    <a href="#" class="history-link">View File</a> • 
+                                    <a href="#" class="history-link">Compare</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Attempt 1</td>
+                                <td>Dec 12, 2024 - 04:20 PM</td>
+                                <td><span class="status-badge badge-late">Needs Changes</span></td>
+                                <td>
+                                    <a href="#" class="history-link">View File</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Link to external JS file -->
+    <script src="Projects.js"></script>
+</body>
+</html>
