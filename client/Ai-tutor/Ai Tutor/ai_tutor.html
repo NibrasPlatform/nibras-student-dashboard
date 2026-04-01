@@ -11,17 +11,55 @@
             document.documentElement.setAttribute('data-theme', savedTheme);
         }
     })();
-</script>
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="ai_tutor.css">
+    <link rel="stylesheet" href="/Ai-tutor/Ai%20Tutor/ai_tutor.css">
+    
+    <!-- Added CSS for the Modal -->
+    <style>
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6); z-index: 1000;
+            display: none; align-items: center; justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .modal-content {
+            background: var(--bg-card, #ffffff);
+            width: 90%; max-width: 600px;
+            border-radius: 12px; padding: 24px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            color: var(--text-primary, #333);
+        }
+        html[data-theme="dark"] .modal-content {
+            background: #1f2937; /* Dark theme card background */
+            color: #f3f4f6;
+        }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
+        }
+        .modal-header h3 { margin: 0; font-size: 1.25rem; }
+        .modal-text-box {
+            background: var(--tag-bg, #f3f4f6);
+            padding: 12px; border-radius: 8px; font-size: 0.95rem;
+            max-height: 150px; overflow-y: auto; margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        html[data-theme="dark"] .modal-text-box {
+            background: #374151; /* Dark theme inner box */
+        }
+        .modal-footer {
+            margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;
+        }
+    </style>
 </head>
 <body>
+    <div id="app-root" hidden></div>
 
     <!-- SIDEBAR -->
     <aside class="sidebar">
         <div class="logo-area">
-            <img src="../../assets/images/logo-light.png" alt="Nibras Logo" class="sidebar-logo" id="app-logo">
+            <img src="../../Assets/images/logo-light.png" alt="Nibras Logo" class="sidebar-logo" id="app-logo">
         </div>
 
         <ul class="nav-menu">
@@ -31,7 +69,7 @@
             <li class="nav-item"><a href="../../Community/community.html" class="nav-link"><i class="fa-solid fa-users"></i> Community</a></li>
             <li class="nav-item"><a href="../../Achievements/Achievements/achievements.html" class="nav-link"><i class="fa-solid fa-medal"></i> Achievements</a></li>
             <!-- Active State -->
-            <li class="nav-item"><a href="ai_tutor.html" class="nav-link active"><i class="fa-solid fa-robot"></i> AI Tutor</a></li>
+            <li class="nav-item"><a href="./ai_tutor.html" class="nav-link active"><i class="fa-solid fa-robot"></i> AI Tutor</a></li>
             <li class="nav-item"><a href="../../Analytics/Overview/overview.html" class="nav-link"><i class="fa-solid fa-chart-simple"></i> Analytics</a></li>
             <li class="nav-item"><a href="../../Settings/settings.html" class="nav-link"><i class="fa-solid fa-gear"></i> Settings</a></li>
         </ul>
@@ -81,10 +119,10 @@
 
             <!-- Navigation Tabs -->
             <div class="ai-tabs-container">
-                <a href="ai_tutor.html" class="ai-tab active">AI Tutor</a>
+                <a href="./ai_tutor.html" class="ai-tab active">AI Tutor</a>
                 <a href="../Recommendations/recommendation.html" class="ai-tab">Recommendations</a>
-                <a href="../Learning Insights/learning_insights.html" class="ai-tab">Learning Insights</a>
-                <a href="../Smart Routing/smart_routing.html" class="ai-tab">Smart Routing</a>
+                <a href="../Learning%20Insights/learning_insights.html" class="ai-tab">Learning Insights</a>
+                <a href="../Smart%20Routing/smart_routing.html" class="ai-tab">Smart Routing</a>
             </div>
 
             <div class="ai-grid-layout">
@@ -92,7 +130,7 @@
                 <!-- LEFT COLUMN -->
                 <div class="ai-left-col">
                     
-                    <!-- Input Section -->
+<!-- Input Section -->
                     <section class="card input-card">
                         <div class="card-header-simple">
                             <h3><i class="fa-regular fa-message"></i> Ask the AI Tutor</h3>
@@ -100,14 +138,40 @@
                         <p class="input-desc">Get instant help with programming concepts, algorithms, and problem-solving</p>
                         
                         <label class="input-label">Your Question</label>
-                        <textarea class="ai-textarea" placeholder="Ask questions about algorithms, data structures, programming concepts..."></textarea>
+                        <textarea class="ai-textarea" id="ai-question-input" placeholder="Ask questions about algorithms, data structures, programming concepts..."></textarea>
                         
-                        <div class="input-actions">
-                            <button class="btn-ask"><i class="fa-solid fa-paper-plane"></i> Ask AI Tutor</button>
-                            <button class="btn-hint"><i class="fa-regular fa-lightbulb"></i> Get Hint</button>
+                        <!-- Initial State -->
+                        <div class="input-actions" id="initial-actions">
+                            <button class="btn-ask" id="ask-ai-btn"><i class="fa-solid fa-paper-plane"></i> Ask AI Tutor</button>
+                        </div>
+
+                        <!-- Dynamic AI Interaction Area -->
+                        <div id="ai-interaction-area" style="display: none; margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(156, 163, 175, 0.3);">
+                            
+                            <h4 id="interaction-title" style="margin-bottom: 15px; font-weight: 600;">Question Submitted! How would you like to proceed?</h4>
+                            
+                            <!-- The Two Choices -->
+                            <div id="choice-actions" class="input-actions" style="margin-bottom: 20px;">
+                                <button class="btn-ask" id="view-answer-btn"><i class="fa-solid fa-eye"></i> View AI Answer</button>
+                                <button class="btn-hint" id="get-hint-btn"><i class="fa-regular fa-lightbulb"></i> Get Hint</button>
+                            </div>
+
+                            <!-- Where hints drop in progressively -->
+                            <div id="hints-container" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+                            </div>
+
+                            <!-- Where full answer is displayed -->
+                            <div id="full-answer-container" style="display: none; background-color: rgba(37, 99, 235, 0.05); border: 1px solid rgba(37, 99, 235, 0.2); padding: 20px; border-radius: 8px; line-height: 1.6;">
+                            </div>
+                            
+                            <!-- Post Answer Actions -->
+                            <div id="post-answer-actions" style="display: none; margin-top: 15px; gap: 10px; flex-wrap: wrap;">
+                                <button class="btn-ask" id="reset-chat-btn"><i class="fa-solid fa-rotate-right"></i> Ask Another Question</button>
+                                <button class="btn-ask" id="push-community-btn" style="background-color: var(--stat-bar-purple); border-color: var(--stat-bar-purple);"><i class="fa-solid fa-users"></i> Push to Community</button>
+                            </div>
+
                         </div>
                     </section>
-
                     <!-- Quick Topics -->
                     <section class="card">
                         <div class="card-header-simple">
@@ -172,7 +236,33 @@
 
         </div>
     </main>
+    <!-- PUSH TO COMMUNITY MODAL -->
+    <div id="community-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-users" style="color: var(--stat-bar-purple); margin-right: 8px;"></i> Push to Community</h3>
+                <button id="close-modal-btn" class="icon-btn" style="background: none; border: none; cursor: pointer; font-size: 1.2rem; color: inherit;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="modal-body">
+                <label class="input-label" style="display: block; margin-bottom: 5px; font-weight: 600;">Question Title</label>
+                <input type="text" id="modal-title-input" class="ai-textarea" style="min-height: 45px; margin-bottom: 15px; width: 100%; box-sizing: border-box;" placeholder="e.g., How to optimize Binary Search?">
+                
+                <label class="input-label" style="display: block; margin-bottom: 5px; font-weight: 600;">Your Question</label>
+                <div id="modal-question-display" class="modal-text-box"></div>
+                
+                <label class="input-label" style="display: block; margin-bottom: 5px; font-weight: 600;">AI Answer</label>
+                <div id="modal-answer-display" class="modal-text-box"></div>
+            </div>
+            
+            <div class="modal-footer">
+                <button id="cancel-modal-btn" class="btn-hint" style="background: transparent; border: 1px solid #9ca3af; color: inherit;">Cancel</button>
+                <button id="confirm-push-btn" class="btn-ask" style="background-color: var(--stat-bar-purple); border-color: var(--stat-bar-purple);">Publish Post</button>
+            </div>
+        </div>
+    </div>
 
-    <script src="ai_tutor.js"></script>
+        <script src="/react-bootstrap.js"></script>
+    <script src="/Ai-tutor/Ai%20Tutor/ai_tutor.js"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+window.NibrasReact.run(() => {
 
     // --- 1. SIDEBAR ACTIVE LOGIC ---
     // This makes sure the clicked item turns blue (active)
@@ -121,5 +121,4 @@ document.addEventListener('DOMContentLoaded', () => {
             card.style.display = title.includes(term) ? 'flex' : 'none';
         });
     });
-
 });

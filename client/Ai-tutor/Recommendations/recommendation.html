@@ -14,14 +14,15 @@
 </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="recommendation.css">
+    <link rel="stylesheet" href="/Ai-tutor/Recommendations/recommendation.css">
 </head>
 <body>
+    <div id="app-root" hidden></div>
 
     <!-- SIDEBAR -->
     <aside class="sidebar">
         <div class="logo-area">
-            <img src="../../assets/images/logo-light.png" alt="Nibras Logo" class="sidebar-logo" id="app-logo">
+            <img src="../../Assets/images/logo-light.png" alt="Nibras Logo" class="sidebar-logo" id="app-logo">
         </div>
 
         <ul class="nav-menu">
@@ -29,9 +30,9 @@
             <li class="nav-item"><a href="../../Courses/courses.html" class="nav-link"><i class="fa-solid fa-book-open"></i> Courses</a></li>
             <li class="nav-item"><a href="../../Competitions/Contests/contest.html" class="nav-link"><i class="fa-solid fa-trophy"></i> Competitions</a></li>
             <li class="nav-item"><a href="../../Community/community.html" class="nav-link"><i class="fa-solid fa-users"></i> Community</a></li>
-            <li class="nav-item"><a href="../../Achievements/Achievements/achievements.htm" class="nav-link"><i class="fa-solid fa-medal"></i> Achievements</a></li>
+            <li class="nav-item"><a href="../../Achievements/Achievements/achievements.html" class="nav-link"><i class="fa-solid fa-medal"></i> Achievements</a></li>
             <!-- Active State -->
-            <li class="nav-item"><a href="../Ai Tutor/ai_tutor.html" class="nav-link active"><i class="fa-solid fa-robot"></i> AI Tutor</a></li>
+            <li class="nav-item"><a href="../Ai%20Tutor/ai_tutor.html" class="nav-link active"><i class="fa-solid fa-robot"></i> AI Tutor</a></li>
             <li class="nav-item"><a href="../../Analytics/Overview/overview.html" class="nav-link"><i class="fa-solid fa-chart-simple"></i> Analytics</a></li>
             <li class="nav-item"><a href="../../Settings/settings.html" class="nav-link"><i class="fa-solid fa-gear"></i> Settings</a></li>
         </ul>
@@ -81,10 +82,10 @@
 
             <!-- Navigation Tabs -->
             <div class="ai-tabs-container">
-                <a href="../Ai Tutor/ai_tutor.html" class="ai-tab">AI Tutor</a>
-                <a href="recommendation.html" class="ai-tab active">Recommendations</a>
-                <a href="../Learning Insights/learning_insights.html" class="ai-tab">Learning Insights</a>
-                <a href="../Smart Routing/smart_routing.html" class="ai-tab">Smart Routing</a>
+                <a href="../Ai%20Tutor/ai_tutor.html" class="ai-tab">AI Tutor</a>
+                <a href="./recommendation.html" class="ai-tab active">Recommendations</a>
+                <a href="../Learning%20Insights/learning_insights.html" class="ai-tab">Learning Insights</a>
+                <a href="../Smart%20Routing/smart_routing.html" class="ai-tab">Smart Routing</a>
             </div>
 
             <!-- Main Recommendation Card -->
@@ -103,6 +104,7 @@
         </div>
     </main>
 
-    <script src="recommendation.js"></script>
+        <script src="/react-bootstrap.js"></script>
+    <script src="/Ai-tutor/Recommendations/recommendation.js"></script>
 </body>
 </html>

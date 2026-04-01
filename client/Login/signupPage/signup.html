@@ -17,9 +17,10 @@
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- CSS -->
-    <link rel="stylesheet" href="signup.css">
+    <link rel="stylesheet" href="/Login/signupPage/signup.css">
 </head>
 <body class="signup-page">
+    <div id="app-root" hidden></div>
 
     <!-- Starry Background (Visible Only in Dark Mode) -->
     <div class="stars-container">
@@ -49,14 +50,19 @@
 
             <form id="signupForm">
                 <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" id="nameInput" placeholder="Your full name" class="form-control" required>
+                </div>
+
+                <div class="form-group">
                     <label>Email</label>
-                    <input type="email" placeholder="name@gmail.com" class="form-control">
+                    <input type="email" id="emailInput" placeholder="name@gmail.com" class="form-control" required>
                 </div>
 
                 <div class="form-group">
                     <label>Password</label>
                     <div class="password-input-wrapper">
-                        <input type="password" placeholder="Enter your password" class="form-control" id="passInput">
+                        <input type="password" placeholder="Enter your password" class="form-control" id="passInput" required>
                         <i class="fa-regular fa-eye toggle-password" onclick="togglePass('passInput', this)"></i>
                     </div>
                 </div>
@@ -64,17 +70,17 @@
                 <div class="form-group">
                     <label>Confirm Password</label>
                     <div class="password-input-wrapper">
-                        <input type="password" placeholder="Enter your password" class="form-control" id="confPassInput">
+                        <input type="password" placeholder="Confirm your password" class="form-control" id="confPassInput" required>
                         <i class="fa-regular fa-eye toggle-password" onclick="togglePass('confPassInput', this)"></i>
                     </div>
                 </div>
 
-                <a href="../../Dashboard/dashboard.html" type="submit" class="btn-login" style="margin-top: 1rem;">Sign Up</a>
+                <button type="submit" class="btn-login" style="margin-top: 1rem; width: 100%; border: none; cursor: pointer;">Sign Up</button>
 
                 <!-- Role Toggle Link -->
                 <div class="signup-link">
                     <span id="roleQuestion">Are You Instructor ?</span> 
-                    <a href="signupInstructor/signup-ins.html" id="roleToggleBtn" onclick="toggleRole(event)">Sign Up</a>
+                    <a href="./signupInstructor/signup-ins.html" id="roleToggleBtn" onclick="toggleRole(event)">Sign Up</a>
                 </div>
 
                 <div class="signup-link" style="margin-top: 0.5rem;">
@@ -85,6 +91,7 @@
         </div>
     </div>
 
-    <script src="signup.js"></script>
+        <script src="/react-bootstrap.js"></script>
+    <script src="/Login/signupPage/signup.js"></script>
 </body>
 </html>

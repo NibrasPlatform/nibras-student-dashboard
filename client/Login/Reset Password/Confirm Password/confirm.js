@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+window.NibrasReact.run(() => {
 
     // --- THEME TOGGLE LOGIC ---
     const themeBtn = document.getElementById('themeBtn');
@@ -38,9 +38,4 @@ document.addEventListener('DOMContentLoaded', () => {
         icon.classList.add('fa-eye');
     }
 };
-
 });
-
-
-
-

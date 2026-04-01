@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+window.NibrasReact.run(() => {
     
     // --- 1. SIDEBAR NAVIGATION LOGIC (New Addition) ---
     const navLinks = document.querySelectorAll('.nav-link');
@@ -237,5 +237,4 @@ document.addEventListener('DOMContentLoaded', () => {
             container.innerHTML = `<div style="text-align:center; padding: 2rem; color: var(--text-secondary);">No assignments found for this filter.</div>`;
         }
     }
-
 });

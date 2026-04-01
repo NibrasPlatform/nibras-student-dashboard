@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+window.NibrasReact.run(() => {
 
     // --- 1. BACKEND DATA ---
     const pathData = [
@@ -173,5 +173,4 @@ document.addEventListener('DOMContentLoaded', () => {
             themeIcon.className = 'fa-regular fa-moon';
         }
     });
-
 });

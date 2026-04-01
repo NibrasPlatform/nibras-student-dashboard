@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+window.NibrasReact.run(() => {
 
     // --- 1. BACKEND DATA (Mimicking Python Output) ---
     /* 
@@ -139,5 +139,4 @@ document.addEventListener('DOMContentLoaded', () => {
             if(appLogo) appLogo.src = '../Assets/images/logo-light.png';
         }
     });
-
 });

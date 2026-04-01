@@ -1,5 +1,5 @@
 // 1. Theme Toggle Logic
-document.addEventListener('DOMContentLoaded', () => {
+window.NibrasReact.run(() => {
     const themeBtn = document.getElementById('themeBtn');
     
     // Set initial button state based on saved theme

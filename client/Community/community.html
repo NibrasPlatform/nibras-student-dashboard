@@ -14,14 +14,15 @@
 </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="community.css">
+    <link rel="stylesheet" href="/Community/community.css">
 </head>
 <body>
+    <div id="app-root" hidden></div>
 
     <!-- SIDEBAR -->
     <aside class="sidebar">
         <div class="logo-area">
-            <img src="../assets/images/logo-light.png" alt="Nibras Logo" class="sidebar-logo" id="app-logo">
+            <img src="../Assets/images/logo-light.png" alt="Nibras Logo" class="sidebar-logo" id="app-logo">
         </div>
 
         <ul class="nav-menu">
@@ -29,9 +30,9 @@
             <li class="nav-item"><a href="../Courses/courses.html" class="nav-link"><i class="fa-solid fa-book-open"></i> Courses</a></li>
             <li class="nav-item"><a href="../Competitions/Contests/contest.html" class="nav-link"><i class="fa-solid fa-trophy"></i> Competitions</a></li>
             <!-- Active State -->
-            <li class="nav-item"><a href="community.html" class="nav-link active"><i class="fa-solid fa-users"></i> Community</a></li>
+            <li class="nav-item"><a href="./community.html" class="nav-link active"><i class="fa-solid fa-users"></i> Community</a></li>
             <li class="nav-item"><a href="../Achievements/Achievements/achievements.html" class="nav-link"><i class="fa-solid fa-medal"></i> Achievements</a></li>
-            <li class="nav-item"><a href="../Ai-tutor/Ai Tutor/ai_tutor.html" class="nav-link"><i class="fa-solid fa-robot"></i> AI Tutor</a></li>
+            <li class="nav-item"><a href="../Ai-tutor/Ai%20Tutor/ai_tutor.html" class="nav-link"><i class="fa-solid fa-robot"></i> AI Tutor</a></li>
             <li class="nav-item"><a href="../Analytics/Overview/overview.html" class="nav-link"><i class="fa-solid fa-chart-simple"></i> Analytics</a></li>
             <li class="nav-item"><a href="../Settings/settings.html" class="nav-link"><i class="fa-solid fa-gear"></i> Settings</a></li>
         </ul>
@@ -188,13 +189,12 @@
                     <input type="text" id="question-title" placeholder="e.g., How to implement a binary search tree efficiently?">
                 </div>
 
-                <div class="form-group">
-                    <label>Select Course <span class="required">*</span></label>
+                <div class="form-group" style="display:none;">
+                    <label>Select Course</label>
                     <select id="question-course">
                         <option value="">Choose a course...</option>
-                        <option value="Data Structures">Data Structures</option>
-                        <option value="Web Development">Web Development</option>
                     </select>
+                    <small style="color:var(--text-secondary);">Course selection temporarily disabled - requires Course ID</small>
                 </div>
 
                 <div class="form-group">
@@ -215,6 +215,7 @@
         </div>
     </div>
 
-    <script src="community.js"></script>
+        <script src="/react-bootstrap.js"></script>
+    <script src="/Community/community.js?v=20260331-1"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+window.NibrasReact.run(() => {
 
     // --- 1. SIDEBAR NAVIGATION LOGIC ---
     const navLinks = document.querySelectorAll('.nav-link');
@@ -127,5 +127,4 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('grader-name').textContent = data.feedback.grader;
         document.getElementById('graded-date').textContent = data.feedback.date;
     }
-
 });

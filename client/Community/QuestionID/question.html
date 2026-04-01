@@ -14,15 +14,16 @@
 </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="question.css">
+    <link rel="stylesheet" href="/Community/QuestionID/question.css">
 </head>
 <body>
+    <div id="app-root" hidden></div>
 
     <!-- SIDEBAR -->
     <aside class="sidebar">
         <div class="logo-area">
             <!-- Adjusted path based on your previous input -->
-            <img src="../../assets/images/logo-light.png" alt="Nibras Logo" class="sidebar-logo" id="app-logo">
+            <img src="../../Assets/images/logo-light.png" alt="Nibras Logo" class="sidebar-logo" id="app-logo">
         </div>
 
         <ul class="nav-menu">
@@ -32,7 +33,7 @@
             <!-- Active State -->
             <li class="nav-item"><a href="../community.html" class="nav-link active"><i class="fa-solid fa-users"></i> Community</a></li>
             <li class="nav-item"><a href="../../Achievements/Achievements/achievements.html" class="nav-link"><i class="fa-solid fa-medal"></i> Achievements</a></li>
-            <li class="nav-item"><a href="../../Ai-tutor/Ai Tutor/ai_tutor.html" class="nav-link"><i class="fa-solid fa-robot"></i> AI Tutor</a></li>
+            <li class="nav-item"><a href="../../Ai-tutor/Ai%20Tutor/ai_tutor.html" class="nav-link"><i class="fa-solid fa-robot"></i> AI Tutor</a></li>
             <li class="nav-item"><a href="../../Analytics/Overview/overview.html" class="nav-link"><i class="fa-solid fa-chart-simple"></i> Analytics</a></li>
             <li class="nav-item"><a href="../../Settings/settings.html" class="nav-link"><i class="fa-solid fa-gear"></i> Settings</a></li>
         </ul>
@@ -106,6 +107,8 @@
 
     </main>
 
-    <script src="question.js"></script>
+    <script src="http://localhost:5000/socket.io/socket.io.js"></script>
+        <script src="/react-bootstrap.js"></script>
+    <script src="/Community/QuestionID/question.js"></script>
 </body>
 </html>

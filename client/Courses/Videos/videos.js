@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+window.NibrasReact.run(() => {
     
     // --- 1. TOGGLE LOGIC ---
     const themeBtn = document.getElementById('themeBtn');
@@ -146,5 +146,4 @@ document.addEventListener('DOMContentLoaded', () => {
         courseData.currentLessonId = lessonId;
         populateUI(courseData);
 }
-
 });

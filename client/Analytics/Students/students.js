@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+window.NibrasReact.run(() => {
 
     // --- 1. SIDEBAR LOGIC ---
     const navLinks = document.querySelectorAll('.nav-link');
@@ -117,5 +117,4 @@ document.addEventListener('DOMContentLoaded', () => {
             tab.classList.add('active');
         });
     });
-
 });

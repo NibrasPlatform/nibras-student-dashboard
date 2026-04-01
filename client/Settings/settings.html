@@ -14,14 +14,15 @@
 </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="settings.css">
+    <link rel="stylesheet" href="/Settings/settings.css">
 </head>
 <body>
+    <div id="app-root" hidden></div>
 
     <!-- SIDEBAR -->
     <aside class="sidebar">
         <div class="logo-area">
-            <img src="../assets/images/logo-light.png" alt="Nibras Logo" class="sidebar-logo" id="app-logo">
+            <img src="../Assets/images/logo-light.png" alt="Nibras Logo" class="sidebar-logo" id="app-logo">
         </div>
 
         <ul class="nav-menu">
@@ -30,10 +31,10 @@
             <li class="nav-item"><a href="../Competitions/Contests/contest.html" class="nav-link"><i class="fa-solid fa-trophy"></i> Competitions</a></li>
             <li class="nav-item"><a href="../Community/community.html" class="nav-link"><i class="fa-solid fa-users"></i> Community</a></li>
             <li class="nav-item"><a href="../Achievements/Achievements/achievements.html" class="nav-link"><i class="fa-solid fa-medal"></i> Achievements</a></li>
-            <li class="nav-item"><a href="../Ai-tutor/Ai Tutor/ai_tutor.html" class="nav-link"><i class="fa-solid fa-robot"></i> AI Tutor</a></li>
+            <li class="nav-item"><a href="../Ai-tutor/Ai%20Tutor/ai_tutor.html" class="nav-link"><i class="fa-solid fa-robot"></i> AI Tutor</a></li>
             <li class="nav-item"><a href="../Analytics/Overview/overview.html" class="nav-link"><i class="fa-solid fa-chart-simple"></i> Analytics</a></li>
             <!-- Active State -->
-            <li class="nav-item"><a href="settings.html" class="nav-link active"><i class="fa-solid fa-gear"></i> Settings</a></li>
+            <li class="nav-item"><a href="./settings.html" class="nav-link active"><i class="fa-solid fa-gear"></i> Settings</a></li>
         </ul>
 
         <div class="user-profile">
@@ -49,7 +50,7 @@
             <div class="rep-badge">1250</div>
         </div>
 
-        <a href="../../Login/loginPage/login.html" class="logout-btn">
+        <a href="../Login/loginPage/login.html" class="logout-btn">
             <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
         </a>
     </aside>
@@ -203,6 +204,7 @@
         </div>
     </main>
 
-    <script src="settings.js"></script>
+        <script src="/react-bootstrap.js"></script>
+    <script src="/Settings/settings.js"></script>
 </body>
 </html>

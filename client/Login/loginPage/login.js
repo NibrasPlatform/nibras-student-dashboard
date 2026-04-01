@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+window.NibrasReact.run(() => {
 
     const themeBtn = document.getElementById('themeBtn');
     const themeIcon = themeBtn.querySelector('i');
@@ -56,6 +56,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- 4. FORM SUBMIT (Backend Integration) ---
+    const BACKEND_URL = 'http://localhost:5000';
+
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -63,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const password = document.getElementById('passwordInput').value;
 
         try {
-            const res = await fetch('/auth/login', {
+            const res = await fetch(`${BACKEND_URL}/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password })
@@ -71,17 +73,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await res.json();
 
-            if (res.ok && data.token) {
-                localStorage.setItem('token', data.token);
-                localStorage.setItem('user', JSON.stringify(data.user));
-                window.location.href = '../../Dashboard/dashboard.html';
+            if (res.ok && data.data?.token) {
+                localStorage.setItem('token', data.data.token);
+                localStorage.setItem('user', JSON.stringify(data.data.user));
+                window.location.href = '/';
             } else {
-                alert(data.message || 'Login failed');
+                alert(data.message || data.error || 'Login failed');
             }
         } catch (err) {
             console.error('Login error:', err);
             alert('Login failed. Please try again.');
         }
     });
-
 });

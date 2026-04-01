@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+window.NibrasReact.run(() => {
 
     // ==========================================
     // ⚙️ CONFIGURATION
@@ -51,6 +51,67 @@ document.addEventListener('DOMContentLoaded', () => {
     const feedTabs = document.querySelectorAll('.feed-tab');
     const searchInput = document.getElementById('question-search');
     let currentFilter = 'Recent';
+    let currentUserId = null;
+    let renderedQuestionIds = [];
+
+    // Load current user on startup
+    async function loadCurrentUser() {
+        const token = getToken();
+        if (!token) return;
+
+        try {
+            const response = await fetch(`${BACKEND_URL}/auth/me`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                if (data.user) {
+                    currentUserId = data.user._id;
+                    localStorage.setItem('userId', currentUserId);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    await loadVotesForRenderedQuestions();
+                }
+            }
+        } catch (error) {
+            console.error('Error loading current user:', error);
+        }
+    }
+
+    function showToast(message, type = 'success') {
+        const existingToast = document.getElementById('community-toast');
+        if (existingToast) existingToast.remove();
+
+        const toast = document.createElement('div');
+        toast.id = 'community-toast';
+        toast.textContent = message;
+        toast.style.position = 'fixed';
+        toast.style.right = '20px';
+        toast.style.bottom = '20px';
+        toast.style.zIndex = '9999';
+        toast.style.padding = '10px 14px';
+        toast.style.borderRadius = '8px';
+        toast.style.fontSize = '14px';
+        toast.style.fontWeight = '600';
+        toast.style.boxShadow = '0 8px 24px rgba(0,0,0,0.15)';
+        toast.style.background = type === 'success' ? '#10b981' : '#ef4444';
+        toast.style.color = '#ffffff';
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(8px)';
+        toast.style.transition = 'opacity 180ms ease, transform 180ms ease';
+
+        document.body.appendChild(toast);
+
+        requestAnimationFrame(() => {
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateY(0)';
+        });
+
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(8px)';
+            setTimeout(() => toast.remove(), 180);
+        }, 1800);
+    }
 
     // ==========================================
     // 🚀 FETCH DATA FROM BACKEND
@@ -108,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function filterAndRender(filterType) {
+    async function filterAndRender(filterType) {
         let filteredData = [...communityData.questions];
         currentFilter = filterType || currentFilter;
 
@@ -121,8 +182,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (currentFilter === 'Unanswered') {
             filteredData = filteredData.filter(q => (q.commentsCount || q.answers || 0) === 0);
         } else if (currentFilter === 'My Questions') {
-            // Note: Requires /me endpoint or user ID in localStorage to implement properly
-            // For now, show message that user needs to be logged in
             const token = getToken();
             if (!token) {
                 renderQuestions([]);
@@ -131,8 +190,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 return;
             }
-            // Placeholder: would filter by current user's ID if available
-            // filteredData = filteredData.filter(q => q.author?._id === currentUserId);
+            // Filter by current user's ID
+            const userId = currentUserId || localStorage.getItem('userId');
+            if (userId) {
+                filteredData = filteredData.filter(q => {
+                    const authorId = q.author?._id || q.author;
+                    return String(authorId) === String(userId);
+                });
+            } else {
+                // If no user ID yet, try to load it
+                await loadCurrentUser();
+                if (currentUserId) {
+                    filteredData = filteredData.filter(q => {
+                        const authorId = q.author?._id || q.author;
+                        return String(authorId) === String(currentUserId);
+                    });
+                }
+            }
         }
 
         // Apply search filtering
@@ -154,6 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderQuestions(data) {
         if (!feedContainer) return;
         feedContainer.innerHTML = '';
+        renderedQuestionIds = [];
         
         if (data.length === 0) {
             feedContainer.innerHTML = `<div style="text-align:center; padding:2rem; color:var(--text-secondary);">No questions found in the database.</div>`;
@@ -174,15 +249,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Fallbacks (||) are added in case your MongoDB schema names are slightly different
             const qId = q._id || q.id; 
+            if (qId) renderedQuestionIds.push(String(qId));
             const authorName = q.author?.name || q.author || 'Anonymous';
             const authorInitials = authorName.substring(0, 2).toUpperCase();
-            const answersCount = Array.isArray(q.answers) ? q.answers.length : (q.answers || 0);
+            const answersCount = q.commentsCount ?? (Array.isArray(q.answers) ? q.answers.length : (q.answers || 0));
+            const questionVotes = q.votesCount ?? q.votes ?? 0;
 
             feedContainer.innerHTML += `
                 <div class="question-card" data-id="${qId}">
                     <div class="q-vote-box">
                         <i class="fa-solid fa-caret-up vote-arrow upvote-btn" data-id="${qId}"></i>
-                        <span class="vote-count">${q.votes || 0}</span>
+                        <span class="vote-count">${questionVotes}</span>
                         <i class="fa-solid fa-caret-down vote-arrow downvote-btn" data-id="${qId}"></i>
                     </div>
                     <div class="q-content">
@@ -208,6 +285,43 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
         });
+
+        loadVotesForRenderedQuestions();
+    }
+
+    // Track user's votes locally
+    const userVotes = new Map(); // questionId -> voteValue (1, -1, or 0)
+
+    function updateQuestionVoteUI(questionId, value) {
+        const upBtn = feedContainer?.querySelector(`.upvote-btn[data-id="${questionId}"]`);
+        const downBtn = feedContainer?.querySelector(`.downvote-btn[data-id="${questionId}"]`);
+        if (!upBtn || !downBtn) return;
+
+        upBtn.classList.toggle('active', value === 1);
+        downBtn.classList.toggle('active', value === -1);
+    }
+
+    async function loadVotesForRenderedQuestions() {
+        const token = getToken();
+        if (!token || renderedQuestionIds.length === 0) return;
+
+        try {
+            for (const questionId of renderedQuestionIds) {
+                if (!questionId || questionId === 'undefined') continue;
+
+                const response = await fetch(`${BACKEND_URL}/votes/question/${questionId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!response.ok) continue;
+
+                const data = await response.json();
+                const value = Number(data.value ?? 0);
+                userVotes.set(questionId, value);
+                updateQuestionVoteUI(questionId, value);
+            }
+        } catch (error) {
+            console.error('Error loading community votes:', error);
+        }
     }
 
     // --- 4. VOTING LOGIC ---
@@ -225,37 +339,58 @@ document.addEventListener('DOMContentLoaded', () => {
     async function handleVote(btn, type) {
         const token = getToken();
         if (!token) {
-            alert("You must be logged in to vote!");
-            return; 
+            return;
         }
 
         const voteBox = btn.closest('.q-vote-box');
         const countSpan = voteBox.querySelector('.vote-count');
         const questionId = btn.getAttribute('data-id');
-        
-        // Optimistic UI Update (Change number immediately so it feels fast)
-        let currentVotes = parseInt(countSpan.innerText);
-        const originalVotes = currentVotes; // Save in case we need to revert
-        
-        if (type === 'up') currentVotes++;
-        if (type === 'down') currentVotes--;
-        
-        countSpan.innerText = currentVotes;
-        countSpan.classList.add('changed');
-        setTimeout(() => countSpan.classList.remove('changed'), 300);
+        const upBtn = voteBox.querySelector('.upvote-btn');
+        const downBtn = voteBox.querySelector('.downvote-btn');
+
+        const currentVotes = Number(countSpan.innerText) || 0;
+        const currentUserVote = userVotes.get(questionId) || 0;
+
+        // Determine what vote value to send based on current state
+        let voteValue;
+        let newActiveState = { up: false, down: false };
+
+        if (type === 'up') {
+            if (currentUserVote === 1) {
+                // Backend vote endpoint accepts only 1 or -1; keep current state
+                return;
+            } else {
+                // Not upvoted - add upvote
+                voteValue = 1;
+                newActiveState = { up: true, down: false };
+            }
+        } else {
+            if (currentUserVote === -1) {
+                // Backend vote endpoint accepts only 1 or -1; keep current state
+                return;
+            } else {
+                // Not downvoted - add downvote
+                voteValue = -1;
+                newActiveState = { up: false, down: true };
+            }
+        }
+
+        // Optimistic UI Update
+        upBtn.classList.toggle('active', newActiveState.up);
+        downBtn.classList.toggle('active', newActiveState.down);
 
         try {
-            // Cast vote via POST /votes 
+            // Cast vote via POST /votes
             const response = await fetch(`${BACKEND_URL}/votes`, {
                 method: 'POST',
-                headers: { 
+                headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}` // JWT token required by authMiddleware
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    targetType: 'Question', // Matches your backend logic expectations
+                    targetType: 'question',
                     targetId: questionId,
-                    value: type === 'up' ? 1 : -1
+                    value: voteValue
                 })
             });
 
@@ -263,14 +398,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 const errorData = await response.json();
                 throw new Error(errorData.message || "Failed to vote");
             }
-            
-            // Success! The database updated successfully.
-            
+
+            const data = await response.json();
+
+            // Update local tracking and vote count from backend
+            userVotes.set(questionId, Number(data.voteValue ?? voteValue));
+            if (data.votesCount !== undefined) {
+                countSpan.innerText = data.votesCount;
+            } else {
+                // Calculate locally if backend doesn't return count
+                const nextVote = Number(data.voteValue ?? voteValue);
+                countSpan.innerText = currentVotes + (nextVote - currentUserVote);
+            }
+
         } catch (error) {
             console.error("Voting error:", error);
-            alert(error.message);
-            // Revert the vote number if the database rejected it
-            countSpan.innerText = originalVotes;
+            // Revert UI
+            upBtn.classList.toggle('active', currentUserVote === 1);
+            downBtn.classList.toggle('active', currentUserVote === -1);
+            countSpan.innerText = currentVotes;
         }
     }
 
@@ -343,8 +489,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Prepare payload
+        // Note: course should be a Course ID (ObjectId), not a string name
+        // For now, we don't send course since the dropdown returns names, not IDs
         const payload = { title, body };
-        if (course) payload.course = course;
         if (tags.length > 0) payload.tags = tags;
 
         // Show loading state
@@ -384,8 +531,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Reload questions to show the new one
             await loadQuestions();
-
-            // Show success message
+            // Non-blocking success feedback
+            showToast('Question posted successfully');
             alert('Question posted successfully!');
 
         } catch (error) {
@@ -446,5 +593,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 🚀 Start the whole process by calling the backend!
     loadQuestions();
-
+    loadCurrentUser(); // Load current user info for "My Questions" tab
 });

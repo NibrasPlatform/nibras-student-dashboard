@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+window.NibrasReact.run(() => {
 
     // --- 1. THEME TOGGLE LOGIC ---
     const themeBtn = document.getElementById('themeBtn');
@@ -43,4 +43,55 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // --- 3. FORM SUBMIT (Backend Integration) ---
+    const BACKEND_URL = 'http://localhost:5000';
+
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const name = document.getElementById('nameInput').value.trim();
+        const email = document.getElementById('emailInput').value.trim();
+        const password = document.getElementById('passInput').value;
+        const confirmPassword = document.getElementById('confPassInput').value;
+
+        // Validation
+        if (!name) {
+            alert('Please enter your name');
+            return;
+        }
+        if (!email) {
+            alert('Please enter your email');
+            return;
+        }
+        if (password.length < 6) {
+            alert('Password must be at least 6 characters');
+            return;
+        }
+        if (password !== confirmPassword) {
+            alert('Passwords do not match');
+            return;
+        }
+
+        try {
+            const res = await fetch(`${BACKEND_URL}/auth/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, password })
+            });
+
+            const data = await res.json();
+
+            if (res.ok && data.data?.token) {
+                localStorage.setItem('token', data.data.token);
+                localStorage.setItem('user', JSON.stringify(data.data.user));
+                alert('Account created successfully!');
+                window.location.href = '/';
+            } else {
+                alert(data.error || data.message || 'Registration failed');
+            }
+        } catch (err) {
+            console.error('Signup error:', err);
+            alert('Registration failed. Please try again.');
+        }
+    });
 });

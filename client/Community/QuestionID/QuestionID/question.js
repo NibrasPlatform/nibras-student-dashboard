@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+window.NibrasReact.run(() => {
 
     // --- 1. SIDEBAR LOGIC ---
     const navLinks = document.querySelectorAll('.nav-link');
@@ -201,5 +201,4 @@ document.addEventListener('DOMContentLoaded', () => {
             if(appLogo) appLogo.src = '../../assets/images/logo-light.png';
         }
     });
-
 });

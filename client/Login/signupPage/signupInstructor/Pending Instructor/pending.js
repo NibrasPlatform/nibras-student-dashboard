@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+window.NibrasReact.run(() => {
 
     // --- THEME TOGGLE LOGIC ---
     const themeBtn = document.getElementById('themeBtn');
@@ -25,5 +25,4 @@ document.addEventListener('DOMContentLoaded', () => {
             themeIcon.className = 'fa-solid fa-moon';
         }
     });
-
 });

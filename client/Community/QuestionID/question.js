@@ -1,7 +1,48 @@
-document.addEventListener('DOMContentLoaded', () => {
+window.NibrasReact.run(() => {
 
     // --- CONFIGURATION ---
     const BACKEND_URL = 'http://localhost:5000';
+
+    // --- SOCKET.IO SETUP ---
+    let socket = null;
+    function initSocket(questionId) {
+        if (typeof io === 'undefined') {
+            console.log('Socket.io not available');
+            return;
+        }
+        socket = io(BACKEND_URL);
+        socket.on('connect', () => {
+            console.log('Socket connected:', socket.id);
+            // Join the question room
+            socket.emit('question:join', questionId);
+        });
+        socket.on('comment:created', (data) => {
+            console.log('New comment received:', data);
+            // Reload the question to show new comment
+            loadQuestion(questionId);
+        });
+        socket.on('vote:updated', (data) => {
+            console.log('Vote updated:', data);
+            // Update vote count for the specific target
+            const voteBox = document.querySelector(`.q-vote-box[data-type="${data.targetType === 'question' ? 'question' : 'comment'}"][data-id="${data.targetId}"]`);
+            if (voteBox) {
+                const countSpan = voteBox.querySelector('.vote-count');
+                if (countSpan) {
+                    countSpan.innerText = data.votesCount;
+                }
+            }
+        });
+        socket.on('disconnect', () => {
+            console.log('Socket disconnected');
+        });
+    }
+
+    function disconnectSocket() {
+        if (socket) {
+            socket.disconnect();
+            socket = null;
+        }
+    }
 
     // --- HELPER FUNCTIONS ---
     function getToken() {
@@ -120,6 +161,9 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             renderDetailView(currentQuestionData);
+
+            // Initialize socket for real-time updates
+            initSocket(questionId);
 
         } catch (error) {
             console.error('Error loading question:', error);
@@ -268,6 +312,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (value === -1) downBtn.classList.add('active');
     }
 
+    // Track vote state for the current question page
+    const pageVotes = new Map(); // targetId -> { type, value }
+
     document.body.addEventListener('click', async (e) => {
         if (e.target.classList.contains('vote-arrow')) {
             const btn = e.target;
@@ -275,58 +322,55 @@ document.addEventListener('DOMContentLoaded', () => {
             const targetId = btn.dataset.id;
             const voteBox = btn.closest('.q-vote-box');
             const countSpan = voteBox.querySelector('.vote-count');
-            const originalVotes = parseInt(countSpan.innerText);
+            const currentVotes = parseInt(countSpan.innerText);
 
             // Check authentication
             const token = getToken();
             if (!token) {
-                alert('You must be logged in to vote!');
                 return;
             }
 
-            let voteValue = 0;
+            const upBtn = voteBox.querySelector('.up');
+            const downBtn = voteBox.querySelector('.down');
+            const wasUpvoted = upBtn.classList.contains('active');
+            const wasDownvoted = downBtn.classList.contains('active');
+            const currentUserVote = wasUpvoted ? 1 : (wasDownvoted ? -1 : 0);
 
-            // Handle UP
+            let voteValue;
+            let newActiveState;
+
+            // Determine new vote value based on click
             if (btn.classList.contains('up')) {
-                if (btn.classList.contains('active')) {
-                    voteValue = 0; // Remove vote
+                if (wasUpvoted) {
+                    voteValue = 0; // Remove upvote
+                    newActiveState = 0;
                 } else {
-                    voteValue = 1; // Upvote
+                    voteValue = 1; // Add upvote
+                    newActiveState = 1;
                 }
-            }
-            // Handle DOWN
-            else if (btn.classList.contains('down')) {
-                if (btn.classList.contains('active')) {
-                    voteValue = 0; // Remove vote
+            } else {
+                if (wasDownvoted) {
+                    voteValue = 0; // Remove downvote
+                    newActiveState = 0;
                 } else {
-                    voteValue = -1; // Downvote
+                    voteValue = -1; // Add downvote
+                    newActiveState = -1;
                 }
             }
 
             // Optimistic UI update
-            let newVotes = originalVotes;
-            const wasUpvoted = voteBox.querySelector('.up').classList.contains('active');
-            const wasDownvoted = voteBox.querySelector('.down').classList.contains('active');
+            updateVoteUI(type, targetId, newActiveState);
 
-            if (btn.classList.contains('up')) {
-                if (wasUpvoted) {
-                    newVotes--;
-                } else {
-                    newVotes++;
-                    if (wasDownvoted) newVotes++;
-                }
-            } else {
-                if (wasDownvoted) {
-                    newVotes++;
-                } else {
-                    newVotes--;
-                    if (wasUpvoted) newVotes--;
-                }
+            // Calculate expected new vote count
+            let expectedVotes = currentVotes;
+            if (currentUserVote === 0 && voteValue !== 0) {
+                expectedVotes += voteValue; // Adding new vote
+            } else if (currentUserVote !== 0 && voteValue === 0) {
+                expectedVotes -= currentUserVote; // Removing vote
+            } else if (currentUserVote !== voteValue) {
+                expectedVotes += voteValue - currentUserVote; // Switching vote
             }
-            countSpan.innerText = newVotes;
-
-            // Update UI immediately
-            updateVoteUI(type, targetId, voteValue);
+            countSpan.innerText = expectedVotes;
 
             // Send to backend
             try {
@@ -350,17 +394,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 const data = await response.json();
-                // Update with actual vote count from server
-                if (data.target && data.target.votesCount !== undefined) {
-                    countSpan.innerText = data.target.votesCount;
+
+                // Update vote count from server response
+                if (data.votesCount !== undefined) {
+                    countSpan.innerText = data.votesCount;
                 }
+
+                // Track the actual vote value
+                pageVotes.set(targetId, { type, value: data.voteValue || voteValue });
 
             } catch (error) {
                 console.error('Voting error:', error);
-                alert(error.message);
                 // Revert UI
-                countSpan.innerText = originalVotes;
-                updateVoteUI(type, targetId, wasUpvoted ? 1 : (wasDownvoted ? -1 : 0));
+                updateVoteUI(type, targetId, currentUserVote);
+                countSpan.innerText = currentVotes;
             }
         }
     });
@@ -456,5 +503,4 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         showError('No question ID provided. Please select a question from the community page.');
     }
-
 });
