@@ -140,3 +140,7 @@ vite.config.ts.timestamp-*
 
 backend/
 Nibras/
+
+AGENTS.md
+package-lock.json
+package.json
