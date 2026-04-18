@@ -1,29 +1,132 @@
 window.NibrasReact.run(() => {
 
     // --- CONFIGURATION ---
-    const BACKEND_URL = 'http://localhost:5000';
+    const DEFAULT_LEGACY_COMMUNITY_URL = 'https://community-system-production.up.railway.app';
+    const BACKEND_URL =
+        window.NibrasShared?.resolveServiceUrl?.('legacyCommunity') ||
+        window.NibrasApi?.resolveServiceUrl?.('legacyCommunity') ||
+        window.NibrasApiConfig?.getServiceUrl?.('legacyCommunity') ||
+        window.NIBRAS_LEGACY_API_URL ||
+        window.NIBRAS_API_URL ||
+        window.NIBRAS_BACKEND_URL ||
+        DEFAULT_LEGACY_COMMUNITY_URL;
+    const sharedAuth = window.NibrasShared?.auth || null;
+    const sharedApiFetch = window.NibrasShared?.apiFetch || null;
+    const sharedUiStates = window.NibrasShared?.uiStates || null;
+
+    // --- STATE ---
+    let currentQuestionData = null;
+    let currentQuestionId = null;
+    let currentUserId = null;
+    let currentUserRole = null;
+
 
     // --- SOCKET.IO SETUP ---
     let socket = null;
+    let socketIoPromise = null;
+    const voteValueCache = new Map();
+    const voteValueInFlight = new Map();
+
+    function normalizeBaseUrl(url) {
+        return String(url || '').trim().replace(/\/+$/, '');
+    }
+
+    function dedupeList(values) {
+        return Array.from(new Set(values.filter(Boolean)));
+    }
+
+    function normalizePath(path) {
+        if (!path) return '/';
+        return String(path).startsWith('/') ? String(path) : `/${String(path)}`;
+    }
+
+    function buildCommunityBaseCandidates() {
+        const seeds = [
+            BACKEND_URL,
+            window.NibrasShared?.resolveServiceUrl?.('legacyCommunity'),
+            window.NibrasApi?.resolveServiceUrl?.('legacyCommunity'),
+            window.NibrasApiConfig?.getServiceUrl?.('legacyCommunity'),
+            window.NIBRAS_LEGACY_API_URL,
+            DEFAULT_LEGACY_COMMUNITY_URL,
+        ];
+
+        const bases = [];
+        seeds.forEach((seed) => {
+            const normalized = normalizeBaseUrl(seed);
+            if (!normalized) return;
+            bases.push(normalized);
+            if (/\/api$/i.test(normalized)) {
+                bases.push(normalized.replace(/\/api$/i, ''));
+            } else {
+                bases.push(`${normalized}/api`);
+            }
+        });
+
+        return dedupeList(bases);
+    }
+
+    function buildPathCandidates(path) {
+        const normalized = normalizePath(path);
+        if (!normalized.startsWith('/api/')) {
+            return [normalized, `/api${normalized}`];
+        }
+        return [normalized, normalized.replace(/^\/api/i, '') || '/'];
+    }
+
+    let activeCommunityBaseUrl = normalizeBaseUrl(BACKEND_URL) || DEFAULT_LEGACY_COMMUNITY_URL;
+
+    function getSocketBaseUrl() {
+        return normalizeBaseUrl(activeCommunityBaseUrl) || normalizeBaseUrl(BACKEND_URL) || DEFAULT_LEGACY_COMMUNITY_URL;
+    }
+
+    function ensureSocketIoLoaded() {
+        if (typeof io !== 'undefined') {
+            return Promise.resolve(true);
+        }
+        if (socketIoPromise) {
+            return socketIoPromise;
+        }
+
+        const socketScriptUrl = `${getSocketBaseUrl()}/socket.io/socket.io.js`;
+        socketIoPromise = new Promise((resolve) => {
+            const existingScript = Array.from(document.scripts).find((script) => script.src === socketScriptUrl);
+            if (existingScript) {
+                if (typeof io !== 'undefined') {
+                    resolve(true);
+                    return;
+                }
+                existingScript.addEventListener('load', () => resolve(typeof io !== 'undefined'), { once: true });
+                existingScript.addEventListener('error', () => resolve(false), { once: true });
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.src = socketScriptUrl;
+            script.async = true;
+            script.addEventListener('load', () => resolve(typeof io !== 'undefined'), { once: true });
+            script.addEventListener('error', () => resolve(false), { once: true });
+            document.head.appendChild(script);
+        });
+
+        return socketIoPromise;
+    }
+
     function initSocket(questionId) {
         if (typeof io === 'undefined') {
             console.log('Socket.io not available');
             return;
         }
-        socket = io(BACKEND_URL);
+        socket = io(getSocketBaseUrl());
         socket.on('connect', () => {
             console.log('Socket connected:', socket.id);
-            // Join the question room
             socket.emit('question:join', questionId);
         });
-        socket.on('comment:created', (data) => {
-            console.log('New comment received:', data);
-            // Reload the question to show new comment
+        socket.on('answer:created', (data) => {
+            console.log('New answer received:', data);
             loadQuestion(questionId);
         });
         socket.on('vote:updated', (data) => {
             console.log('Vote updated:', data);
-            // Update vote count for the specific target
             const voteBox = document.querySelector(`.q-vote-box[data-type="${data.targetType === 'question' ? 'question' : 'comment'}"][data-id="${data.targetId}"]`);
             if (voteBox) {
                 const countSpan = voteBox.querySelector('.vote-count');
@@ -44,9 +147,113 @@ window.NibrasReact.run(() => {
         }
     }
 
+    let answerEditor = null;
+    let editEditor = null;
+
+    function renderMarkdown(text) {
+        if (!text) return "";
+        return DOMPurify.sanitize(marked.parse(text));
+    }
+
     // --- HELPER FUNCTIONS ---
     function getToken() {
-        return localStorage.getItem('token');
+        return sharedAuth?.getToken?.() || window.NibrasApi?.getToken?.() || null;
+    }
+
+    function buildAuthHeaders(headers = {}, options = {}) {
+        if (sharedAuth?.buildAuthHeaders) {
+            return sharedAuth.buildAuthHeaders(headers, options);
+        }
+        if (window.NibrasApi?.buildAuthHeaders) {
+            return window.NibrasApi.buildAuthHeaders(headers, options);
+        }
+
+        return Object.assign({}, headers);
+    }
+
+    function resolveUiStateFromError(error, fallbackMessage) {
+        if (sharedUiStates?.fromError) {
+            return sharedUiStates.fromError(error, fallbackMessage);
+        }
+        return {
+            state: 'error',
+            message: error?.message || fallbackMessage || 'Request failed',
+        };
+    }
+
+    async function requestLegacyApi(path, options = {}) {
+        const method = String(options.method || 'GET').toUpperCase();
+        const authEnabled = options.auth !== false;
+        const headers = Object.assign({}, options.headers || {});
+        const hasContentType = Object.keys(headers).some((key) => key.toLowerCase() === 'content-type');
+        const hasBody = Object.prototype.hasOwnProperty.call(options, 'body') && options.body != null;
+        const isJsonBody = hasBody && typeof options.body === 'object' && !(options.body instanceof FormData);
+        const baseCandidates = buildCommunityBaseCandidates();
+        const pathCandidates = buildPathCandidates(path);
+
+        if (authEnabled) {
+            Object.assign(headers, buildAuthHeaders(headers));
+        }
+        if (isJsonBody && !hasContentType) {
+            headers['Content-Type'] = 'application/json';
+        }
+
+        let lastError = null;
+        for (const baseUrl of baseCandidates) {
+            for (const candidatePath of pathCandidates) {
+                if (typeof sharedApiFetch === 'function') {
+                    try {
+                        const data = await sharedApiFetch(candidatePath, Object.assign({}, options, {
+                            service: 'legacyCommunity',
+                            baseUrl,
+                            headers,
+                        }));
+                        activeCommunityBaseUrl = normalizeBaseUrl(baseUrl) || activeCommunityBaseUrl;
+                        return data;
+                    } catch (error) {
+                        lastError = error;
+                        const status = Number(error?.status || 0);
+                        if (status === 401 || status === 403) throw error;
+                        if (status !== 404 && status !== 0) throw error;
+                        continue;
+                    }
+                }
+
+                const response = await fetch(`${baseUrl}${candidatePath}`, {
+                    method,
+                    headers,
+                    body: isJsonBody ? JSON.stringify(options.body) : options.body,
+                });
+
+                let payload = null;
+                try {
+                    payload = await response.json();
+                } catch (_) {
+                    payload = null;
+                }
+
+                if (!response.ok) {
+                    const err = new Error(
+                        payload?.message ||
+                        payload?.error ||
+                        `Request failed (${response.status})`
+                    );
+                    err.status = response.status;
+                    err.code = response.status === 401 ? 'UNAUTHORIZED' : (response.status === 403 ? 'FORBIDDEN' : 'REQUEST_FAILED');
+                    err.payload = payload;
+                    lastError = err;
+                    if (response.status === 401 || response.status === 403) throw err;
+                    if (response.status !== 404) throw err;
+                    continue;
+                }
+
+                activeCommunityBaseUrl = normalizeBaseUrl(baseUrl) || activeCommunityBaseUrl;
+                return payload;
+            }
+        }
+
+        if (lastError) throw lastError;
+        throw new Error('Request failed');
     }
 
     function getQuestionIdFromUrl() {
@@ -74,30 +281,95 @@ window.NibrasReact.run(() => {
         return date.toLocaleDateString();
     }
 
-    function showError(message) {
+    function setAnswerComposerVisibility(isVisible) {
+        const answerHeader = document.getElementById('answers-count-header');
+        const answerSection = document.querySelector('.your-answer-section');
+        if (answerHeader) {
+            answerHeader.style.display = isVisible ? '' : 'none';
+        }
+        if (answerSection) {
+            answerSection.style.display = isVisible ? '' : 'none';
+            answerSection.setAttribute('aria-hidden', isVisible ? 'false' : 'true');
+        }
+    }
+
+    function showError(message, state = 'error') {
         const detailMain = document.getElementById('q-main-content');
-        detailMain.innerHTML = `
-            <div style="text-align:center; padding:2rem; color:var(--accent-red);">
-                <i class="fa-solid fa-circle-exclamation" style="font-size:3rem; margin-bottom:1rem;"></i>
-                <h2>Error</h2>
-                <p>${message}</p>
-                <a href="../community.html" class="btn-back" style="margin-top:1rem; display:inline-block;">
-                    <i class="fa-solid fa-chevron-left"></i> Back to Community
-                </a>
-            </div>
-        `;
-        document.getElementById('answers-count-header').style.display = 'none';
-        document.querySelector('.your-answer-section').style.display = 'none';
+        if (!detailMain) return;
+        if (sharedUiStates?.render) {
+            sharedUiStates.render(detailMain, { state, message });
+        } else {
+            detailMain.innerHTML = `
+                <div style="text-align:center; padding:2rem; color:var(--tag-red-text, #dc2626);">
+                    <i class="fa-solid fa-circle-exclamation" style="font-size:3rem; margin-bottom:1rem;"></i>
+                    <h2>Error</h2>
+                    <p>${message}</p>
+                </div>
+            `;
+        }
+        const backLink = document.createElement('a');
+        backLink.href = '../community.html';
+        backLink.className = 'btn-back';
+        backLink.style.marginTop = '1rem';
+        backLink.style.display = 'inline-block';
+        backLink.style.fontWeight = '600';
+        backLink.innerHTML = '<i class="fa-solid fa-chevron-left"></i> Back to Community';
+        detailMain.appendChild(backLink);
+        setAnswerComposerVisibility(false);
     }
 
     function showLoading() {
         const detailMain = document.getElementById('q-main-content');
-        detailMain.innerHTML = `
-            <div style="text-align:center; padding:2rem;">
-                <i class="fa-solid fa-spinner fa-spin" style="font-size:2rem; color:var(--accent-blue);"></i>
-                <p style="margin-top:1rem;">Loading question...</p>
-            </div>
-        `;
+        if (!detailMain) return;
+        if (sharedUiStates?.render) {
+            sharedUiStates.render(detailMain, { state: 'loading', message: 'Loading question...' });
+        } else {
+            detailMain.innerHTML = `
+                <div style="text-align:center; padding:2rem;">
+                    <i class="fa-solid fa-spinner fa-spin" style="font-size:2rem; color:var(--accent-blue);"></i>
+                    <p style="margin-top:1rem;">Loading question...</p>
+                </div>
+            `;
+        }
+        setAnswerComposerVisibility(true);
+    }
+
+    function showToast(message, type = 'success') {
+        const existingToast = document.getElementById('community-toast');
+        if (existingToast) existingToast.remove();
+
+        const toast = document.createElement('div');
+        toast.id = 'community-toast';
+        toast.textContent = message;
+        toast.style.position = 'fixed';
+        toast.style.right = '20px';
+        toast.style.bottom = '20px';
+        toast.style.zIndex = '9999';
+        toast.style.padding = '12px 20px';
+        toast.style.borderRadius = '8px';
+        toast.style.fontSize = '14px';
+        toast.style.fontWeight = '600';
+        toast.style.boxShadow = '0 8px 24px rgba(0,0,0,0.15)';
+        toast.style.background = type === 'success' ? '#10b981' : '#ef4444';
+        toast.style.color = '#ffffff';
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(15px)';
+        toast.style.transition = 'opacity 250ms ease, transform 250ms ease';
+        toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
+        toast.setAttribute('aria-live', type === 'error' ? 'assertive' : 'polite');
+
+        document.body.appendChild(toast);
+
+        requestAnimationFrame(() => {
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateY(0)';
+        });
+
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(15px)';
+            setTimeout(() => toast.remove(), 250);
+        }, 2500);
     }
 
     // --- SIDEBAR LOGIC ---
@@ -109,45 +381,55 @@ window.NibrasReact.run(() => {
         });
     });
 
-    // --- DATA FETCHING ---
-    let currentQuestionData = null;
-    let currentQuestionId = null;
+    // --- AUTH FETCH ---
+    async function loadCurrentUser() {
+        const token = getToken();
+        if (!token) return;
+        try {
+            const data = await requestLegacyApi('/auth/me');
+            if (data?.user) {
+                currentUserId = data.user._id;
+                currentUserRole = data.user.role;
+            }
+        } catch (error) {
+            console.error('Error loading current user:', error);
+        }
+    }
 
+    // --- DATA FETCHING ---
     async function loadQuestion(questionId) {
         currentQuestionId = questionId;
-        showLoading();
+        
+        // Only show loading state if we don't already have the data
+        if (!currentQuestionData) showLoading();
 
         try {
-            const response = await fetch(`${BACKEND_URL}/questions/${questionId}`);
+            const data = await requestLegacyApi(`/questions/${questionId}`, { auth: false });
+            const question = data?.question;
+            const comments = data.answers || data.comments ||[];
 
-            if (!response.ok) {
-                if (response.status === 404) {
-                    throw new Error('Question not found');
-                }
-                throw new Error('Failed to load question');
+            if (!question) {
+                showError('Question not found.', 'empty');
+                return;
             }
-
-            const data = await response.json();
-
-            // Transform backend data to match render structure
-            const question = data.question;
-            const comments = data.comments || [];
 
             currentQuestionData = {
                 id: question._id,
                 title: question.title,
                 body: question.body,
+                authorId: question.author?._id || question.author,
                 author: question.author?.name || 'Unknown',
                 authorInitials: getInitials(question.author?.name),
                 votes: question.votesCount || 0,
                 views: question.views || 0,
                 createdAt: question.createdAt,
                 time: formatTimeAgo(question.createdAt),
-                tags: question.tags || [],
+                tags: question.tags ||[],
                 authorRole: question.author?.role || 'student',
                 authorRep: question.author?.reputation || 0,
                 replies: comments.map(comment => ({
                     id: comment._id,
+                    authorId: comment.author?._id || comment.author, // EXTRACT AUTHOR ID
                     votes: comment.votesCount || 0,
                     author: comment.author?.name || 'Unknown',
                     authorRole: comment.author?.role || 'student',
@@ -161,18 +443,25 @@ window.NibrasReact.run(() => {
             };
 
             renderDetailView(currentQuestionData);
-
-            // Initialize socket for real-time updates
-            initSocket(questionId);
+            if (!socket) {
+                ensureSocketIoLoaded().then((isSocketReady) => {
+                    if (isSocketReady && !socket) {
+                        initSocket(questionId);
+                    }
+                });
+            }
 
         } catch (error) {
             console.error('Error loading question:', error);
-            showError(error.message || 'Failed to load question. Please try again.');
+            const stateInfo = resolveUiStateFromError(error, 'Failed to load question. Please try again.');
+            showError(stateInfo.message, stateInfo.state);
         }
     }
 
     // --- RENDER FUNCTION ---
     function renderDetailView(q) {
+        const isAdmin = currentUserRole === 'admin';
+        setAnswerComposerVisibility(true);
 
         // A. Render Tags
         let tagHtml = '';
@@ -185,25 +474,51 @@ window.NibrasReact.run(() => {
             tagHtml += `<span class="tag ${color}">${t}</span>`;
         });
 
+        // Question Setting Menu
+        let actionMenuHtml = '';
+        const isQuestionAuthor = currentUserId && String(q.authorId) === String(currentUserId);
+
+        if (isQuestionAuthor || isAdmin) {
+            actionMenuHtml = `
+                <div class="q-settings-dropdown" style="position: relative; display: inline-block;">
+                    <button type="button" class="fa-solid fa-ellipsis-vertical action-menu-btn" style="background:none; border:none; cursor: pointer; padding: 4px 10px; font-size: 1.15rem; color: var(--text-secondary);" title="More options" aria-label="Open question actions"></button>
+                    
+                    <div class="action-menu-content" style="display: none; position: absolute; top: 100%; right: 0; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 6px 0; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.15); min-width: 150px; margin-top: 5px;">
+                        
+                        ${isQuestionAuthor ? `
+                        <button type="button" class="menu-item edit-q-btn" style="width:100%; text-align:left; background:none; border:none; padding: 10px 16px; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; color: var(--text-primary); transition: 0.2s;">
+                            <i class="fa-solid fa-pen" style="font-size: 0.85rem;"></i> Edit Question
+                        </button>
+                        ` : ''}
+
+                        <button type="button" class="menu-item delete-q-btn" style="width:100%; text-align:left; background:none; border:none; padding: 10px 16px; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; color: #ef4444; transition: 0.2s;">
+                            <i class="fa-solid fa-trash" style="font-size: 0.85rem;"></i> Delete
+                        </button>
+
+                    </div>
+                </div>
+            `;
+        }
+
         // B. Render Main Question
         const detailMain = document.getElementById('q-main-content');
         detailMain.innerHTML = `
             <div class="q-vote-box" data-type="question" data-id="${q.id}">
-                <i class="fa-solid fa-chevron-up vote-arrow up" data-type="question" data-id="${q.id}"></i>
+                <button type="button" class="fa-solid fa-chevron-up vote-arrow up" data-type="question" data-id="${q.id}" aria-label="Upvote question" aria-pressed="false"></button>
                 <span class="vote-count">${q.votes}</span>
-                <i class="fa-solid fa-chevron-down vote-arrow down" data-type="question" data-id="${q.id}"></i>
+                <button type="button" class="fa-solid fa-chevron-down vote-arrow down" data-type="question" data-id="${q.id}" aria-label="Downvote question" aria-pressed="false"></button>
             </div>
             <div class="detail-content">
                 <h1 class="detail-title">${q.title}</h1>
-                <div class="detail-body">${q.body}</div>
+                <div class="detail-body markdown-body">${renderMarkdown(q.body)}</div>
                 <div class="detail-tags">${tagHtml}</div>
-                <div class="detail-footer">
-                    <div class="detail-actions">
+                <div class="detail-footer" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="detail-actions" style="display: flex; align-items: center; gap: 14px;">
                         <span>Asked ${q.time}</span>
-                        <span>•</span>
+                        <span style="margin: 0 -4px;">•</span>
                         <span>${q.views} views</span>
-                        <i class="fa-solid fa-share-nodes"></i>
-                        <i class="fa-regular fa-bookmark"></i>
+                        <button type="button" class="fa-solid fa-share-nodes share-q-btn" title="Copy link" aria-label="Copy question link" style="background:none; border:none; cursor: pointer; font-size: 1.15rem; color: var(--accent-blue); transition: 0.2s;"></button>
+                        ${actionMenuHtml}
                     </div>
                     <div class="detail-author-box">
                         <div class="author-av" style="width:36px; height:36px;">${q.authorInitials}</div>
@@ -219,10 +534,9 @@ window.NibrasReact.run(() => {
         // C. Render Answers
         document.getElementById('answers-count-header').textContent = `${q.replies.length} Answer${q.replies.length !== 1 ? 's' : ''}`;
         const ansContainer = document.getElementById('answers-container');
-        ansContainer.innerHTML = '';
+        let answersHtml = '';
 
         q.replies.forEach(ans => {
-            // Role Badge Logic
             let roleBadge = '';
             let roleColor = 'bg-blue';
             if (ans.authorRole === 'instructor') {
@@ -235,18 +549,47 @@ window.NibrasReact.run(() => {
 
             const pinnedBadge = ans.isPinned ? `<span class="contrib-badge bg-green" style="margin-left:8px;"><i class="fa-solid fa-thumbtack"></i> Pinned</span>` : '';
 
-            ansContainer.innerHTML += `
+            // --- COMMENT ACTION MENU LOGIC ---
+            const isCommentAuthor = currentUserId && String(ans.authorId) === String(currentUserId);
+            const canDeleteComment = isCommentAuthor || isAdmin;
+            let commentActionMenuHtml = '';
+
+            if (isCommentAuthor || canDeleteComment) {
+                commentActionMenuHtml = `
+                    <div class="q-settings-dropdown" style="position: relative; display: inline-block;">
+                        <button type="button" class="fa-solid fa-ellipsis-vertical action-menu-btn" style="background:none; border:none; cursor: pointer; padding: 4px 10px; font-size: 1.15rem; color: var(--text-secondary);" title="More options" aria-label="Open answer actions"></button>
+                        
+                        <div class="action-menu-content" style="display: none; position: absolute; top: 100%; right: 0; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 6px 0; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.15); min-width: 150px; margin-top: 5px;">
+                            
+                            ${isCommentAuthor ? `
+                            <button type="button" class="menu-item edit-comment-btn" style="width:100%; text-align:left; background:none; border:none; padding: 10px 16px; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; color: var(--text-primary); transition: 0.2s;">
+                                <i class="fa-solid fa-pen" style="font-size: 0.85rem;"></i> Edit Answer
+                            </button>
+                            ` : ''}
+
+                            ${canDeleteComment ? `
+                            <button type="button" class="menu-item delete-comment-btn" style="width:100%; text-align:left; background:none; border:none; padding: 10px 16px; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; color: #ef4444; transition: 0.2s;">
+                                <i class="fa-solid fa-trash" style="font-size: 0.85rem;"></i> Delete
+                            </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+
+            answersHtml += `
                 <div class="answer-card" data-comment-id="${ans.id}">
                     <div class="q-vote-box" data-type="comment" data-id="${ans.id}">
-                        <i class="fa-solid fa-chevron-up vote-arrow up" data-type="comment" data-id="${ans.id}"></i>
+                        <button type="button" class="fa-solid fa-chevron-up vote-arrow up" data-type="comment" data-id="${ans.id}" aria-label="Upvote answer" aria-pressed="false"></button>
                         <span class="vote-count">${ans.votes}</span>
-                        <i class="fa-solid fa-chevron-down vote-arrow down" data-type="comment" data-id="${ans.id}"></i>
+                        <button type="button" class="fa-solid fa-chevron-down vote-arrow down" data-type="comment" data-id="${ans.id}" aria-label="Downvote answer" aria-pressed="false"></button>
                     </div>
                     <div class="detail-content">
-                        <div class="detail-body" style="margin-bottom:1.5rem">${ans.text}</div>
-                        <div class="detail-footer">
-                            <div class="detail-actions">
+                        <div class="detail-body markdown-body" style="margin-bottom:1.5rem">${renderMarkdown(ans.text)}</div>
+                        <div class="detail-footer" style="display:flex; justify-content:space-between; align-items:center;">
+                            <div class="detail-actions" style="display:flex; align-items:center; gap:14px;">
                                 <span>${ans.time}</span>
+                                ${commentActionMenuHtml}
                             </div>
                             <div class="detail-author-box">
                                 <div class="author-av" style="width:36px; height:36px;">${ans.initials}</div>
@@ -263,36 +606,270 @@ window.NibrasReact.run(() => {
                 </div>
             `;
         });
+        ansContainer.innerHTML = answersHtml || `
+            <div style="text-align:center; padding:1.25rem; border:1px dashed var(--border-color); border-radius:8px; color:var(--text-secondary);">
+                No answers yet. Be the first to help by posting a clear explanation.
+            </div>
+        `;
 
-        // Load user's existing votes
         loadUserVotes();
+
+        setTimeout(() => {
+            document.querySelectorAll('pre code').forEach((block) => {
+                hljs.highlightElement(block);
+            });
+        }, 10);
+    }
+
+    // --- GLOBAL CLICK LISTENER FOR MENU & ACTIONS ---
+    document.body.addEventListener('click', async (e) => {
+        // 1. Handle Share Link Click
+        const shareButton = e.target.closest('.share-q-btn');
+        if (shareButton) {
+            const shareUrl = `${window.location.origin}/Community/QuestionID/question.html?id=${currentQuestionId}`;
+            navigator.clipboard.writeText(shareUrl)
+                .then(() => showToast('Link copied to clipboard!'))
+                .catch(() => showToast('Unable to copy link right now.', 'error'));
+            return;
+        }
+
+        // 2. Handle 3-Dot Dropdown Toggling
+        const menuButton = e.target.closest('.action-menu-btn');
+        const menus = document.querySelectorAll('.action-menu-content');
+        
+        if (menuButton) {
+            const menu = menuButton.nextElementSibling;
+            const isCurrentlyVisible = menu.style.display === 'block';
+            menus.forEach(m => m.style.display = 'none'); // Close others
+            if (!isCurrentlyVisible) menu.style.display = 'block';
+            return;
+        } else {
+            // Close dropdowns if clicked outside
+            menus.forEach(m => m.style.display = 'none');
+        }
+
+        // ------------------------------------
+        // EDIT & DELETE: QUESTIONS
+        // ------------------------------------
+        const editBtn = e.target.closest('.edit-q-btn');
+        if (editBtn) {
+            modalInvoker = editBtn;
+            document.querySelector('#editModal h2').innerText = 'Edit Question';
+            document.getElementById('edit-question-title').parentElement.style.display = 'block'; // Show title
+            document.getElementById('edit-question-title').value = currentQuestionData.title;
+            document.getElementById('edit-question-body').value = currentQuestionData.body;
+            
+            document.getElementById('saveEditBtn').dataset.editType = 'question';
+            document.getElementById('editModal').style.display = 'flex';
+            document.getElementById('editModal').setAttribute('aria-hidden', 'false');
+            initEditEditor(currentQuestionData.body);
+            setTimeout(() => document.getElementById('edit-question-title')?.focus(), 30);
+            return;
+        }
+
+        const deleteBtn = e.target.closest('.delete-q-btn');
+        if (deleteBtn) {
+            if (confirm('Are you sure you want to delete this question? This action cannot be undone.')) {
+                try {
+                    await requestLegacyApi(`/questions/${currentQuestionId}`, {
+                        method: 'DELETE',
+                    });
+                    showToast('Question deleted successfully!');
+                    setTimeout(() => { window.location.href = '../community.html'; }, 1000);
+                } catch (error) {
+                    console.error("Deletion error:", error);
+                    showToast(error.message || 'An error occurred while deleting the question.', 'error');
+                }
+            }
+            return;
+        }
+
+        // ------------------------------------
+        // EDIT & DELETE: COMMENTS (ANSWERS)
+        // ------------------------------------
+        const editCommentBtn = e.target.closest('.edit-comment-btn');
+        if (editCommentBtn) {
+            modalInvoker = editCommentBtn;
+            const commentCard = e.target.closest('.answer-card');
+            const commentId = commentCard.dataset.commentId;
+            const commentData = currentQuestionData.replies.find(r => r.id === commentId);
+            
+            document.querySelector('#editModal h2').innerText = 'Edit Answer';
+            document.getElementById('edit-question-title').parentElement.style.display = 'none'; // Hide title input!
+            document.getElementById('edit-question-body').value = commentData.text;
+            
+            document.getElementById('saveEditBtn').dataset.editType = 'comment';
+            document.getElementById('saveEditBtn').dataset.editId = commentId;
+            document.getElementById('editModal').style.display = 'flex';
+            document.getElementById('editModal').setAttribute('aria-hidden', 'false');
+            initEditEditor(commentData.text)
+            setTimeout(() => editEditor?.codemirror?.focus?.(), 30);
+            return;
+        }
+
+        // HELPER TO INIT EDIT EDITOR
+        function initEditEditor(initialValue) {
+            if (!editEditor) {
+                editEditor = new EasyMDE({
+                    element: document.getElementById('edit-question-body'),
+                    spellChecker: false
+                });
+            }
+            editEditor.value(initialValue);
+            setTimeout(() => editEditor.codemirror.refresh(), 50); 
+        }
+
+        const deleteCommentBtn = e.target.closest('.delete-comment-btn');
+        if (deleteCommentBtn) {
+            if (confirm('Are you sure you want to delete this answer? This action cannot be undone.')) {
+                const commentId = e.target.closest('.answer-card').dataset.commentId;
+                try {
+                    await requestLegacyApi(`/answers/${currentQuestionId}/${commentId}`, {
+                        method: 'DELETE',
+                    });
+                    showToast('Answer deleted successfully!');
+                    await loadQuestion(currentQuestionId); // Refresh Data
+                } catch (error) {
+                    console.error("Deletion error:", error);
+                    showToast(error.message || 'An error occurred while deleting the answer.', 'error');
+                }
+            }
+            return;
+        }
+    });
+
+    // --- DYNAMIC MODAL SAVE LOGIC ---
+    const editModal = document.getElementById('editModal');
+    const closeEditModal = document.getElementById('closeEditModal');
+    const cancelEditBtn = document.getElementById('cancelEditBtn');
+    const saveEditBtn = document.getElementById('saveEditBtn');
+    let modalInvoker = null;
+
+    const closeModalFunc = () => {
+        if (editModal) {
+            editModal.style.display = 'none';
+            editModal.setAttribute('aria-hidden', 'true');
+        }
+        if (modalInvoker && typeof modalInvoker.focus === 'function') {
+            modalInvoker.focus();
+        }
+    };
+
+    if (closeEditModal) closeEditModal.addEventListener('click', closeModalFunc);
+    if (cancelEditBtn) cancelEditBtn.addEventListener('click', closeModalFunc);
+    document.addEventListener('click', (event) => {
+        if (event.target === editModal) {
+            closeModalFunc();
+        }
+    });
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && editModal?.style.display === 'flex') {
+            closeModalFunc();
+        }
+    });
+
+    if (saveEditBtn) {
+        saveEditBtn.addEventListener('click', async () => {
+            const editType = saveEditBtn.dataset.editType;
+            const newBody = editEditor ? editEditor.value().trim() : document.getElementById('edit-question-body').value.trim();
+            
+            saveEditBtn.disabled = true;
+            const origText = saveEditBtn.innerHTML;
+            saveEditBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+
+            try {
+                let endpointPath, method, payload;
+
+                if (editType === 'question') {
+                    const newTitle = document.getElementById('edit-question-title').value.trim();
+                    if (!newTitle || !newBody) throw new Error('Title and details cannot be empty.');
+                    
+                    endpointPath = `/questions/${currentQuestionId}`;
+                    method = 'PATCH';
+                    payload = { title: newTitle, body: newBody };
+
+                } else if (editType === 'comment') {
+                    const commentId = saveEditBtn.dataset.editId;
+                    if (!newBody) throw new Error('Answer cannot be empty.');
+
+                    endpointPath = `/answers/${currentQuestionId}/${commentId}`;
+                    method = 'PATCH';
+                    payload = { body: newBody };
+                }
+
+                await requestLegacyApi(endpointPath, {
+                    method: method,
+                    body: payload,
+                });
+                closeModalFunc();
+                showToast(`${editType === 'question' ? 'Question' : 'Answer'} updated successfully!`);
+                await loadQuestion(currentQuestionId); // Refresh Data
+            } catch (error) {
+                console.error("Update error:", error);
+                showToast(error.message || 'An error occurred while saving.', 'error');
+            } finally {
+                saveEditBtn.disabled = false;
+                saveEditBtn.innerHTML = origText;
+            }
+        });
     }
 
     // --- VOTING LOGIC ---
+    async function fetchVoteValue(targetType, targetId) {
+        const cacheKey = `${targetType}:${targetId}`;
+        if (voteValueCache.has(cacheKey)) {
+            return voteValueCache.get(cacheKey);
+        }
+        if (voteValueInFlight.has(cacheKey)) {
+            return voteValueInFlight.get(cacheKey);
+        }
+
+        const requestPromise = requestLegacyApi(`/votes/${targetType}/${targetId}`)
+            .then((data) => {
+                const voteValue = Number(data.vote?.value || 0);
+                voteValueCache.set(cacheKey, voteValue);
+                return voteValue;
+            })
+            .catch(() => null)
+            .finally(() => {
+                voteValueInFlight.delete(cacheKey);
+            });
+
+        voteValueInFlight.set(cacheKey, requestPromise);
+        return requestPromise;
+    }
+
     async function loadUserVotes() {
         const token = getToken();
         if (!token || !currentQuestionData) return;
 
         try {
-            // Get user's vote on the question
-            const qResponse = await fetch(`${BACKEND_URL}/votes/Question/${currentQuestionData.id}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (qResponse.ok) {
-                const qData = await qResponse.json();
-                updateVoteUI('question', currentQuestionData.id, qData.vote?.value || 0);
-            }
+            const voteTargets = [
+                { type: 'question', apiType: 'question', id: currentQuestionData.id },
+                ...currentQuestionData.replies.map((reply) => ({
+                    type: 'comment',
+                    apiType: 'answer',
+                    id: reply.id,
+                })),
+            ];
 
-            // Get user's votes on comments
-            for (const reply of currentQuestionData.replies) {
-                const cResponse = await fetch(`${BACKEND_URL}/votes/Comment/${reply.id}`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (cResponse.ok) {
-                    const cData = await cResponse.json();
-                    updateVoteUI('comment', reply.id, cData.vote?.value || 0);
+            const pendingTargets = [];
+            voteTargets.forEach((target) => {
+                const cacheKey = `${target.apiType}:${target.id}`;
+                if (voteValueCache.has(cacheKey)) {
+                    updateVoteUI(target.type, target.id, Number(voteValueCache.get(cacheKey) ?? 0));
+                    return;
                 }
-            }
+                pendingTargets.push(target);
+            });
+
+            if (pendingTargets.length === 0) return;
+
+            await Promise.all(pendingTargets.map(async (target) => {
+                const voteValue = await fetchVoteValue(target.apiType, target.id);
+                if (voteValue == null) return;
+                updateVoteUI(target.type, target.id, voteValue);
+            }));
         } catch (error) {
             console.error('Error loading votes:', error);
         }
@@ -310,10 +887,11 @@ window.NibrasReact.run(() => {
 
         if (value === 1) upBtn.classList.add('active');
         if (value === -1) downBtn.classList.add('active');
+        upBtn?.setAttribute('aria-pressed', value === 1 ? 'true' : 'false');
+        downBtn?.setAttribute('aria-pressed', value === -1 ? 'true' : 'false');
     }
 
-    // Track vote state for the current question page
-    const pageVotes = new Map(); // targetId -> { type, value }
+    const pageVotes = new Map(); 
 
     document.body.addEventListener('click', async (e) => {
         if (e.target.classList.contains('vote-arrow')) {
@@ -324,9 +902,9 @@ window.NibrasReact.run(() => {
             const countSpan = voteBox.querySelector('.vote-count');
             const currentVotes = parseInt(countSpan.innerText);
 
-            // Check authentication
             const token = getToken();
             if (!token) {
+                showToast('Please sign in to vote on this post.', 'error');
                 return;
             }
 
@@ -339,75 +917,46 @@ window.NibrasReact.run(() => {
             let voteValue;
             let newActiveState;
 
-            // Determine new vote value based on click
             if (btn.classList.contains('up')) {
-                if (wasUpvoted) {
-                    voteValue = 0; // Remove upvote
-                    newActiveState = 0;
-                } else {
-                    voteValue = 1; // Add upvote
-                    newActiveState = 1;
-                }
+                if (wasUpvoted) { voteValue = 0; newActiveState = 0; } 
+                else { voteValue = 1; newActiveState = 1; }
             } else {
-                if (wasDownvoted) {
-                    voteValue = 0; // Remove downvote
-                    newActiveState = 0;
-                } else {
-                    voteValue = -1; // Add downvote
-                    newActiveState = -1;
-                }
+                if (wasDownvoted) { voteValue = 0; newActiveState = 0; } 
+                else { voteValue = -1; newActiveState = -1; }
             }
 
-            // Optimistic UI update
             updateVoteUI(type, targetId, newActiveState);
 
-            // Calculate expected new vote count
             let expectedVotes = currentVotes;
-            if (currentUserVote === 0 && voteValue !== 0) {
-                expectedVotes += voteValue; // Adding new vote
-            } else if (currentUserVote !== 0 && voteValue === 0) {
-                expectedVotes -= currentUserVote; // Removing vote
-            } else if (currentUserVote !== voteValue) {
-                expectedVotes += voteValue - currentUserVote; // Switching vote
-            }
+            if (currentUserVote === 0 && voteValue !== 0) { expectedVotes += voteValue; } 
+            else if (currentUserVote !== 0 && voteValue === 0) { expectedVotes -= currentUserVote; } 
+            else if (currentUserVote !== voteValue) { expectedVotes += voteValue - currentUserVote; }
             countSpan.innerText = expectedVotes;
 
-            // Send to backend
             try {
-                const targetType = type === 'question' ? 'Question' : 'Comment';
-                const response = await fetch(`${BACKEND_URL}/votes`, {
+                const targetType = type === 'question' ? 'question' : 'answer';
+                const data = await requestLegacyApi('/votes', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
+                    body: {
                         targetType: targetType,
                         targetId: targetId,
                         value: voteValue
-                    })
+                    },
                 });
 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Failed to vote');
-                }
-
-                const data = await response.json();
-
-                // Update vote count from server response
                 if (data.votesCount !== undefined) {
                     countSpan.innerText = data.votesCount;
                 }
 
-                // Track the actual vote value
                 pageVotes.set(targetId, { type, value: data.voteValue || voteValue });
+                voteValueCache.set(`${targetType}:${targetId}`, Number(data.voteValue || voteValue));
 
             } catch (error) {
                 console.error('Voting error:', error);
-                // Revert UI
                 updateVoteUI(type, targetId, currentUserVote);
                 countSpan.innerText = currentVotes;
+                const targetType = type === 'question' ? 'question' : 'answer';
+                voteValueCache.set(`${targetType}:${targetId}`, currentUserVote);
             }
         }
     });
@@ -416,57 +965,51 @@ window.NibrasReact.run(() => {
     async function postComment() {
         const token = getToken();
         if (!token) {
-            alert('You must be logged in to post an answer!');
+            showToast('Please sign in to post an answer.', 'error');
             return;
         }
 
         if (!currentQuestionId) {
-            alert('Question ID not found');
+            showToast('Question ID not found.', 'error');
             return;
         }
-
+        
         const textarea = document.querySelector('.answer-textarea');
-        const body = textarea.value.trim();
+        const body = answerEditor ? answerEditor.value().trim() : document.querySelector('.answer-textarea').value.trim();
 
         if (!body) {
-            alert('Please enter an answer');
+            showToast('Please enter your answer before posting.', 'error');
+            answerEditor?.codemirror?.focus?.();
+            textarea?.focus();
             return;
         }
 
-        const postBtn = document.querySelector('.btn-primary');
+        const postBtn = document.getElementById('post-answer-btn');
         postBtn.disabled = true;
         postBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Posting...';
 
         try {
-            const response = await fetch(`${BACKEND_URL}/comments/${currentQuestionId}`, {
+            await requestLegacyApi(`/answers/${currentQuestionId}`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ body })
+                body: { body },
             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to post answer');
-            }
+            if (answerEditor) answerEditor.value('');
 
-            // Clear textarea and reload question
             textarea.value = '';
+            showToast('Answer posted successfully!');
             await loadQuestion(currentQuestionId);
 
         } catch (error) {
             console.error('Error posting comment:', error);
-            alert(error.message || 'Failed to post answer. Please try again.');
+            showToast(error.message || 'Failed to post answer. Please try again.', 'error');
         } finally {
             postBtn.disabled = false;
             postBtn.innerText = 'Post Answer';
         }
     }
 
-    // Attach event listener to post button
-    document.querySelector('.btn-primary')?.addEventListener('click', postComment);
+    document.getElementById('post-answer-btn')?.addEventListener('click', postComment);
 
     // --- THEME TOGGLE ---
     const themeBtn = document.getElementById('themeBtn');
@@ -497,10 +1040,23 @@ window.NibrasReact.run(() => {
     });
 
     // --- INITIALIZATION ---
-    const questionId = getQuestionIdFromUrl();
-    if (questionId) {
-        loadQuestion(questionId);
-    } else {
-        showError('No question ID provided. Please select a question from the community page.');
+    async function initPage() {
+        await loadCurrentUser(); 
+        
+        const questionId = getQuestionIdFromUrl();
+        if (questionId) {
+            loadQuestion(questionId);
+        } else {
+            showError('No question ID provided. Please select a question from the community page.', 'empty');
+        }
+
+        // INIT ANSWER BOX EDITOR
+        answerEditor = new EasyMDE({
+            element: document.querySelector('.answer-textarea'),
+            spellChecker: false,
+            placeholder: "Type your answer here... (Markdown, code, and images supported)"
+        });
     }
+
+    initPage();
 });

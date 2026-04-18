@@ -1,5 +1,53 @@
 window.NibrasReact.run(() => {
-    
+    const selectedCourse = window.NibrasCourses?.getSelectedCourse?.();
+    if (!selectedCourse) return;
+    const courseId = selectedCourse.id;
+    let assignmentData = JSON.parse(JSON.stringify(selectedCourse.assignments));
+    let activeFilter = "all";
+    const assignmentsNotice = document.getElementById("assignments-api-notice");
+    const sharedUiStates = window.NibrasShared?.uiStates || null;
+
+    function resolveUiStateFromError(error, fallbackMessage) {
+        if (sharedUiStates?.fromError) {
+            return sharedUiStates.fromError(error, fallbackMessage);
+        }
+        return {
+            state: "error",
+            message: error?.message || fallbackMessage || "Request failed",
+        };
+    }
+
+    function setAssignmentsNotice(message, type = "info") {
+        if (!assignmentsNotice) return;
+        const state = sharedUiStates?.normalize
+            ? sharedUiStates.normalize(type)
+            : (type || "info");
+        if (sharedUiStates?.render) {
+            sharedUiStates.render(assignmentsNotice, {
+                state,
+                message,
+                mode: "notice",
+            });
+            return;
+        }
+        if (!message) {
+            assignmentsNotice.hidden = true;
+            assignmentsNotice.textContent = "";
+            return;
+        }
+        assignmentsNotice.hidden = false;
+        assignmentsNotice.textContent = message;
+        if (state === "error" || state === "unauthorized" || state === "forbidden") {
+            assignmentsNotice.style.color = "#ef4444";
+            assignmentsNotice.style.borderColor = "rgba(239, 68, 68, 0.35)";
+            assignmentsNotice.style.backgroundColor = "rgba(239, 68, 68, 0.08)";
+            return;
+        }
+        assignmentsNotice.style.color = "var(--text-secondary)";
+        assignmentsNotice.style.borderColor = "var(--border-color)";
+        assignmentsNotice.style.backgroundColor = "var(--bg-secondary)";
+    }
+
     // --- 1. SIDEBAR NAVIGATION LOGIC (New Addition) ---
     const navLinks = document.querySelectorAll('.nav-link');
     
@@ -49,102 +97,53 @@ window.NibrasReact.run(() => {
         }
     }
 
-    // --- 3. BACKEND DATA (Backend Developer: Replace this object) ---
-    const assignmentData = {
-        stats: {
-            completed: 1,
-            total: 5,
-            pointsEarned: 18,
-            pointsTotal: 115,
-            progressPercent: 20 // 1/5
-        },
-        items: [
-            {
-                id: 1,
-                title: "Assignment 1: Fundamentals of HTML & CSS",
-                status: "graded",
-                statusLabel: "Graded",
-                description: "Create a responsive landing page using HTML5 and CSS3",
-                points: 20,
-                score: 18,
-                dueDate: "Dec 20, 2024",
-                dueTime: "11:59 PM",
-                type: "File Upload",
-                action: "View Details",
-                page: "../Assignments/Assignments Content/AssignmentContent.html"
-            },
-            {
-                id: 2,
-                title: "Assignment 2: Coding Challenge - JavaScript Basics",
-                status: "submitted",
-                statusLabel: "Submitted",
-                description: "Solve algorithmic problems using JavaScript",
-                points: 25,
-                score: null,
-                dueDate: "Dec 22, 2024",
-                dueTime: "11:59 PM",
-                type: "Quiz",
-                action: "View Submission"
-            },
-            {
-                id: 3,
-                title: "Assignment 3: Quiz - HTML5 & CSS3",
-                status: "not_started",
-                statusLabel: "Not Started",
-                description: "Multiple choice and short answer questions",
-                points: 15,
-                score: null,
-                dueDate: "Dec 25, 2024",
-                dueTime: "11:59 PM",
-                type: "Quiz",
-                action: "Submit"
-            },
-            {
-                id: 4,
-                title: "Assignment 4: React Component Development",
-                status: "late",
-                statusLabel: "Late",
-                description: "Build reusable React components",
-                points: 30,
-                score: null,
-                dueDate: "Dec 18, 2024",
-                dueTime: "11:59 PM",
-                type: "File Upload",
-                action: "Submit"
-            },
-            {
-                id: 5,
-                title: "Assignment 5: API Integration",
-                status: "not_started",
-                statusLabel: "Not Started",
-                description: "Fetch and display data from a REST API",
-                points: 25,
-                score: null,
-                dueDate: "Dec 28, 2024",
-                dueTime: "11:59 PM",
-                type: "File Upload",
-                action: "Submit"
-            }
-        ]
-    };
+    const links = [
+        { selector: '.nav-link[href*="courseContent.html"]', path: "../Course Description/courseContent.html" },
+        { selector: '.nav-link[href*="videos.html"]', path: "../Videos/videos.html" },
+        { selector: '.nav-link[href*="Assignments.html"]', path: "./Assignments.html" },
+        { selector: '.nav-link[href*="Projects.html"]', path: "../Projects/Projects.html" },
+        { selector: '.nav-link[href*="grades.html"]', path: "../Grades/grades.html" },
+        { selector: ".back-btn", path: "../courses.html" }
+    ];
+
+    links.forEach(({ selector, path }) => {
+        const el = document.querySelector(selector);
+        if (el) el.setAttribute("href", window.NibrasCourses.withCourseId(path, courseId));
+    });
+
+    const termLabel = document.getElementById("course-term");
+    if (termLabel) {
+        termLabel.textContent = `${selectedCourse.code}: ${selectedCourse.title} • ${selectedCourse.overview.term}`;
+    }
+
+    const courseMetaTitle = document.querySelector(".course-meta h4");
+    const courseMetaSubtitle = document.querySelector(".course-meta span");
+    if (courseMetaTitle) courseMetaTitle.textContent = `${selectedCourse.code}: ${selectedCourse.title}`;
+    if (courseMetaSubtitle) courseMetaSubtitle.textContent = `${selectedCourse.overview.term} • Week ${selectedCourse.overview.currentWeek}`;
 
     // --- 4. RENDER UI ---
     
-    // Render Stats
-    const completedCountEl = document.getElementById('completed-count');
-    const pointsCountEl = document.getElementById('points-count');
-    const progressEl = document.getElementById('overall-progress');
-
-    if (completedCountEl) completedCountEl.textContent = `${assignmentData.stats.completed} of ${assignmentData.stats.total} completed`;
-    if (pointsCountEl) pointsCountEl.textContent = `${assignmentData.stats.pointsEarned} / ${assignmentData.stats.pointsTotal} points earned`;
-    if (progressEl) progressEl.style.width = `${assignmentData.stats.progressPercent}%`;
-
     // Render List
     const container = document.getElementById('assignments-container');
     const filterBtns = document.querySelectorAll('.filter-btn');
+    const syncStats = () => {
+        const completedCountEl = document.getElementById('completed-count');
+        const pointsCountEl = document.getElementById('points-count');
+        const progressEl = document.getElementById('overall-progress');
+        if (completedCountEl) completedCountEl.textContent = `${assignmentData.stats.completed} of ${assignmentData.stats.total} completed`;
+        if (pointsCountEl) pointsCountEl.textContent = `${assignmentData.stats.pointsEarned} / ${assignmentData.stats.pointsTotal} points earned`;
+        if (progressEl) {
+            const progress = Number(assignmentData.stats.progressPercent || 0);
+            progressEl.style.width = `${progress}%`;
+            progressEl.setAttribute('aria-valuenow', String(progress));
+            progressEl.setAttribute('aria-valuetext', `${progress}% complete`);
+        }
+    };
 
     // Initial Render (All)
-    renderAssignments('all');
+    syncStats();
+    renderAssignments(activeFilter);
+    hydrateAssignmentsFromAdmin();
 
     // Filter Click Logic
     filterBtns.forEach(btn => {
@@ -153,9 +152,27 @@ window.NibrasReact.run(() => {
             filterBtns.forEach(b => b.classList.remove('active'));
             // Add active to clicked
             btn.classList.add('active');
+            filterBtns.forEach((button) => {
+                button.setAttribute('aria-pressed', button.classList.contains('active') ? 'true' : 'false');
+            });
+            activeFilter = btn.getAttribute('data-filter');
             // Render
-            renderAssignments(btn.getAttribute('data-filter'));
+            renderAssignments(activeFilter);
         });
+    });
+
+    container?.addEventListener('click', (event) => {
+        const link = event.target.closest('.action-btn[data-item-id]');
+        if (!link) return;
+        const itemId = link.getAttribute('data-item-id');
+        const item = assignmentData.items.find((entry) => String(entry.id) === String(itemId));
+        if (!item || !item.page) return;
+
+        const detailPayload = {
+            courseId,
+            ...buildAssignmentDetail(item),
+        };
+        localStorage.setItem('selectedAssignmentDetail', JSON.stringify(detailPayload));
     });
 
     function renderAssignments(filter) {
@@ -197,8 +214,20 @@ window.NibrasReact.run(() => {
             // Type Icon Logic
             const typeIcon = item.type === 'File Upload' ? 'fa-solid fa-upload' : 'fa-regular fa-file-lines';
 
+            const itemHref = item.page
+                ? window.NibrasCourses.withCourseId(item.page, courseId)
+                : '#';
+            const actionDisabled = !item.page;
+            const actionText = actionDisabled ? 'Unavailable' : item.action;
+            const actionAriaLabel = actionDisabled
+                ? `Assignment details unavailable for ${item.title}`
+                : `${item.action} for ${item.title}`;
+            const actionAttributes = actionDisabled
+                ? 'aria-disabled="true" tabindex="-1"'
+                : '';
+
             const html = `
-                <div class="assignment-card">
+                <article class="assignment-card">
                     <div class="card-header">
                         <div class="card-title-group">
                             <h3>${item.title}</h3>
@@ -225,16 +254,85 @@ window.NibrasReact.run(() => {
                                 <i class="${typeIcon}"></i> ${item.type}
                             </div>
                         </div>
-                        <a href="${item.page ? item.page : '#'}" class="action-btn" ${item.page ? '' : 'disabled'}>${item.action}</a>
+                        <a href="${itemHref}" class="action-btn" aria-label="${actionAriaLabel}" data-item-id="${item.id}" ${actionAttributes}>${actionText}</a>
                     </div>
-                </div>
+                </article>
             `;
             container.innerHTML += html;
         });
         
         // Empty State
         if (container.innerHTML === '') {
-            container.innerHTML = `<div style="text-align:center; padding: 2rem; color: var(--text-secondary);">No assignments found for this filter.</div>`;
+            if (sharedUiStates?.render) {
+                sharedUiStates.render(container, {
+                    state: "empty",
+                    message: "No assignments match this filter yet. Try another filter to see your work.",
+                });
+            } else {
+                container.innerHTML = `<div style="text-align:center; padding: 2rem; color: var(--text-secondary);">No assignments match this filter yet. Try another filter to see your work.</div>`;
+            }
+        }
+    }
+
+    function buildAssignmentDetail(item) {
+        return {
+            title: item.title,
+            points: item.points,
+            scoreEarned: item.score ?? 0,
+            description: item.description,
+            dueDate: item.dueDate,
+            dueTime: item.dueTime,
+            submissionType: item.type,
+            instructions: {
+                intro: `Complete ${item.title} based on course requirements.`,
+                points: [
+                    "Follow the assignment brief.",
+                    "Attach all required files and references.",
+                    "Ensure your submission is complete before deadline.",
+                ],
+            },
+            files: [],
+            rubric: [
+                { criteria: "Correctness", percent: "50%" },
+                { criteria: "Quality", percent: "30%" },
+                { criteria: "Documentation", percent: "20%" },
+            ],
+            feedback: {
+                comment: item.score !== null ? "Graded successfully." : "No feedback yet.",
+                grader: selectedCourse.instructor,
+                date: "Pending",
+            },
+        };
+    }
+
+    async function hydrateAssignmentsFromAdmin() {
+        const loadAssignments = window.NibrasCourses?.getAdminAssignmentsByCourseId;
+        if (typeof loadAssignments !== 'function') return;
+        
+        // Don't show loading notice if we already have local data
+        if (!assignmentData.items || assignmentData.items.length === 0) {
+            setAssignmentsNotice('Loading assignments from the backend...', 'loading');
+        }
+        
+        try {
+            const remoteAssignments = await loadAssignments(courseId);
+            if (!remoteAssignments || !Array.isArray(remoteAssignments.items) || remoteAssignments.items.length === 0) {
+                console.log('[ASSIGNMENTS.JS] No remote items found, staying with local data');
+                return;
+            }
+            assignmentData = JSON.parse(JSON.stringify(remoteAssignments));
+            assignmentData.items = assignmentData.items.map((item) => ({
+                ...item,
+                page: item.page || "./Assignments Content/AssignmentContent.html",
+                milestoneId: item.milestoneId || item.id || `ms-${item.title}` // Ensure milestoneId exists
+            }));
+            syncStats();
+            renderAssignments(activeFilter);
+            setAssignmentsNotice('');
+        } catch (error) {
+            console.warn('[ASSIGNMENTS.JS] Failed to hydrate assignments:', error?.message || error);
+            // On error, just clear the loading notice and keep the local data
+            setAssignmentsNotice('');
         }
     }
 });

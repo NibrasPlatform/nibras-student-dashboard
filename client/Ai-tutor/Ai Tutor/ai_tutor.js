@@ -1,4 +1,11 @@
 window.NibrasReact.run(() => {
+    const escapeHtml = (value) =>
+        String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
 
     // --- 1. SIDEBAR LOGIC ---
     const navLinks = document.querySelectorAll('.nav-link');
@@ -44,7 +51,7 @@ window.NibrasReact.run(() => {
         if(t.title === 'Binary Search') style = `background-color: var(--tag-bg); color: var(--text-primary);`;
 
         topicContainer.innerHTML += `
-            <div class="topic-card">
+            <button type="button" class="topic-card" data-topic-title="${escapeHtml(t.title)}" aria-label="Try topic: ${escapeHtml(t.title)}">
                 <div class="topic-icon" style="${style}">
                     <i class="${t.icon}"></i>
                 </div>
@@ -52,7 +59,7 @@ window.NibrasReact.run(() => {
                     <h4>${t.title}</h4>
                     <span>${t.sub}</span>
                 </div>
-            </div>
+            </button>
         `;
     });
 
@@ -93,7 +100,7 @@ window.NibrasReact.run(() => {
     const popContainer = document.getElementById('pop-topics-container');
     popContainer.innerHTML = '';
     aiData.popular.forEach(p => {
-        popContainer.innerHTML += `<a href="#" class="pop-link">${p}</a>`;
+        popContainer.innerHTML += `<button type="button" class="pop-link" data-pop-topic="${escapeHtml(p)}">${p}</button>`;
     });
 
     // --- 4. THEME TOGGLE & LOGO SWAP ---
@@ -158,7 +165,8 @@ window.NibrasReact.run(() => {
 
     const ASK_MIN = 10;
     const ASK_MAX = 500;
-    const LOGIN_PATH = '../../Login/loginPage/login.html';
+    const sharedAuth = window.NibrasShared?.auth || null;
+    const sharedUiStates = window.NibrasShared?.uiStates || null;
 
     const normalizeHint = (h) => {
         if (h == null) return '';
@@ -166,25 +174,103 @@ window.NibrasReact.run(() => {
         return String(h);
     };
 
+    const getAuthToken = () =>
+        sharedAuth?.getToken?.() || window.NibrasApi?.getToken?.() || null;
+
+    const resolveUiStateFromError = (error, fallbackMessage) => {
+        if (sharedUiStates?.fromError) {
+            return sharedUiStates.fromError(error, fallbackMessage);
+        }
+        return {
+            state: 'error',
+            message: error?.message || fallbackMessage || 'Request failed',
+        };
+    };
+
+    const ensureTutorNotice = () => {
+        let notice = document.getElementById('ai-tutor-state-notice');
+        if (notice) return notice;
+
+        notice = document.createElement('div');
+        notice.id = 'ai-tutor-state-notice';
+        notice.hidden = true;
+
+        const initialActions = document.getElementById('initial-actions');
+        if (initialActions?.parentNode) {
+            initialActions.parentNode.insertBefore(notice, initialActions);
+        } else {
+            const inputCard = document.querySelector('.input-card');
+            if (inputCard) inputCard.appendChild(notice);
+        }
+        return notice;
+    };
+
+    const setTutorNotice = (state, message) => {
+        const notice = ensureTutorNotice();
+        if (!notice) return;
+        notice.setAttribute('role', state === 'error' || state === 'unauthorized' || state === 'forbidden' ? 'alert' : 'status');
+        notice.setAttribute('aria-live', state === 'error' || state === 'unauthorized' || state === 'forbidden' ? 'assertive' : 'polite');
+        if (sharedUiStates?.render) {
+            sharedUiStates.render(notice, { state, message, mode: 'notice' });
+            return;
+        }
+        if (!message) {
+            notice.hidden = true;
+            notice.textContent = '';
+            return;
+        }
+        notice.hidden = false;
+        notice.textContent = message;
+        const isErrorTone = state === 'error' || state === 'unauthorized' || state === 'forbidden';
+        const isSuccessTone = state === 'success';
+        notice.style.marginTop = '12px';
+        notice.style.padding = '10px 12px';
+        notice.style.borderRadius = '10px';
+        notice.style.border = '1px solid';
+        notice.style.fontSize = '13px';
+        notice.style.color = isErrorTone ? '#ef4444' : (isSuccessTone ? '#10b981' : 'var(--text-secondary)');
+        notice.style.borderColor = isErrorTone ? 'rgba(239, 68, 68, 0.35)' : (isSuccessTone ? 'rgba(16, 185, 129, 0.35)' : 'var(--border-color)');
+        notice.style.backgroundColor = isErrorTone ? 'rgba(239, 68, 68, 0.08)' : (isSuccessTone ? 'rgba(16, 185, 129, 0.08)' : 'var(--bg-secondary)');
+    };
+
+    const buildAuthHeaders = (headers = {}, options = {}) => {
+        if (sharedAuth?.buildAuthHeaders) {
+            return sharedAuth.buildAuthHeaders(headers, options);
+        }
+        if (window.NibrasApi?.buildAuthHeaders) {
+            return window.NibrasApi.buildAuthHeaders(headers, options);
+        }
+
+        return Object.assign({}, headers);
+    };
+
+    const resolveLegacyApiBase = () => {
+        const shared = window.NibrasShared;
+        return (
+            shared?.resolveServiceUrl?.('legacyCommunity') ||
+            window.NibrasApi?.resolveServiceUrl?.('legacyCommunity') ||
+            window.NibrasApiConfig?.getServiceUrl?.('legacyCommunity') ||
+            window.NIBRAS_LEGACY_API_URL ||
+            window.NIBRAS_API_URL ||
+            shared?.BACKEND_URL ||
+            window.NIBRAS_BACKEND_URL ||
+            (/^https?:/i.test(window.location?.origin || '') ? window.location.origin.replace(/\/+$/, '') : '')
+        );
+    };
+
     const postJson = (path, body) => {
         const shared = window.NibrasShared;
         if (shared && typeof shared.apiFetch === 'function') {
             return shared.apiFetch(path, {
                 method: 'POST',
-                body: JSON.stringify(body),
+                service: 'legacyCommunity',
+                body,
             });
         }
-        const BACKEND_URL =
-            (shared && shared.BACKEND_URL) ||
-            window.NIBRAS_BACKEND_URL ||
-            'http://localhost:5000';
-        const token = localStorage.getItem('token');
+        const BACKEND_URL = resolveLegacyApiBase();
         return fetch(`${BACKEND_URL}${path}`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                ...(token ? { Authorization: `Bearer ${token}` } : {}),
-            },
+            headers: buildAuthHeaders({ 'Content-Type': 'application/json' }),
             body: JSON.stringify(body),
         }).then(async (response) => {
             let payload = null;
@@ -199,6 +285,7 @@ window.NibrasReact.run(() => {
                     `Request failed (${response.status})`;
                 const err = new Error(message);
                 err.status = response.status;
+                err.code = response.status === 401 ? 'UNAUTHORIZED' : (response.status === 403 ? 'FORBIDDEN' : 'REQUEST_FAILED');
                 err.payload = payload;
                 throw err;
             }
@@ -220,6 +307,7 @@ window.NibrasReact.run(() => {
             askAiBtn.dataset.defaultHtml = askAiBtn.innerHTML;
         }
         askAiBtn.disabled = loading;
+        askAiBtn.setAttribute('aria-busy', loading ? 'true' : 'false');
         if (loading) {
             askAiBtn.innerHTML =
                 '<i class="fa-solid fa-spinner fa-spin"></i> Thinking...';
@@ -228,15 +316,38 @@ window.NibrasReact.run(() => {
         }
     };
 
+    const modalTagsDisplay = document.getElementById('modal-tags-display');
+
     let sessionHints = [];
     let sessionFinalAnswer = '';
     let sessionQuestion = '';
+    let sessionTags =[]; // <-- ADDED
     let currentHintIndex = 0;
+    let modalReturnFocus = null;
+
+    topicContainer?.addEventListener('click', (event) => {
+        const topicButton = event.target.closest('.topic-card[data-topic-title]');
+        if (!topicButton || !questionInput) return;
+        const topicTitle = topicButton.getAttribute('data-topic-title');
+        questionInput.value = `Can you explain ${topicTitle} with an example?`;
+        questionInput.focus();
+        setTutorNotice('info', `Drafted a starter question for "${topicTitle}".`);
+    });
+
+    popContainer?.addEventListener('click', (event) => {
+        const popButton = event.target.closest('[data-pop-topic]');
+        if (!popButton || !questionInput) return;
+        const topic = popButton.getAttribute('data-pop-topic');
+        questionInput.value = `I need help with ${topic}. Where should I start?`;
+        questionInput.focus();
+        setTutorNotice('info', `Added "${topic}" to your question draft.`);
+    });
 
     const resetSession = () => {
         sessionHints = [];
         sessionFinalAnswer = '';
         sessionQuestion = '';
+        sessionTags =[]; // <-- ADDED
         currentHintIndex = 0;
     };
 
@@ -258,29 +369,25 @@ window.NibrasReact.run(() => {
         askAiBtn.addEventListener('click', async () => {
             const trimmed = questionInput.value.trim();
             if (!trimmed) {
-                alert('Please enter a question first.');
+                setTutorNotice('error', 'Please enter a question first.');
                 return;
             }
             if (trimmed.length < ASK_MIN) {
-                alert(
-                    `Your question must be at least ${ASK_MIN} characters (required by the tutor).`,
-                );
+                setTutorNotice('error', `Your question must be at least ${ASK_MIN} characters.`);
                 return;
             }
             if (trimmed.length > ASK_MAX) {
-                alert(
-                    `Your question cannot exceed ${ASK_MAX} characters. Please shorten it.`,
-                );
+                setTutorNotice('error', `Your question cannot exceed ${ASK_MAX} characters.`);
                 return;
             }
-            if (!localStorage.getItem('token')) {
-                alert('Please log in to use the AI Tutor.');
-                window.location.href = LOGIN_PATH;
+            if (!getAuthToken()) {
+                setTutorNotice('unauthorized', 'Please sign in to use the AI Tutor.');
                 return;
             }
 
             setAskLoading(true);
             questionInput.disabled = true;
+            setTutorNotice('loading', 'Generating your AI Tutor response...');
             try {
                 const payload = await postJson('/api/chatbot/ask', {
                     question: trimmed,
@@ -291,6 +398,7 @@ window.NibrasReact.run(() => {
                 }
                 sessionQuestion = trimmed;
                 sessionFinalAnswer = String(data.finalAnswer != null ? data.finalAnswer : '');
+                sessionTags = Array.isArray(data.tags) ? data.tags :[];
                 const rawHints = Array.isArray(data.hints) ? data.hints : [];
                 sessionHints = rawHints.map(normalizeHint).filter(Boolean);
                 currentHintIndex = 0;
@@ -304,6 +412,7 @@ window.NibrasReact.run(() => {
                 interactionTitle.style.display = 'block';
                 questionInput.disabled = true;
                 setAskLoading(false);
+                setTutorNotice('info', '');
 
                 if (sessionHints.length > 0) {
                     getHintBtn.style.display = 'inline-block';
@@ -314,12 +423,8 @@ window.NibrasReact.run(() => {
                 setAskLoading(false);
                 questionInput.disabled = false;
                 const msg = getErrorMessage(err);
-                if (err.status === 401) {
-                    alert(`${msg}\nPlease log in again.`);
-                    window.location.href = LOGIN_PATH;
-                    return;
-                }
-                alert(msg);
+                const uiState = resolveUiStateFromError(err, msg);
+                setTutorNotice(uiState.state, uiState.message);
             }
         });
     }
@@ -366,24 +471,42 @@ window.NibrasReact.run(() => {
             interactionArea.style.display = 'none';
             resetSession();
             setAskLoading(false);
+            setTutorNotice('info', '');
         });
     }
 
     if (pushCommunityBtn) {
         pushCommunityBtn.addEventListener('click', () => {
             if (!sessionQuestion || !sessionFinalAnswer) {
-                alert('Ask the AI Tutor and view the full answer before posting to the community.');
+                setTutorNotice('empty', 'Ask the AI Tutor and view the full answer before posting to the community.');
                 return;
             }
             modalQuestionDisplay.textContent = sessionQuestion;
             modalAnswerDisplay.textContent = sessionFinalAnswer;
             modalTitleInput.value = '';
+                        if (modalTagsDisplay) {
+                modalTagsDisplay.innerHTML = '';
+                if (sessionTags && sessionTags.length > 0) {
+                    sessionTags.forEach(tag => {
+                        modalTagsDisplay.innerHTML += `<span style="background: var(--tag-bg, #f3f4f6); color: var(--accent-blue, #2563eb); border: 1px solid var(--accent-blue, #2563eb); padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">${tag}</span>`;
+                    });
+                } else {
+                    modalTagsDisplay.innerHTML = `<span style="color: #9ca3af; font-size: 0.9rem;">No tags generated</span>`;
+                }
+            }
+            modalReturnFocus = document.activeElement;
             communityModal.style.display = 'flex';
+            communityModal.setAttribute('aria-hidden', 'false');
+            setTimeout(() => modalTitleInput?.focus(), 40);
         });
     }
 
     const closeModal = () => {
         communityModal.style.display = 'none';
+        communityModal.setAttribute('aria-hidden', 'true');
+        if (modalReturnFocus && typeof modalReturnFocus.focus === 'function') {
+            modalReturnFocus.focus();
+        }
     };
 
     if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
@@ -393,16 +516,15 @@ window.NibrasReact.run(() => {
         confirmPushBtn.addEventListener('click', async () => {
             const title = modalTitleInput.value.trim();
             if (!title) {
-                alert('Please enter a title for your community post.');
+                setTutorNotice('error', 'Please enter a title for your community post.');
                 return;
             }
-            if (!localStorage.getItem('token')) {
-                alert('Please log in to publish.');
-                window.location.href = LOGIN_PATH;
+            if (!getAuthToken()) {
+                setTutorNotice('unauthorized', 'Please sign in to publish to the community.');
                 return;
             }
             if (!sessionQuestion || !sessionFinalAnswer) {
-                alert('Missing question or answer. Start over and try again.');
+                setTutorNotice('error', 'Missing question or answer. Start over and try again.');
                 return;
             }
 
@@ -410,11 +532,13 @@ window.NibrasReact.run(() => {
             confirmPushBtn.disabled = true;
             confirmPushBtn.innerHTML =
                 '<i class="fa-solid fa-spinner fa-spin"></i> Publishing...';
+            setTutorNotice('loading', 'Publishing your AI answer to the community...');
             try {
                 const payload = await postJson('/api/chatbot/publish', {
                     title,
                     question: sessionQuestion,
                     finalAnswer: sessionFinalAnswer,
+                    tags: sessionTags,
                 });
                 const q = payload && payload.data && payload.data.question;
                 const id = q && (q._id || q.id);
@@ -425,22 +549,32 @@ window.NibrasReact.run(() => {
                     );
                     if (go) {
                         window.location.href = `../../Community/QuestionID/question.html?id=${encodeURIComponent(id)}`;
+                    } else {
+                        setTutorNotice('success', 'Published successfully. You can find the new post in Community.');
                     }
                 } else {
-                    alert('Published to the community successfully.');
+                    setTutorNotice('success', 'Published to the community successfully.');
                 }
             } catch (err) {
                 const msg = getErrorMessage(err);
-                if (err.status === 401) {
-                    alert(`${msg}\nPlease log in again.`);
-                    window.location.href = LOGIN_PATH;
-                    return;
-                }
-                alert(msg);
+                const uiState = resolveUiStateFromError(err, msg);
+                setTutorNotice(uiState.state, uiState.message);
             } finally {
                 confirmPushBtn.disabled = false;
                 confirmPushBtn.innerHTML = defaultLabel;
             }
         });
     }
+
+    document.addEventListener('click', (event) => {
+        if (event.target === communityModal) {
+            closeModal();
+        }
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && communityModal?.style.display === 'flex') {
+            closeModal();
+        }
+    });
 });

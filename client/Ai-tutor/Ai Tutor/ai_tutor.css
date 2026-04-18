@@ -79,6 +79,17 @@
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
 body { background-color: var(--bg-body); color: var(--text-primary); display: flex; min-height: 100vh; transition: background-color 0.3s ease, color 0.3s ease; }
 
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[role="button"]:focus-visible {
+    outline: 2px solid var(--accent-blue);
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+
 /* SIDEBAR & HEADER (Standard) */
 .sidebar { width: var(--sidebar-width); background-color: var(--bg-sidebar); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; position: fixed; height: 100vh; padding: 1.5rem; z-index: 10; }
 .logo-area { margin-bottom: 2rem; display: flex; align-items: center; }
@@ -141,7 +152,7 @@ body { background-color: var(--bg-body); color: var(--text-primary); display: fl
 /* QUICK TOPICS */
 .quick-topics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 .topic-card {
-    display: flex; align-items: center; gap: 12px; padding: 1rem; background-color: transparent; border: 1px solid var(--topic-border); border-radius: 8px; cursor: pointer; transition: transform 0.1s;
+    display: flex; align-items: center; gap: 12px; padding: 1rem; background-color: transparent; border: 1px solid var(--topic-border); border-radius: 8px; cursor: pointer; transition: transform 0.1s; width: 100%; text-align: left; color: inherit; appearance: none;
 }
 .topic-card:hover { transform: translateY(-2px); border-color: var(--accent-blue); }
 .topic-icon {
@@ -171,7 +182,7 @@ body { background-color: var(--bg-body); color: var(--text-primary); display: fl
 .tips-list li { margin-bottom: 0.4rem; }
 
 .pop-topics-list { display: flex; flex-direction: column; gap: 0.8rem; }
-.pop-link { font-size: 0.9rem; color: var(--text-secondary); text-decoration: none; transition: 0.2s; }
+.pop-link { font-size: 0.9rem; color: var(--text-secondary); text-decoration: none; transition: 0.2s; background: none; border: none; text-align: left; cursor: pointer; padding: 0; }
 .pop-link:hover { color: var(--accent-blue); padding-left: 4px; }
 
 @media (max-width: 1024px) {

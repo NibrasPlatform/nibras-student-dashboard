@@ -11,18 +11,46 @@
             document.documentElement.setAttribute('data-theme', savedTheme);
         }
     })();
-</script>
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/Community/QuestionID/question.css">
+    
+    <!-- MARKDOWN LIBRARIES -->
+    <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
+    <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+
+    <link rel="stylesheet" href="./question.css">
+
+    <style>
+        /* Global Markdown Styling */
+        .markdown-body img { max-width: 100%; border-radius: 8px; margin: 10px 0; }
+        .markdown-body pre { background: #1e1e1e; padding: 12px; border-radius: 8px; overflow-x: auto; margin: 10px 0; }
+        .markdown-body code { font-family: monospace; font-size: 0.9em; background: rgba(128,128,128,0.1); padding: 2px 4px; border-radius: 4px; }
+        .markdown-body pre code { background: none; padding: 0; color: #abb2bf; }
+        .markdown-body ul, .markdown-body ol { padding-left: 25px; margin-bottom: 15px; }
+        .markdown-body blockquote { border-left: 4px solid var(--accent-blue); padding-left: 15px; margin: 15px 0; color: var(--text-secondary); background: rgba(128,128,128,0.05); padding: 10px 15px; border-radius: 4px; }
+        .markdown-body a { color: var(--accent-blue); text-decoration: none; }
+        .markdown-body a:hover { text-decoration: underline; }
+        .markdown-body p { margin-bottom: 10px;}
+        
+        /* Dark Mode fixes for Editor */
+        [data-theme="dark"] .editor-toolbar { background: #1f2937; border-color: #374151; }
+        [data-theme="dark"] .editor-toolbar a { color: #f3f4f6 !important; }[data-theme="dark"] .editor-toolbar a.active, [data-theme="dark"] .editor-toolbar a:hover { background: #374151; border-color: #4b5563; }
+        [data-theme="dark"] .CodeMirror { background: #111827; color: #f3f4f6; border-color: #374151; }
+        [data-theme="dark"] .editor-statusbar { color: #9ca3af; }
+    </style>
 </head>
+<!-- (Keep the rest of your body content exactly as it is) -->
 <body>
     <div id="app-root" hidden></div>
 
     <!-- SIDEBAR -->
     <aside class="sidebar">
         <div class="logo-area">
-            <!-- Adjusted path based on your previous input -->
             <img src="../../Assets/images/logo-light.png" alt="Nibras Logo" class="sidebar-logo" id="app-logo">
         </div>
 
@@ -63,12 +91,12 @@
         <header class="top-header">
             <div class="search-bar-global">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" placeholder="Search courses, problems">
+                <input type="text" placeholder="Search courses, problems" aria-label="Search courses and problems">
             </div>
             
             <div class="header-actions">
-                <button class="icon-btn" id="themeBtn"><i class="fa-regular fa-moon"></i></button>
-                <button class="icon-btn"><i class="fa-regular fa-bell"></i></button>
+                <button class="icon-btn" id="themeBtn" type="button" aria-label="Toggle theme"><i class="fa-regular fa-moon"></i></button>
+                <button class="icon-btn" type="button" aria-label="View notifications"><i class="fa-regular fa-bell"></i></button>
                 <div class="profile-circle-small">ZA</div>
             </div>
         </header>
@@ -96,9 +124,9 @@
                 <!-- Your Answer Input -->
                 <div class="your-answer-section">
                     <h3>Your Answer</h3>
-                    <textarea class="answer-textarea" placeholder="Type your answer here..."></textarea>
+                    <textarea class="answer-textarea" id="answer-textarea" placeholder="Type your answer here..." aria-label="Your answer"></textarea>
                     <div style="text-align: right; margin-top: 1rem;">
-                        <button class="btn-primary">Post Answer</button>
+                        <button class="btn-primary" id="post-answer-btn" type="button">Post Answer</button>
                     </div>
                 </div>
 
@@ -107,8 +135,31 @@
 
     </main>
 
-    <script src="http://localhost:5000/socket.io/socket.io.js"></script>
-        <script src="/react-bootstrap.js"></script>
-    <script src="/Community/QuestionID/question.js"></script>
+    <!-- EDIT QUESTION MODAL (Hidden by Default) -->
+    <div class="modal-overlay" id="editModal" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title" aria-hidden="true" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-modal, rgba(0,0,0,0.6)); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(4px);">
+        <div class="modal-container" style="background: var(--bg-card, #ffffff); width: 600px; max-width: 90%; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); color: var(--text-primary);">
+            <div class="modal-header" style="padding: 1.25rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                <h2 id="edit-modal-title" style="font-size: 1.2rem; font-weight: 600;">Edit Question</h2>
+                <button class="close-modal" id="closeEditModal" type="button" aria-label="Close edit modal" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-secondary);"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body" style="padding: 1.5rem;">
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                    <label for="edit-question-title" style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; font-weight: 500;">Question Title</label>
+                    <input type="text" id="edit-question-title" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-input); color: var(--text-primary); outline: none;">
+                </div>
+                <div class="form-group">
+                    <label for="edit-question-body" style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; font-weight: 500;">Question Details</label>
+                    <textarea id="edit-question-body" rows="8" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-input); color: var(--text-primary); outline: none; font-family: inherit; resize: vertical;"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer" style="padding: 1.25rem; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 10px;">
+                <button id="cancelEditBtn" type="button" style="padding: 0.75rem 1.25rem; background: var(--btn-secondary-bg); color: var(--btn-secondary-text); border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">Cancel</button>
+                <button id="saveEditBtn" type="button" style="padding: 0.75rem 1.25rem; background: var(--accent-blue); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../react-bootstrap.js"></script>
+    <script src="./question.js"></script>
 </body>
 </html>

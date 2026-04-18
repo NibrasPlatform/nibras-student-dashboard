@@ -216,7 +216,7 @@ a {
 .deadline-info i { font-size: 0.8rem; }
 
 .btn-continue {
-    margin-top: auto; width: 100%; padding: 0.75rem; background-color: var(--accent-blue); color: white; border: none; border-radius: 6px; font-weight: 500; cursor: pointer; transition: 0.2s;
+    margin-top: auto; width: 100%; padding: 0.75rem; background-color: var(--accent-blue); color: white; border: none; border-radius: 6px; font-weight: 500; cursor: pointer; transition: 0.2s; text-align: center;
 }
 .btn-continue:hover { background-color: var(--accent-blue-hover); }
 
@@ -229,4 +229,270 @@ a {
 @media (max-width: 1024px) {
     .sidebar { display: none; }
     .main-content { margin-left: 0; }
+}
+
+/* --- PHASE 3: FEATURED VIDEOS SECTION --- */
+.featured-videos-section {
+    margin-bottom: 3rem;
+    padding: 2rem;
+    background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-card) 100%);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.section-header h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-primary);
+}
+
+.section-header h2 i {
+    color: var(--accent-blue);
+    font-size: 1.75rem;
+}
+
+.section-header p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+}
+
+.view-all-link {
+    color: var(--accent-blue);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.view-all-link:hover {
+    color: var(--accent-blue-hover);
+}
+
+/* Videos Grid */
+.videos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+/* Video Card */
+.video-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+}
+
+.video-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px -2px rgba(0, 0, 0, 0.15);
+}
+
+/* Thumbnail */
+.video-thumbnail {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    background-color: #000;
+    overflow: hidden;
+}
+
+.thumbnail-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Play Overlay */
+.play-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+}
+
+.video-card:hover .play-overlay {
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+/* Play Button */
+.play-button {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: var(--accent-blue);
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s, background-color 0.2s;
+    opacity: 0;
+    transform: scale(0.8);
+}
+
+.video-card:hover .play-button {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.play-button:hover {
+    background-color: var(--accent-blue-hover);
+    transform: scale(1.1);
+}
+
+/* Duration Badge */
+.duration-badge {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+/* Video Info */
+.video-info {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    flex: 1;
+}
+
+.video-info h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.3;
+    margin: 0;
+}
+
+.course-name {
+    font-size: 0.8rem;
+    color: var(--accent-blue);
+    font-weight: 500;
+    margin: 0;
+}
+
+.video-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    flex-wrap: wrap;
+}
+
+.instructor {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.instructor i {
+    font-size: 0.75rem;
+}
+
+.level-badge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background-color: var(--tag-bg);
+    color: var(--tag-text);
+}
+
+.level-badge.beginner {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+[data-theme="dark"] .level-badge.beginner {
+    background-color: rgba(34, 197, 94, 0.2);
+    color: #86efac;
+}
+
+.level-badge.intermediate {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+[data-theme="dark"] .level-badge.intermediate {
+    background-color: rgba(245, 158, 11, 0.2);
+    color: #fcd34d;
+}
+
+.level-badge.advanced {
+    background-color: #fee2e2;
+    color: #dc2626;
+}
+
+[data-theme="dark"] .level-badge.advanced {
+    background-color: rgba(220, 38, 38, 0.2);
+    color: #fca5a5;
+}
+
+.video-stats {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    display: flex;
+    gap: 1rem;
+    margin-top: auto;
+}
+
+.video-stats i {
+    font-size: 0.75rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .videos-grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 1rem;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .view-all-link {
+        align-self: flex-end;
+    }
 }

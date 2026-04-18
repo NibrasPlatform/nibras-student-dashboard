@@ -17,7 +17,7 @@
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- CSS -->
-    <link rel="stylesheet" href="/Courses/Assignments/Assignments%20Content/AssignmentContent.css">
+    <link rel="stylesheet" href="./AssignmentContent.css">
 </head>
 <body>
     <div id="app-root" hidden></div>
@@ -48,7 +48,7 @@
                     Return to Courses
         </a>
             <div class="course-meta">
-                <h4>CS 101: Web Development</h4>
+                <h4>Loading course...</h4>
                 <span>Fall 2024 • Week 4</span>
             </div>
         </div>
@@ -118,13 +118,86 @@
                 </div>
             </section>
 
-            <!-- 5. Instructor Feedback -->
+            <!-- 5. Submit Assignment (NEW) -->
+            <section class="card" id="submit-section">
+                <h3 class="section-title"><i class="fa-solid fa-cloud-arrow-up"></i> Submit Assignment</h3>
+                <div class="submit-form">
+                    <p class="step-desc" style="margin-bottom: 1rem;">Paste your GitHub repository URL below to submit your work for automated grading.</p>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="github-url" placeholder="https://github.com/username/repo" style="flex: 1; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-body); color: var(--text-primary);">
+                        <button id="btn-submit" class="back-btn" style="width: auto; margin-bottom: 0;">Submit Now</button>
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-top: 0.75rem;">
+                        <input type="text" id="submission-branch" placeholder="Branch (optional, default: main)" style="flex: 1; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-body); color: var(--text-primary);" value="main">
+                        <input type="text" id="submission-commit-sha" placeholder="Commit SHA (optional)" style="flex: 1; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-body); color: var(--text-primary);">
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. Submission Pulse Tracker (NEW) -->
+            <section class="card pulse-card" id="submission-pulse">
+                <h3 class="section-title"><i class="fa-solid fa-bolt"></i> Grading Pipeline</h3>
+                <div class="pulse-steps">
+                    <div class="pulse-step" id="step-init">
+                        <div class="step-icon"><i class="fa-solid fa-terminal"></i></div>
+                        <div class="step-text">
+                            <span class="step-title">Initializing Pipeline</span>
+                            <span class="step-desc">Preparing the isolated environment...</span>
+                        </div>
+                    </div>
+                    <div class="pulse-step" id="step-clone">
+                        <div class="step-icon"><i class="fa-solid fa-code-branch"></i></div>
+                        <div class="step-text">
+                            <span class="step-title">Cloning Repository</span>
+                            <span class="step-desc">Fetching your latest code from GitHub...</span>
+                        </div>
+                    </div>
+                    <div class="pulse-step" id="step-test">
+                        <div class="step-icon"><i class="fa-solid fa-flask"></i></div>
+                        <div class="step-text">
+                            <span class="step-title">Running Automated Tests</span>
+                            <span class="step-desc">Executing unit tests and build checks...</span>
+                        </div>
+                    </div>
+                    <div class="pulse-step" id="step-grade">
+                        <div class="step-icon"><i class="fa-solid fa-brain"></i></div>
+                        <div class="step-text">
+                            <span class="step-title">Semantic AI Analysis</span>
+                            <span class="step-desc">AI is reviewing your code logic and reasoning...</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. Instructor Feedback -->
             <section class="card feedback-card">
-                <h3 class="section-title success-text"><i class="fa-regular fa-circle-check"></i> Instructor Feedback</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3 class="section-title success-text" style="margin-bottom: 0;"><i class="fa-regular fa-circle-check"></i> Instructor Feedback</h3>
+                    <button id="toggle-ai-analysis" class="theme-toggle-btn" style="display: none;">
+                        <i class="fa-solid fa-brain"></i> View AI Analysis
+                    </button>
+                </div>
                 <div class="feedback-box">
                     <p id="feedback-text">...</p>
                 </div>
-                <div class="feedback-footer">
+
+                <!-- AI Deep Analysis (Hidden by default) -->
+                <div id="ai-analysis-container" style="display: none; margin-top: 1.5rem; border-top: 1px dashed var(--border-color); padding-top: 1.5rem;">
+                    <div class="ai-reasoning-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h4 style="font-size: 0.95rem; font-weight: 600;"><i class="fa-solid fa-microchip"></i> Semantic Reasoning</h4>
+                        <span id="ai-confidence" class="score-badge" style="font-size: 0.75rem; padding: 0.2rem 0.6rem;">Confidence: --%</span>
+                    </div>
+                    <div class="ai-reasoning-box" style="background: var(--bg-body); padding: 1rem; border-radius: 8px; font-size: 0.9rem; color: var(--text-primary); border-left: 3px solid var(--accent-blue); margin-bottom: 1.5rem;">
+                        <p id="ai-reasoning-text">...</p>
+                    </div>
+
+                    <h4 style="font-size: 0.95rem; font-weight: 600; margin-bottom: 1rem;"><i class="fa-solid fa-code"></i> AI Found Evidence</h4>
+                    <div class="evidence-block" style="background: #1e293b; color: #e2e8f0; padding: 1rem; border-radius: 8px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 0.85rem; overflow-x: auto; white-space: pre;">
+                        <code id="ai-evidence-code">...</code>
+                    </div>
+                </div>
+
+                <div class="feedback-footer" style="margin-top: 1rem;">
                     Graded by: <span id="grader-name">...</span> • <span id="graded-date">...</span>
                 </div>
             </section>
@@ -132,7 +205,9 @@
         </div>
     </main>
 
-        <script src="/react-bootstrap.js"></script>
-    <script src="/Courses/Assignments/Assignments%20Content/AssignmentContent.js"></script>
+        <script src="../../../react-bootstrap.js"></script>
+    <script src="../../courseData.js"></script>
+    <script src="../../Projects/projectsApi.js?v=20260417-5"></script>
+    <script src="./AssignmentContent.js?v=20260417-3"></script>
 </body>
 </html>

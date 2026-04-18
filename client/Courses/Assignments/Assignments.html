@@ -17,7 +17,7 @@
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- CSS -->
-    <link rel="stylesheet" href="/Courses/Assignments/Assignments.css">
+    <link rel="stylesheet" href="./Assignments.css">
 </head>
 <body>
     <div id="app-root" hidden></div>
@@ -69,7 +69,7 @@
                     Return to Courses
         </a>
             <div class="course-meta">
-                <h4>CS 101: Web Development</h4>
+                <h4>Loading course...</h4>
                 <span>Fall 2024 • Week 4</span>
             </div>
         </div>
@@ -83,7 +83,7 @@
             <!-- Breadcrumb or Spacer -->
             <div class="breadcrumbs"></div> 
             
-            <button class="theme-toggle-btn" id="themeBtn">
+            <button class="theme-toggle-btn" id="themeBtn" type="button" aria-label="Toggle theme">
                 <i class="fa-solid fa-sun"></i> <span>Light Mode</span>
             </button>
         </div>
@@ -93,7 +93,7 @@
             <div class="header-top-row">
                 <div class="header-titles">
                     <h1>Assignments</h1>
-                    <p id="course-term">CS 101: Web Development • Fall 2024</p>
+                    <p id="course-term">Loading course...</p>
                 </div>
                 <div class="header-stats">
                     <div class="stat-line">
@@ -108,26 +108,28 @@
             
             <!-- Large Progress Bar -->
             <div class="header-progress-track">
-                <div class="header-progress-fill" id="overall-progress" style="width: 0%"></div>
+                <div class="header-progress-fill" id="overall-progress" role="progressbar" aria-label="Assignment progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" style="width: 0%"></div>
             </div>
         </div>
+        <div id="assignments-api-notice" role="status" aria-live="polite" hidden style="margin: 12px 0 18px; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 10px; background: var(--bg-secondary); color: var(--text-secondary); font-size: 13px;"></div>
 
         <!-- Filter Tabs -->
         <div class="filter-tabs">
-            <button class="filter-btn active" data-filter="all">All</button>
-            <button class="filter-btn" data-filter="pending">Pending</button>
-            <button class="filter-btn" data-filter="submitted">Submitted</button>
-            <button class="filter-btn" data-filter="graded">Graded</button>
+            <button class="filter-btn active" type="button" data-filter="all" aria-pressed="true">All</button>
+            <button class="filter-btn" type="button" data-filter="pending" aria-pressed="false">Pending</button>
+            <button class="filter-btn" type="button" data-filter="submitted" aria-pressed="false">Submitted</button>
+            <button class="filter-btn" type="button" data-filter="graded" aria-pressed="false">Graded</button>
         </div>
 
         <!-- Assignments List Container (Dynamic) -->
-        <div class="assignments-list" id="assignments-container">
+        <div class="assignments-list" id="assignments-container" role="region" aria-live="polite" aria-label="Assignments list">
             <!-- JS will populate cards here -->
         </div>
 
     </main>
 
-        <script src="/react-bootstrap.js"></script>
-    <script src="/Courses/Assignments/Assignments.js"></script>
+        <script src="../../../react-bootstrap.js"></script>
+    <script src="../courseData.js"></script>
+    <script src="./Assignments.js"></script>
 </body>
 </html>

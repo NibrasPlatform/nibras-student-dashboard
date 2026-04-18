@@ -1,72 +1,156 @@
-window.NibrasReact.run(() => {
+console.log('[DASHBOARD.JS] Script started (direct execution)');
+
+// --- 2. BACKEND DATA ---
+const savedGPA = localStorage.getItem('calculatedGPA');
+
+// Resolve user name: try API first, fall back to cached user, then hardcoded default
+async function resolveUserName() {
+    // Check cached user first
+    try {
+        const cachedUser = JSON.parse(localStorage.getItem('user'));
+        if (cachedUser && cachedUser.name) {
+            return cachedUser.name.split(' ')[0]; // First name only for welcome message
+        }
+    } catch (_) {}
+
+    // Try fetching from admin service
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) return 'Student';
+
+        const apiFetch = window.NibrasShared?.apiFetch;
+        if (!apiFetch) return 'Student';
+
+        const data = await apiFetch('/auth/me', {
+            service: 'admin',
+            method: 'GET',
+            auth: true,
+        });
+        const user = data?.user || data;
+        if (user && user.name) {
+            // Update cached user
+            localStorage.setItem('user', JSON.stringify(user));
+            return user.name.split(' ')[0];
+        }
+    } catch (err) {
+        console.warn('[DASHBOARD.JS] Could not fetch user profile:', err.message);
+    }
+
+    return 'Student';
+}
+
+const dashboardData = {
+    user: "Student", // Will be updated by resolveUserName()
+    stats: [
+        { label: "Courses Enrolled", value: "6", icon: "fa-solid fa-book-bookmark", color: "pink" },
+        { label: "Problems Solved", value: "142", icon: "fa-solid fa-bullseye", color: "orange" },
+        { label: "Contest Rating", value: "1,847", icon: "fa-solid fa-heart", color: "green" },
+        { label: "Study Streak", value: "12 days", icon: "fa-regular fa-clock", color: "blue" },
+        { 
+            label: "Total GPA", 
+            value: savedGPA ? `${savedGPA}/4.0` : "Calculate", 
+            icon: "fa-solid fa-graduation-cap", 
+            color: "purple",
+            id: "gpa-box",       
+            isClickable: true    
+        }
+    ],
+    // Milestones Data
+    milestones: [
+        { title: "E-Commerce Platform", completed: 60, status: "On Track", color: "#3b82f6", due: "Jan 15" },
+        { title: "Portfolio Website", completed: 85, status: "Reviewing", color: "#10b981", due: "Dec 20" },
+        { title: "AI Chatbot", completed: 30, status: "At Risk", color: "#f59e0b", due: "Dec 25" }
+    ],
+    activities: [
+        { title: "Data Structures Assignment 3", sub: "CS 201", tag: "2 days", tagColor: "#2563eb", borderColor: "#f59e0b" },
+        { title: "Weekly Programming Contest", sub: "Competitive Programming", tag: "5 hours", tagColor: "#dc2626", borderColor: "#2563eb" },
+        { title: "Binary Tree Traversal Question", sub: "CS 201", tag: "answered", tagColor: "#2563eb", borderColor: "#10b981" },
+        { title: "Web Development Project", sub: "CS 301", tag: "1 week", tagColor: "#2563eb", borderColor: "#ef4444" }
+    ],
+    progress: [
+        { subject: "Data Structures & Algorithms", percent: 85 },
+        { subject: "Database Systems", percent: 72 },
+        { subject: "Web Development", percent: 91 },
+        { subject: "Competitive Programming", percent: 68 }
+    ],
+    deadlines: [
+        { title: "Algorithm Analysis Quiz", code: "CS 202", date: "Tomorrow, 2:00 PM" },
+        { title: "Database Design Project", code: "CS 301", date: "Friday, 11:59 PM" },
+        { title: "Monthly Contest", code: "Competitive Programming", date: "Saturday, 10:00 AM" }
+    ],
+    achievements: [
+        { title: "First Steps", icon: "fa-solid fa-medal" },
+        { title: "Team Player", icon: "fa-solid fa-medal" },
+        { title: "Top Contributor", icon: "fa-solid fa-medal" },
+        { title: "Problem Solver", icon: "fa-solid fa-medal" },
+        { title: "7-Day Streak", icon: "fa-solid fa-medal" }
+    ]
+};
+
+function initDashboard() {
+    console.log('[DASHBOARD.JS] Initializing dashboard page');
 
     // --- 1. SIDEBAR LOGIC ---
-    const navLinks = document.querySelectorAll('.nav-link'); // Fixed selector
+    const navLinks = document.querySelectorAll('.nav-link');
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
-             // Removed preventDefault so links work
-             // e.preventDefault(); 
             navLinks.forEach(n => n.classList.remove('active'));
             link.classList.add('active');
         });
     });
 
-    // --- 2. BACKEND DATA ---
-    const savedGPA = localStorage.getItem('calculatedGPA');
-    
-    const dashboardData = {
-        user: "Ziad",
-        stats: [
-            { label: "Courses Enrolled", value: "6", icon: "fa-solid fa-book-bookmark", color: "pink" },
-            { label: "Problems Solved", value: "142", icon: "fa-solid fa-bullseye", color: "orange" },
-            { label: "Contest Rating", value: "1,847", icon: "fa-solid fa-heart", color: "green" },
-            { label: "Study Streak", value: "12 days", icon: "fa-regular fa-clock", color: "blue" },
-            { 
-                label: "Total GPA", 
-                value: savedGPA ? `${savedGPA}/4.0` : "Calculate", 
-                icon: "fa-solid fa-graduation-cap", 
-                color: "purple",
-                id: "gpa-box",       
-                isClickable: true    
-            }
-        ],
-        // Milestones Data
-        milestones: [
-            { title: "E-Commerce Platform", completed: 60, status: "On Track", color: "#3b82f6", due: "Jan 15" },
-            { title: "Portfolio Website", completed: 85, status: "Reviewing", color: "#10b981", due: "Dec 20" },
-            { title: "AI Chatbot", completed: 30, status: "At Risk", color: "#f59e0b", due: "Dec 25" }
-        ],
-        activities: [
-            { title: "Data Structures Assignment 3", sub: "CS 201", tag: "2 days", tagColor: "#2563eb", borderColor: "#f59e0b" },
-            { title: "Weekly Programming Contest", sub: "Competitive Programming", tag: "5 hours", tagColor: "#dc2626", borderColor: "#2563eb" },
-            { title: "Binary Tree Traversal Question", sub: "CS 201", tag: "answered", tagColor: "#2563eb", borderColor: "#10b981" },
-            { title: "Web Development Project", sub: "CS 301", tag: "1 week", tagColor: "#2563eb", borderColor: "#ef4444" }
-        ],
-        progress: [
-            { subject: "Data Structures & Algorithms", percent: 85 },
-            { subject: "Database Systems", percent: 72 },
-            { subject: "Web Development", percent: 91 },
-            { subject: "Competitive Programming", percent: 68 }
-        ],
-        deadlines: [
-            { title: "Algorithm Analysis Quiz", code: "CS 202", date: "Tomorrow, 2:00 PM" },
-            { title: "Database Design Project", code: "CS 301", date: "Friday, 11:59 PM" },
-            { title: "Monthly Contest", code: "Competitive Programming", date: "Saturday, 10:00 AM" }
-        ],
-        achievements: [
-            { title: "First Steps", icon: "fa-solid fa-medal" },
-            { title: "Team Player", icon: "fa-solid fa-medal" },
-            { title: "Top Contributor", icon: "fa-solid fa-medal" },
-            { title: "Problem Solver", icon: "fa-solid fa-medal" },
-            { title: "7-Day Streak", icon: "fa-solid fa-medal" }
-        ]
-    };
+    // --- 2. FETCH USER NAME FROM API ---
+    resolveUserName().then((name) => {
+        dashboardData.user = name;
+        const welcomeMsg = document.getElementById('welcome-msg');
+        if (welcomeMsg) {
+            welcomeMsg.textContent = `Welcome back, ${name}!`;
+        }
+        // Also update sidebar user info if present
+        const sidebarUserInfo = document.querySelector('.user-profile h4');
+        if (sidebarUserInfo) {
+            try {
+                const fullUser = JSON.parse(localStorage.getItem('user'));
+                if (fullUser && fullUser.name) {
+                    sidebarUserInfo.textContent = fullUser.name;
+                }
+            } catch (_) {}
+        }
+        const sidebarUserRole = document.querySelector('.user-profile span');
+        if (sidebarUserRole) {
+            try {
+                const fullUser = JSON.parse(localStorage.getItem('user'));
+                if (fullUser && fullUser.role) {
+                    sidebarUserRole.textContent = fullUser.role;
+                }
+            } catch (_) {}
+        }
+        // Update avatar initials
+        const avatarCircle = document.querySelector('.avatar-circle');
+        if (avatarCircle) {
+            try {
+                const fullUser = JSON.parse(localStorage.getItem('user'));
+                if (fullUser && fullUser.name) {
+                    const initials = fullUser.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                    avatarCircle.textContent = initials;
+                }
+            } catch (_) {}
+        }
+    }).catch(() => {
+        // Silent fail — default name already set
+    });
 
     // --- 3. RENDER UI ---
     renderDashboard(dashboardData);
 
     function renderDashboard(data) {
-        document.getElementById('welcome-msg').textContent = `Welcome back, ${data.user}!`;
+        const welcomeMsg = document.getElementById('welcome-msg');
+        if (!welcomeMsg) {
+            console.error('[DASHBOARD.JS] ERROR: welcome-msg not found!');
+            return;
+        }
+        
+        welcomeMsg.textContent = `Welcome back, ${data.user}!`;
 
         // Render Stats
         const statsContainer = document.getElementById('stats-container');
@@ -97,9 +181,10 @@ window.NibrasReact.run(() => {
             `;
         });
 
+        console.log('[DASHBOARD.JS] Rendered stats and dashboard');
         initGPAModal();
         renderLists(data);
-        renderMilestones(data.milestones); // Call new render function
+        renderMilestones(data.milestones);
     }
 
     function renderLists(data) {
@@ -229,30 +314,41 @@ window.NibrasReact.run(() => {
 
     // --- 5. THEME TOGGLE ---
     const themeBtn = document.getElementById('themeBtn');
-    const themeIcon = themeBtn.querySelector('i');
+    const themeIcon = themeBtn?.querySelector('i');
     const appLogo = document.getElementById('app-logo');
 
     if(document.documentElement.getAttribute('data-theme') === 'dark') {
-        themeIcon.className = 'fa-regular fa-sun';
+        if(themeIcon) themeIcon.className = 'fa-regular fa-sun';
         if(appLogo) appLogo.src = '../assets/images/logo-dark.png';
     } else {
         if(appLogo) appLogo.src = '../assets/images/logo-light.png';
     }
 
-    themeBtn.addEventListener('click', () => {
-        const html = document.documentElement;
-        const current = html.getAttribute('data-theme');
-        const newTheme = current === 'light' ? 'dark' : 'light';
+    if(themeBtn) {
+        themeBtn.addEventListener('click', () => {
+            const html = document.documentElement;
+            const current = html.getAttribute('data-theme');
+            const newTheme = current === 'light' ? 'dark' : 'light';
 
-        html.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
 
-        if (newTheme === 'dark') {
-            themeIcon.className = 'fa-regular fa-sun';
-            if(appLogo) appLogo.src = '../assets/images/logo-dark.png';
-        } else {
-            themeIcon.className = 'fa-regular fa-moon';
-            if(appLogo) appLogo.src = '../assets/images/logo-light.png';
-        }
-    });
-});
+            if (newTheme === 'dark') {
+                if(themeIcon) themeIcon.className = 'fa-regular fa-sun';
+                if(appLogo) appLogo.src = '../assets/images/logo-dark.png';
+            } else {
+                if(themeIcon) themeIcon.className = 'fa-regular fa-moon';
+                if(appLogo) appLogo.src = '../assets/images/logo-light.png';
+            }
+        });
+    }
+
+    console.log('[DASHBOARD.JS] Initialization complete');
+}
+
+// Run when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDashboard);
+} else {
+    initDashboard();
+}

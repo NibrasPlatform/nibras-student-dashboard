@@ -20,7 +20,7 @@
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- External CSS -->
-    <link rel="stylesheet" href="/Courses/Projects/Projects.css">
+    <link rel="stylesheet" href="./Projects.css">
 </head>
 <body>
     <div id="app-root" hidden></div>
@@ -71,7 +71,7 @@
                 Return to Courses
             </a>
             <div class="course-meta">
-                <h4>CS 101: Web Development</h4>
+                <h4>Loading course...</h4>
                 <span>Fall 2024 • Week 4</span>
             </div>
         </div>
@@ -83,7 +83,7 @@
         <!-- TOP BAR (Theme Toggle) -->
         <div class="top-bar">
             <div class="breadcrumbs"></div> 
-            <button class="theme-toggle-btn" id="themeBtn">
+            <button class="theme-toggle-btn" id="themeBtn" type="button" aria-label="Toggle theme">
                 <i class="fa-solid fa-sun"></i> <span>Light Mode</span>
             </button>
         </div>
@@ -93,7 +93,7 @@
             <div class="header-top-row" style="margin-bottom:0;">
                 <div class="header-titles">
                     <h1>Projects</h1>
-                    <p>CS 101: Web Development • Fall 2024</p>
+                    <p>Loading course...</p>
                 </div>
                 <div class="header-stats">
                     <div class="stat-line">
@@ -103,15 +103,21 @@
                         <i class="fa-solid fa-chart-line" style="margin-right: 4px; color: var(--text-secondary);"></i> 
                         60% Complete
                     </div>
+                    <div class="header-counters">
+                        <span class="status-badge badge-graded" data-counter="approved">Approved: 0</span>
+                        <span class="status-badge badge-submitted" data-counter="in_review">In Review: 0</span>
+                        <span class="status-badge badge-default" data-counter="complete">Complete: 0</span>
+                    </div>
                 </div>
             </div>
         </header>
 
         <!-- View Context Switcher -->
         <div class="context-tabs">
-            <button class="context-tab active" onclick="switchView('my-projects-view', event)">My Projects</button>
-            <button class="context-tab" onclick="switchView('group-view', event)">Group Workspace</button>
+            <button class="context-tab active" type="button" aria-pressed="true" onclick="switchView('my-projects-view', event)">My Projects</button>
+            <button class="context-tab" type="button" aria-pressed="false" onclick="switchView('group-view', event)">Group Workspace</button>
         </div>
+        <div id="projects-api-notice" role="status" aria-live="polite" hidden style="margin: 12px 0 18px; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 10px; background: var(--bg-secondary); color: var(--text-secondary); font-size: 13px;"></div>
 
         <!-- ========================================== -->
         <!-- VIEW 1: MY PROJECTS                        -->
@@ -120,15 +126,15 @@
             
             <!-- Project Cards (Tabs) -->
             <div class="project-tabs-list" id="projectListTabs">
-                <div class="project-card-tab active" onclick="selectProject('project-1', event)">
-                    <h3>E-Commerce Platform Development</h3>
-                    <p>👥 Team • 30% of final grade</p>
-                </div>
+                <button type="button" class="project-card-tab active" data-project-dom-id="project-1" aria-pressed="true" onclick="selectProject('project-1', event)">
+                    <h3 data-role="project-card-title">E-Commerce Platform Development</h3>
+                    <p data-role="project-card-meta">👥 Team • 30% of final grade</p>
+                </button>
                 
-                <div class="project-card-tab" onclick="selectProject('project-2', event)">
-                    <h3>Advanced Portfolio Website</h3>
-                    <p>👤 Individual • 20% of final grade</p>
-                </div>
+                <button type="button" class="project-card-tab" data-project-dom-id="project-2" aria-pressed="false" onclick="selectProject('project-2', event)">
+                    <h3 data-role="project-card-title">Advanced Portfolio Website</h3>
+                    <p data-role="project-card-meta">👤 Individual • 20% of final grade</p>
+                </button>
             </div>
 
             <!-- Project 1 Details -->
@@ -140,8 +146,8 @@
                         <!-- Project Overview -->
                         <div class="card">
                             <div class="card-header"><div class="card-title">Project Overview</div></div>
-                            <h3 style="margin-bottom: 12px; font-weight: 600;">E-Commerce Platform Development</h3>
-                            <p class="section-desc">Build a full-stack e-commerce web application with user authentication, product catalog, shopping cart, and payment integration.</p>
+                            <h3 style="margin-bottom: 12px; font-weight: 600;" data-role="project-overview-title">E-Commerce Platform Development</h3>
+                            <p class="section-desc" data-role="project-overview-description">Build a full-stack e-commerce web application with user authentication, product catalog, shopping cart, and payment integration.</p>
                             
                             <div class="meta-grid">
                                 <div class="meta-item">
@@ -172,54 +178,54 @@
                         <div class="card">
                             <div class="card-header">
                                 <div class="card-title">Milestones & Phases</div>
-                                <div class="card-subtitle">2 of 5 completed</div>
+                                <div class="card-subtitle" data-role="milestones-subtitle">2 of 5 completed</div>
                             </div>
                             
-                            <div class="timeline">
+                            <div class="timeline" data-role="milestones-timeline">
                                 <!-- Milestone 1 (Approved) -->
-                                <div class="milestone">
-                                    <div class="m-icon m-graded"><i class="fa-solid fa-check"></i></div>
+                                <div class="milestone" data-milestone-id="1">
+                                    <div class="m-icon m-graded" data-role="milestone-icon"><i class="fa-solid fa-check"></i></div>
                                     <div class="m-content">
                                         <div class="m-header">
                                             <h4>Project Proposal</h4>
-                                            <span class="status-badge badge-graded">Approved</span>
+                                            <span class="status-badge badge-graded" data-role="milestone-status-badge">Approved</span>
                                         </div>
                                         <p class="m-desc">Submit detailed project proposal with wireframes and tech stack</p>
-                                        <div class="m-meta"><i class="fa-regular fa-calendar"></i> Nov 8, 2024</div>
-                                        <button class="btn btn-outline btn-sm" style="margin-top: 10px;" onclick="openFeedbackModal(1, 1)">
+                                        <div class="m-meta" data-role="milestone-due"><i class="fa-regular fa-calendar"></i> Nov 8, 2024</div>
+                                        <button class="btn btn-outline btn-sm" data-role="milestone-action" style="margin-top: 10px;" onclick="openFeedbackModal(1, 1)">
                                             <i class="fa-regular fa-comment-dots" style="margin-right: 6px;"></i> View Feedback & History
                                         </button>
                                     </div>
                                 </div>
 
                                 <!-- Milestone 2 (Needs Changes) -->
-                                <div class="milestone">
-                                    <div class="m-icon m-default" style="border-color: var(--status-late-text); color: var(--status-late-text);"><i class="fa-solid fa-rotate-right"></i></div>
+                                <div class="milestone" data-milestone-id="2">
+                                    <div class="m-icon m-default" data-role="milestone-icon" style="border-color: var(--status-late-text); color: var(--status-late-text);"><i class="fa-solid fa-rotate-right"></i></div>
                                     <div class="m-content">
                                         <div class="m-header">
                                             <h4>Frontend Development</h4>
-                                            <span class="status-badge badge-late">Needs Changes</span>
+                                            <span class="status-badge badge-late" data-role="milestone-status-badge">Needs Changes</span>
                                         </div>
                                         <p class="m-desc">Implement UI components and integrate with backend</p>
-                                        <div class="m-meta"><i class="fa-regular fa-calendar"></i> Dec 15, 2024</div>
+                                        <div class="m-meta" data-role="milestone-due"><i class="fa-regular fa-calendar"></i> Dec 15, 2024</div>
                                         <!-- Opens the Feedback view so they can see WHAT needs changing -->
-                                        <button class="btn btn-outline btn-sm" style="margin-top: 10px;" onclick="openFeedbackModal(1, 2)">
+                                        <button class="btn btn-outline btn-sm" data-role="milestone-action" style="margin-top: 10px;" onclick="openFeedbackModal(1, 2)">
                                             <i class="fa-solid fa-triangle-exclamation" style="margin-right: 6px; color: var(--status-late-text);"></i> Review Feedback to Resubmit
                                         </button>
                                     </div>
                                 </div>
 
                                 <!-- Milestone 3 (Pending) -->
-                                <div class="milestone">
-                                    <div class="m-icon m-default"><i class="fa-solid fa-clock"></i></div>
+                                <div class="milestone" data-milestone-id="3">
+                                    <div class="m-icon m-default" data-role="milestone-icon"><i class="fa-solid fa-clock"></i></div>
                                     <div class="m-content">
                                         <div class="m-header">
                                             <h4>Testing & Deployment</h4>
-                                            <span class="status-badge badge-default">Pending</span>
+                                            <span class="status-badge badge-default" data-role="milestone-status-badge">Pending</span>
                                         </div>
                                         <p class="m-desc">Complete testing, bug fixes, and deploy to production</p>
-                                        <div class="m-meta" style="margin-bottom: 12px;"><i class="fa-regular fa-calendar"></i> Jan 8, 2025</div>
-                                        <button class="btn btn-primary" onclick="openSubmissionModal(1, 3)">Submit Milestone</button>
+                                        <div class="m-meta" data-role="milestone-due" style="margin-bottom: 12px;"><i class="fa-regular fa-calendar"></i> Jan 8, 2025</div>
+                                        <button class="btn btn-primary" data-role="milestone-action" onclick="openSubmissionModal(1, 3)">Submit Milestone</button>
                                     </div>
                                 </div>
                             </div>
@@ -228,9 +234,9 @@
                         <!-- Final Submission -->
                         <div class="card">
                             <div class="card-title" style="margin-bottom: 8px;">Final Project Submission</div>
-                            <div class="final-submission-box" onclick="openSubmissionModal(1, 'final')">
+                            <button type="button" class="final-submission-box" onclick="openSubmissionModal(1, 'final')">
                                 Click to submit final project
-                            </div>
+                            </button>
                         </div>
                     </div>
 
@@ -239,12 +245,12 @@
                         <!-- Progress Widget -->
                         <div class="card progress-widget">
                             <div class="card-header" style="margin-bottom: 12px;"><div class="card-title">Overall Progress</div></div>
-                            <div class="p-row"><span>Completion</span><span>60%</span></div>
+                            <div class="p-row"><span>Completion</span><span id="progress-completion-value">60%</span></div>
                             <div class="progress-bar-container" style="margin-bottom: 16px;">
-                                <div class="progress-fill" style="width: 60%;"></div>
+                                <div class="progress-fill" id="progress-fill-widget" style="width: 60%;"></div>
                             </div>
-                            <div class="stat-row"><span>Approved Milestones</span><span class="stat-val green">2/5</span></div>
-                            <div class="stat-row"><span>Days Remaining</span><span class="stat-val">28</span></div>
+                            <div class="stat-row"><span>Approved Milestones</span><span class="stat-val green" id="approved-milestones-value">2/5</span></div>
+                            <div class="stat-row"><span>Days Remaining</span><span class="stat-val" id="days-remaining-value">28</span></div>
                         </div>
 
                         <!-- Grading Breakdown -->
@@ -274,11 +280,11 @@
             <!-- Project 2 Details -->
             <div id="project-2" class="project-details">
                 <div class="card">
-                    <div class="card-header"><div class="card-title">Advanced Portfolio Website</div></div>
-                    <p class="section-desc">You are currently viewing the individual portfolio project workspace. Start by submitting your initial wireframes in the milestone section.</p>
-                    <div class="final-submission-box" onclick="openSubmissionModal(2, 1)">
+                    <div class="card-header"><div class="card-title" data-role="project-overview-title">Advanced Portfolio Website</div></div>
+                    <p class="section-desc" data-role="project-overview-description">You are currently viewing the individual portfolio project workspace. Start by submitting your initial wireframes in the milestone section.</p>
+                    <button type="button" class="final-submission-box" onclick="openSubmissionModal(2, 1)">
                         Click to submit initial wireframes
-                    </div>
+                    </button>
                 </div>
             </div>
 
@@ -291,9 +297,10 @@
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">Group Workspace: E-Commerce Platform</div>
-                    <button class="btn btn-primary">Add Contribution Note</button>
+                    <button id="group-add-contribution-btn" type="button" class="btn btn-primary" disabled>Add Contribution Note</button>
                 </div>
                 <p class="section-desc">Manage team roles, log contributions, and track team velocity here.</p>
+                <p id="group-readonly-notice" style="margin: 0 0 14px; font-size: 13px; color: var(--text-secondary);">Student mode: Group Workspace is visible but read-only in this integration.</p>
                 
                 <table class="data-table">
                     <thead>
@@ -339,45 +346,87 @@
     <!-- ========================================== -->
     
     <!-- Submit Milestone Modal (1.4) -->
-    <div class="modal-overlay" id="submissionModal">
+    <div class="modal-overlay" id="submissionModal" role="dialog" aria-modal="true" aria-labelledby="submission-modal-title" aria-hidden="true">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Submit Milestone</h2>
-                <button class="close-btn" onclick="closeModal('submissionModal')" type="button">&times;</button>
+                <h2 id="submission-modal-title">Submit Milestone</h2>
+                <button class="close-btn" onclick="closeModal('submissionModal')" type="button" aria-label="Close submit milestone modal">&times;</button>
             </div>
             
-            <form id="milestoneSubmitForm" action="/api/submit-milestone" method="POST">
+            <form id="milestoneSubmitForm">
                 <input type="hidden" name="project_id" id="modal_project_id" value="">
                 <input type="hidden" name="milestone_id" id="modal_milestone_id" value="">
-                <input type="hidden" name="is_draft" id="modal_is_draft" value="0">
+                <input type="hidden" name="project_key" id="modal_project_key" value="">
 
-                <div class="form-group">
-                    <label for="submission_type">Submission Type</label>
-                    <select name="submission_type" id="submission_type" required>
-                        <option value="github">GitHub Repository Link</option>
-                        <option value="file">File Upload (ZIP, PDF)</option>
-                        <option value="url">Text / URL</option>
-                    </select>
+                <div id="milestone-form-content">
+                    <div class="form-group">
+                        <label for="submission_type">Submission Type</label>
+                        <select name="submission_type" id="submission_type" required>
+                            <option value="github">GitHub Repository Link</option>
+                            <option value="link">External Link</option>
+                            <option value="text">Text</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="resource_link">Submission Value (URL / Repo / Text)</label>
+                        <input type="text" name="resource_link" id="resource_link" placeholder="https://github.com/..." required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notes">Notes to Reviewer (Optional)</label>
+                        <textarea name="notes" id="notes" rows="4" placeholder="Any specific areas you want feedback on?"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="submission_branch">Branch (Optional, for hosted preflight)</label>
+                        <input type="text" name="submission_branch" id="submission_branch" value="main" placeholder="main">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="submission_commit_sha">Commit SHA (Optional, for hosted preflight)</label>
+                        <input type="text" name="submission_commit_sha" id="submission_commit_sha" placeholder="e.g. 8f3c7d2">
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="resource_link">Resource Link / Upload</label>
-                    <input type="text" name="resource_link" id="resource_link" placeholder="https://github.com/..." required>
-                </div>
-
-                <div class="form-group">
-                    <label for="notes">Notes to Reviewer (Optional)</label>
-                    <textarea name="notes" id="notes" rows="4" placeholder="Any specific areas you want feedback on?"></textarea>
-                </div>
-
-                <div class="form-group" style="display: flex; gap: 8px; align-items: center; font-size: 13px;">
-                    <input type="checkbox" name="rubric_confirmed" id="rubricCheck" value="1" style="width: auto;" required> 
-                    <label for="rubricCheck" style="margin:0; font-weight: normal; color: var(--text-primary);">I confirm all rubric requirements are met.</label>
+                <!-- NEW: Pulse Tracker inside Modal -->
+                <div id="modal-pulse-tracker" style="display: none; padding: 1rem 0;">
+                    <div class="pulse-steps">
+                        <div class="pulse-step" id="step-init">
+                            <div class="step-icon"><i class="fa-solid fa-terminal"></i></div>
+                            <div class="step-text">
+                                <span class="step-title">Initializing Pipeline</span>
+                                <span class="step-desc">Preparing environment...</span>
+                            </div>
+                        </div>
+                        <div class="pulse-step" id="step-clone">
+                            <div class="step-icon"><i class="fa-solid fa-code-branch"></i></div>
+                            <div class="step-text">
+                                <span class="step-title">Cloning Repository</span>
+                                <span class="step-desc">Fetching code...</span>
+                            </div>
+                        </div>
+                        <div class="pulse-step" id="step-test">
+                            <div class="step-icon"><i class="fa-solid fa-flask"></i></div>
+                            <div class="step-text">
+                                <span class="step-title">Running Tests</span>
+                                <span class="step-desc">Executing automated checks...</span>
+                            </div>
+                        </div>
+                        <div class="pulse-step" id="step-grade">
+                            <div class="step-icon"><i class="fa-solid fa-brain"></i></div>
+                            <div class="step-text">
+                                <span class="step-title">AI Analysis</span>
+                                <span class="step-desc">Reviewing logic & reasoning...</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline" onclick="submitAsDraft()">Save Draft</button>
-                    <button type="submit" class="btn btn-primary">Submit Milestone</button>
+                    <div id="submission-status-message" role="status" aria-live="polite" style="flex:1; font-size: 12px; color: var(--text-secondary);"></div>
+                    <button type="submit" id="submit-milestone-btn" class="btn btn-primary">Submit Milestone</button>
+                    <button type="button" id="btn-close-pulse" class="btn btn-outline" style="display: none;" onclick="closeModal('submissionModal')">Close</button>
                 </div>
             </form>
         </div>
@@ -385,11 +434,11 @@
 
     <!-- Feedback & History Modal (1.5 & 1.6) -->
     <!-- [BACKEND: Populate dynamically based on Milestone ID requested via AJAX, or render server-side] -->
-    <div class="modal-overlay" id="feedbackModal">
+    <div class="modal-overlay" id="feedbackModal" role="dialog" aria-modal="true" aria-labelledby="feedback-modal-title" aria-hidden="true">
         <div class="modal-content" style="max-width: 650px;">
             <div class="modal-header">
-                <h2>Milestone Feedback & History</h2>
-                <button class="close-btn" onclick="closeModal('feedbackModal')" type="button">&times;</button>
+                <h2 id="feedback-modal-title">Milestone Feedback & History</h2>
+                <button class="close-btn" onclick="closeModal('feedbackModal')" type="button" aria-label="Close feedback modal">&times;</button>
             </div>
             
             <div class="modal-body scrollable-content">
@@ -398,19 +447,37 @@
                 <div class="feedback-section">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                         <h3 style="font-size: 1rem; font-weight: 600;">Latest Feedback</h3>
-                        <span class="status-badge badge-late">Needs Changes</span>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <button id="btn-toggle-project-ai" class="btn btn-outline btn-sm" style="display: none;">
+                                <i class="fa-solid fa-brain"></i> AI Analysis
+                            </button>
+                            <span class="status-badge badge-late" id="feedback-status-badge">Needs Changes</span>
+                        </div>
                     </div>
                     
                     <div class="feedback-box">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.9rem;">
                             <strong>Rubric Score:</strong>
-                            <span style="color: var(--text-secondary);"><span style="color: var(--text-primary); font-weight: 600;">65</span> / 100</span>
+                            <span style="color: var(--text-secondary);"><span style="color: var(--text-primary); font-weight: 600;" id="feedback-rubric-score">65</span> / 100</span>
                         </div>
-                        <p class="instructor-comment">"Good start on the UI components and routing. However, accessibility needs major work, and the mobile view is currently breaking on the product catalog page. Please address the checklist below and resubmit."</p>
+                        <p class="instructor-comment" id="feedback-comment">"Good start on the UI components and routing. However, accessibility needs major work, and the mobile view is currently breaking on the product catalog page. Please address the checklist below and resubmit."</p>
+                    </div>
+
+                    <!-- NEW: AI Deep Analysis for Projects -->
+                    <div id="project-ai-analysis" style="display: none; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px dashed var(--border-color);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h4 style="font-size: 0.9rem; font-weight: 600;"><i class="fa-solid fa-microchip"></i> Semantic Reasoning</h4>
+                            <span id="project-ai-confidence" class="status-badge badge-default" style="font-size: 11px;">Confidence: --%</span>
+                        </div>
+                        <div class="feedback-box" style="background: var(--bg-secondary); border-left: 3px solid var(--accent-blue);">
+                            <p id="project-ai-reasoning" style="font-size: 0.85rem; line-height: 1.5;">...</p>
+                        </div>
+                        <h4 style="font-size: 0.9rem; font-weight: 600; margin: 16px 0 8px;"><i class="fa-solid fa-code"></i> AI Evidence</h4>
+                        <div style="background: #1e293b; color: #e2e8f0; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 0.8rem; overflow-x: auto; white-space: pre;"><code id="project-ai-evidence">...</code></div>
                     </div>
 
                     <h4 style="font-size: 0.9rem; font-weight: 600; margin: 20px 0 12px;">Required Changes Checklist</h4>
-                    <ul class="needs-changes-list">
+                    <ul class="needs-changes-list" id="feedback-checklist">
                         <!-- [BACKEND: Loop through changes requested] -->
                         <li><i class="fa-regular fa-square"></i> Fix color contrast on primary buttons</li>
                         <li><i class="fa-regular fa-square"></i> Add responsive flex-wrap to product grid</li>
@@ -418,7 +485,7 @@
                     </ul>
 
                     <div style="margin-top: 20px; text-align: right;">
-                        <button class="btn btn-primary" onclick="closeModal('feedbackModal'); openSubmissionModal(1, 2)">
+                        <button type="button" class="btn btn-primary" id="feedback-resubmit-btn" onclick="closeModal('feedbackModal'); openSubmissionModal(1, 2)">
                             <i class="fa-solid fa-arrow-up-from-bracket" style="margin-right: 6px;"></i> Resubmit Milestone
                         </button>
                     </div>
@@ -438,7 +505,7 @@
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="history-body">
                             <!-- [BACKEND: Loop through historical submissions] -->
                             <tr>
                                 <td>Attempt 2</td>
@@ -465,8 +532,17 @@
         </div>
     </div>
 
-    <!-- Link to external JS file -->
-        <script src="/react-bootstrap.js"></script>
-    <script src="/Courses/Projects/Projects.js"></script>
+    <!-- Core API Configuration -->
+    <script src="../../config.js"></script>
+    <!-- Shared utilities (auth, theming, API fetch) -->
+    <script src="../../react-page-utils.js"></script>
+    <!-- Page bootstrap -->
+    <script src="../../react-bootstrap.js"></script>
+    <!-- Course data and ID resolution -->
+    <script src="../courseData.js"></script>
+    <!-- Projects API client -->
+    <script src="./projectsApi.js?v=20260417-5"></script>
+    <!-- Main projects page logic -->
+    <script src="./Projects.js?v=20260417-4"></script>
 </body>
 </html>

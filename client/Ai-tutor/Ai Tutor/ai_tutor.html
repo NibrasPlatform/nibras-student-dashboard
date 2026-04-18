@@ -14,7 +14,7 @@
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/Ai-tutor/Ai%20Tutor/ai_tutor.css">
+    <link rel="stylesheet" href="./ai_tutor.css">
     
     <!-- Added CSS for the Modal -->
     <style>
@@ -99,12 +99,12 @@
         <header class="top-header">
             <div class="search-bar-global">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" placeholder="Search courses, problems">
+                <input type="text" placeholder="Search courses, problems" aria-label="Search courses and problems">
             </div>
             
             <div class="header-actions">
-                <button class="icon-btn" id="themeBtn"><i class="fa-regular fa-moon"></i></button>
-                <button class="icon-btn"><i class="fa-regular fa-bell"></i></button>
+                <button class="icon-btn" id="themeBtn" type="button" aria-label="Toggle theme"><i class="fa-regular fa-moon"></i></button>
+                <button class="icon-btn" type="button" aria-label="View notifications"><i class="fa-regular fa-bell"></i></button>
                 <div class="profile-circle-small">ZA</div>
             </div>
         </header>
@@ -137,23 +137,23 @@
                         </div>
                         <p class="input-desc">Get instant help with programming concepts, algorithms, and problem-solving</p>
                         
-                        <label class="input-label">Your Question</label>
+                        <label class="input-label" for="ai-question-input">Your Question</label>
                         <textarea class="ai-textarea" id="ai-question-input" placeholder="Ask questions about algorithms, data structures, programming concepts..."></textarea>
                         
                         <!-- Initial State -->
                         <div class="input-actions" id="initial-actions">
-                            <button class="btn-ask" id="ask-ai-btn"><i class="fa-solid fa-paper-plane"></i> Ask AI Tutor</button>
+                            <button class="btn-ask" id="ask-ai-btn" type="button"><i class="fa-solid fa-paper-plane"></i> Ask AI Tutor</button>
                         </div>
 
                         <!-- Dynamic AI Interaction Area -->
-                        <div id="ai-interaction-area" style="display: none; margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(156, 163, 175, 0.3);">
+                        <div id="ai-interaction-area" aria-live="polite" style="display: none; margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(156, 163, 175, 0.3);">
                             
                             <h4 id="interaction-title" style="margin-bottom: 15px; font-weight: 600;">Question Submitted! How would you like to proceed?</h4>
                             
                             <!-- The Two Choices -->
                             <div id="choice-actions" class="input-actions" style="margin-bottom: 20px;">
-                                <button class="btn-ask" id="view-answer-btn"><i class="fa-solid fa-eye"></i> View AI Answer</button>
-                                <button class="btn-hint" id="get-hint-btn"><i class="fa-regular fa-lightbulb"></i> Get Hint</button>
+                                <button class="btn-ask" id="view-answer-btn" type="button"><i class="fa-solid fa-eye"></i> View AI Answer</button>
+                                <button class="btn-hint" id="get-hint-btn" type="button"><i class="fa-regular fa-lightbulb"></i> Get Hint</button>
                             </div>
 
                             <!-- Where hints drop in progressively -->
@@ -166,8 +166,8 @@
                             
                             <!-- Post Answer Actions -->
                             <div id="post-answer-actions" style="display: none; margin-top: 15px; gap: 10px; flex-wrap: wrap;">
-                                <button class="btn-ask" id="reset-chat-btn"><i class="fa-solid fa-rotate-right"></i> Ask Another Question</button>
-                                <button class="btn-ask" id="push-community-btn" style="background-color: var(--stat-bar-purple); border-color: var(--stat-bar-purple);"><i class="fa-solid fa-users"></i> Push to Community</button>
+                                <button class="btn-ask" id="reset-chat-btn" type="button"><i class="fa-solid fa-rotate-right"></i> Ask Another Question</button>
+                                <button class="btn-ask" id="push-community-btn" type="button" style="background-color: var(--stat-bar-purple); border-color: var(--stat-bar-purple);"><i class="fa-solid fa-users"></i> Push to Community</button>
                             </div>
 
                         </div>
@@ -237,15 +237,15 @@
         </div>
     </main>
     <!-- PUSH TO COMMUNITY MODAL -->
-    <div id="community-modal" class="modal-overlay">
+    <div id="community-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="community-modal-title" aria-hidden="true">
         <div class="modal-content">
             <div class="modal-header">
-                <h3><i class="fa-solid fa-users" style="color: var(--stat-bar-purple); margin-right: 8px;"></i> Push to Community</h3>
-                <button id="close-modal-btn" class="icon-btn" style="background: none; border: none; cursor: pointer; font-size: 1.2rem; color: inherit;"><i class="fa-solid fa-xmark"></i></button>
+                <h3 id="community-modal-title"><i class="fa-solid fa-users" style="color: var(--stat-bar-purple); margin-right: 8px;"></i> Push to Community</h3>
+                <button id="close-modal-btn" type="button" aria-label="Close push to community modal" class="icon-btn" style="background: none; border: none; cursor: pointer; font-size: 1.2rem; color: inherit;"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
             <div class="modal-body">
-                <label class="input-label" style="display: block; margin-bottom: 5px; font-weight: 600;">Question Title</label>
+                <label class="input-label" for="modal-title-input" style="display: block; margin-bottom: 5px; font-weight: 600;">Question Title</label>
                 <input type="text" id="modal-title-input" class="ai-textarea" style="min-height: 45px; margin-bottom: 15px; width: 100%; box-sizing: border-box;" placeholder="e.g., How to optimize Binary Search?">
                 
                 <label class="input-label" style="display: block; margin-bottom: 5px; font-weight: 600;">Your Question</label>
@@ -253,16 +253,21 @@
                 
                 <label class="input-label" style="display: block; margin-bottom: 5px; font-weight: 600;">AI Answer</label>
                 <div id="modal-answer-display" class="modal-text-box"></div>
+
+                <!-- ADDED: Tags Display -->
+                <label class="input-label" style="display: block; margin-top: 15px; margin-bottom: 5px; font-weight: 600;">Generated Tags</label>
+                <div id="modal-tags-display" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
             </div>
             
             <div class="modal-footer">
-                <button id="cancel-modal-btn" class="btn-hint" style="background: transparent; border: 1px solid #9ca3af; color: inherit;">Cancel</button>
-                <button id="confirm-push-btn" class="btn-ask" style="background-color: var(--stat-bar-purple); border-color: var(--stat-bar-purple);">Publish Post</button>
+                <button id="cancel-modal-btn" type="button" class="btn-hint" style="background: transparent; border: 1px solid #9ca3af; color: inherit;">Cancel</button>
+                <button id="confirm-push-btn" type="button" class="btn-ask" style="background-color: var(--stat-bar-purple); border-color: var(--stat-bar-purple);">Publish Post</button>
             </div>
         </div>
     </div>
 
-        <script src="/react-bootstrap.js"></script>
-    <script src="/Ai-tutor/Ai%20Tutor/ai_tutor.js"></script>
+        <script src="../../config.js"></script>
+        <script src="../../react-bootstrap.js"></script>
+    <script src="./ai_tutor.js"></script>
 </body>
 </html>

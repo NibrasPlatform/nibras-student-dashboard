@@ -249,12 +249,20 @@ body { background-color: var(--bg-body); color: var(--text-primary); min-height:
 .btn-start { background-color: var(--accent-blue); color: white; text-decoration: none; display: flex; align-items: center; justify-content: center; }
 .btn-start:hover { background-color: var(--accent-blue-hover); }
 
-/* Locked State */
-.level-card.locked { opacity: 0.7; pointer-events: none; }
-.lock-overlay {
-    text-align: center; color: var(--text-secondary); margin-top: 2rem;
+.btn-locked {
+    width: 100%; padding: 0; border: none; background: none;
+    cursor: not-allowed; border-radius: 8px; overflow: hidden;
+    transition: opacity 0.2s;
 }
-.lock-overlay i { font-size: 2rem; margin-bottom: 0.5rem; display: block; }
+.btn-locked:hover { opacity: 0.8; }
+
+/* Locked State */
+.level-card.locked { opacity: 0.8; }
+.lock-overlay {
+    text-align: center; color: var(--text-secondary); padding: 2rem 0;
+    display: flex; flex-direction: column; align-items: center; gap: 0.75rem;
+}
+.lock-overlay i { font-size: 2.5rem; color: var(--text-secondary); }
 
 /* Progress Card */
 .overall-progress-card {

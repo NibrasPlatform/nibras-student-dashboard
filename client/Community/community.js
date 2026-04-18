@@ -3,12 +3,174 @@ window.NibrasReact.run(() => {
     // ==========================================
     // ⚙️ CONFIGURATION
     // ==========================================
-    // If your app.js doesn't use "/api" in the route path, change this to just 'http://localhost:5000'
-    const BACKEND_URL = 'http://localhost:5000'; 
+    const DEFAULT_LEGACY_COMMUNITY_URL = 'https://community-system-production.up.railway.app';
+    const BACKEND_URL =
+        window.NibrasShared?.resolveServiceUrl?.('legacyCommunity') ||
+        window.NibrasApi?.resolveServiceUrl?.('legacyCommunity') ||
+        window.NibrasApiConfig?.getServiceUrl?.('legacyCommunity') ||
+        window.NIBRAS_LEGACY_API_URL ||
+        window.NIBRAS_API_URL ||
+        window.NIBRAS_BACKEND_URL ||
+        DEFAULT_LEGACY_COMMUNITY_URL;
+    const sharedAuth = window.NibrasShared?.auth || null;
+    const sharedApiFetch = window.NibrasShared?.apiFetch || null;
+    const sharedUiStates = window.NibrasShared?.uiStates || null;
+    let askEditor = null;
 
-    // Helper to get the logged-in user's token (assuming you save it when they log in)
     function getToken() {
-        return localStorage.getItem('token'); 
+        return sharedAuth?.getToken?.() || window.NibrasApi?.getToken?.() || null;
+    }
+
+    function buildAuthHeaders(headers = {}, options = {}) {
+        if (sharedAuth?.buildAuthHeaders) {
+            return sharedAuth.buildAuthHeaders(headers, options);
+        }
+        if (window.NibrasApi?.buildAuthHeaders) {
+            return window.NibrasApi.buildAuthHeaders(headers, options);
+        }
+
+        return Object.assign({}, headers);
+    }
+
+    function resolveUiStateFromError(error, fallbackMessage) {
+        if (sharedUiStates?.fromError) {
+            return sharedUiStates.fromError(error, fallbackMessage);
+        }
+        return {
+            state: 'error',
+            message: error?.message || fallbackMessage || 'Request failed',
+        };
+    }
+
+    function renderFeedState(state, message) {
+        if (!feedContainer) return;
+        if (paginationContainer) {
+            paginationContainer.innerHTML = '';
+            paginationContainer.hidden = true;
+        }
+        if (sharedUiStates?.render) {
+            sharedUiStates.render(feedContainer, { state, message });
+            return;
+        }
+        feedContainer.innerHTML = `<div style="text-align:center; padding:2rem; color:var(--text-secondary);">${message || ''}</div>`;
+    }
+
+    function normalizeBaseUrl(url) {
+        return String(url || '').trim().replace(/\/+$/, '');
+    }
+
+    function dedupeList(values) {
+        return Array.from(new Set(values.filter(Boolean)));
+    }
+
+    function normalizePath(path) {
+        if (!path) return '/';
+        return String(path).startsWith('/') ? String(path) : `/${String(path)}`;
+    }
+
+    function buildCommunityBaseCandidates() {
+        const seeds = [
+            BACKEND_URL,
+            window.NibrasShared?.resolveServiceUrl?.('legacyCommunity'),
+            window.NibrasApi?.resolveServiceUrl?.('legacyCommunity'),
+            window.NibrasApiConfig?.getServiceUrl?.('legacyCommunity'),
+            window.NIBRAS_LEGACY_API_URL,
+            DEFAULT_LEGACY_COMMUNITY_URL,
+        ];
+
+        const bases = [];
+        seeds.forEach((seed) => {
+            const normalized = normalizeBaseUrl(seed);
+            if (!normalized) return;
+            bases.push(normalized);
+            if (/\/api$/i.test(normalized)) {
+                bases.push(normalized.replace(/\/api$/i, ''));
+            } else {
+                bases.push(`${normalized}/api`);
+            }
+        });
+
+        return dedupeList(bases);
+    }
+
+    function buildPathCandidates(path) {
+        const normalized = normalizePath(path);
+        if (!normalized.startsWith('/api/')) {
+            return [normalized, `/api${normalized}`];
+        }
+        return [normalized, normalized.replace(/^\/api/i, '') || '/'];
+    }
+
+    async function requestLegacyApi(path, options = {}) {
+        const method = String(options.method || 'GET').toUpperCase();
+        const authEnabled = options.auth !== false;
+        const headers = Object.assign({}, options.headers || {});
+        const hasContentType = Object.keys(headers).some((key) => key.toLowerCase() === 'content-type');
+        const hasBody = Object.prototype.hasOwnProperty.call(options, 'body') && options.body != null;
+        const isJsonBody = hasBody && typeof options.body === 'object' && !(options.body instanceof FormData);
+        const baseCandidates = buildCommunityBaseCandidates();
+        const pathCandidates = buildPathCandidates(path);
+
+        if (authEnabled) {
+            Object.assign(headers, buildAuthHeaders(headers));
+        }
+        if (isJsonBody && !hasContentType) {
+            headers['Content-Type'] = 'application/json';
+        }
+
+        let lastError = null;
+        for (const baseUrl of baseCandidates) {
+            for (const candidatePath of pathCandidates) {
+                if (typeof sharedApiFetch === 'function') {
+                    try {
+                        return await sharedApiFetch(candidatePath, Object.assign({}, options, {
+                            service: 'legacyCommunity',
+                            baseUrl,
+                            headers,
+                        }));
+                    } catch (error) {
+                        lastError = error;
+                        const status = Number(error?.status || 0);
+                        if (status === 401 || status === 403) throw error;
+                        if (status !== 404 && status !== 0) throw error;
+                        continue;
+                    }
+                }
+
+                const response = await fetch(`${baseUrl}${candidatePath}`, {
+                    method,
+                    headers,
+                    body: isJsonBody ? JSON.stringify(options.body) : options.body,
+                });
+
+                let payload = null;
+                try {
+                    payload = await response.json();
+                } catch (_) {
+                    payload = null;
+                }
+
+                if (!response.ok) {
+                    const err = new Error(
+                        payload?.message ||
+                        payload?.error ||
+                        `Request failed (${response.status})`
+                    );
+                    err.status = response.status;
+                    err.code = response.status === 401 ? 'UNAUTHORIZED' : (response.status === 403 ? 'FORBIDDEN' : 'REQUEST_FAILED');
+                    err.payload = payload;
+                    lastError = err;
+                    if (response.status === 401 || response.status === 403) throw err;
+                    if (response.status !== 404) throw err;
+                    continue;
+                }
+
+                return payload;
+            }
+        }
+
+        if (lastError) throw lastError;
+        throw new Error('Request failed');
     }
 
     // --- 1. SIDEBAR LOGIC ---
@@ -21,60 +183,75 @@ window.NibrasReact.run(() => {
     });
 
     // --- 2. DATA STATE ---
-    // Questions start empty, they will be filled from the database
     const communityData = {
-        questions: [],
-        
-        // Keeping these hardcoded for now since you didn't provide routes for them yet
-        popularTags: [
-            { name: "algorithms", count: 48, color: "t-purple" },
-            { name: "data-structures", count: 35, color: "t-purple" },
-            { name: "javascript", count: 32, color: "t-purple" },
-            { name: "database", count: 28, color: "t-purple" },
-            { name: "react", count: 24, color: "t-purple" }
-        ],
-        contributors: [
-            { name: "Dr. Sarah Johnson", rep: "7247 rep", initials: "SJ", badge: "Expert", badgeColor: "bg-red" },
-            { name: "Michael Chen", rep: "5891 rep", initials: "MC", badge: "Helper", badgeColor: "bg-orange" },
-            { name: "Alex Aderman", rep: "4523 rep", initials: "AA", badge: "Rising Star", badgeColor: "bg-purple" },
-            { name: "Bob Smith", rep: "3847 rep", initials: "BS", badge: "Contributor", badgeColor: "bg-blue" }
-        ],
-        stats: [
-            { label: "Total Questions", val: "1,247" },
-            { label: "Answered", val: "1,089" },
-            { label: "Active Users", val: "456" },
-            { label: "This Week", val: "92 questions" }
-        ]
+        questions:[],
+        popularTags:[]
     };
 
     const feedContainer = document.getElementById('questions-container');
+    const paginationContainer = document.getElementById('questions-pagination');
     const feedTabs = document.querySelectorAll('.feed-tab');
     const searchInput = document.getElementById('question-search');
     let currentFilter = 'Recent';
+    let currentPage = 1;
+    const QUESTIONS_PER_PAGE = 10;
     let currentUserId = null;
-    let renderedQuestionIds = [];
+    let renderedQuestionIds =[];
+    let searchDebounceTimer = null;
 
-    // Load current user on startup
+    // Sidebar Tags State
+    let currentSelectedTag = null;
+    let isTagsExpanded = false; 
+
+    // --- MODAL TAGS STATE ---
+    let availableModalTags =[];
+    let selectedModalTags =[];
+    const previewCache = new Map();
+    const questionVoteFetchCache = new Map();
+    const questionVoteInFlight = new Map();
+
     async function loadCurrentUser() {
         const token = getToken();
         if (!token) return;
 
         try {
-            const response = await fetch(`${BACKEND_URL}/auth/me`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (response.ok) {
-                const data = await response.json();
-                if (data.user) {
-                    currentUserId = data.user._id;
-                    localStorage.setItem('userId', currentUserId);
-                    localStorage.setItem('user', JSON.stringify(data.user));
-                    await loadVotesForRenderedQuestions();
-                }
+            const data = await requestLegacyApi('/auth/me');
+            if (data?.user) {
+                currentUserId = data.user._id;
+                localStorage.setItem('userId', currentUserId);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                await loadVotesForRenderedQuestions();
             }
         } catch (error) {
             console.error('Error loading current user:', error);
         }
+    }
+
+    function getPlainTextPreview(markdown) {
+        if (!markdown) return "";
+        if (previewCache.has(markdown)) {
+            return previewCache.get(markdown);
+        }
+        const html = DOMPurify.sanitize(marked.parse(markdown));
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = html;
+        let text = tempDiv.textContent || tempDiv.innerText || "";
+        const preview = text.substring(0, 180) + (text.length > 180 ? "..." : "");
+        previewCache.set(markdown, preview);
+        if (previewCache.size > 600) {
+            const firstKey = previewCache.keys().next().value;
+            previewCache.delete(firstKey);
+        }
+        return preview;
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
     }
 
     function showToast(message, type = 'success') {
@@ -98,6 +275,8 @@ window.NibrasReact.run(() => {
         toast.style.opacity = '0';
         toast.style.transform = 'translateY(8px)';
         toast.style.transition = 'opacity 180ms ease, transform 180ms ease';
+        toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
+        toast.setAttribute('aria-live', type === 'error' ? 'assertive' : 'polite');
 
         document.body.appendChild(toast);
 
@@ -113,103 +292,181 @@ window.NibrasReact.run(() => {
         }, 1800);
     }
 
-    // ==========================================
-    // 🚀 FETCH DATA FROM BACKEND
-    // ==========================================
+    async function loadTags() {
+        try {
+            const [allData, popData] = await Promise.all([
+                requestLegacyApi('/tags', { auth: false }),
+                requestLegacyApi('/tags/popular?limit=1000', { auth: false }),
+            ]);
+            const allTags = allData?.tags || [];
+            availableModalTags = allTags.map(t => t.name).sort();
+
+            const popTags = popData?.tags || [];
+
+            communityData.popularTags = popTags.map(t => ({
+                name: t.name,
+                count: t.usageCount || 0,
+                color: getVibrantColorClass(t.name) 
+            }));
+
+            renderWidgets();
+            renderModalTags();
+        } catch (error) {
+            console.error('Failed to load tags from backend:', error);
+            const tagsContainerEl = document.getElementById('tags-container');
+            if (tagsContainerEl) {
+                const uiState = resolveUiStateFromError(error, 'Unable to load community tags right now.');
+                if (sharedUiStates?.render) {
+                    sharedUiStates.render(tagsContainerEl, {
+                        state: uiState.state,
+                        message: uiState.message,
+                        compact: true,
+                    });
+                } else {
+                    tagsContainerEl.innerHTML = `<div style="text-align:center; padding:1rem; color:var(--text-secondary);">${uiState.message}</div>`;
+                }
+            }
+        }
+    }
+
     async function loadQuestions() {
         try {
-            // Shows a loading message while waiting for the backend
-            if(feedContainer) feedContainer.innerHTML = `<div style="text-align:center; padding:2rem;">Loading questions from server...</div>`;
+            if(feedContainer && communityData.questions.length === 0) {
+                renderFeedState('loading', 'Loading questions from server...');
+            }
 
-            // Calls your question.route.js (GET /)
-            const response = await fetch(`${BACKEND_URL}/questions`);
-            const data = await response.json();
-
-            // Depending on how your controller sends the response, the array might be in data, data.data, or data.questions
-            // Adjust this if your console logs an error about .forEach not being a function
+            const data = await requestLegacyApi('/questions', { auth: false });
             const questionsArray = data.data ? data.data : (data.questions ? data.questions : data);
 
             if (Array.isArray(questionsArray)) {
                 communityData.questions = questionsArray;
             } else {
-                console.error("Expected an array of questions, but got:", data);
-                communityData.questions = [];
+                communityData.questions =[];
             }
 
-            // Render the initial view
-            filterAndRender('Recent');
+            await filterAndRender('Recent', { resetPage: true });
             renderWidgets();
 
         } catch (error) {
             console.error("Failed to fetch questions:", error);
-            if(feedContainer) {
-                feedContainer.innerHTML = `
-                    <div style="text-align:center; padding:2rem; color:red;">
-                        Failed to connect to backend. Is the server running on port 5000? <br>
-                        Check console for CORS or connection errors.
-                    </div>`;
+            if(feedContainer && communityData.questions.length === 0) {
+                const uiState = resolveUiStateFromError(error, 'Unable to load questions right now. Please try again.');
+                renderFeedState(uiState.state, uiState.message);
             }
         }
     }
 
     // --- 3. RENDER FEED LOGIC ---
-    // Tab Click Event
     feedTabs.forEach(tab => {
         tab.addEventListener('click', () => {
             feedTabs.forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
-            filterAndRender(tab.textContent.trim());
+            feedTabs.forEach((t) => t.setAttribute('aria-pressed', t.classList.contains('active') ? 'true' : 'false'));
+            filterAndRender(tab.textContent.trim(), { resetPage: true });
         });
     });
 
-    // Search Input Event
     if (searchInput) {
         searchInput.addEventListener('input', () => {
-            filterAndRender();
+            if (searchDebounceTimer) {
+                window.clearTimeout(searchDebounceTimer);
+            }
+            searchDebounceTimer = window.setTimeout(() => {
+                filterAndRender(undefined, { resetPage: true });
+            }, 120);
         });
     }
 
-    async function filterAndRender(filterType) {
-        let filteredData = [...communityData.questions];
+    const tagsContainer = document.getElementById('tags-container');
+    if (tagsContainer) {
+        tagsContainer.addEventListener('click', (e) => {
+            const toggleRow = e.target.closest('.toggle-more-tags');
+            if (toggleRow) {
+                isTagsExpanded = !isTagsExpanded;
+                renderWidgets();
+                return; 
+            }
+
+            const tagRow = e.target.closest('.clickable-tag');
+            const clearRow = e.target.closest('.clear-tag-filter');
+            
+            if (clearRow) {
+                currentSelectedTag = null;
+            } else if (tagRow) {
+                const clickedTag = tagRow.getAttribute('data-tag');
+                currentSelectedTag = (currentSelectedTag === clickedTag) ? null : clickedTag;
+            }
+            
+            if (clearRow || tagRow) {
+                renderWidgets(); 
+                filterAndRender(undefined, { resetPage: true }); 
+            }
+        });
+
+        tagsContainer.addEventListener('keydown', (e) => {
+            if (!e.target.closest('.toggle-more-tags, .clickable-tag, .clear-tag-filter')) return;
+            if (e.key !== 'Enter' && e.key !== ' ') return;
+            e.preventDefault();
+            e.target.click();
+        });
+    }
+
+    if (paginationContainer) {
+        paginationContainer.addEventListener('click', (event) => {
+            const button = event.target.closest('button[data-page]');
+            if (!button) return;
+            const targetPage = Number(button.dataset.page);
+            if (!Number.isInteger(targetPage) || targetPage < 1 || targetPage === currentPage) return;
+            currentPage = targetPage;
+            filterAndRender(undefined, { resetPage: false });
+            feedContainer?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    }
+
+    async function filterAndRender(filterType, options = {}) {
+        let filteredData =[...communityData.questions];
+        const shouldResetPage = options.resetPage !== false;
         currentFilter = filterType || currentFilter;
 
-        // Apply tab filtering
         if (currentFilter === 'Recent') {
-            // Sort by createdAt descending (newest first)
             filteredData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         } else if (currentFilter === 'Popular') {
             filteredData.sort((a, b) => (b.votesCount || b.votes || 0) - (a.votesCount || a.votes || 0));
         } else if (currentFilter === 'Unanswered') {
-            filteredData = filteredData.filter(q => (q.commentsCount || q.answers || 0) === 0);
-        } else if (currentFilter === 'My Questions') {
+            filteredData = filteredData.filter(q => {
+                const count = q.answersCount ?? q.commentsCount ?? (Array.isArray(q.answers) ? q.answers.length : (Number(q.answers) || 0));
+                return count === 0;
+            });
+        } else if (currentFilter === 'My Questions') {   
             const token = getToken();
             if (!token) {
-                renderQuestions([]);
-                if(feedContainer) {
-                    feedContainer.innerHTML = `<div style="text-align:center; padding:2rem; color:var(--text-secondary);">Please log in to view your questions.</div>`;
-                }
+                renderFeedState('unauthorized', 'Please sign in to view your questions.');
                 return;
             }
-            // Filter by current user's ID
-            const userId = currentUserId || localStorage.getItem('userId');
+
+            let userId = currentUserId || localStorage.getItem('userId');
+            if (!userId) {
+                try {
+                    const u = JSON.parse(localStorage.getItem('user'));
+                    if (u) userId = u._id || u.id;
+                } catch(e) {}
+            }
+
+            if (!userId) {
+                await loadCurrentUser();
+                userId = currentUserId;
+            }
+
             if (userId) {
                 filteredData = filteredData.filter(q => {
-                    const authorId = q.author?._id || q.author;
-                    return String(authorId) === String(userId);
+                    const authorId = q.author?._id || q.author?.id || q.author;
+                    return authorId && String(authorId) === String(userId);
                 });
             } else {
-                // If no user ID yet, try to load it
-                await loadCurrentUser();
-                if (currentUserId) {
-                    filteredData = filteredData.filter(q => {
-                        const authorId = q.author?._id || q.author;
-                        return String(authorId) === String(currentUserId);
-                    });
-                }
+                filteredData =[];
             }
         }
 
-        // Apply search filtering
         const searchQuery = searchInput?.value?.trim().toLowerCase();
         if (searchQuery) {
             filteredData = filteredData.filter(q => {
@@ -217,88 +474,201 @@ window.NibrasReact.run(() => {
                 const bodyMatch = q.body?.toLowerCase().includes(searchQuery);
                 const tagsMatch = q.tags?.some(tag => tag.toLowerCase().includes(searchQuery));
                 const authorMatch = q.author?.name?.toLowerCase().includes(searchQuery) ||
-                                   (typeof q.author === 'string' && q.author.toLowerCase().includes(searchQuery));
+                (typeof q.author === 'string' && q.author.toLowerCase().includes(searchQuery));
                 return titleMatch || bodyMatch || tagsMatch || authorMatch;
             });
         }
 
-        renderQuestions(filteredData);
+        if (currentSelectedTag) {
+            filteredData = filteredData.filter(q => {
+                if (!q.tags || !Array.isArray(q.tags)) return false;
+                return q.tags.some(t => t.toLowerCase() === currentSelectedTag.toLowerCase());
+            });
+        }
+
+        if (shouldResetPage) {
+            currentPage = 1;
+        }
+
+        const totalItems = filteredData.length;
+        const totalPages = Math.max(1, Math.ceil(totalItems / QUESTIONS_PER_PAGE));
+        if (currentPage > totalPages) {
+            currentPage = totalPages;
+        }
+
+        const startIndex = (currentPage - 1) * QUESTIONS_PER_PAGE;
+        const pagedQuestions = filteredData.slice(startIndex, startIndex + QUESTIONS_PER_PAGE);
+        renderQuestions(pagedQuestions, { totalItems, totalPages, currentPage });
+        renderPagination({ totalItems, totalPages, currentPage });
+    }
+
+    function getVibrantColorClass(tagName) {
+        const colors =['t-purple', 't-blue', 't-red', 't-green', 't-orange', 't-pink', 't-teal', 't-yellow'];
+        let hash = 0;
+        for (let i = 0; i < tagName.length; i++) {
+            hash = tagName.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        return colors[Math.abs(hash) % colors.length];
+    }
+
+    function getPaginationItems(totalPages, page) {
+        if (totalPages <= 7) {
+            return Array.from({ length: totalPages }, (_, index) => index + 1);
+        }
+
+        const items = [1];
+        const start = Math.max(2, page - 1);
+        const end = Math.min(totalPages - 1, page + 1);
+
+        if (start > 2) {
+            items.push('start-ellipsis');
+        }
+        for (let p = start; p <= end; p += 1) {
+            items.push(p);
+        }
+        if (end < totalPages - 1) {
+            items.push('end-ellipsis');
+        }
+        items.push(totalPages);
+        return items;
+    }
+
+    function renderPagination({ totalItems, totalPages, currentPage: page }) {
+        if (!paginationContainer) return;
+        if (!totalItems || totalPages <= 1) {
+            paginationContainer.innerHTML = '';
+            paginationContainer.hidden = true;
+            return;
+        }
+
+        const pageItems = getPaginationItems(totalPages, page);
+        const startItem = ((page - 1) * QUESTIONS_PER_PAGE) + 1;
+        const endItem = Math.min(page * QUESTIONS_PER_PAGE, totalItems);
+
+        const pagesHtml = pageItems.map((item) => {
+            if (typeof item !== 'number') {
+                return '<span class="pagination-ellipsis" aria-hidden="true">...</span>';
+            }
+            const activeClass = item === page ? ' active' : '';
+            const pressed = item === page ? 'true' : 'false';
+            return `<button type="button" class="pagination-btn${activeClass}" data-page="${item}" aria-label="Go to page ${item}" aria-pressed="${pressed}">${item}</button>`;
+        }).join('');
+
+        paginationContainer.innerHTML = `
+            <span class="pagination-info">Showing ${startItem}-${endItem} of ${totalItems} questions</span>
+            <div class="pagination-actions">
+                <button type="button" class="pagination-btn" data-page="${page - 1}" ${page <= 1 ? 'disabled' : ''} aria-label="Go to previous page">Prev</button>
+                ${pagesHtml}
+                <button type="button" class="pagination-btn" data-page="${page + 1}" ${page >= totalPages ? 'disabled' : ''} aria-label="Go to next page">Next</button>
+            </div>
+        `;
+        paginationContainer.hidden = false;
     }
 
     function renderQuestions(data) {
         if (!feedContainer) return;
-        feedContainer.innerHTML = '';
-        renderedQuestionIds = [];
+        renderedQuestionIds =[];
         
         if (data.length === 0) {
-            feedContainer.innerHTML = `<div style="text-align:center; padding:2rem; color:var(--text-secondary);">No questions found in the database.</div>`;
+            const emptyMsg = currentSelectedTag
+                ? `No questions found with the tag "${currentSelectedTag}".`
+                : 'No questions found.';
+            renderFeedState('empty', emptyMsg);
             return;
         }
 
+        let questionsHtml = '';
         data.forEach(q => {
             let tagHtml = '';
-            // Safe check for tags in case the database doesn't have them
             if (q.tags && Array.isArray(q.tags)) {
                 q.tags.forEach(t => {
-                    let color = 't-default';
-                    if(t.toLowerCase().includes('data')) color = 't-purple';
-                    else if(t.toLowerCase().includes('algo')) color = 't-blue';
+                    let color = getVibrantColorClass(t.toLowerCase());
                     tagHtml += `<span class="tag ${color}">${t}</span>`;
                 });
             }
 
-            // Fallbacks (||) are added in case your MongoDB schema names are slightly different
             const qId = q._id || q.id; 
             if (qId) renderedQuestionIds.push(String(qId));
             const authorName = q.author?.name || q.author || 'Anonymous';
             const authorInitials = authorName.substring(0, 2).toUpperCase();
-            const answersCount = q.commentsCount ?? (Array.isArray(q.answers) ? q.answers.length : (q.answers || 0));
+            const answersCount = q.answersCount ?? q.commentsCount ?? (Array.isArray(q.answers) ? q.answers.length : (Number(q.answers) || 0));
             const questionVotes = q.votesCount ?? q.votes ?? 0;
+            const safeTitle = escapeHtml(q.title || 'Untitled question');
+            const safeAuthor = escapeHtml(authorName);
+            const safeCourse = escapeHtml(q.course || 'General');
+            const safeDate = escapeHtml(q.time || new Date(q.createdAt).toLocaleDateString() || 'Recently');
 
-            feedContainer.innerHTML += `
-                <div class="question-card" data-id="${qId}">
+            questionsHtml += `
+                <article class="question-card" data-id="${qId}">
                     <div class="q-vote-box">
-                        <i class="fa-solid fa-caret-up vote-arrow upvote-btn" data-id="${qId}"></i>
+                        <button type="button" class="fa-solid fa-caret-up vote-arrow upvote-btn" data-id="${qId}" aria-label="Upvote question: ${safeTitle}" aria-pressed="false"></button>
                         <span class="vote-count">${questionVotes}</span>
-                        <i class="fa-solid fa-caret-down vote-arrow downvote-btn" data-id="${qId}"></i>
+                        <button type="button" class="fa-solid fa-caret-down vote-arrow downvote-btn" data-id="${qId}" aria-label="Downvote question: ${safeTitle}" aria-pressed="false"></button>
                     </div>
                     <div class="q-content">
                         <div class="q-header">
-                            <a href="../Community/QuestionID/question.html?id=${qId}" class="q-title" data-id="${qId}">${q.title}</a>
+                            <a href="../Community/QuestionID/question.html?id=${qId}" class="q-title" data-id="${qId}">${safeTitle}</a>
                             <div style="display:flex; align-items:center; gap:8px;">
                                 <i class="fa-regular fa-circle-check" style="color:var(--accent-blue)"></i>
-                                <span class="q-course-badge">${q.course || 'General'}</span>
+                                <span class="q-course-badge">${safeCourse}</span>
                             </div>
                         </div>
-                        <p class="q-preview">${q.body}</p>
-                        <div class="q-tags">${tagHtml}</div>
+                        
+                        <p class="q-preview">${getPlainTextPreview(q.body)}</p>
+                        
+                        <div class="q-tags">${tagHtml}</div>                        
                         <div class="q-meta">
                             <div class="author-av">${authorInitials}</div>
-                            <span>${authorName}</span>
+                            <span>${safeAuthor}</span>
                             <span>•</span>
                             <span>${answersCount} answers</span>
                             <span>•</span>
                             <span>${q.views || 0} views</span>
-                            <span style="margin-left:auto">${q.time || new Date(q.createdAt).toLocaleDateString() || 'Recently'}</span>
+                            <span style="margin-left:auto">${safeDate}</span>
                         </div>
                     </div>
-                </div>
+                </article>
             `;
         });
+        feedContainer.innerHTML = questionsHtml;
 
         loadVotesForRenderedQuestions();
     }
-
-    // Track user's votes locally
-    const userVotes = new Map(); // questionId -> voteValue (1, -1, or 0)
+    const userVotes = new Map(); 
 
     function updateQuestionVoteUI(questionId, value) {
-        const upBtn = feedContainer?.querySelector(`.upvote-btn[data-id="${questionId}"]`);
-        const downBtn = feedContainer?.querySelector(`.downvote-btn[data-id="${questionId}"]`);
-        if (!upBtn || !downBtn) return;
+            const upBtn = feedContainer?.querySelector(`.upvote-btn[data-id="${questionId}"]`);
+            const downBtn = feedContainer?.querySelector(`.downvote-btn[data-id="${questionId}"]`);
+            if (!upBtn || !downBtn) return;
 
-        upBtn.classList.toggle('active', value === 1);
-        downBtn.classList.toggle('active', value === -1);
+            upBtn.classList.toggle('active-up', value === 1);
+            downBtn.classList.toggle('active-down', value === -1);
+            upBtn.setAttribute('aria-pressed', value === 1 ? 'true' : 'false');
+            downBtn.setAttribute('aria-pressed', value === -1 ? 'true' : 'false');
+    }
+
+    async function fetchQuestionVoteValue(questionId) {
+        if (!questionId || questionId === 'undefined') return null;
+        if (questionVoteFetchCache.has(questionId)) {
+            return questionVoteFetchCache.get(questionId);
+        }
+        if (questionVoteInFlight.has(questionId)) {
+            return questionVoteInFlight.get(questionId);
+        }
+
+        const requestPromise = requestLegacyApi(`/votes/question/${questionId}`)
+            .then((data) => {
+                const value = Number(data.value ?? 0);
+                questionVoteFetchCache.set(questionId, value);
+                return value;
+            })
+            .catch(() => null)
+            .finally(() => {
+                questionVoteInFlight.delete(questionId);
+            });
+
+        questionVoteInFlight.set(questionId, requestPromise);
+        return requestPromise;
     }
 
     async function loadVotesForRenderedQuestions() {
@@ -306,25 +676,33 @@ window.NibrasReact.run(() => {
         if (!token || renderedQuestionIds.length === 0) return;
 
         try {
-            for (const questionId of renderedQuestionIds) {
-                if (!questionId || questionId === 'undefined') continue;
+            const uniqueQuestionIds = Array.from(new Set(renderedQuestionIds.filter((questionId) => questionId && questionId !== 'undefined')));
+            if (uniqueQuestionIds.length === 0) return;
 
-                const response = await fetch(`${BACKEND_URL}/votes/question/${questionId}`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (!response.ok) continue;
+            const pendingIds = [];
+            uniqueQuestionIds.forEach((questionId) => {
+                if (questionVoteFetchCache.has(questionId)) {
+                    const value = Number(questionVoteFetchCache.get(questionId) ?? 0);
+                    userVotes.set(questionId, value);
+                    updateQuestionVoteUI(questionId, value);
+                    return;
+                }
+                pendingIds.push(questionId);
+            });
 
-                const data = await response.json();
-                const value = Number(data.value ?? 0);
+            if (pendingIds.length === 0) return;
+
+            await Promise.all(pendingIds.map(async (questionId) => {
+                const value = await fetchQuestionVoteValue(questionId);
+                if (value == null) return;
                 userVotes.set(questionId, value);
                 updateQuestionVoteUI(questionId, value);
-            }
+            }));
         } catch (error) {
             console.error('Error loading community votes:', error);
         }
     }
 
-    // --- 4. VOTING LOGIC ---
     if(feedContainer) {
         feedContainer.addEventListener('click', (e) => {
             if (e.target.classList.contains('upvote-btn')) {
@@ -335,10 +713,10 @@ window.NibrasReact.run(() => {
         });
     }
 
-    // 🚀 Sending votes to your vote.route.js
     async function handleVote(btn, type) {
         const token = getToken();
         if (!token) {
+            showToast('Please sign in to vote on questions.', 'error');
             return;
         }
 
@@ -351,150 +729,241 @@ window.NibrasReact.run(() => {
         const currentVotes = Number(countSpan.innerText) || 0;
         const currentUserVote = userVotes.get(questionId) || 0;
 
-        // Determine what vote value to send based on current state
-        let voteValue;
+        let voteValue;       
+        let payloadValue;    
         let newActiveState = { up: false, down: false };
+        let countDelta = 0;  
 
         if (type === 'up') {
             if (currentUserVote === 1) {
-                // Backend vote endpoint accepts only 1 or -1; keep current state
-                return;
+                voteValue = 0; 
+                payloadValue = 1; 
+                countDelta = -1;
             } else {
-                // Not upvoted - add upvote
                 voteValue = 1;
-                newActiveState = { up: true, down: false };
+                payloadValue = 1;
+                newActiveState.up = true;
+                countDelta = currentUserVote === -1 ? 2 : 1; 
             }
-        } else {
+        } else { 
             if (currentUserVote === -1) {
-                // Backend vote endpoint accepts only 1 or -1; keep current state
-                return;
+                voteValue = 0;
+                payloadValue = -1; 
+                countDelta = 1;
             } else {
-                // Not downvoted - add downvote
                 voteValue = -1;
-                newActiveState = { up: false, down: true };
+                payloadValue = -1;
+                newActiveState.down = true;
+                countDelta = currentUserVote === 1 ? -2 : -1; 
             }
         }
 
-        // Optimistic UI Update
-        upBtn.classList.toggle('active', newActiveState.up);
-        downBtn.classList.toggle('active', newActiveState.down);
+        upBtn.classList.toggle('active-up', newActiveState.up);
+        downBtn.classList.toggle('active-down', newActiveState.down);
+        
+        countSpan.innerText = currentVotes + countDelta;
+        userVotes.set(questionId, voteValue);
+
+        countSpan.classList.remove('changed');
+        void countSpan.offsetWidth; 
+        countSpan.classList.add('changed');
 
         try {
-            // Cast vote via POST /votes
-            const response = await fetch(`${BACKEND_URL}/votes`, {
+            const data = await requestLegacyApi('/votes', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    targetType: 'question',
-                    targetId: questionId,
-                    value: voteValue
-                })
+                body: { targetType: 'question', targetId: questionId, value: payloadValue },
             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || "Failed to vote");
-            }
-
-            const data = await response.json();
-
-            // Update local tracking and vote count from backend
-            userVotes.set(questionId, Number(data.voteValue ?? voteValue));
             if (data.votesCount !== undefined) {
                 countSpan.innerText = data.votesCount;
-            } else {
-                // Calculate locally if backend doesn't return count
-                const nextVote = Number(data.voteValue ?? voteValue);
-                countSpan.innerText = currentVotes + (nextVote - currentUserVote);
             }
+            const confirmedVoteValue = Number(data.voteValue ?? voteValue);
+            userVotes.set(questionId, confirmedVoteValue);
+            questionVoteFetchCache.set(questionId, confirmedVoteValue);
 
         } catch (error) {
             console.error("Voting error:", error);
-            // Revert UI
-            upBtn.classList.toggle('active', currentUserVote === 1);
-            downBtn.classList.toggle('active', currentUserVote === -1);
+            upBtn.classList.toggle('active-up', currentUserVote === 1);
+            downBtn.classList.toggle('active-down', currentUserVote === -1);
             countSpan.innerText = currentVotes;
+            userVotes.set(questionId, currentUserVote);
+            questionVoteFetchCache.set(questionId, currentUserVote);
+            showToast("Failed to register vote. Please try again.", "error");
         }
     }
 
-    // --- 5. WIDGETS RENDER ---
     function renderWidgets() {
         const tagsContainer = document.getElementById('tags-container');
         if(tagsContainer) {
-            tagsContainer.innerHTML = '';
-            communityData.popularTags.forEach(t => {
-                tagsContainer.innerHTML += `<div class="tag-row"><span class="tag ${t.color}">${t.name}</span><span class="tag-count">${t.count}</span></div>`;
-            });
-        }
+            let tagsHtml = '';
+            
+            if (currentSelectedTag) {
+                tagsHtml += `
+                    <div class="tag-row clear-tag-filter" role="button" tabindex="0" style="cursor: pointer; color: var(--accent-blue); margin-bottom: 12px; font-size: 0.9rem; font-weight: 600;">
+                        <i class="fa-solid fa-xmark" style="margin-right: 5px;"></i> Clear filter: ${currentSelectedTag}
+                    </div>
+                `;
+            }
 
-        const contribContainer = document.getElementById('contributors-container');
-        if(contribContainer) {
-            contribContainer.innerHTML = '';
-            communityData.contributors.forEach(c => {
-                contribContainer.innerHTML += `
-                    <div class="contrib-row">
-                        <div class="contrib-av">${c.initials}</div>
-                        <div class="contrib-info"><h5>${c.name}</h5><span>${c.rep}</span></div>
-                        <div class="contrib-badge ${c.badgeColor}">${c.badge}</div>
+            const tagsToDisplay = isTagsExpanded 
+                ? communityData.popularTags 
+                : communityData.popularTags.slice(0, 5);
+
+            tagsToDisplay.forEach(t => {
+                const isSelected = currentSelectedTag === t.name;
+                const activeStyle = isSelected ? 'background-color: var(--tag-bg); border-radius: 6px; padding: 4px; box-shadow: 0 0 0 1px var(--accent-blue);' : 'padding: 4px;';
+                
+                tagsHtml += `
+                    <div class="tag-row clickable-tag" role="button" tabindex="0" aria-pressed="${isSelected ? 'true' : 'false'}" data-tag="${t.name}" style="cursor: pointer; transition: all 0.2s; ${activeStyle}">
+                        <span class="tag ${t.color}">${t.name}</span>
+                        <span class="tag-count">${t.count}</span>
                     </div>
                 `;
             });
-        }
 
-        const comStatsContainer = document.getElementById('com-stats-container');
-        if(comStatsContainer) {
-            comStatsContainer.innerHTML = '';
-            communityData.stats.forEach(s => {
-                comStatsContainer.innerHTML += `<div class="c-stat-row"><span>${s.label}</span><span class="c-stat-val">${s.val}</span></div>`;
-            });
+            if (communityData.popularTags.length > 5) {
+                tagsHtml += `
+                    <div class="toggle-more-tags" role="button" tabindex="0" aria-expanded="${isTagsExpanded ? 'true' : 'false'}" style="text-align: center; margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--border-color, rgba(156, 163, 175, 0.2)); cursor: pointer; color: var(--accent-blue); font-size: 0.85rem; font-weight: 600; transition: color 0.2s;">
+                        ${isTagsExpanded ? 'Show less tags <i class="fa-solid fa-chevron-up" style="margin-left: 4px;"></i>' : 'Show more tags <i class="fa-solid fa-chevron-down" style="margin-left: 4px;"></i>'}
+                    </div>
+                `;
+            }
+            tagsContainer.innerHTML = tagsHtml;
         }
+    }
+
+    function renderModalTags(searchTerm = '') {
+        const container = document.getElementById('modal-tags-container');
+        const indicator = document.getElementById('tag-count-indicator');
+        if (!container) return;
+        
+        if (indicator) {
+            indicator.textContent = `${selectedModalTags.length}/5 selected`;
+            indicator.style.color = selectedModalTags.length >= 5 ? '#ef4444' : 'var(--text-secondary)';
+        }
+        
+        container.innerHTML = '';
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        
+        const lowerSearch = searchTerm.toLowerCase();
+        let filteredTags = availableModalTags.filter(tag => 
+            tag.toLowerCase().includes(lowerSearch)
+        ).sort((a, b) => {
+            const aStarts = a.toLowerCase().startsWith(lowerSearch);
+            const bStarts = b.toLowerCase().startsWith(lowerSearch);
+            if (aStarts && !bStarts) return -1;
+            if (!aStarts && bStarts) return 1;
+            return 0;
+        });
+
+        const matchedUnselected = filteredTags.filter(t => !selectedModalTags.includes(t));
+        const tagsToRender = [...selectedModalTags, ...matchedUnselected];
+
+        if (tagsToRender.length === 0) {
+            container.innerHTML = `<span style="color: var(--text-secondary); font-size: 0.9rem; padding: 10px 0; width: 100%; text-align: center;">No tags match "${searchTerm}". Try a different keyword.</span>`;
+            return;
+        }
+        
+        let tagHtml = '';
+        tagsToRender.forEach(tag => {
+            const isSelected = selectedModalTags.includes(tag);
+            const isMaxReached = selectedModalTags.length >= 5;
+            
+            const bg = isSelected ? 'var(--accent-blue, #2563eb)' : (isDark ? '#374151' : 'var(--tag-bg, #f3f4f6)');
+            const color = isSelected ? '#ffffff' : (isDark ? '#f3f4f6' : 'var(--text-primary, #333)');
+            const cursor = (!isSelected && isMaxReached) ? 'not-allowed' : 'pointer';
+            const opacity = (!isSelected && isMaxReached) ? '0.4' : '1';
+            const border = isSelected ? '1px solid transparent' : (isDark ? '1px solid #4b5563' : '1px solid #e5e7eb');
+            const shadow = isSelected ? 'box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);' : '';
+            
+            tagHtml += `
+                <div class="modal-tag-pill" role="button" tabindex="0" aria-pressed="${isSelected ? 'true' : 'false'}" data-tag="${tag}" 
+                     style="background: ${bg}; color: ${color}; cursor: ${cursor}; opacity: ${opacity}; border: ${border}; ${shadow}
+                            padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; 
+                            transition: all 0.2s ease; user-select: none; display: flex; align-items: center; gap: 6px;">
+                    ${tag} 
+                    ${isSelected ? '<i class="fa-solid fa-xmark" style="font-size:0.75rem; opacity: 0.8;"></i>' : ''}
+                </div>
+            `;
+        });
+        container.innerHTML = tagHtml;
+    }
+
+    const modalTagsContainer = document.getElementById('modal-tags-container');
+    const tagWarning = document.getElementById('tag-limit-warning');
+    const tagSearchInput = document.getElementById('modal-tag-search');
+    
+    if (modalTagsContainer) {
+        modalTagsContainer.addEventListener('click', (e) => {
+            const pill = e.target.closest('.modal-tag-pill');
+            if (!pill) return;
+            
+            const tag = pill.getAttribute('data-tag');
+            
+            if (selectedModalTags.includes(tag)) {
+                selectedModalTags = selectedModalTags.filter(t => t !== tag);
+                if (tagWarning) tagWarning.style.display = 'none';
+            } else {
+                if (selectedModalTags.length >= 5) {
+                    if (tagWarning) {
+                        tagWarning.style.display = 'block';
+                        tagWarning.style.transform = 'scale(1.05)';
+                        setTimeout(() => tagWarning.style.transform = 'scale(1)', 200);
+                    }
+                    return; 
+                }
+                selectedModalTags.push(tag);
+            }
+            renderModalTags(tagSearchInput ? tagSearchInput.value : '');
+        });
+        modalTagsContainer.addEventListener('keydown', (e) => {
+            const pill = e.target.closest('.modal-tag-pill');
+            if (!pill) return;
+            if (e.key !== 'Enter' && e.key !== ' ') return;
+            e.preventDefault();
+            pill.click();
+        });
+    }
+
+    if (tagSearchInput) {
+        tagSearchInput.addEventListener('input', (e) => {
+            renderModalTags(e.target.value);
+        });
     }
 
     // --- 6. QUESTION SUBMISSION ---
     async function submitQuestion() {
         const token = getToken();
         if (!token) {
-            alert('You must be logged in to post a question!');
+            showToast('Please sign in to post a question.', 'error');
             return;
         }
 
-        // Get form values
         const titleInput = document.getElementById('question-title');
-        const bodyInput = document.getElementById('question-body');
         const courseInput = document.getElementById('question-course');
-        const tagsInput = document.getElementById('question-tags');
+        const bodyInput = document.getElementById('question-body');
 
+        const body = askEditor ? askEditor.value().trim() : bodyInput?.value?.trim();
         const title = titleInput?.value?.trim();
-        const body = bodyInput?.value?.trim();
         const course = courseInput?.value;
-        const tagsText = tagsInput?.value?.trim();
 
-        // Validation
         if (!title) {
-            alert('Please enter a question title');
+            showToast('Please add a question title before posting.', 'error');
+            titleInput?.focus();
             return;
         }
         if (!body) {
-            alert('Please enter question details');
+            showToast('Please add question details before posting.', 'error');
+            askEditor?.codemirror?.focus?.();
+            bodyInput?.focus();
             return;
         }
 
-        // Parse tags (comma or space separated)
-        let tags = [];
-        if (tagsText) {
-            tags = tagsText.split(/[,\s]+/).filter(tag => tag.length > 0).slice(0, 5);
-        }
+        const tags =[...selectedModalTags];
 
-        // Prepare payload
-        // Note: course should be a Course ID (ObjectId), not a string name
-        // For now, we don't send course since the dropdown returns names, not IDs
         const payload = { title, body };
         if (tags.length > 0) payload.tags = tags;
 
-        // Show loading state
         const postBtn = document.getElementById('postQuestionBtn');
         const originalText = postBtn?.innerText;
         if (postBtn) {
@@ -503,43 +972,34 @@ window.NibrasReact.run(() => {
         }
 
         try {
-            const response = await fetch(`${BACKEND_URL}/questions`, {
+            await requestLegacyApi('/questions', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(payload)
+                body: payload,
             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to post question');
+            const modal = document.getElementById('askModal');
+            if (modal) {
+                modal.style.display = 'none';
+                modal.setAttribute('aria-hidden', 'true');
             }
 
-            const data = await response.json();
-
-            // Success - close modal and clear form
-            const modal = document.getElementById('askModal');
-            if (modal) modal.style.display = 'none';
-
-            // Clear form
             if (titleInput) titleInput.value = '';
+            if (askEditor) askEditor.value('');
             if (bodyInput) bodyInput.value = '';
             if (courseInput) courseInput.value = '';
-            if (tagsInput) tagsInput.value = '';
+            if (tagSearchInput) tagSearchInput.value = '';
+            
+            selectedModalTags =[];
+            renderModalTags();
+            if (tagWarning) tagWarning.style.display = 'none';
 
-            // Reload questions to show the new one
             await loadQuestions();
-            // Non-blocking success feedback
             showToast('Question posted successfully');
-            alert('Question posted successfully!');
 
         } catch (error) {
             console.error('Error posting question:', error);
-            alert(error.message || 'Failed to post question. Please try again.');
+            showToast(error.message || 'Failed to post question. Please try again.', 'error');
         } finally {
-            // Reset button
             if (postBtn) {
                 postBtn.disabled = false;
                 postBtn.innerText = originalText;
@@ -553,13 +1013,47 @@ window.NibrasReact.run(() => {
     const closeBtn = document.getElementById('closeAskModal');
     const cancelBtn = document.getElementById('cancelAskBtn');
     const postQuestionBtn = document.getElementById('postQuestionBtn');
+    let lastFocusedElement = null;
 
-    if(openBtn) openBtn.addEventListener('click', () => { modal.style.display = 'flex'; });
-    if(closeBtn) closeBtn.addEventListener('click', () => { modal.style.display = 'none'; });
-    if(cancelBtn) cancelBtn.addEventListener('click', () => { modal.style.display = 'none'; });
+    const resetModalAndClose = () => {
+        modal.style.display = 'none';
+        modal.setAttribute('aria-hidden', 'true');
+        selectedModalTags =[];
+        if (tagSearchInput) tagSearchInput.value = '';
+        if (tagWarning) tagWarning.style.display = 'none';
+        renderModalTags();
+        if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
+            lastFocusedElement.focus();
+        }
+    };
+
+    if(openBtn) openBtn.addEventListener('click', () => { 
+        lastFocusedElement = document.activeElement;
+        modal.style.display = 'flex'; 
+        modal.setAttribute('aria-hidden', 'false');
+        renderModalTags();
+        if (!askEditor) {
+            askEditor = new EasyMDE({
+                element: document.getElementById('question-body'),
+                spellChecker: false,
+                placeholder: "Use Markdown to format your code, links, and images..."
+            });
+        }
+        setTimeout(() => askEditor.codemirror.refresh(), 50);
+        setTimeout(() => document.getElementById('question-title')?.focus(), 60);
+    });
+    
+    if(closeBtn) closeBtn.addEventListener('click', resetModalAndClose);
+    if(cancelBtn) cancelBtn.addEventListener('click', resetModalAndClose);
     if(postQuestionBtn) postQuestionBtn.addEventListener('click', submitQuestion);
+    
     window.addEventListener('click', (e) => {
-        if(e.target === modal) modal.style.display = 'none';
+        if(e.target === modal) resetModalAndClose();
+    });
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal?.style.display === 'flex') {
+            resetModalAndClose();
+        }
     });
 
     const themeBtn = document.getElementById('themeBtn');
@@ -588,10 +1082,15 @@ window.NibrasReact.run(() => {
                 if(themeIcon) themeIcon.className = 'fa-regular fa-moon';
                 if(appLogo) appLogo.src = '../assets/images/logo-light.png';
             }
+            renderModalTags(tagSearchInput ? tagSearchInput.value : ''); 
         });
     }
 
-    // 🚀 Start the whole process by calling the backend!
-    loadQuestions();
-    loadCurrentUser(); // Load current user info for "My Questions" tab
+    // 🚀 Initialization
+    async function initPage() {
+        await loadCurrentUser();
+        await loadTags(); // Fetch tags from backend
+        await loadQuestions(); 
+    }
+    initPage();
 });

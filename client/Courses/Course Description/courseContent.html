@@ -14,7 +14,7 @@
 </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/Courses/Course%20Description/courseContent.css">
+    <link rel="stylesheet" href="./courseContent.css">
 </head>
 <body>
     <div id="app-root" hidden></div>
@@ -59,7 +59,7 @@
         
         <!-- TOP BAR  -->
         <div class="top-bar">
-            <div class="breadcrumbs">Dashboard / Web Development</div>
+            <div class="breadcrumbs">Dashboard / Loading...</div>
             <button class="theme-toggle-btn" id="themeBtn">
                 <i class="fa-solid fa-moon"></i> <span>Dark Mode</span>
             </button>
@@ -196,7 +196,7 @@
                     <h5 class="widget-title">Quick Links</h5>
                     <a href="#" class="quick-link"><i class="fa-solid fa-video"></i> Live Sessions</a>
                     <a href="#" class="quick-link"><i class="fa-solid fa-code"></i> Code Playground</a>
-                    <a href="#" class="quick-link"><i class="fa-solid fa-users"></i> Discussion Forum</a>
+                    <a href="#" class="quick-link" id="discussion-forum-link"><i class="fa-solid fa-users"></i> Discussion Forum</a>
                     <a href="#" class="quick-link"><i class="fa-regular fa-file-pdf"></i> Course Syllabus</a>
                 </section>
 
@@ -204,7 +204,8 @@
         </div>
     </main>
 
-        <script src="/react-bootstrap.js"></script>
-    <script src="/Courses/Course%20Description/courseContent.js"></script>
+        <script src="../../../react-bootstrap.js"></script>
+    <script src="../courseData.js"></script>
+    <script src="./courseContent.js"></script>
 </body>
 </html>

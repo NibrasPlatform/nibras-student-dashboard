@@ -19,7 +19,7 @@
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- CSS -->
-    <link rel="stylesheet" href="/Courses/Videos/videos.css">
+    <link rel="stylesheet" href="./videos.css">
 </head>
 <body>
     <div id="app-root" hidden></div>
@@ -36,10 +36,25 @@
             </div>
         </div>
         
+        <ul class="nav-menu">
+            <li class="nav-item"><a href="../Course%20Description/courseContent.html" class="nav-link"><i class="fa-solid fa-book-open"></i> Course Overview</a></li>
+            <li class="nav-item"><a href="./videos.html" class="nav-link active"><i class="fa-solid fa-video"></i> Videos</a></li>
+            <li class="nav-item"><a href="../Assignments/Assignments.html" class="nav-link"><i class="fa-regular fa-file-lines"></i> Assignments</a></li>
+            <li class="nav-item"><a href="../Projects/Projects.html" class="nav-link"><i class="fa-regular fa-folder"></i> Projects</a></li>
+            <li class="nav-item"><a href="../Grades/grades.html" class="nav-link"><i class="fa-solid fa-award"></i> Grades</a></li>
+        </ul>
+
         <div class="lectures-label"><i class="fa-solid fa-book-open"></i> LECTURES</div>
 
         <!-- Dynamic Lecture List (Populated by JS) -->
         <div class="lecture-list" id="lecture-list"></div>
+
+        <div class="sidebar-footer">
+            <a href="../courses.html" class="back-btn">
+                <i class="fa-solid fa-arrow-left-long" style="margin-right:8px"></i>
+                Return to Courses
+            </a>
+        </div>
     </aside>
 
     <!-- MAIN CONTENT -->
@@ -60,26 +75,37 @@
         <!-- Video Player Container -->
         <div class="video-container">
             <div class="video-screen">
-                <!-- Backend Dev: <video> tag would go here -->
+                <!-- Video player injected by JavaScript (HTML5 or YouTube iframe) -->
             </div>
+            
+            <!-- Loading Spinner (Phase 2) -->
+            <div class="loading-spinner" id="loading-spinner"></div>
+            
+            <!-- Timeline Preview (Phase 2) -->
+            <div class="timeline-preview" id="timeline-preview">0:00</div>
+            
+            <!-- Caption Display (Phase 2) -->
+            <div class="caption-display" id="caption-display"></div>
             
             <!-- Custom Video Controls Overlay -->
             <div class="video-controls">
-                <div class="progress-track">
+                <div class="progress-track" id="progress-track-element">
                     <div class="progress-bar"></div>
                 </div>
                 <div class="controls-row">
                     <div class="controls-left">
-                        <button class="control-btn"><i class="fa-solid fa-pause"></i></button>
-                        <button class="control-btn"><i class="fa-solid fa-volume-high"></i></button>
+                        <button class="control-btn" title="Play/Pause"><i class="fa-solid fa-pause"></i></button>
+                        <button class="control-btn" title="Mute/Unmute"><i class="fa-solid fa-volume-high"></i></button>
                         <div class="time-display">
                             <span id="current-time">0:00</span> / <span id="total-time">0:00</span>
                         </div>
                     </div>
                     <div class="controls-right">
-                        <span class="speed-control">1x <i class="fa-solid fa-chevron-down" style="font-size: 10px;"></i></span>
-                        <button class="control-btn"><i class="fa-solid fa-gear"></i></button>
-                        <button class="control-btn"><i class="fa-solid fa-expand"></i></button>
+                        <button class="control-btn quality-toggle-btn" title="Video Quality" id="quality-btn"><i class="fa-solid fa-cog"></i> <span>Auto</span></button>
+                        <div class="quality-menu" id="quality-menu"></div>
+                        <button class="control-btn" title="Captions" id="caption-btn"><i class="fa-solid fa-closed-captioning"></i></button>
+                        <button class="control-btn" title="Settings"><i class="fa-solid fa-gear"></i></button>
+                        <button class="control-btn" title="Fullscreen"><i class="fa-solid fa-expand"></i></button>
                     </div>
                 </div>
             </div>
@@ -108,7 +134,8 @@
 
     </main>
 
-        <script src="/react-bootstrap.js"></script>
-    <script src="/Courses/Videos/videos.js"></script>
+        <script src="../../../react-bootstrap.js"></script>
+    <script src="../courseData.js"></script>
+    <script src="./videos.js"></script>
 </body>
 </html>

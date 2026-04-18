@@ -1,149 +1,389 @@
-window.NibrasReact.run(() => {
-    
-    // --- 1. TOGGLE LOGIC ---
-    const themeBtn = document.getElementById('themeBtn');
-    const themeIcon = themeBtn.querySelector('i');
-    const themeText = themeBtn.querySelector('span');
+console.log("[VIDEOS.JS] Script started (direct execution)");
 
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', savedTheme);
+const selectedCourse = window.NibrasCourses?.getSelectedCourse?.();
+let courseData = selectedCourse ? JSON.parse(JSON.stringify(selectedCourse.videos)) : null;
+const courseId = selectedCourse?.id;
+
+function setCourseLinks() {
+    if (!courseId) return;
+    const links = [
+        { selector: '.nav-link[href*="courseContent.html"]', path: "../Course Description/courseContent.html" },
+        { selector: '.nav-link[href*="videos.html"]', path: "./videos.html" },
+        { selector: '.nav-link[href*="Assignments.html"]', path: "../Assignments/Assignments.html" },
+        { selector: '.nav-link[href*="Projects.html"]', path: "../Projects/Projects.html" },
+        { selector: '.nav-link[href*="grades.html"]', path: "../Grades/grades.html" },
+        { selector: ".back-btn", path: "../courses.html" },
+    ];
+
+    links.forEach(({ selector, path }) => {
+        const el = document.querySelector(selector);
+        if (el) el.setAttribute("href", window.NibrasCourses.withCourseId(path, courseId));
+    });
+}
+
+function initThemeToggle() {
+    const themeBtn = document.getElementById("themeBtn");
+    const themeIcon = themeBtn?.querySelector("i");
+    const themeText = themeBtn?.querySelector("span");
+
+    const savedTheme = localStorage.getItem("theme") || "dark";
+    document.documentElement.setAttribute("data-theme", savedTheme);
     updateButtonState(savedTheme);
 
-    // Set initial button state based on HTML
-    updateButtonState(document.documentElement.getAttribute('data-theme'));
-
-    themeBtn.addEventListener('click', () => {
-        const htmlEl = document.documentElement;
-        const currentTheme = htmlEl.getAttribute('data-theme');
-        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-
-        htmlEl.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-        updateButtonState(newTheme);
-});
-
-
     function updateButtonState(theme) {
-        if (theme === 'dark') {
-            themeIcon.className = 'fa-solid fa-sun';
-            themeText.textContent = 'Light Mode';
+        if (theme === "dark") {
+            if (themeIcon) themeIcon.className = "fa-solid fa-sun";
+            if (themeText) themeText.textContent = "Light Mode";
         } else {
-            themeIcon.className = 'fa-solid fa-moon';
-            themeText.textContent = 'Dark Mode';
+            if (themeIcon) themeIcon.className = "fa-solid fa-moon";
+            if (themeText) themeText.textContent = "Dark Mode";
         }
     }
 
-    // --- 2. BACKEND DATA OBJECT ---
-    // The backend developer replaces this object.
-    const courseData = {
-        title: "Web Development Fundamentals",
-        progress: { completed: 2, total: 8 },
-        currentLessonId: 1, // ID of the lesson currently displayed
-        lessons: [
-            { id: 1, title: "Lesson 1: Introduction", duration: "12:45", completed: true, locked: false},
-            { id: 2, title: "Lesson 2: Basics", duration: "18:30", completed: true, locked: false },
-            { id: 3, title: "Lesson 3: Advanced Tools", duration: "25:15", completed: false, locked: false },
-            { id: 4, title: "Lesson 4: Deep Dive", duration: "22:00", completed: false, locked: false },
-            { id: 5, title: "Lesson 5: Best Practices", duration: "16:45", completed: false, locked: false },
-            { id: 6, title: "Lesson 6: Real-World Examples", duration: "28:20", completed: false, locked: true },
-            { id: 7, title: "Lesson 7: Troubleshooting", duration: "19:10", completed: false, locked: true },
-            { id: 8, title: "Lesson 8: Performance Tuning", duration: "24:50", completed: false, locked: true }
-        ]
-    };
+    if (themeBtn) {
+        themeBtn.addEventListener("click", () => {
+            const htmlEl = document.documentElement;
+            const currentTheme = htmlEl.getAttribute("data-theme");
+            const newTheme = currentTheme === "light" ? "dark" : "light";
+            htmlEl.setAttribute("data-theme", newTheme);
+            localStorage.setItem("theme", newTheme);
+            updateButtonState(newTheme);
+        });
+    }
+}
 
-    // --- 3. POPULATE UI ---
+function initVideos() {
+    if (!courseData || !selectedCourse) return;
+    initThemeToggle();
+    setCourseLinks();
     populateUI(courseData);
+    setupVideoPlayer();
+    setupLectureListHandler();
+    setupNavigationButtons();
+    hydrateLessonsFromAdmin();
+}
 
-    const lectureList = document.getElementById('lecture-list');
+function populateUI(data) {
+    const currentLesson = data.lessons.find((l) => l.id === data.currentLessonId);
+    if (currentLesson) {
+        const courseCrumb = document.getElementById("course-title-crumb");
+        if (courseCrumb) courseCrumb.textContent = selectedCourse.title;
 
-    lectureList.addEventListener('click', e => {
-    const item = e.target.closest('.lecture-item');
-    if (!item) return;
+        document.getElementById("lesson-title-crumb").textContent = currentLesson.title;
+        document.getElementById("lesson-title-main").textContent = currentLesson.title;
+        document.getElementById("lesson-duration").textContent = `Duration: ${currentLesson.duration}`;
+        document.getElementById("total-time").textContent = currentLesson.duration;
 
-    if (item.classList.contains('locked')) return;
+        const badge = document.getElementById("lesson-status");
+        if (currentLesson.completed) {
+            badge.innerHTML = `<i class="fa-solid fa-circle-check"></i> Completed`;
+            badge.style.display = "flex";
+        } else {
+            badge.style.display = "none";
+        }
+    }
 
-    const lessonId = Number(item.dataset.lessonId);
-    loadLesson(lessonId);
-});
+    document.getElementById("progress-text").textContent = `${data.progress.completed} of ${data.progress.total} lectures completed`;
+    const pct = (data.progress.completed / data.progress.total) * 100;
+    document.getElementById("progress-fill").style.width = `${pct}%`;
 
+    const listContainer = document.getElementById("lecture-list");
+    listContainer.innerHTML = "";
 
-    function populateUI(data) {
-        
-        // A. Set Breadcrumbs
-        const currentLesson = data.lessons.find(l => l.id === data.currentLessonId);
-        if (currentLesson) {
-            document.getElementById('course-title-crumb').textContent = data.title;
-            document.getElementById('lesson-title-crumb').textContent = currentLesson.title;
-            
-            // Set Main Title
-            document.getElementById('lesson-title-main').textContent = currentLesson.title;
-            document.getElementById('lesson-duration').textContent = `Duration: ${currentLesson.duration}`;
-            document.getElementById('total-time').textContent = currentLesson.duration; // Player time
+    data.lessons.forEach((lesson) => {
+        const isActive = lesson.id === data.currentLessonId;
+        let itemClass = "lecture-item";
+        let iconClass = "fa-regular fa-circle";
 
-            // Set Status Badge
-            const badge = document.getElementById('lesson-status');
-            if (currentLesson.status === 'completed' || currentLesson.status === 'current') {
-                // Assuming "Introduction" (current) is also marked 'Completed' in screenshot
-                badge.innerHTML = `<i class="fa-solid fa-circle-check"></i> Completed`;
-                badge.style.display = 'flex';
+        if (lesson.locked) {
+            itemClass += " locked";
+            iconClass = "fa-solid fa-lock";
+        } else if (isActive) {
+            itemClass += " active";
+            iconClass = "fa-solid fa-circle-play";
+        } else if (lesson.completed) {
+            itemClass += " completed";
+            iconClass = "fa-solid fa-circle-check";
+        } else {
+            itemClass += " open";
+        }
+
+        listContainer.innerHTML += `
+            <div class="${itemClass}" data-lesson-id="${lesson.id}">
+                <div class="lecture-icon"><i class="${iconClass}"></i></div>
+                <div class="lecture-info">
+                    <span class="lecture-title">${lesson.title}</span>
+                    <span class="lecture-time">${lesson.duration}</span>
+                </div>
+            </div>
+        `;
+    });
+
+    const currentIndex = data.lessons.findIndex((l) => l.id === data.currentLessonId);
+    const prevBtn = document.getElementById("prev-btn");
+    const nextBtn = document.getElementById("next-btn");
+    if (prevBtn) prevBtn.disabled = currentIndex <= 0;
+    if (nextBtn) nextBtn.disabled = currentIndex >= data.lessons.length - 1;
+}
+
+function setupVideoPlayer() {
+    const videoContainer = document.querySelector(".video-screen");
+    if (!videoContainer) return;
+
+    const currentLesson = courseData.lessons.find((l) => l.id === courseData.currentLessonId);
+    if (!currentLesson) return;
+
+    videoContainer.innerHTML = "";
+    if (currentLesson.videoSources.html5) {
+        videoContainer.innerHTML = `
+            <video id="lesson-video" width="100%" height="100%" style="width: 100%; height: 100%; object-fit: contain; background: #000;">
+                <source src="${currentLesson.videoSources.html5}" type="video/mp4">
+            </video>
+        `;
+        const video = document.getElementById("lesson-video");
+        if (video) setupVideoControls(video);
+    } else if (currentLesson.videoSources.youtube) {
+        videoContainer.innerHTML = `
+            <iframe
+                id="lesson-video-iframe"
+                width="100%"
+                height="100%"
+                src="${currentLesson.videoSources.youtube}?autoplay=0&rel=0&modestbranding=1"
+                frameborder="0"
+                allow="autoplay; encrypted-media"
+                allowfullscreen
+                style="width: 100%; height: 100%;">
+            </iframe>
+        `;
+    }
+}
+
+function setupVideoControls(videoElement) {
+    const playBtn = document.querySelector(".controls-left .control-btn:first-child");
+    const volumeBtn = document.querySelector(".controls-left .control-btn:nth-child(2)");
+    const progressBar = document.querySelector(".progress-bar");
+    const progressTrack = document.querySelector(".progress-track");
+    const currentTimeEl = document.getElementById("current-time");
+    const totalTimeEl = document.getElementById("total-time");
+    const fullscreenBtn = document.querySelector(".controls-right .control-btn:last-child");
+
+    videoElement.addEventListener("loadedmetadata", () => {
+        totalTimeEl.textContent = formatTime(videoElement.duration);
+    });
+
+    videoElement.addEventListener("timeupdate", () => {
+        if (videoElement.duration) {
+            const percent = (videoElement.currentTime / videoElement.duration) * 100;
+            if (progressBar) progressBar.style.width = `${percent}%`;
+            currentTimeEl.textContent = formatTime(videoElement.currentTime);
+        }
+    });
+
+    if (playBtn) {
+        playBtn.addEventListener("click", () => {
+            if (videoElement.paused) {
+                videoElement.play();
+                playBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
             } else {
-                badge.style.display = 'none';
+                videoElement.pause();
+                playBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+            }
+        });
+        videoElement.addEventListener("play", () => (playBtn.innerHTML = '<i class="fa-solid fa-pause"></i>'));
+        videoElement.addEventListener("pause", () => (playBtn.innerHTML = '<i class="fa-solid fa-play"></i>'));
+    }
+
+    if (volumeBtn) {
+        volumeBtn.addEventListener("click", () => {
+            videoElement.muted = !videoElement.muted;
+            volumeBtn.innerHTML = videoElement.muted
+                ? '<i class="fa-solid fa-volume-mute"></i>'
+                : '<i class="fa-solid fa-volume-high"></i>';
+        });
+    }
+
+    if (progressTrack) {
+        progressTrack.addEventListener("click", (e) => {
+            const rect = progressTrack.getBoundingClientRect();
+            const percent = (e.clientX - rect.left) / rect.width;
+            videoElement.currentTime = percent * videoElement.duration;
+        });
+    }
+
+    if (fullscreenBtn) {
+        fullscreenBtn.addEventListener("click", () => {
+            const container = document.querySelector(".video-container");
+            if (!container) return;
+            if (!document.fullscreenElement) {
+                container.requestFullscreen().catch(() => {});
+            } else {
+                document.exitFullscreen();
+            }
+        });
+    }
+
+    videoElement.addEventListener("timeupdate", () => {
+        const currentLesson = courseData.lessons.find((l) => l.id === courseData.currentLessonId);
+        if (currentLesson && !currentLesson.completed) {
+            const percentWatched = (videoElement.currentTime / videoElement.duration) * 100;
+            if (percentWatched >= 95) {
+                currentLesson.completed = true;
+                courseData.progress.completed = Math.min(courseData.progress.total, courseData.progress.completed + 1);
+                populateUI(courseData);
             }
         }
+    });
 
-        // B. Sidebar Progress
-        document.getElementById('progress-text').textContent = `${data.progress.completed} of ${data.progress.total} lectures completed`;
-        const pct = (data.progress.completed / data.progress.total) * 100;
-        document.getElementById('progress-fill').style.width = `${pct}%`;
+    const spinner = document.getElementById("loading-spinner");
+    if (spinner) {
+        videoElement.addEventListener("seeking", () => spinner.classList.add("visible"));
+        videoElement.addEventListener("seeked", () => spinner.classList.remove("visible"));
+        videoElement.addEventListener("waiting", () => spinner.classList.add("visible"));
+        videoElement.addEventListener("canplay", () => spinner.classList.remove("visible"));
+    }
 
-        // C. Sidebar List
-        const listContainer = document.getElementById('lecture-list');
-        listContainer.innerHTML = '';
+    const progressTrackEl = document.getElementById("progress-track-element");
+    const timelinePreview = document.getElementById("timeline-preview");
+    if (progressTrackEl && timelinePreview) {
+        progressTrackEl.addEventListener("mousemove", (e) => {
+            const rect = progressTrackEl.getBoundingClientRect();
+            const percent = (e.clientX - rect.left) / rect.width;
+            const time = percent * videoElement.duration;
+            timelinePreview.textContent = formatTime(time);
+            timelinePreview.style.left = `${percent * 100}%`;
+            timelinePreview.classList.add("visible");
+        });
+        progressTrackEl.addEventListener("mouseleave", () => timelinePreview.classList.remove("visible"));
+    }
 
-        data.lessons.forEach(lesson => {
-            const isActive = lesson.id === data.currentLessonId;
+    const qualityBtn = document.getElementById("quality-btn");
+    const qualityMenu = document.getElementById("quality-menu");
+    if (qualityBtn && qualityMenu) {
+        const qualities = ["Auto", "1080p", "720p", "480p"];
+        qualityMenu.innerHTML = qualities
+            .map((q) => `<button class="quality-option ${q === "Auto" ? "active" : ""}" data-quality="${q}">${q}</button>`)
+            .join("");
 
-            let itemClass = 'lecture-item';
-            let iconClass = 'fa-regular fa-circle';
+        qualityBtn.addEventListener("click", () => qualityMenu.classList.toggle("visible"));
+        qualityMenu.querySelectorAll(".quality-option").forEach((btn) => {
+            btn.addEventListener("click", (e) => {
+                qualityMenu.querySelectorAll(".quality-option").forEach((b) => b.classList.remove("active"));
+                e.target.classList.add("active");
+                const quality = e.target.dataset.quality;
+                qualityBtn.querySelector("span").textContent = quality;
+                qualityMenu.classList.remove("visible");
+                localStorage.setItem("selectedQuality", quality);
+            });
+        });
+        qualityBtn.querySelector("span").textContent = localStorage.getItem("selectedQuality") || "Auto";
+    }
 
-            if (lesson.locked) {
-                itemClass += ' locked';
-                iconClass = 'fa-solid fa-lock';
-            } else if (isActive) {
-                itemClass += ' active';
-                iconClass = 'fa-solid fa-circle-play';
-            }else if (lesson.completed) {
-                itemClass += ' completed';
-                iconClass = 'fa-solid fa-circle-check';
-            } else {
-                itemClass += ' open';
-}
-
-            // Using template literal for cleaner HTML injection
-            const html = `
-                <div class="${itemClass}" data-lesson-id="${lesson.id}">
-                    <div class="lecture-icon"><i class="${iconClass}"></i></div>
-                    <div class="lecture-info">
-                        <span class="lecture-title">${lesson.title}</span>
-                        <span class="lecture-time">${lesson.duration}</span>
-                    </div>
-                </div>
-            `;
-            listContainer.innerHTML += html;
+    const captionBtn = document.getElementById("caption-btn");
+    const captionDisplay = document.getElementById("caption-display");
+    let captionsEnabled = false;
+    if (captionBtn && captionDisplay) {
+        captionBtn.addEventListener("click", () => {
+            captionsEnabled = !captionsEnabled;
+            captionDisplay.style.display = captionsEnabled ? "block" : "none";
+            captionBtn.style.opacity = captionsEnabled ? "1" : "0.8";
         });
 
-        // D. Nav Buttons logic (Simple Prev/Next based on array index)
-        const currentIndex = data.lessons.findIndex(l => l.id === data.currentLessonId);
-        const prevBtn = document.getElementById('prev-btn');
-        
-        if (currentIndex > 0) {
-            prevBtn.disabled = false;
-        } else {
-            prevBtn.disabled = true;
-        }
+        const demoCaption = { startTime: 0, endTime: 5, text: "Welcome to this video lesson!" };
+        videoElement.addEventListener("timeupdate", () => {
+            if (!captionsEnabled || !videoElement.duration) return;
+            const time = videoElement.currentTime;
+            if (time >= demoCaption.startTime && time <= demoCaption.endTime) {
+                captionDisplay.textContent = demoCaption.text;
+                captionDisplay.classList.add("visible");
+            } else {
+                captionDisplay.classList.remove("visible");
+            }
+        });
     }
-    function loadLesson(lessonId) {
-        courseData.currentLessonId = lessonId;
-        populateUI(courseData);
 }
-});
+
+function setupLectureListHandler() {
+    const lectureList = document.getElementById("lecture-list");
+    if (!lectureList) return;
+
+    lectureList.addEventListener("click", (e) => {
+        const item = e.target.closest(".lecture-item");
+        if (!item || item.classList.contains("locked")) return;
+        const lessonId = Number(item.dataset.lessonId);
+        loadLesson(lessonId);
+    });
+}
+
+function setupNavigationButtons() {
+    const prevBtn = document.getElementById("prev-btn");
+    const nextBtn = document.getElementById("next-btn");
+
+    if (prevBtn) {
+        prevBtn.addEventListener("click", () => {
+            const currentIndex = courseData.lessons.findIndex((l) => l.id === courseData.currentLessonId);
+            if (currentIndex > 0) {
+                loadLesson(courseData.lessons[currentIndex - 1].id);
+            }
+        });
+    }
+
+    if (nextBtn) {
+        nextBtn.addEventListener("click", () => {
+            const currentIndex = courseData.lessons.findIndex((l) => l.id === courseData.currentLessonId);
+            if (currentIndex < courseData.lessons.length - 1) {
+                const nextLesson = courseData.lessons[currentIndex + 1];
+                if (nextLesson.locked) {
+                    alert(`Lesson "${nextLesson.title}" is locked. Complete previous lessons to unlock.`);
+                    return;
+                }
+                loadLesson(nextLesson.id);
+            }
+        });
+    }
+}
+
+function loadLesson(lessonId) {
+    courseData.currentLessonId = lessonId;
+    populateUI(courseData);
+    setupVideoPlayer();
+    window.scrollTo(0, 0);
+}
+
+async function hydrateLessonsFromAdmin() {
+    const loadRemoteCourse = window.NibrasCourses?.getAdminCourseByLocalId;
+    if (typeof loadRemoteCourse !== "function" || !courseId) return;
+
+    try {
+        const remoteCourse = await loadRemoteCourse(courseId);
+        if (!remoteCourse || !Array.isArray(remoteCourse.sections) || remoteCourse.sections.length === 0) return;
+
+        courseData.lessons = courseData.lessons.map((lesson, index) => {
+            const remoteSection = remoteCourse.sections[index];
+            if (!remoteSection?.title) return lesson;
+            return {
+                ...lesson,
+                title: `Lesson ${lesson.id}: ${remoteSection.title}`,
+            };
+        });
+
+        populateUI(courseData);
+        setupVideoPlayer();
+    } catch (error) {
+        console.warn("[VIDEOS.JS] Failed to hydrate lessons from admin backend:", error?.message || error);
+    }
+}
+
+function formatTime(seconds) {
+    if (!seconds || Number.isNaN(seconds)) return "0:00";
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+    if (hrs > 0) return `${hrs}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initVideos);
+} else {
+    initVideos();
+}

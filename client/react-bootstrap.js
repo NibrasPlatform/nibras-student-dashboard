@@ -1,9 +1,22 @@
 (function () {
-    const REACT_SRC = 'https://unpkg.com/react@18/umd/react.production.min.js';
-    const REACT_DOM_SRC = 'https://unpkg.com/react-dom@18/umd/react-dom.production.min.js';
-    const SHARED_UTILS_SRC = '/react-page-utils.js';
+    const BOOTSTRAP_FILE_NAME = 'react-bootstrap.js';
+    const resolveBootstrapBase = () => {
+        if (typeof document === 'undefined') return '/';
+        let source = document.currentScript?.src || '';
+        if (!source) {
+            const scripts = Array.from(document.scripts || []);
+            const matched = scripts.find((script) => String(script.src || '').includes(`/${BOOTSTRAP_FILE_NAME}`));
+            source = matched?.src || '';
+        }
+        if (!source) return '/';
+        return source.replace(/[^/]*$/, '');
+    };
+    const BOOTSTRAP_BASE = resolveBootstrapBase();
+    const CONFIG_SRC = new URL('config.js', BOOTSTRAP_BASE).toString();
+    const SHARED_UTILS_SRC = new URL('react-page-utils.js', BOOTSTRAP_BASE).toString();
+    const SERVICES_SRC = new URL('services/api.js', BOOTSTRAP_BASE).toString();
     const SCRIPT_ATTR = 'data-react-bootstrap-src';
-    let mountCounter = 0;
+    let bootstrapDepsPromise = null;
 
     const runOnDomReady = (callback) => {
         if (document.readyState === 'loading') {
@@ -41,14 +54,6 @@
         document.head.appendChild(script);
     });
 
-    const ensureReactLoaded = () => {
-        if (window.React && window.ReactDOM && typeof window.ReactDOM.createRoot === 'function') {
-            return Promise.resolve();
-        }
-
-        return loadScript(REACT_SRC).then(() => loadScript(REACT_DOM_SRC));
-    };
-
     const ensureSharedUtilsLoaded = () => {
         if (window.NibrasShared) {
             return Promise.resolve();
@@ -56,27 +61,38 @@
         return loadScript(SHARED_UTILS_SRC).catch(() => Promise.resolve());
     };
 
-    const mountInitializerWithReact = (initializer) => {
+    const ensureConfigLoaded = () => {
+        if (window.NibrasApiConfig || window.NIBRAS_API_URL) {
+            return Promise.resolve();
+        }
+        return loadScript(CONFIG_SRC).catch(() => Promise.resolve());
+    };
+
+    const ensureServicesLoaded = () => {
+        if (window.NibrasServices) {
+            return Promise.resolve();
+        }
+        return loadScript(SERVICES_SRC).catch(() => Promise.resolve());
+    };
+
+    const ensureBootstrapDependencies = () => {
+        if (!bootstrapDepsPromise) {
+            bootstrapDepsPromise = ensureConfigLoaded()
+                .then(() => ensureSharedUtilsLoaded())
+                .then(() => ensureServicesLoaded());
+        }
+        return bootstrapDepsPromise;
+    };
+
+    const runInitializer = (initializer) => {
         runOnDomReady(() => {
-            if (!(window.React && window.ReactDOM && typeof window.ReactDOM.createRoot === 'function')) {
+            try {
                 initializer();
-                return;
+            } catch (error) {
+                setTimeout(() => {
+                    throw error;
+                }, 0);
             }
-
-            mountCounter += 1;
-            const rootNode = document.createElement('div');
-            rootNode.id = `__react-bootstrap-root-${mountCounter}`;
-            rootNode.style.display = 'none';
-            document.body.appendChild(rootNode);
-
-            const App = () => {
-                window.React.useEffect(() => {
-                    initializer();
-                }, []);
-                return null;
-            };
-
-            window.ReactDOM.createRoot(rootNode).render(window.React.createElement(App));
         });
     };
 
@@ -85,10 +101,9 @@
             return;
         }
 
-        ensureReactLoaded()
-            .then(() => ensureSharedUtilsLoaded())
-            .then(() => mountInitializerWithReact(initializer))
-            .catch(() => runOnDomReady(initializer));
+        ensureBootstrapDependencies()
+            .then(() => runInitializer(initializer))
+            .catch(() => runInitializer(initializer));
     };
 
     window.NibrasReact = {

@@ -1,4 +1,7 @@
 window.NibrasReact.run(() => {
+    const selectedCourse = window.NibrasCourses?.getSelectedCourse?.();
+    if (!selectedCourse) return;
+    const courseId = selectedCourse.id;
 
     // --- 1. SIDEBAR LOGIC ---
     const navLinks = document.querySelectorAll('.nav-link');
@@ -35,51 +38,27 @@ window.NibrasReact.run(() => {
         }
     }
 
-    // --- 3. BACKEND DATA ---
-    const gradesData = {
-        stats: [
-            { label: "Overall Grade", value: "56.9%", sub: "", icon: "fa-solid fa-award", type: "primary", extra: "F" },
-            { label: "Class Average", value: "82.5%", sub: "B", icon: "fa-solid fa-bullseye", type: "standard" },
-            { label: "vs Class Avg", value: "-25.6%", sub: "Below average", icon: "fa-solid fa-arrow-trend-down", type: "standard", color: "red" },
-            { label: "Graded Items", value: "6/8", sub: "Completed", icon: "fa-regular fa-circle-check", type: "standard" }
-        ],
-        breakdown: [
-            { category: "Assignments", score: "56/75", percent: "74.7%", weight: "40% of final grade", change: "+29.9% total", color: "#f59e0b" },
-            { category: "Projects", score: "0/0", percent: "0.0%", weight: "30% of final grade", change: "+0.0% total", color: "#374151" },
-            { category: "Quizzes", score: "54/60", percent: "90.0%", weight: "20% of final grade", change: "+18.0% total", color: "#10b981" },
-            { category: "Participations", score: "9/10", percent: "90.0%", weight: "10% of final grade", change: "+9.0% total", color: "#10b981" }
-        ],
-        grades: [
-            { title: "Assignment 1: HTML & CSS Fundamentals", type: "assignment", date: "Due: Dec 20, 2024", score: "18/20", percent: "90.0%", status: "Graded" },
-            { title: "Quiz 1: HTML5 Basics", type: "quiz", date: "Due: Dec 15, 2024", score: "28/30", percent: "93.3%", status: "Graded" },
-            { title: "Assignment 2: JavaScript Basics", type: "assignment", date: "Due: Dec 22, 2024", score: "23/25", percent: "92.0%", status: "Graded" },
-            { title: "Assignment 3: Responsive Design", type: "assignment", date: "Due: Dec 25, 2024", score: null, status: "Pending" },
-            { title: "Project: E-Commerce Platform", type: "project", date: "Due: Jan 15, 2025", score: null, status: "Pending" },
-            { title: "Quiz 2: CSS & Layouts", type: "quiz", date: "Due: Dec 10, 2024", score: "26/30", percent: "86.7%", status: "Graded" },
-            { title: "Class Participation - Week 1-4", type: "participation", date: "Due: Dec 20, 2024", score: "9/10", percent: "90.0%", status: "Graded" },
-            { title: "Assignment 4: React Components", type: "assignment", date: "Due: Dec 18, 2024", score: "15/30", percent: "50.0%", status: "Late Submission" }
-        ],
-        scale: [
-            { grade: "A", range: "93-100%", color: "a" },
-            { grade: "A-", range: "90-92%", color: "a" },
-            { grade: "B+", range: "87-89%", color: "a" },
-            { grade: "B", range: "83-86%", color: "b" },
-            { grade: "B-", range: "80-82%", color: "b" },
-            { grade: "C+", range: "77-79%", color: "c" },
-            { grade: "C", range: "73-76%", color: "c" },
-            { grade: "C-", range: "70-72%", color: "c" },
-            { grade: "D+", range: "67-69%", color: "d" },
-            { grade: "D", range: "63-66%", color: "d" },
-            { grade: "D-", range: "60-62%", color: "d" },
-            { grade: "F", range: "Below 60%", color: "f" }
-        ],
-        weights: [
-            { cat: "Assignments", pct: "40%" },
-            { cat: "Projects", pct: "30%" },
-            { cat: "Quizzes", pct: "20%" },
-            { cat: "Participation", pct: "10%" }
-        ]
-    };
+    const gradesData = selectedCourse.grades;
+    const links = [
+        { selector: '.nav-link[href*="courseContent.html"]', path: "../Course Description/courseContent.html" },
+        { selector: '.nav-link[href*="videos.html"]', path: "../Videos/videos.html" },
+        { selector: '.nav-link[href*="Assignments.html"]', path: "../Assignments/Assignments.html" },
+        { selector: '.nav-link[href*="Projects.html"]', path: "../Projects/Projects.html" },
+        { selector: '.nav-link[href*="grades.html"]', path: "./grades.html" },
+        { selector: ".back-btn", path: "../courses.html" },
+    ];
+
+    links.forEach(({ selector, path }) => {
+        const el = document.querySelector(selector);
+        if (el) el.setAttribute("href", window.NibrasCourses.withCourseId(path, courseId));
+    });
+
+    const headerSub = document.querySelector(".header-text p");
+    const metaTitle = document.querySelector(".course-meta h4");
+    const metaSubtitle = document.querySelector(".course-meta span");
+    if (headerSub) headerSub.textContent = `${selectedCourse.code}: ${selectedCourse.title} • ${selectedCourse.overview.term}`;
+    if (metaTitle) metaTitle.textContent = `${selectedCourse.code}: ${selectedCourse.title}`;
+    if (metaSubtitle) metaSubtitle.textContent = `${selectedCourse.overview.term} • Week ${selectedCourse.overview.currentWeek}`;
 
     // --- 4. RENDER UI ---
     renderUI(gradesData);
@@ -91,7 +70,7 @@ window.NibrasReact.run(() => {
         statsContainer.innerHTML = '';
         data.stats.forEach(stat => {
             const isPrimary = stat.type === 'primary' ? 'primary-blue' : '';
-            const textColor = stat.color === 'red' ? 'style="color: #ef4444;"' : '';
+            const textColor = stat.color === 'red' ? 'style="color: #ef4444;"' : stat.color === 'green' ? 'style="color: #10b981;"' : '';
             const extraHtml = stat.extra ? `<span class="grade-f">${stat.extra}</span>` : '';
             
             statsContainer.innerHTML += `
@@ -112,7 +91,7 @@ window.NibrasReact.run(() => {
                     <div class="bd-header">
                         <div>
                             <div class="bd-title">${item.category}</div>
-                            <div class="bd-sub">${item.score}points • ${item.weight}</div>
+                            <div class="bd-sub">${item.score} points • ${item.weight}</div>
                         </div>
                         <div style="text-align:right;">
                             <div class="bd-percent">${item.percent}</div>

@@ -14,7 +14,7 @@
 </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/Settings/settings.css">
+    <link rel="stylesheet" href="./settings.css">
 </head>
 <body>
     <div id="app-root" hidden></div>
@@ -123,6 +123,36 @@
                 </div>
             </section>
 
+            <!-- 2.1 Connected Accounts (NEW) -->
+            <section class="card settings-card">
+                <div class="card-header-simple">
+                    <h3>Connected Accounts</h3>
+                    <p class="section-desc">Connect your external accounts to enable automated grading and repo syncing</p>
+                </div>
+
+                <div class="connected-account-row" id="github-connection-area">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div class="account-icon github-bg"><i class="fa-brands fa-github"></i></div>
+                        <div>
+                            <h4 style="font-size: 0.95rem; font-weight: 600; margin-bottom: 2px;">GitHub</h4>
+                            <p id="github-status-text" class="section-desc" style="margin-bottom: 0;">Not connected</p>
+                        </div>
+                    </div>
+                    <button id="btn-connect-github" class="btn-outline-small" style="background-color: #24292f; color: white; border: none; padding: 0.6rem 1rem;">
+                        <i class="fa-brands fa-github"></i> Connect GitHub
+                    </button>
+                    <button id="btn-install-github-app" class="btn-outline-small" style="display:none; background-color: #2563eb; color: white; border: none; padding: 0.6rem 1rem;">
+                        <i class="fa-solid fa-puzzle-piece"></i> Install GitHub App
+                    </button>
+                    
+                    <div id="github-profile-info" style="display: none; align-items: center; gap: 1rem;">
+                        <img id="github-avatar" src="" style="width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border-color);">
+                        <span id="github-username" style="font-weight: 500; font-size: 0.9rem;">...</span>
+                        <button id="btn-disconnect-github" class="btn-outline-small" style="color: #ef4444; border-color: #ef4444;">Disconnect</button>
+                    </div>
+                </div>
+            </section>
+
             <!-- 3. Notification Preferences -->
             <section class="card settings-card">
                 <div class="card-header-simple">
@@ -204,7 +234,7 @@
         </div>
     </main>
 
-        <script src="/react-bootstrap.js"></script>
-    <script src="/Settings/settings.js"></script>
+        <script src="../react-bootstrap.js"></script>
+    <script src="./settings.js?v=20260417-3"></script>
 </body>
 </html>
