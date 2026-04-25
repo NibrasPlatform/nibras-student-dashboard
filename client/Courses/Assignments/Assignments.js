@@ -97,19 +97,23 @@ window.NibrasReact.run(() => {
         }
     }
 
-    const links = [
-        { selector: '.nav-link[href*="courseContent.html"]', path: "../Course Description/courseContent.html" },
-        { selector: '.nav-link[href*="videos.html"]', path: "../Videos/videos.html" },
-        { selector: '.nav-link[href*="Assignments.html"]', path: "./Assignments.html" },
-        { selector: '.nav-link[href*="Projects.html"]', path: "../Projects/Projects.html" },
-        { selector: '.nav-link[href*="grades.html"]', path: "../Grades/grades.html" },
-        { selector: ".back-btn", path: "../courses.html" }
+    // Update data-nav-link elements
+    const navLinks = [
+        { key: "courseContent", path: "../Course Description/courseContent.html" },
+        { key: "videos", path: "../Videos/videos.html" },
+        { key: "assignments", path: "./Assignments.html" },
+        { key: "projects", path: "../Projects/Projects.html" },
+        { key: "grades", path: "../Grades/grades.html" },
     ];
 
-    links.forEach(({ selector, path }) => {
-        const el = document.querySelector(selector);
+    navLinks.forEach(({ key, path }) => {
+        const el = document.querySelector(`[data-nav-link="${key}"]`);
         if (el) el.setAttribute("href", window.NibrasCourses.withCourseId(path, courseId));
     });
+
+    // Also update back button
+    const backBtn = document.querySelector(".back-btn");
+    if (backBtn) backBtn.setAttribute("href", window.NibrasCourses.withCourseId("../courses.html", courseId));
 
     const termLabel = document.getElementById("course-term");
     if (termLabel) {
@@ -283,6 +287,8 @@ window.NibrasReact.run(() => {
             dueDate: item.dueDate,
             dueTime: item.dueTime,
             submissionType: item.type,
+            milestoneId: item.milestoneId || item.id || `ms-${item.title}`,
+            projectKey: item.projectKey || `${courseId}-project-1`,
             instructions: {
                 intro: `Complete ${item.title} based on course requirements.`,
                 points: [

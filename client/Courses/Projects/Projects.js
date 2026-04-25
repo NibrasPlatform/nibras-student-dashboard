@@ -313,11 +313,23 @@ function updateCourseMeta(course) {
 }
 
 function setupNavigationLinks(courseId) {
-    const links = document.querySelectorAll('.nav-link');
-    links.forEach(link => {
-        const href = link.getAttribute('href');
-        if (href) link.setAttribute('href', `${href}?courseId=${courseId}`);
+    // Update data-nav-link elements
+    const navLinks = [
+        { key: "courseContent", path: "../Course Description/courseContent.html" },
+        { key: "videos", path: "../Videos/videos.html" },
+        { key: "assignments", path: "../Assignments/Assignments.html" },
+        { key: "projects", path: "./Projects.html" },
+        { key: "grades", path: "../Grades/grades.html" },
+    ];
+
+    navLinks.forEach(({ key, path }) => {
+        const el = document.querySelector(`[data-nav-link="${key}"]`);
+        if (el) el.setAttribute("href", window.NibrasCourses.withCourseId(path, courseId));
     });
+
+    // Also update back button
+    const backBtn = document.querySelector(".back-btn");
+    if (backBtn) backBtn.setAttribute("href", window.NibrasCourses.withCourseId("../courses.html", courseId));
 }
 
 function setupThemeToggle() {

@@ -247,6 +247,61 @@ body {
 .meta-row { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem; font-size: 0.9rem; color: var(--text-secondary); }
 .status-badge { color: var(--success); font-weight: 500; display: flex; align-items: center; gap: 6px; }
 
+.lecture-videos-panel {
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-sidebar);
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.lecture-videos-heading {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+}
+
+.lecture-videos-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.6rem;
+}
+
+.lecture-video-chip {
+    width: 100%;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--btn-secondary-bg);
+    color: var(--text-primary);
+    text-align: left;
+    padding: 0.65rem 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.lecture-video-chip:hover {
+    border-color: var(--accent-blue);
+}
+
+.lecture-video-chip.active {
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
+    color: #fff;
+}
+
+.lecture-video-chip-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.lecture-video-chip-time {
+    font-size: 0.75rem;
+    opacity: 0.85;
+}
+
 /* Nav Buttons */
 .nav-buttons { display: flex; justify-content: space-between; margin-top: auto; }
 .nav-btn {

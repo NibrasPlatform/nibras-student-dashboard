@@ -91,7 +91,7 @@ function initCourses() {
         try {
             const remoteCourses = await loadAdminCourses();
             if (!Array.isArray(remoteCourses) || remoteCourses.length === 0) return;
-            coursesData = remoteCourses;
+            coursesData = remoteCourses.filter((course) => course.type === "practice_lab" || course.level === "Beginner");
             filterAndRender(activeCategory);
         } catch (error) {
             console.warn('[COURSES.JS] Failed to hydrate from admin backend:', error?.message || error);

@@ -1,7 +1,8 @@
 (function () {
     const SELECTED_COURSE_KEY = "selectedCourseId";
     const TRACKING_COURSE_KEY = "nibras_tracking_course_id";
-    const DEFAULT_COURSE_ID = "web-development";
+    const DEFAULT_COURSE_ID = "cs106a-programming-methodology";
+    const PRACTICE_LAB_COURSE_ID = "practice-labs";
 
     const gradeScale = [
         { grade: "A", range: "93-100%", color: "a" },
@@ -36,112 +37,142 @@
         "7wtfhZwyrcc",
     ];
 
-    const coursesMeta = [
-        {
-            id: "data-structures-algorithms",
-            code: "CS 201",
-            title: "Data Structures & Algorithms",
-            instructor: "Dr. Sarah Johnson",
-            progress: 75,
-            rating: 4.8,
-            level: "Intermediate",
-            category: "core",
-            deadline: "3 Assignments • Due in 5 days",
-            isPopular: true,
-            topics: ["Arrays & Linked Lists", "Trees & Graphs", "Sorting & Searching", "Dynamic Programming"],
-        },
-        {
-            id: "database-systems",
-            code: "CS 240",
-            title: "Database Systems",
-            instructor: "Prof. Michael Chen",
-            progress: 91,
-            rating: 4.7,
-            level: "Advanced",
-            category: "core",
-            deadline: "Assignment 2 • Due in 3 weeks",
-            isPopular: false,
-            topics: ["SQL Design", "Normalization", "Transactions", "Query Optimization"],
-        },
-        {
-            id: "web-development",
-            code: "CS 101",
-            title: "Web Development",
-            instructor: "Dr. Emily Rodriguez",
-            progress: 92,
-            rating: 4.9,
-            level: "Intermediate",
-            category: "elective",
-            deadline: "7 Quizzes • Due in 2 weeks",
-            isPopular: true,
-            topics: ["HTML & CSS", "JavaScript", "React", "Full-Stack Integration"],
-        },
-        {
-            id: "competitive-programming",
-            code: "CS 310",
-            title: "Competitive Programming",
-            instructor: "Dr. Ahmed Hassan",
-            progress: 69,
-            rating: 4.7,
-            level: "Advanced",
-            category: "comp_prog",
-            deadline: "Weekly Contest • Tomorrow, 2 PM",
-            isPopular: true,
-            topics: ["Greedy Techniques", "Graph Algorithms", "Number Theory", "Contest Strategy"],
-        },
-        {
-            id: "operating-systems",
-            code: "CS 260",
-            title: "Operating Systems",
-            instructor: "Dr. Mariam Mahmoud",
-            progress: 72,
-            rating: 4.7,
-            level: "Advanced",
-            category: "core",
-            deadline: "2 Assignments • Due in 3 days",
-            isPopular: false,
-            topics: ["Processes & Threads", "CPU Scheduling", "Memory Management", "File Systems"],
-        },
-        {
-            id: "it-essentials",
-            code: "IT 110",
-            title: "IT Essentials",
-            instructor: "Dr. Amir Hassan",
-            progress: 34,
-            rating: 4.7,
-            level: "Advanced",
-            category: "elective",
-            deadline: "Weekly Lab • Due in 4 days",
-            isPopular: true,
-            topics: ["Computer Hardware", "Networking Basics", "System Security", "IT Troubleshooting"],
-        },
-        {
-            id: "mathematics-fundamentals",
-            code: "MATH 120",
-            title: "Mathematics Fundamentals",
-            instructor: "Dr. Osama Mohsen",
-            progress: 100,
-            rating: 4.7,
-            level: "Advanced",
-            category: "core",
-            deadline: "3 Assignments • Due in 4 days",
-            isPopular: false,
-            topics: ["Functions & Limits", "Linear Algebra", "Discrete Math", "Probability"],
-        },
-        {
-            id: "human-computer-interaction",
-            code: "CS 330",
-            title: "Human Computer Interaction",
-            instructor: "Dr. Salma Mohamed",
-            progress: 75,
-            rating: 4.7,
-            level: "Advanced",
-            category: "elective",
-            deadline: "Assignment 2 • Due in 2 weeks",
-            isPopular: true,
-            topics: ["UX Principles", "User Research", "Interaction Design", "Usability Testing"],
-        },
+    const instructorRoster = [
+        "Dr. Sarah Johnson",
+        "Prof. Michael Chen",
+        "Dr. Emily Rodriguez",
+        "Dr. Ahmed Hassan",
+        "Dr. Mariam Mahmoud",
+        "Dr. Amir Hassan",
+        "Dr. Osama Mohsen",
+        "Dr. Salma Mohamed",
     ];
+
+    const beginnerCourseRows = [
+        { code: "CS106A", title: "Programming Methodology", category: "core" },
+        { code: "CS106B", title: "Programming Abstractions", category: "core" },
+        { code: "CS106X", title: "Programming Abstractions (Accelerated)", category: "core" },
+        { code: "MATH 18", title: "Foundations for Calculus", category: "core" },
+        { code: "MATH 19", title: "Calculus I", category: "core" },
+        { code: "MATH 20", title: "Calculus II", category: "core" },
+        { code: "MATH 21", title: "Calculus III / Calculus with Infinite Processes", category: "core" },
+        { code: "MATH 51", title: "Linear Algebra, Multivariable Calculus, & Optimization", category: "core" },
+        { code: "MATH 52", title: "Multivariable Integration & Ordinary Differential Equations", category: "core" },
+        { code: "MATH 53", title: "Differential Calculus of Several Variables", category: "core" },
+        { code: "CS 103", title: "Mathematical Foundations of Computing", category: "core" },
+        { code: "CS 109", title: "Probability for Computer Scientists / Theory of Probability", category: "core" },
+        { code: "PHYS 41", title: "Introductory Mechanics Course (Classical Mechanics)", category: "core" },
+        { code: "PHYS 43", title: "Electricity and Magnetism", category: "core" },
+        { code: "BIO", title: "Biology", category: "core" },
+        { code: "CHEM", title: "Chemistry", category: "core" },
+        { code: "MATH 104", title: "Applied Matrix Theory", category: "core" },
+        { code: "MATH 107", title: "Graph Theory", category: "core" },
+        { code: "MATH 108", title: "Introduction to Combinatorics and Its Applications", category: "core" },
+        { code: "MATH 109", title: "Groups and Symmetry", category: "core" },
+        { code: "MATH 110", title: "Number Theory for Cryptography", category: "core" },
+        { code: "MATH 113", title: "Linear Algebra and Matrix Theory", category: "core" },
+        { code: "CS 157", title: "Computational Logic", category: "core" },
+        { code: "CS 205L", title: "Continuous Mathematical Methods with an Emphasis on Machine Learning", category: "core" },
+        { code: "PHIL 251", title: "Metalogic (PHIL 251)", category: "core" },
+        { code: "ENGR 40M", title: "Making: Integrated Engineering", category: "elective" },
+        { code: "ENGR 76", title: "Information Science & Engineering", category: "elective" },
+        { code: "Other EF", title: "See Stanford list of approved EF courses", category: "elective" },
+    ];
+
+    const intermediateCourseRows = [
+        { code: "CS 181", title: "Computers, Ethics, and Public Policy", category: "elective" },
+        { code: "CS 181W", title: "Computers, Ethics, and Public Policy (WIM)", category: "elective" },
+        { code: "STS options", title: "Science, Technology, and Society courses", category: "elective" },
+        { code: "CS 107", title: "Computer Organization & Systems", category: "core" },
+        { code: "CS 110", title: "Principles of Computer Systems / Operating Systems Principles", category: "core" },
+        { code: "CS 161", title: "Design & Analysis of Algorithms", category: "core" },
+        { code: "CS 194", title: "Software Project", category: "core" },
+        { code: "CS 210", title: "Software Project Experience with Corporate Partners", category: "core" },
+        { code: "CS 294", title: "Research Project in Computer Science", category: "core" },
+    ];
+
+    function normalizeCourseField(value) {
+        return String(value || "").replace(/\s+/g, " ").trim();
+    }
+
+    function buildCourseId(code, title) {
+        const base = `${normalizeCourseField(code)}-${normalizeCourseField(title)}`;
+        return base
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "");
+    }
+
+    function buildTopics(code, title) {
+        const normalizedCode = normalizeCourseField(code) || "Course";
+        const normalizedTitle = normalizeCourseField(title) || "Course";
+        const shortTitle = normalizedTitle.split("/")[0].trim();
+        return [
+            `${shortTitle} Fundamentals`,
+            `${normalizedCode} Core Techniques`,
+            `${shortTitle} Problem Solving`,
+            `${shortTitle} Applied Practice`,
+        ];
+    }
+
+    function mapSpreadsheetRowsToMeta(rows, level, seedOffset) {
+        return rows
+            .filter((row) => normalizeCourseField(row?.code) || normalizeCourseField(row?.title))
+            .map((row, index) => {
+                const seed = seedOffset + index;
+                const code = normalizeCourseField(row.code) || `COURSE-${seed + 1}`;
+                const title = normalizeCourseField(row.title) || code;
+                return {
+                    id: buildCourseId(code, title),
+                    code,
+                    title,
+                    instructor: instructorRoster[seed % instructorRoster.length],
+                    progress: toPercent(34 + ((seed * 11) % 61), 50),
+                    rating: Number((4.3 + ((seed % 7) * 0.1)).toFixed(1)),
+                    level,
+                    category: row.category || "core",
+                    deadline: `${2 + (seed % 5)} Assignments - Due in ${3 + (seed % 6)} days`,
+                    isPopular: seed % 4 === 0,
+                    topics: buildTopics(code, title),
+                };
+            });
+    }
+
+    const coursesMeta = [
+        ...mapSpreadsheetRowsToMeta(beginnerCourseRows, "Beginner", 0),
+        ...mapSpreadsheetRowsToMeta(intermediateCourseRows, "Intermediate", beginnerCourseRows.length),
+    ];
+
+    const cs106aMultiVideoLectures = [
+        { title: "Welcome to Code in Place", videos: [{ title: "Welcome", youtubeId: "dxZFXJhZPvU" }, { title: "General Info", youtubeId: "ukpUVAhdo94" }, { title: "Karel", youtubeId: "LpxjnuQwTg4" }] },
+        { title: "Control Flow in Karel", videos: [{ title: "Recap", youtubeId: "xAQlbo82EuU" }, { title: "For Loops", youtubeId: "yVmGFatf-Y8" }, { title: "While Loops", youtubeId: "S5y2u7VITMo" }, { title: "If/Else", youtubeId: "ACkcPIB5SZs" }, { title: "Steeple Chase", youtubeId: "nxu8NBAv2pM" }] },
+        { title: "Decomposition", videos: [{ title: "Recap", youtubeId: "YFWUzglTrBQ" }, { title: "Morning", youtubeId: "Cz-wnRvlAMI" }, { title: "Mountain", youtubeId: "ecqDCBm8tkY" }, { title: "Rhoomba", youtubeId: "JIQr_gtAWrc" }, { title: "WordSearch", youtubeId: "62RtoSXfitU" }] },
+        { title: "Variables in Python", videos: [{ title: "Recap", youtubeId: "pkh2gDQ8tjM" }, { title: "HelloWorld", youtubeId: "wEbmXvfl8TM" }, { title: "Add2Numbers", youtubeId: "oUuIMt5KmyQ" }] },
+        { title: "Expressions", videos: [{ title: "Recap", youtubeId: "YwePpeJn828" }, { title: "Expressions", youtubeId: "iTBsRFnaoJ0" }, { title: "Constants", youtubeId: "sAo9IdC223s" }, { title: "Math Library", youtubeId: "H90Ud28sedo" }, { title: "Random Numbers", youtubeId: "SQ2_cDLgrHI" }, { title: "Dice Simulator", youtubeId: "_rMzEF0v6UI" }] },
+        { title: "Control Flow in Python", videos: [{ title: "Recap", youtubeId: "60AMFkbGZGY" }, { title: "Conditions", youtubeId: "c6CZIQ3UFZE" }, { title: "Guess Num and Sentinel Sum", youtubeId: "Y_IWN4OxhlM" }, { title: "Booleans", youtubeId: "Y7evkU5j7TY" }, { title: "For Loops", youtubeId: "5BTJ4gVXaFQ" }, { title: "GameShow Teaser", youtubeId: "mVoerPV6YLY" }] },
+        { title: "Functions Revisited", videos: [{ title: "Recap with GameShow", youtubeId: "wY68LUvnJ04" }, { title: "Functions are like Toasters", youtubeId: "hmcuptr9WBE" }, { title: "Anatomy of a Function", youtubeId: "lZ8DGnIRsng" }, { title: "Many Examples", youtubeId: "CS-BMynY5ko" }, { title: "I/O", youtubeId: "8vXvRwj8fos" }] },
+        { title: "Functions: More Practice", videos: [{ title: "Recap", youtubeId: "vMy48Q6aPk0" }, { title: "Factorial", youtubeId: "kZpiuJ1r3rg" }, { title: "DocTests", youtubeId: "rXtLAPxeSgI" }, { title: "Passing Primitives", youtubeId: "vmzFKkyjo4o" }, { title: "Calendar", youtubeId: "8PCQndHgkPE" }] },
+        { title: "Images", videos: [{ title: "Recap", youtubeId: "gjT_okH7HD8" }, { title: "Images in Python", youtubeId: "iC82OUseeeY" }, { title: "First Examples", youtubeId: "aeGbb8wC56g" }, { title: "GreenScreen", youtubeId: "pAG9rAqA4N4" }, { title: "Mirrored", youtubeId: "x0PpSbK4k_s" }, { title: "Nested For vs For Each Pixel", youtubeId: "DhohL7AOzsw" }] },
+        { title: "Graphics", videos: [{ title: "Recap", youtubeId: "h9nnz_QSzZA" }, { title: "Blue Rect", youtubeId: "3RMrC1wWyFE" }, { title: "Programming is Awesome", youtubeId: "SfiEWn9RCXM" }, { title: "Checkers", youtubeId: "Y9Qi-6TWwpM" }] },
+        { title: "Animations", videos: [{ title: "Recap", youtubeId: "B8-lPPUU7eY" }, { title: "Animation Loop", youtubeId: "jz02xtVaBo8" }, { title: "Move to Center", youtubeId: "frTXMIWSuq0" }, { title: "Bouncing Ball", youtubeId: "qjsxi3UzoA0" }, { title: "References", youtubeId: "g0G4S_woMRA" }, { title: "Pong", youtubeId: "XcvbczJF6CU" }] },
+        { title: "Lists", videos: [{ title: "Recap with Console", youtubeId: "QioUAmUAIgE" }, { title: "None", youtubeId: "A-NrRd9GyYg" }, { title: "Lists", youtubeId: "vhknJZ-2Bzg" }, { title: "Lists as Parameters", youtubeId: "w4beNu04CMs" }, { title: "AverageScores", youtubeId: "L_TyVmOQq-I" }] },
+        { title: "Text Processing", videos: [{ title: "Hook and Recap", youtubeId: "BQQVnsE2DZI" }, { title: "Working with Strings", youtubeId: "xRhjkyJHFbE" }, { title: "Helpful String Functions", youtubeId: "MOhsuyHr6fU" }, { title: "Just Number and DNA to mRNA", youtubeId: "fNChmzR6rVs" }, { title: "Characters", youtubeId: "SnJYJHmNW7s" }, { title: "Immutable", youtubeId: "-cIzBBzTnK8" }, { title: "ReverseString and Palindrome", youtubeId: "PB4tJZHdcAk" }, { title: "FakeMedicine", youtubeId: "BbE4dnoAmXs" }] },
+        { title: "Dictionaries", videos: [{ title: "Recap with Files", youtubeId: "GyexyR1qwZE" }, { title: "What are Dictionaries", youtubeId: "iW6PlKk5XZk" }, { title: "Mutability and Dictionaries", youtubeId: "vN9qV2hHbGk" }, { title: "Dictionapalooza", youtubeId: "IUTaANNVS_w" }, { title: "CountWords", youtubeId: "Pvcvy0W38T8" }, { title: "PhoneBook", youtubeId: "jx8u6dFUxpY" }] },
+    ];
+
+    const practiceLabMeta = {
+        id: PRACTICE_LAB_COURSE_ID,
+        code: "PRACTICE 001",
+        title: "Practice Labs",
+        instructor: "Competitive Programming • Adaptive Level",
+        progress: 0,
+        rating: 5,
+        level: "Beginner",
+        category: "comp_prog",
+        deadline: "5-10 problems per lab",
+        isPopular: true,
+        topics: ["Topic-based problem sets", "AI hints", "Contest simulation", "Performance analytics"],
+    };
 
     function instructorInitials(name) {
         return name
@@ -175,7 +206,7 @@
             const isCompleted = lessonNumber <= completedLessons;
             const isOpen = lessonNumber <= completedLessons + 1;
             return {
-                id: lessonNumber,
+                id: `${meta.id}-lesson-${lessonNumber}`,
                 title: `Lesson ${lessonNumber}: ${title}`,
                 duration: `${12 + ((seed + index) % 14)}:${(10 + index * 7).toString().padStart(2, "0")}`,
                 completed: isCompleted,
@@ -183,6 +214,37 @@
                 videoSources: {
                     youtube: `https://www.youtube.com/embed/${youtubeIds[(seed + index) % youtubeIds.length]}`,
                     html5: "https://www.w3schools.com/html/mov_bbb.mp4",
+                },
+                captions: { en: null },
+            };
+        });
+    }
+
+    function buildCs106aLessons(meta, completedLessons) {
+        return cs106aMultiVideoLectures.map((lecture, lectureIndex) => {
+            const lectureNumber = lectureIndex + 1;
+            const lessonId = `${meta.id}-lecture-${lectureNumber}`;
+            const isCompleted = lectureNumber <= completedLessons;
+            const isOpen = lectureNumber <= completedLessons + 1;
+            const videoItems = lecture.videos.map((video, videoIndex) => ({
+                id: `${lessonId}-video-${videoIndex + 1}`,
+                title: video.title,
+                duration: `${10 + ((lectureIndex + videoIndex) % 16)}:00`,
+                sourceType: "youtube",
+                youtube: `https://www.youtube.com/embed/${video.youtubeId}`,
+            }));
+
+            return {
+                id: lessonId,
+                title: `Lecture ${lectureNumber}: ${lecture.title}`,
+                duration: `${videoItems.length} videos`,
+                completed: isCompleted,
+                locked: !isOpen,
+                videoItems,
+                activeVideoItemId: videoItems[0]?.id || "",
+                videoSources: {
+                    youtube: videoItems[0]?.youtube || "",
+                    html5: "",
                 },
                 captions: { en: null },
             };
@@ -205,7 +267,7 @@
             const score = status === "graded" ? Math.max(10, points - 2) : null;
             const dueDay = 10 + seed + assignmentNumber * 3;
             return {
-                id: assignmentNumber,
+                id: `${meta.id}-assignment-${assignmentNumber}`,
                 title: `Assignment ${assignmentNumber}: ${meta.topics[index % meta.topics.length]}`,
                 status,
                 statusLabel: statusLabels[status],
@@ -216,6 +278,8 @@
                 dueTime: "11:59 PM",
                 type: assignmentNumber % 2 === 0 ? "Quiz" : "File Upload",
                 action: score !== null ? "View Details" : status === "submitted" ? "View Submission" : "Submit",
+                milestoneId: `${meta.id}-milestone-${assignmentNumber}`,
+                projectKey: `${meta.id}-project-${Math.min(assignmentNumber, 2)}`,
                 page: assignmentNumber === 1 ? "./Assignments Content/AssignmentContent.html" : null,
             };
         });
@@ -274,12 +338,17 @@
 
     function buildCourse(meta, index) {
         const progressPercent = toPercent(meta.progress, 50);
-        const completedLectures = Math.max(1, Math.min(8, Math.round((progressPercent / 100) * 8)));
+        const lectureCount = meta.id === "cs106a-programming-methodology" ? cs106aMultiVideoLectures.length : 8;
+        const completedLectures = Math.max(1, Math.min(lectureCount, Math.round((progressPercent / 100) * lectureCount)));
         const completedAssignments = Math.max(1, Math.min(5, Math.round((progressPercent / 100) * 5)));
         const term = "Fall 2024";
         const currentWeek = Math.max(2, Math.min(8, 2 + index));
         const scoreBase = 60 + progressPercent * 0.35;
         const assignments = buildAssignments(meta, completedAssignments, index);
+        const lessons = meta.id === "cs106a-programming-methodology"
+            ? buildCs106aLessons(meta, completedLectures)
+            : buildLessons(meta, completedLectures, index);
+        const currentLessonId = lessons[0]?.id || "";
 
         return {
             id: meta.id,
@@ -302,7 +371,7 @@
                 },
                 progress: {
                     completedLectures,
-                    totalLectures: 8,
+                    totalLectures: lessons.length,
                     percent: progressPercent,
                     avgScore: `${Math.round(scoreBase)}%`,
                     assignmentsDone: `${completedAssignments}/5`,
@@ -357,9 +426,9 @@
             },
             videos: {
                 title: `${meta.title} Video Lessons`,
-                progress: { completed: completedLectures, total: 8 },
-                currentLessonId: 1,
-                lessons: buildLessons(meta, completedLectures, index),
+                progress: { completed: completedLectures, total: lessons.length },
+                currentLessonId,
+                lessons,
             },
             assignments: {
                 stats: {
@@ -379,6 +448,8 @@
                 dueDate: assignments[0].dueDate,
                 dueTime: assignments[0].dueTime,
                 submissionType: assignments[0].type,
+                milestoneId: assignments[0].milestoneId,
+                projectKey: assignments[0].projectKey,
                 instructions: {
                     intro: `Complete the assignment using concepts from ${meta.topics[0]} and ${meta.topics[1]}.`,
                     points: [
@@ -406,6 +477,8 @@
             projects: {
                 subtitle: `${meta.code}: ${meta.title} • ${term}`,
                 overallProgressPercent: Math.max(30, progressPercent - 10),
+                primaryProjectId: `${meta.id}-project-1`,
+                secondaryProjectId: `${meta.id}-project-2`,
                 primaryProjectTitle: `${meta.title} Applied Project`,
                 secondaryProjectTitle: `${meta.title} Portfolio Challenge`,
                 primaryProjectDescription: `Build an applied solution that demonstrates ${meta.topics[0]}, ${meta.topics[1]}, and ${meta.topics[2]}.`,
@@ -420,6 +493,11 @@
     coursesMeta.forEach((meta, index) => {
         coursesById[meta.id] = buildCourse(meta, index);
     });
+    coursesById[practiceLabMeta.id] = {
+        ...buildCourse(practiceLabMeta, coursesMeta.length),
+        type: "practice_lab",
+        isPractice: true,
+    };
 
     const remoteCourseState = {
         loadingPromise: null,
@@ -744,7 +822,7 @@
     }
 
     async function getAdminCoursesList() {
-        const localCourses = getCoursesList();
+        const localCourses = getAllCoursesList();
         const remoteByLocalId = await loadRemoteCourseMap();
 
         return localCourses.map((course) => {
@@ -845,6 +923,7 @@
 
     function enrichCourseWithIdentifiers(course) {
         if (!course || typeof course !== "object" || !isValidCourseId(course.id)) return course;
+        if (course.type === "practice_lab") return course;
         const identifiers = resolveCourseIdentifiers(course.id);
         if (!identifiers) return course;
         return {
@@ -857,16 +936,21 @@
         };
     }
 
-    function normalizeAssignmentItem(item, index) {
+    function normalizeAssignmentItem(item, index, localCourseId) {
         const pointsRaw = Number(item?.maxScore ?? item?.points ?? item?.totalPoints ?? 100);
         const points = Number.isFinite(pointsRaw) && pointsRaw > 0 ? pointsRaw : 100;
         const scoreRaw = Number(item?.score ?? item?.grade ?? item?.earnedScore);
         const score = Number.isFinite(scoreRaw) ? Math.max(0, Math.min(points, scoreRaw)) : null;
         const status = score !== null ? "graded" : item?.submittedAt ? "submitted" : "not_started";
         const statusLabel = status === "graded" ? "Graded" : status === "submitted" ? "Submitted" : "Not Started";
+        const scopedCourseId = normalizeIdentifierValue(localCourseId) || "course";
+        const fallbackAssignmentId = `${scopedCourseId}-assignment-${index + 1}`;
+        const assignmentId = String(item?._id || item?.id || fallbackAssignmentId);
+        const milestoneId = String(item?.milestoneId || item?.milestone_id || item?._id || `${scopedCourseId}-milestone-${index + 1}`);
+        const projectKey = String(item?.projectKey || item?.project_id || `${scopedCourseId}-project-1`);
 
         return {
-            id: String(item?._id || index + 1),
+            id: assignmentId,
             backendAssignmentId: item?._id || null,
             title: item?.title || `Assignment ${index + 1}`,
             status,
@@ -878,6 +962,8 @@
             dueTime: "11:59 PM",
             type: "File Upload",
             action: score !== null ? "View Details" : "Submit",
+            milestoneId,
+            projectKey,
             page: "./Assignments Content/AssignmentContent.html",
         };
     }
@@ -891,6 +977,8 @@
             dueDate: assignment.dueDate,
             dueTime: assignment.dueTime,
             submissionType: assignment.type,
+            milestoneId: assignment.milestoneId,
+            projectKey: assignment.projectKey,
             instructions: {
                 intro: `Complete this assignment for ${selectedCourse.title}.`,
                 points: [
@@ -943,7 +1031,7 @@
             const rawItems = parseArrayPayload(payload);
             if (!rawItems.length) return null;
 
-            const items = rawItems.map(normalizeAssignmentItem);
+            const items = rawItems.map((item, index) => normalizeAssignmentItem(item, index, normalizedLocalCourseId));
             const gradedItems = items.filter((item) => item.status === "graded");
             const stats = {
                 completed: gradedItems.length,
@@ -979,7 +1067,29 @@
         return remoteCourse;
     }
 
-    function getCoursesList() {
+    function getPracticeLabCourse() {
+        return {
+            id: PRACTICE_LAB_COURSE_ID,
+            title: "Practice Labs",
+            instructor: "Competitive Programming • Adaptive Level",
+            progress: null,
+            rating: null,
+            level: null,
+            deadline: "5-10 problems per lab",
+            isPopular: true,
+            isPractice: true,
+            category: "comp_prog",
+            type: "practice_lab",
+            features: [
+                "Topic-based problem sets",
+                "AI hints & mistake analysis",
+                "Contest simulation mode",
+            ],
+            page: "../Competitions/Practice/practice.html",
+        };
+    }
+
+    function getAllCoursesList() {
         const standardCourses = coursesMeta.map((meta) => {
             const identifiers = resolveCourseIdentifiers(meta.id);
             return {
@@ -1001,32 +1111,15 @@
             };
         });
 
-        return [
-            ...standardCourses,
-            {
-                id: "practice-labs",
-                title: "Practice Labs",
-                instructor: "Competitive Programming • Adaptive Level",
-                progress: null,
-                rating: null,
-                level: null,
-                deadline: "5-10 problems per lab",
-                isPopular: true,
-                isPractice: true,
-                category: "comp_prog",
-                type: "practice_lab",
-                features: [
-                    "Topic-based problem sets",
-                    "AI hints & mistake analysis",
-                    "Contest simulation mode",
-                ],
-                page: "../Competitions/Practice/practice.html",
-            },
-        ];
+        return [...standardCourses, getPracticeLabCourse()];
+    }
+
+    function getCoursesList() {
+        return getAllCoursesList().filter((course) => course.type === "practice_lab" || course.level === "Beginner");
     }
 
     function getIntermediateCoursesList() {
-        return getCoursesList().filter((course) => course.level === "Intermediate");
+        return getAllCoursesList().filter((course) => course.level === "Intermediate");
     }
 
     function getCourseIdFromUrl() {

@@ -34,22 +34,26 @@ window.NibrasReact.run(() => {
     });
 
     function setCourseLinks() {
-        const links = [
-            { selector: '.nav-link[href*="courseContent.html"]', path: "./courseContent.html" },
-            { selector: '.nav-link[href*="videos.html"]', path: "../Videos/videos.html" },
-            { selector: '.nav-link[href*="Assignments.html"]', path: "../Assignments/Assignments.html" },
-            { selector: '.nav-link[href*="Projects.html"]', path: "../Projects/Projects.html" },
-            { selector: '.nav-link[href*="grades.html"]', path: "../Grades/grades.html" },
-            { selector: ".back-btn", path: "../courses.html" },
-            { selector: "#discussion-forum-link", path: "../../Community/CourseDiscussions/discussions.html" },
+        // Update data-nav-link elements
+        const navLinks = [
+            { key: "courseContent", path: "./courseContent.html" },
+            { key: "videos", path: "../Videos/videos.html" },
+            { key: "assignments", path: "../Assignments/Assignments.html" },
+            { key: "projects", path: "../Projects/Projects.html" },
+            { key: "grades", path: "../Grades/grades.html" },
         ];
 
-        links.forEach(({ selector, path }) => {
-            const el = document.querySelector(selector);
-            if (el) {
-                el.setAttribute("href", window.NibrasCourses.withCourseId(path, courseId));
-            }
+        navLinks.forEach(({ key, path }) => {
+            const el = document.querySelector(`[data-nav-link="${key}"]`);
+            if (el) el.setAttribute("href", window.NibrasCourses.withCourseId(path, courseId));
         });
+
+        // Also update back button and discussion forum
+        const backBtn = document.querySelector(".back-btn");
+        if (backBtn) backBtn.setAttribute("href", window.NibrasCourses.withCourseId("../courses.html", courseId));
+
+        const forumLink = document.querySelector("#discussion-forum-link");
+        if (forumLink) forumLink.setAttribute("href", window.NibrasCourses.withCourseId("../../Community/CourseDiscussions/discussions.html", courseId));
     }
 
     setCourseLinks();

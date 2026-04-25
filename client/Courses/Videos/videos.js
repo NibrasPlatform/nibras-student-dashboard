@@ -6,19 +6,24 @@ const courseId = selectedCourse?.id;
 
 function setCourseLinks() {
     if (!courseId) return;
-    const links = [
-        { selector: '.nav-link[href*="courseContent.html"]', path: "../Course Description/courseContent.html" },
-        { selector: '.nav-link[href*="videos.html"]', path: "./videos.html" },
-        { selector: '.nav-link[href*="Assignments.html"]', path: "../Assignments/Assignments.html" },
-        { selector: '.nav-link[href*="Projects.html"]', path: "../Projects/Projects.html" },
-        { selector: '.nav-link[href*="grades.html"]', path: "../Grades/grades.html" },
-        { selector: ".back-btn", path: "../courses.html" },
+
+    // Update data-nav-link elements
+    const navLinks = [
+        { key: "courseContent", path: "../Course Description/courseContent.html" },
+        { key: "videos", path: "./videos.html" },
+        { key: "assignments", path: "../Assignments/Assignments.html" },
+        { key: "projects", path: "../Projects/Projects.html" },
+        { key: "grades", path: "../Grades/grades.html" },
     ];
 
-    links.forEach(({ selector, path }) => {
-        const el = document.querySelector(selector);
+    navLinks.forEach(({ key, path }) => {
+        const el = document.querySelector(`[data-nav-link="${key}"]`);
         if (el) el.setAttribute("href", window.NibrasCourses.withCourseId(path, courseId));
     });
+
+    // Also update back button
+    const backBtn = document.querySelector(".back-btn");
+    if (backBtn) backBtn.setAttribute("href", window.NibrasCourses.withCourseId("../courses.html", courseId));
 }
 
 function initThemeToggle() {
@@ -59,20 +64,24 @@ function initVideos() {
     populateUI(courseData);
     setupVideoPlayer();
     setupLectureListHandler();
+    setupLectureVideoItemsHandler();
     setupNavigationButtons();
     hydrateLessonsFromAdmin();
 }
 
 function populateUI(data) {
     const currentLesson = data.lessons.find((l) => l.id === data.currentLessonId);
+    const activeVideoItem = getActiveVideoItem(currentLesson);
     if (currentLesson) {
         const courseCrumb = document.getElementById("course-title-crumb");
         if (courseCrumb) courseCrumb.textContent = selectedCourse.title;
 
         document.getElementById("lesson-title-crumb").textContent = currentLesson.title;
         document.getElementById("lesson-title-main").textContent = currentLesson.title;
-        document.getElementById("lesson-duration").textContent = `Duration: ${currentLesson.duration}`;
-        document.getElementById("total-time").textContent = currentLesson.duration;
+        const displayedDuration = activeVideoItem?.duration || currentLesson.duration;
+        document.getElementById("lesson-duration").textContent = `Duration: ${displayedDuration}`;
+        document.getElementById("total-time").textContent = displayedDuration;
+        renderLectureVideos(currentLesson, activeVideoItem);
 
         const badge = document.getElementById("lesson-status");
         if (currentLesson.completed) {
@@ -126,29 +135,64 @@ function populateUI(data) {
     if (nextBtn) nextBtn.disabled = currentIndex >= data.lessons.length - 1;
 }
 
+function getActiveVideoItem(lesson) {
+    if (!lesson || !Array.isArray(lesson.videoItems) || lesson.videoItems.length === 0) {
+        return null;
+    }
+    const activeItem = lesson.videoItems.find((item) => item.id === lesson.activeVideoItemId) || lesson.videoItems[0];
+    lesson.activeVideoItemId = activeItem.id;
+    return activeItem;
+}
+
+function renderLectureVideos(lesson, activeVideoItem) {
+    const panel = document.getElementById("lecture-videos-panel");
+    const list = document.getElementById("lecture-videos-list");
+    if (!panel || !list) return;
+
+    if (!lesson || !Array.isArray(lesson.videoItems) || lesson.videoItems.length === 0) {
+        panel.hidden = true;
+        list.innerHTML = "";
+        return;
+    }
+
+    panel.hidden = false;
+    list.innerHTML = lesson.videoItems
+        .map((item) => `
+            <button type="button" class="lecture-video-chip ${activeVideoItem?.id === item.id ? "active" : ""}" data-video-item-id="${item.id}">
+                <span class="lecture-video-chip-title">${item.title}</span>
+                <span class="lecture-video-chip-time">${item.duration || "Video"}</span>
+            </button>
+        `)
+        .join("");
+}
+
 function setupVideoPlayer() {
     const videoContainer = document.querySelector(".video-screen");
     if (!videoContainer) return;
 
     const currentLesson = courseData.lessons.find((l) => l.id === courseData.currentLessonId);
     if (!currentLesson) return;
+    const activeVideoItem = getActiveVideoItem(currentLesson);
+    const html5Source = activeVideoItem?.html5 || currentLesson.videoSources?.html5;
+    const youtubeSource = activeVideoItem?.youtube || currentLesson.videoSources?.youtube;
 
     videoContainer.innerHTML = "";
-    if (currentLesson.videoSources.html5) {
+    if (html5Source) {
         videoContainer.innerHTML = `
             <video id="lesson-video" width="100%" height="100%" style="width: 100%; height: 100%; object-fit: contain; background: #000;">
-                <source src="${currentLesson.videoSources.html5}" type="video/mp4">
+                <source src="${html5Source}" type="video/mp4">
             </video>
         `;
         const video = document.getElementById("lesson-video");
         if (video) setupVideoControls(video);
-    } else if (currentLesson.videoSources.youtube) {
+    } else if (youtubeSource) {
+        const joiner = youtubeSource.includes("?") ? "&" : "?";
         videoContainer.innerHTML = `
             <iframe
                 id="lesson-video-iframe"
                 width="100%"
                 height="100%"
-                src="${currentLesson.videoSources.youtube}?autoplay=0&rel=0&modestbranding=1"
+                src="${youtubeSource}${joiner}autoplay=0&rel=0&modestbranding=1"
                 frameborder="0"
                 allow="autoplay; encrypted-media"
                 allowfullscreen
@@ -309,8 +353,27 @@ function setupLectureListHandler() {
     lectureList.addEventListener("click", (e) => {
         const item = e.target.closest(".lecture-item");
         if (!item || item.classList.contains("locked")) return;
-        const lessonId = Number(item.dataset.lessonId);
+        const lessonId = String(item.dataset.lessonId || "");
         loadLesson(lessonId);
+    });
+}
+
+function setupLectureVideoItemsHandler() {
+    const list = document.getElementById("lecture-videos-list");
+    if (!list) return;
+
+    list.addEventListener("click", (event) => {
+        const button = event.target.closest(".lecture-video-chip[data-video-item-id]");
+        if (!button) return;
+        const currentLesson = courseData.lessons.find((lesson) => lesson.id === courseData.currentLessonId);
+        if (!currentLesson || !Array.isArray(currentLesson.videoItems)) return;
+
+        const videoItemId = String(button.dataset.videoItemId || "");
+        if (!currentLesson.videoItems.some((item) => item.id === videoItemId)) return;
+
+        currentLesson.activeVideoItemId = videoItemId;
+        populateUI(courseData);
+        setupVideoPlayer();
     });
 }
 
@@ -362,7 +425,7 @@ async function hydrateLessonsFromAdmin() {
             if (!remoteSection?.title) return lesson;
             return {
                 ...lesson,
-                title: `Lesson ${lesson.id}: ${remoteSection.title}`,
+                title: `Lesson ${index + 1}: ${remoteSection.title}`,
             };
         });
 
