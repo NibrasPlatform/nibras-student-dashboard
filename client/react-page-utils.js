@@ -1,8 +1,10 @@
 (function () {
-    const FALLBACK_ADMIN_URL = window.NIBRAS_API_URL || window.NIBRAS_BACKEND_URL || 'https://nibras-admin-service-production.up.railway.app/api';
-    const FALLBACK_LEGACY_URL = window.NIBRAS_LEGACY_API_URL || 'https://community-system-production.up.railway.app';
-    const FALLBACK_COMMUNITY_URL = window.NIBRAS_COMMUNITY_API_URL || 'https://nibras-community.fly.dev';
-    const FALLBACK_TRACKING_URL = window.NIBRAS_TRACKING_API_URL || 'https://nibras-api.fly.dev';
+    const MONOLITH_FALLBACK_URL = 'https://nibras-backend.up.railway.app/api';
+    const FALLBACK_ADMIN_URL = window.NIBRAS_API_URL || window.NIBRAS_BACKEND_URL || MONOLITH_FALLBACK_URL;
+    const FALLBACK_LEGACY_URL = window.NIBRAS_LEGACY_API_URL || window.NIBRAS_API_URL || window.NIBRAS_BACKEND_URL || MONOLITH_FALLBACK_URL;
+    const FALLBACK_COMMUNITY_URL = window.NIBRAS_COMMUNITY_API_URL || window.NIBRAS_API_URL || window.NIBRAS_BACKEND_URL || MONOLITH_FALLBACK_URL;
+    const FALLBACK_TRACKING_URL = window.NIBRAS_TRACKING_API_URL || window.NIBRAS_API_URL || window.NIBRAS_BACKEND_URL || MONOLITH_FALLBACK_URL;
+    const FALLBACK_COMPETITIONS_URL = window.NIBRAS_COMPETITIONS_API_URL || window.NIBRAS_API_URL || window.NIBRAS_BACKEND_URL || MONOLITH_FALLBACK_URL;
 
     const onReady = (cb) => {
         if (document.readyState === 'loading') {
@@ -30,6 +32,7 @@
         if (service === 'legacyCommunity') return FALLBACK_LEGACY_URL;
         if (service === 'community') return FALLBACK_COMMUNITY_URL;
         if (service === 'tracking') return FALLBACK_TRACKING_URL;
+        if (service === 'competitions') return FALLBACK_COMPETITIONS_URL;
         return FALLBACK_ADMIN_URL;
     };
 
@@ -526,6 +529,7 @@
         }
     };
 
+    const REFRESH_ELIGIBLE_SERVICES = new Set(['admin', 'legacyCommunity', 'community', 'tracking', 'competitions']);
     let refreshPromise = null;
 
     const refreshAccessToken = async () => {
@@ -578,7 +582,7 @@
         let result = await request(path, requestOptions);
 
         const shouldRetryWithRefresh =
-            service === 'admin' &&
+            REFRESH_ELIGIBLE_SERVICES.has(service) &&
             authEnabled &&
             retryAuth &&
             result.status === 401 &&
@@ -608,12 +612,127 @@
         return result.data;
     };
 
+    let logoutRequestPromise = null;
+
+    const normalizeLogoutRedirect = (href) => {
+        const fallback = '/Login/loginPage/login.html';
+        if (typeof href !== 'string') return fallback;
+        const trimmed = href.trim();
+        if (!trimmed || /^javascript:/i.test(trimmed)) return fallback;
+        return trimmed;
+    };
+
+    const performLogout = async (redirectHref) => {
+        if (logoutRequestPromise) return logoutRequestPromise;
+
+        logoutRequestPromise = (async () => {
+            const refreshToken = getRefreshToken();
+            const targetHref = normalizeLogoutRedirect(redirectHref);
+
+            if (refreshToken) {
+                try {
+                    await apiFetch('/auth/logout', {
+                        service: 'admin',
+                        method: 'POST',
+                        auth: true,
+                        retryAuth: false,
+                        body: { refreshToken },
+                    });
+                } catch (error) {
+                    console.warn('[NibrasAuth] Logout API request failed:', error?.message || error);
+                }
+            }
+
+            clearAuth();
+            window.location.href = targetHref;
+        })().finally(() => {
+            logoutRequestPromise = null;
+        });
+
+        return logoutRequestPromise;
+    };
+
+    const attachLogoutHandlers = () => {
+        if (window.__NIBRAS_LOGOUT_HANDLER_ATTACHED__) return;
+        window.__NIBRAS_LOGOUT_HANDLER_ATTACHED__ = true;
+
+        document.addEventListener('click', (event) => {
+            const target = event.target;
+            if (!target || typeof target.closest !== 'function') return;
+            const logoutLink = target.closest('a.logout-btn, a[data-auth-logout="true"]');
+            if (!logoutLink) return;
+            event.preventDefault();
+            void performLogout(logoutLink.getAttribute('href'));
+        });
+    };
+
+    onReady(() => {
+        attachLogoutHandlers();
+    });
+
     const nibrasApi = Object.freeze({
         resolveServiceUrl,
         getToken,
         buildAuthHeaders,
         request,
     });
+
+    // ============================================================
+    // Session/User Display Utilities
+    // ============================================================
+    const updateUserInfoDisplay = () => {
+        try {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const initials = user?.name
+                ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
+                : 'US';
+            const displayName = user?.name || 'User';
+            const displayRole = user?.role?.name || user?.role || 'student';
+
+            // Update all avatar circles
+            document.querySelectorAll('.avatar-circle, .profile-circle-small').forEach(el => {
+                if (el.textContent.trim() === 'ZA' || el.textContent.trim() === '') {
+                    el.textContent = initials;
+                }
+            });
+
+            // Update user profile name in sidebar
+            const sidebarUserNames = document.querySelectorAll('.user-profile h4');
+            sidebarUserNames.forEach(el => {
+                if (el.textContent.trim() === 'Ziad Alaa' || el.textContent.trim() === '') {
+                    el.textContent = displayName;
+                }
+            });
+
+            // Update user role in sidebar
+            const sidebarUserRoles = document.querySelectorAll('.user-profile span');
+            sidebarUserRoles.forEach(el => {
+                if (el.textContent.trim() === 'student' || el.textContent.trim() === '') {
+                    el.textContent = displayRole;
+                }
+            });
+
+            // Update welcome messages
+            const welcomeMsgs = document.querySelectorAll('#welcome-msg');
+            welcomeMsgs.forEach(el => {
+                const firstName = user?.name ? user.name.split(' ')[0] : 'Student';
+                el.textContent = `Welcome back, ${firstName}!`;
+            });
+
+            return { user, initials, displayName, displayRole };
+        } catch (_) {
+            return null;
+        }
+    };
+
+    const requireAuth = (redirectUrl = '/Login/loginPage/login.html') => {
+        const token = getToken();
+        if (!token) {
+            window.location.href = redirectUrl;
+            return false;
+        }
+        return true;
+    };
 
     window.NibrasApi = nibrasApi;
     window.NibrasShared = {
@@ -622,6 +741,10 @@
         onReady,
         theme: { getTheme, setTheme, toggleTheme },
         auth: { getToken, getRefreshToken, getUser, setAuth, clearAuth, extractAuth, refreshAccessToken, buildAuthHeaders },
+        session: {
+            updateUserInfoDisplay,
+            requireAuth,
+        },
         uiStates: {
             render: renderUiState,
             clear: clearUiState,

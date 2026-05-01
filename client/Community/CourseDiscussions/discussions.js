@@ -8,10 +8,10 @@ window.NibrasReact.run(() => {
     const clearUiState = typeof uiStates.clear === "function" ? uiStates.clear : null;
     const resolveUiStateFromError = typeof uiStates.fromError === "function" ? uiStates.fromError : null;
     const apiFetch = typeof shared.apiFetch === "function" ? shared.apiFetch : null;
-    const ADMIN_FALLBACK_URL = "https://nibras-admin-service-production.up.railway.app/api";
-    const LEGACY_FALLBACK_URL = "https://community-system-production.up.railway.app";
-    const COMMUNITY_FALLBACK_URL = "https://nibras-community.fly.dev";
-    const TRACKING_FALLBACK_URL = "https://nibras-api.fly.dev";
+    const ADMIN_FALLBACK_URL = "https://nibras-backend.up.railway.app/api";
+    const LEGACY_FALLBACK_URL = "https://nibras-backend.up.railway.app/api";
+    const COMMUNITY_FALLBACK_URL = "https://nibras-backend.up.railway.app/api";
+    const TRACKING_FALLBACK_URL = "https://nibras-backend.up.railway.app/api";
 
     const resolveServiceUrl = (service = "community") => {
         if (typeof shared.resolveServiceUrl === "function") {
@@ -36,7 +36,7 @@ window.NibrasReact.run(() => {
     };
 
     const getToken = () => {
-        const sharedToken = shared.auth?.getToken?.();
+        const sharedToken = shared.auth?.getToken?.() || localStorage.getItem('token');
         if (sharedToken) return normalizeToken(sharedToken);
         const apiToken = window.NibrasApi?.getToken?.();
         if (apiToken) return normalizeToken(apiToken);
@@ -114,35 +114,45 @@ window.NibrasReact.run(() => {
         return fallbackRequest(path, Object.assign({ service: "community" }, options));
     };
 
+    const resolveSocketBaseUrl = () => {
+        const normalized = String(resolveServiceUrl("community") || "").replace(/\/+$/, "");
+        if (!normalized) return normalized;
+        return normalized.replace(/\/api(?:\/community)?$/i, "");
+    };
+
     const communityAuthService = services.communityAuthService || {
         getMe: () => requestCommunity("/auth/me", { method: "GET", auth: true }),
     };
     const communityCourseService = services.communityCourseService || {
-        list: (filters = {}) => requestCommunity(`/courses${toQueryString(filters)}`, { method: "GET", auth: false }),
+        list: (filters = {}) => requestCommunity(`/courses${toQueryString(filters)}`, { method: "GET", auth: true }),
         enroll: (courseId) => requestCommunity(`/courses/${courseId}/enroll`, { method: "POST", auth: true, body: {} }),
         unenroll: (courseId) => requestCommunity(`/courses/${courseId}/enroll`, { method: "DELETE", auth: true }),
     };
+    let enrollmentApiSupported = (
+        typeof communityCourseService.enroll === "function" &&
+        typeof communityCourseService.unenroll === "function"
+    );
     const threadService = services.threadService || {
         listByCourse: (courseId, filters = {}) =>
-            requestCommunity(`/threads/course/${courseId}${toQueryString(filters)}`, { method: "GET", auth: true }),
+            requestCommunity(`/community/threads/course/${courseId}${toQueryString(filters)}`, { method: "GET", auth: true }),
         create: (courseId, data) =>
-            requestCommunity(`/threads/${courseId}`, { method: "POST", auth: true, body: data }),
+            requestCommunity(`/community/threads/${courseId}`, { method: "POST", auth: true, body: data }),
         pin: (threadId) =>
-            requestCommunity(`/threads/${threadId}/pin`, { method: "PATCH", auth: true, body: {} }),
+            requestCommunity(`/community/threads/${threadId}/pin`, { method: "PATCH", auth: true, body: {} }),
         unpin: (threadId) =>
-            requestCommunity(`/threads/${threadId}/unpin`, { method: "PATCH", auth: true, body: {} }),
+            requestCommunity(`/community/threads/${threadId}/unpin`, { method: "PATCH", auth: true, body: {} }),
         close: (threadId) =>
-            requestCommunity(`/threads/${threadId}/close`, { method: "PATCH", auth: true, body: {} }),
+            requestCommunity(`/community/threads/${threadId}/close`, { method: "PATCH", auth: true, body: {} }),
         open: (threadId) =>
-            requestCommunity(`/threads/${threadId}/open`, { method: "PATCH", auth: true, body: {} }),
+            requestCommunity(`/community/threads/${threadId}/open`, { method: "PATCH", auth: true, body: {} }),
         delete: (threadId) =>
-            requestCommunity(`/threads/${threadId}`, { method: "DELETE", auth: true }),
+            requestCommunity(`/community/threads/${threadId}`, { method: "DELETE", auth: true }),
     };
     const communityVoteService = services.communityVoteService || {
         cast: (data) =>
-            requestCommunity("/votes", { method: "POST", auth: true, body: data }),
+            requestCommunity("/community/votes", { method: "POST", auth: true, body: data }),
         getMyVote: ({ targetType, targetId }) =>
-            requestCommunity(`/votes/${targetType}/${targetId}`, { method: "GET", auth: true }),
+            requestCommunity(`/community/votes/${targetType}/${targetId}`, { method: "GET", auth: true }),
     };
 
     const elements = {
@@ -304,18 +314,16 @@ window.NibrasReact.run(() => {
     }
 
     async function bootstrap() {
-        await Promise.all([
-            loadCurrentUser(),
-            loadCommunityCourses(),
-        ]);
-
-        pickInitialCommunityCourse();
-        renderCourseSelect();
-        renderEnrollmentState();
+        await loadCurrentUser();
         if (!state.user) {
             renderAuthRequiredState();
             return;
         }
+        await loadCommunityCourses();
+
+        pickInitialCommunityCourse();
+        renderCourseSelect();
+        renderEnrollmentState();
         initSocket();
         await loadThreads({ announce: true });
     }
@@ -450,6 +458,12 @@ window.NibrasReact.run(() => {
             return;
         }
 
+        if (!enrollmentApiSupported) {
+            elements.enrollmentButton.textContent = "Enrollment unavailable";
+            elements.enrollmentButton.disabled = true;
+            return;
+        }
+
         elements.enrollmentButton.disabled = !state.communityCourseId;
         if (enrollment.privileged) {
             elements.enrollmentButton.textContent = "Instructor/Admin access";
@@ -462,18 +476,28 @@ window.NibrasReact.run(() => {
 
     async function toggleEnrollment() {
         if (!state.communityCourseId || !state.user) return;
+        if (!enrollmentApiSupported) return;
         const enrollment = getEnrollmentState();
         if (enrollment.privileged) return;
 
-        if (enrollment.enrolled) {
-            await communityCourseService.unenroll(state.communityCourseId);
-            showNotice("You have been unenrolled from this course.", "info");
-        } else {
-            await communityCourseService.enroll(state.communityCourseId);
-            showNotice("Enrollment successful.", "info");
+        try {
+            if (enrollment.enrolled) {
+                await communityCourseService.unenroll(state.communityCourseId);
+                showNotice("You have been unenrolled from this course.", "info");
+            } else {
+                await communityCourseService.enroll(state.communityCourseId);
+                showNotice("Enrollment successful.", "info");
+            }
+            await refreshAll({ announce: false });
+        } catch (error) {
+            if (isEnrollmentApiUnavailableError(error)) {
+                enrollmentApiSupported = false;
+                renderEnrollmentState();
+                showNotice("Enrollment endpoint is unavailable on this backend.", "error");
+                return;
+            }
+            throw error;
         }
-
-        await refreshAll({ announce: false });
     }
 
     async function createThread() {
@@ -676,7 +700,7 @@ window.NibrasReact.run(() => {
 
     function initSocket() {
         if (typeof window.io !== "function") return;
-        const baseUrl = resolveServiceUrl("community");
+        const baseUrl = resolveSocketBaseUrl();
         state.socket = window.io(baseUrl, {
             transports: ["websocket", "polling"],
         });
@@ -742,6 +766,20 @@ window.NibrasReact.run(() => {
         const enrolledCourses = Array.isArray(state.user?.enrolledCourses) ? state.user.enrolledCourses : [];
         const enrolled = enrolledCourses.some((entry) => normalizeIdentifier(entry?.course?._id || entry?.course) === normalizeIdentifier(state.communityCourseId));
         return { enrolled, privileged: false };
+    }
+
+    function isEnrollmentApiUnavailableError(error) {
+        const status = Number(error?.status || error?.payload?.code || 0);
+        if (status === 404 || status === 405 || status === 501) return true;
+        const message = String(error?.message || error?.payload?.message || "").toLowerCase();
+        return (
+            message.includes("enroll") &&
+            (
+                message.includes("not found") ||
+                message.includes("not implemented") ||
+                message.includes("unsupported")
+            )
+        );
     }
 
     function findCourseById(courseId) {

@@ -160,6 +160,69 @@
         { title: "Dictionaries", videos: [{ title: "Recap with Files", youtubeId: "GyexyR1qwZE" }, { title: "What are Dictionaries", youtubeId: "iW6PlKk5XZk" }, { title: "Mutability and Dictionaries", youtubeId: "vN9qV2hHbGk" }, { title: "Dictionapalooza", youtubeId: "IUTaANNVS_w" }, { title: "CountWords", youtubeId: "Pvcvy0W38T8" }, { title: "PhoneBook", youtubeId: "jx8u6dFUxpY" }] },
     ];
 
+    const cs106bMultiVideoLectures = [
+        { title: "About the CS106 Series at Stanford", videos: [{ title: "Lecture 1", videoUrl: "http://html5.stanford.edu/videos/courses/see/CS106B/CS106B-lecture01.mp4" }] },
+        { title: "Similarity between C++ & Java", videos: [{ title: "Lecture 2", videoUrl: "http://html5.stanford.edu/videos/courses/see/CS106B/CS106B-lecture02.mp4" }] },
+        { title: "C++ Libraries - Standard Libraries", videos: [{ title: "Lecture 3", videoUrl: "http://html5.stanford.edu/videos/courses/see/CS106B/CS106B-lecture03.mp4" }] },
+        { title: "C++ Console I/O", videos: [{ title: "Lecture 4", videoUrl: "http://html5.stanford.edu/videos/courses/see/CS106B/CS106B-lecture04.mp4" }] },
+        { title: "Client Use of Templates", videos: [{ title: "Lecture 5", videoUrl: "http://html5.stanford.edu/videos/courses/see/CS106B/CS106B-lecture05.mp4" }] },
+        { title: "More Containers", videos: [{ title: "Lecture 6", videoUrl: "http://html5.stanford.edu/videos/courses/see/CS106B/CS106B-lecture06.mp4" }] },
+        { title: "Seeing Functions as Data", videos: [{ title: "Lecture 7", videoUrl: "http://html5.stanford.edu/videos/courses/see/CS106B/CS106B-lecture07.mp4" }] },
+        { title: "Common Mistakes Stumbled Upon", videos: [{ title: "Lecture 8", videoUrl: "http://html5.stanford.edu/videos/courses/see/CS106B/CS106B-lecture08.mp4" }] },
+        { title: "Thinking Recursively", videos: [{ title: "Lecture 9", videoUrl: "http://html5.stanford.edu/videos/courses/see/CS106B/CS106B-lecture09.mp4" }] },
+        { title: "Refresh: Permute Code", videos: [{ title: "Lecture 10", videoUrl: "http://html5.stanford.edu/videos/courses/see/CS106B/CS106B-lecture10.mp4" }] },
+        { title: "Backtracking Pseudocode", videos: [{ title: "Lecture 11", videoUrl: "http://html5.stanford.edu/videos/courses/see/CS106B/CS106B-lecture11.mp4" }] },
+        { title: "Pointer Movie", videos: [{ title: "Lecture 12", videoUrl: "http://html5.stanford.edu/videos/courses/see/CS106B/CS106B-lecture12.mp4" }] },
+        { title: "Coding with Linked List", videos: [{ title: "Lecture 13", videoUrl: "http://html5.stanford.edu/videos/courses/see/CS106B/CS106B-lecture13.mp4" }] },
+        { title: "Algorithm Analysis", videos: [{ title: "Lecture 14", videoUrl: "http://html5.stanford.edu/videos/courses/see/CS106B/CS106B-lecture14.mp4" }] },
+        { title: "Selection Sort", videos: [{ title: "Lecture 15", videoUrl: "http://html5.stanford.edu/videos/courses/see/CS106B/CS106B-lecture15.mp4" }] },
+        { title: "Partitioning for Quicksort", videos: [{ title: "Lecture 16", videoUrl: "http://html5.stanford.edu/videos/courses/see/CS106B/CS106B-lecture16.mp4" }] },
+        { title: "Sort Template with Callback", videos: [{ title: "Lecture 17", videoUrl: "http://html5.stanford.edu/videos/courses/see/CS106B/CS106B-lecture17.mp4" }] },
+        { title: "Abstract Data Types", videos: [{ title: "Lecture 18", videoUrl: "http://html5.stanford.edu/videos/courses/see/CS106B/CS106B-lecture18.mp4" }] },
+        { title: "Rules of Template Implementation", videos: [{ title: "Lecture 19", videoUrl: "http://html5.stanford.edu/videos/courses/see/CS106B/CS106B-lecture19.mp4" }] },
+        { title: "Live Coding: Recap of Vector-based Implementation for Stack", videos: [{ title: "Lecture 20", videoUrl: "http://html5.stanford.edu/videos/courses/see/CS106B/CS106B-lecture20.mp4" }] },
+        { title: "Buffer: Vector vs Stack", videos: [{ title: "Lecture 21", videoUrl: "http://html5.stanford.edu/videos/courses/see/CS106B/CS106B-lecture21.mp4" }] },
+        { title: "Map as Vector", videos: [{ title: "Lecture 22", videoUrl: "http://html5.stanford.edu/videos/courses/see/CS106B/CS106B-lecture22.mp4" }] },
+        { title: "Pathfinder Demo", videos: [{ title: "Lecture 23", videoUrl: "http://html5.stanford.edu/videos/courses/see/CS106B/CS106B-lecture23.mp4" }] },
+        { title: "Compare Map Implementations", videos: [{ title: "Lecture 24", videoUrl: "http://html5.stanford.edu/videos/courses/see/CS106B/CS106B-lecture24.mp4" }] },
+        { title: "Lexicon Case Study", videos: [{ title: "Lecture 25", videoUrl: "http://html5.stanford.edu/videos/courses/see/CS106B/CS106B-lecture25.mp4" }] },
+        { title: "Final Showdown", videos: [{ title: "Lecture 26", videoUrl: "http://html5.stanford.edu/videos/courses/see/CS106B/CS106B-lecture26.mp4" }] },
+        { title: "Guest Lecturer: Keith Schwarz", videos: [{ title: "Lecture 27", videoUrl: "http://html5.stanford.edu/videos/courses/see/CS106B/CS106B-lecture27.mp4" }] },
+    ];
+
+    const cs106xMultiVideoLectures = [
+        { title: "Introduction", videos: [{ title: "Lecture 1", bilibiliId: "BV1PK411A7S4", page: 1 }] },
+        { title: "Functions", videos: [{ title: "Lecture 2", bilibiliId: "BV1PK411A7S4", page: 2 }] },
+        { title: "Strings, Streams, Grid", videos: [{ title: "Lecture 3", bilibiliId: "BV1PK411A7S4", page: 3 }] },
+        { title: "Vector, Big-Oh", videos: [{ title: "Lecture 4", bilibiliId: "BV1PK411A7S4", page: 4 }] },
+        { title: "Stacks and Queues", videos: [{ title: "Lecture 5", bilibiliId: "BV1PK411A7S4", page: 5 }] },
+        { title: "Sets and Maps", videos: [{ title: "Lecture 6", bilibiliId: "BV1PK411A7S4", page: 6 }] },
+        { title: "Recursion", videos: [{ title: "Lecture 7", bilibiliId: "BV1PK411A7S4", page: 7 }] },
+        { title: "Recursion 2", videos: [{ title: "Lecture 8", bilibiliId: "BV1PK411A7S4", page: 8 }] },
+        { title: "Recursion 3, Fractals", videos: [{ title: "Lecture 9", bilibiliId: "BV1PK411A7S4", page: 9 }] },
+        { title: "Exhaustive Search", videos: [{ title: "Lecture 10", bilibiliId: "BV1PK411A7S4", page: 10 }] },
+        { title: "Backtracking", videos: [{ title: "Lecture 11", bilibiliId: "BV1PK411A7S4", page: 11 }] },
+        { title: "Backtracking 2", videos: [{ title: "Lecture 12", bilibiliId: "BV1PK411A7S4", page: 12 }] },
+        { title: "Pointers and Nodes", videos: [{ title: "Lecture 13", bilibiliId: "BV1PK411A7S4", page: 13 }] },
+        { title: "Linked Lists", videos: [{ title: "Lecture 14", bilibiliId: "BV1PK411A7S4", page: 14 }] },
+        { title: "Linked Lists 2", videos: [{ title: "Lecture 15", bilibiliId: "BV1PK411A7S4", page: 15 }] },
+        { title: "Classes", videos: [{ title: "Lecture 16", bilibiliId: "BV1PK411A7S4", page: 16 }] },
+        { title: "Classes 2; Skip Lists", videos: [{ title: "Lecture 17", bilibiliId: "BV1PK411A7S4", page: 17 }] },
+        { title: "Arrays", videos: [{ title: "Lecture 18", bilibiliId: "BV1PK411A7S4", page: 18 }] },
+        { title: "Recursion 4, Memoization", videos: [{ title: "Lecture 19", bilibiliId: "BV1PK411A7S4", page: 19 }] },
+        { title: "Recursion 5, Sudoku", videos: [{ title: "Lecture 20", bilibiliId: "BV1PK411A7S4", page: 20 }] },
+        { title: "Implementing Map", videos: [{ title: "Lecture 21", bilibiliId: "BV1PK411A7S4", page: 21 }] },
+        { title: "Graphs 1, DFS", videos: [{ title: "Lecture 22", bilibiliId: "BV1PK411A7S4", page: 22 }] },
+        { title: "Graphs 2, BFS, Dijkstra", videos: [{ title: "Lecture 23", bilibiliId: "BV1PK411A7S4", page: 23 }] },
+        { title: "Graphs 3 - A*, Kruskal", videos: [{ title: "Lecture 24", bilibiliId: "BV1PK411A7S4", page: 24 }] },
+        { title: "Graphs 4 - Topological Sort", videos: [{ title: "Lecture 25", bilibiliId: "BV1PK411A7S4", page: 25 }] },
+        { title: "Inheritance, Hashing", videos: [{ title: "Lecture 26", bilibiliId: "BV1PK411A7S4", page: 26 }] },
+        { title: "Hashing 2, Inheritance 2", videos: [{ title: "Lecture 27", bilibiliId: "BV1PK411A7S4", page: 27 }] },
+        { title: "Sorting", videos: [{ title: "Lecture 28", bilibiliId: "BV1PK411A7S4", page: 28 }] },
+        { title: "Templates, STL", videos: [{ title: "Lecture 29", bilibiliId: "BV1PK411A7S4", page: 29 }] },
+        { title: "What's Next", videos: [{ title: "Lecture 30", bilibiliId: "BV1PK411A7S4", page: 30 }] },
+    ];
+
     const practiceLabMeta = {
         id: PRACTICE_LAB_COURSE_ID,
         code: "PRACTICE 001",
@@ -245,6 +308,69 @@
                 videoSources: {
                     youtube: videoItems[0]?.youtube || "",
                     html5: "",
+                },
+                captions: { en: null },
+            };
+        });
+    }
+
+    function buildCs106bLessons(meta, completedLessons) {
+        return cs106bMultiVideoLectures.map((lecture, lectureIndex) => {
+            const lectureNumber = lectureIndex + 1;
+            const lessonId = `${meta.id}-lecture-${lectureNumber}`;
+            const isCompleted = lectureNumber <= completedLessons;
+            const isOpen = lectureNumber <= completedLessons + 1;
+            const videoItems = lecture.videos.map((video, videoIndex) => ({
+                id: `${lessonId}-video-${videoIndex + 1}`,
+                title: video.title,
+                duration: `${40 + ((lectureIndex + videoIndex) % 15)}:00`,
+                sourceType: "html5",
+                html5: video.videoUrl || "",
+            }));
+
+            return {
+                id: lessonId,
+                title: `Lecture ${lectureNumber}: ${lecture.title}`,
+                duration: `${videoItems.length} video`,
+                completed: isCompleted,
+                locked: !isOpen,
+                videoItems,
+                activeVideoItemId: videoItems[0]?.id || "",
+                videoSources: {
+                    youtube: "",
+                    html5: videoItems[0]?.html5 || "",
+                },
+                captions: { en: null },
+            };
+        });
+    }
+
+    function buildCs106xLessons(meta, completedLessons) {
+        return cs106xMultiVideoLectures.map((lecture, lectureIndex) => {
+            const lectureNumber = lectureIndex + 1;
+            const lessonId = `${meta.id}-lecture-${lectureNumber}`;
+            const isCompleted = lectureNumber <= completedLessons;
+            const isOpen = lectureNumber <= completedLessons + 1;
+            const videoItems = lecture.videos.map((video, videoIndex) => ({
+                id: `${lessonId}-video-${videoIndex + 1}`,
+                title: video.title,
+                duration: `${45 + ((lectureIndex + videoIndex) % 10)}:00`,
+                sourceType: "bilibili",
+                bilibili: `https://player.bilibili.com/player.html?bvid=${video.bilibiliId}&page=${video.page}`,
+            }));
+
+            return {
+                id: lessonId,
+                title: `Lecture ${lectureNumber}: ${lecture.title}`,
+                duration: `${videoItems.length} video`,
+                completed: isCompleted,
+                locked: !isOpen,
+                videoItems,
+                activeVideoItemId: videoItems[0]?.id || "",
+                videoSources: {
+                    youtube: "",
+                    html5: "",
+                    bilibili: videoItems[0]?.bilibili || "",
                 },
                 captions: { en: null },
             };
@@ -338,7 +464,7 @@
 
     function buildCourse(meta, index) {
         const progressPercent = toPercent(meta.progress, 50);
-        const lectureCount = meta.id === "cs106a-programming-methodology" ? cs106aMultiVideoLectures.length : 8;
+        const lectureCount = meta.id === "cs106a-programming-methodology" ? cs106aMultiVideoLectures.length : (meta.id === "cs106b-programming-abstractions" ? cs106bMultiVideoLectures.length : (meta.id === "cs106x-programming-abstractions-accelerated" ? cs106xMultiVideoLectures.length : 8));
         const completedLectures = Math.max(1, Math.min(lectureCount, Math.round((progressPercent / 100) * lectureCount)));
         const completedAssignments = Math.max(1, Math.min(5, Math.round((progressPercent / 100) * 5)));
         const term = "Fall 2024";
@@ -347,7 +473,11 @@
         const assignments = buildAssignments(meta, completedAssignments, index);
         const lessons = meta.id === "cs106a-programming-methodology"
             ? buildCs106aLessons(meta, completedLectures)
-            : buildLessons(meta, completedLectures, index);
+            : meta.id === "cs106b-programming-abstractions"
+                ? buildCs106bLessons(meta, completedLectures)
+                : meta.id === "cs106x-programming-abstractions-accelerated"
+                    ? buildCs106xLessons(meta, completedLectures)
+                    : buildLessons(meta, completedLectures, index);
         const currentLessonId = lessons[0]?.id || "";
 
         return {

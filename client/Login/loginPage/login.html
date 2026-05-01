@@ -46,6 +46,20 @@
 
             <div class="form-wrapper">
                 <h2>Login to your account</h2>
+                <p id="loginNotice" class="auth-notice" hidden></p>
+                <form id="otpVerifyForm" class="otp-assist" hidden>
+                    <h3>Verify your email OTP</h3>
+                    <p class="auth-note">Your account is pending verification. Enter the OTP sent to your Gmail inbox.</p>
+                    <div class="form-group">
+                        <label>Email (Gmail only)</label>
+                        <input type="email" id="otpEmailInput" placeholder="name@gmail.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>OTP code</label>
+                        <input type="text" id="otpCodeInput" inputmode="numeric" maxlength="6" placeholder="6-digit OTP" required>
+                    </div>
+                    <button type="submit" class="btn-login">Verify OTP</button>
+                </form>
 
                 <!-- Role Selector -->
                 <div class="role-selector">
@@ -66,8 +80,8 @@
                 <!-- Inputs -->
                 <form id="loginForm">
                     <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" placeholder="name@gmail.com" value="name@gmail.com">
+                        <label>Email (Gmail only)</label>
+                        <input type="email" id="emailInput" placeholder="name@gmail.com" value="name@gmail.com">
                     </div>
 
                     <div class="form-group">
@@ -95,6 +109,10 @@
                         Don't Have An Account ? <a href="../signupPage/signup.html">Sign Up</a>
                     </div>
                 </form>
+
+                <div class="auth-divider" aria-hidden="true"><span>or</span></div>
+                <div id="googleSignInContainer" class="google-signin-container"></div>
+                <p id="googleAuthStatus" class="auth-note" hidden></p>
             </div>
 
         </div>

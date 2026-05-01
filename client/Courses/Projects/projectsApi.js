@@ -21,7 +21,7 @@
         const settings = {
             baseUrl: String(options.baseUrl || DEFAULT_BACKEND_URL).replace(/\/+$/, ''),
             mockMode: Boolean(options.mockMode),
-            getAuthToken: options.getAuthToken || (() => global.NibrasShared?.auth?.getToken?.() || global.NibrasApi?.getToken?.() || null),
+            getAuthToken: options.getAuthToken || (() => global.NibrasShared?.auth?.getToken?.() || global.NibrasApi?.getToken?.() || global.localStorage?.getItem('token') || null),
             fetchImpl: options.fetchImpl || (typeof global.fetch === 'function' ? global.fetch.bind(global) : null),
         };
 

@@ -301,6 +301,46 @@ window.NibrasReact.run(() => {
         return err.message || 'Something went wrong.';
     };
 
+    const extractPayloadData = (payload) => {
+        if (payload == null || typeof payload !== 'object') return null;
+        return Object.prototype.hasOwnProperty.call(payload, 'data') ? payload.data : payload;
+    };
+
+    const extractQuestionEntity = (payload) => {
+        const data = extractPayloadData(payload);
+        const candidates = [payload?.question, data?.question, data];
+        for (let i = 0; i < candidates.length; i += 1) {
+            const candidate = candidates[i];
+            if (!candidate || typeof candidate !== 'object') continue;
+            if (candidate._id || candidate.id) return candidate;
+        }
+        return null;
+    };
+
+    const AI_PUBLISHED_QUESTIONS_KEY = 'nibras_ai_published_questions_v1';
+    const normalizeAnswerFingerprint = (value) =>
+        String(value || '')
+            .replace(/<!--\s*NIBRAS_AI_TUTOR\s*-->/gi, '')
+            .replace(/\s+/g, ' ')
+            .trim()
+            .toLowerCase();
+
+    const rememberAiPublishedQuestion = (questionId, answerText) => {
+        if (!questionId) return;
+        const answerFingerprint = normalizeAnswerFingerprint(answerText);
+        if (!answerFingerprint) return;
+        try {
+            const parsed = JSON.parse(localStorage.getItem(AI_PUBLISHED_QUESTIONS_KEY) || '{}');
+            parsed[String(questionId)] = {
+                answerFingerprint,
+                updatedAt: Date.now(),
+            };
+            localStorage.setItem(AI_PUBLISHED_QUESTIONS_KEY, JSON.stringify(parsed));
+        } catch (_) {
+            // no-op when storage is unavailable
+        }
+    };
+
     const setAskLoading = (loading) => {
         if (!askAiBtn) return;
         if (!askAiBtn.dataset.defaultHtml) {
@@ -389,15 +429,16 @@ window.NibrasReact.run(() => {
             questionInput.disabled = true;
             setTutorNotice('loading', 'Generating your AI Tutor response...');
             try {
-                const payload = await postJson('/api/chatbot/ask', {
-                    question: trimmed,
-                });
-                const data = payload && payload.data;
+                const chatbotService = window.NibrasServices?.chatbotService || null;
+                const payload = chatbotService?.ask
+                    ? await chatbotService.ask(trimmed)
+                    : await postJson('/community/chatbot/ask', { question: trimmed });
+                const data = extractPayloadData(payload);
                 if (!data) {
                     throw new Error('Unexpected response from server.');
                 }
                 sessionQuestion = trimmed;
-                sessionFinalAnswer = String(data.finalAnswer != null ? data.finalAnswer : '');
+                sessionFinalAnswer = String(data.finalAnswer != null ? data.finalAnswer : '').trim();
                 sessionTags = Array.isArray(data.tags) ? data.tags :[];
                 const rawHints = Array.isArray(data.hints) ? data.hints : [];
                 sessionHints = rawHints.map(normalizeHint).filter(Boolean);
@@ -534,14 +575,23 @@ window.NibrasReact.run(() => {
                 '<i class="fa-solid fa-spinner fa-spin"></i> Publishing...';
             setTutorNotice('loading', 'Publishing your AI answer to the community...');
             try {
-                const payload = await postJson('/api/chatbot/publish', {
+                const chatbotService = window.NibrasServices?.chatbotService || null;
+                const payload = chatbotService?.publish
+                    ? await chatbotService.publish({
+                        title,
+                        question: sessionQuestion,
+                        finalAnswer: sessionFinalAnswer,
+                        tags: sessionTags,
+                    })
+                    : await postJson('/community/chatbot/publish', {
                     title,
                     question: sessionQuestion,
                     finalAnswer: sessionFinalAnswer,
                     tags: sessionTags,
                 });
-                const q = payload && payload.data && payload.data.question;
+                const q = extractQuestionEntity(payload);
                 const id = q && (q._id || q.id);
+                rememberAiPublishedQuestion(id, sessionFinalAnswer);
                 closeModal();
                 if (id) {
                     const go = confirm(

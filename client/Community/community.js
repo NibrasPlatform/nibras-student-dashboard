@@ -1,9 +1,14 @@
 window.NibrasReact.run(() => {
 
+    // Initialize user session display (avatar, name, role)
+    if (window.NibrasShared?.session?.updateUserInfoDisplay) {
+        window.NibrasShared.session.updateUserInfoDisplay();
+    }
+
     // ==========================================
     // ⚙️ CONFIGURATION
     // ==========================================
-    const DEFAULT_LEGACY_COMMUNITY_URL = 'https://community-system-production.up.railway.app';
+    const DEFAULT_LEGACY_COMMUNITY_URL = 'https://nibras-backend.up.railway.app/api';
     const BACKEND_URL =
         window.NibrasShared?.resolveServiceUrl?.('legacyCommunity') ||
         window.NibrasApi?.resolveServiceUrl?.('legacyCommunity') ||
@@ -18,7 +23,7 @@ window.NibrasReact.run(() => {
     let askEditor = null;
 
     function getToken() {
-        return sharedAuth?.getToken?.() || window.NibrasApi?.getToken?.() || null;
+        return sharedAuth?.getToken?.() || window.NibrasApi?.getToken?.() || localStorage.getItem('token') || null;
     }
 
     function buildAuthHeaders(headers = {}, options = {}) {
@@ -95,10 +100,26 @@ window.NibrasReact.run(() => {
 
     function buildPathCandidates(path) {
         const normalized = normalizePath(path);
-        if (!normalized.startsWith('/api/')) {
-            return [normalized, `/api${normalized}`];
+        const isAuthPath = /^\/(?:api\/)?auth(?:\/|$)/i.test(normalized);
+        const isCommunityPath = /^\/(?:api\/)?community(?:\/|$)/i.test(normalized);
+
+        if (isAuthPath) {
+            return dedupeList([
+                normalized.startsWith('/api/') ? normalized.replace(/^\/api/i, '') || '/' : normalized,
+                normalized.startsWith('/api/') ? normalized : `/api${normalized}`,
+            ]);
         }
-        return [normalized, normalized.replace(/^\/api/i, '') || '/'];
+
+        const communityPath = isCommunityPath
+            ? (normalized.startsWith('/api/') ? normalized.replace(/^\/api/i, '') : normalized)
+            : `/community${normalized}`;
+
+        return dedupeList([
+            communityPath,
+            `/api${communityPath}`,
+            normalized.startsWith('/api/') ? normalized.replace(/^\/api/i, '') || '/' : normalized,
+            normalized.startsWith('/api/') ? normalized : `/api${normalized}`,
+        ]);
     }
 
     async function requestLegacyApi(path, options = {}) {

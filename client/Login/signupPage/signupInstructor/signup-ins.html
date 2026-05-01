@@ -45,8 +45,9 @@
     <!-- Main Content -->
     <div class="auth-container">
         <div class="auth-card">
-            
+             
             <h2 class="auth-title">Create an account</h2>
+            <p id="signupNotice" class="auth-notice" hidden></p>
 
             <form id="signupForm">
                 <div class="form-group">
@@ -55,14 +56,14 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Email</label>
+                    <label>Email (Gmail only)</label>
                     <input type="email" id="emailInput" placeholder="name@gmail.com" class="form-control" required>
                 </div>
 
                 <div class="form-group">
                     <label>Password</label>
                     <div class="password-input-wrapper">
-                        <input type="password" placeholder="Enter your password" class="form-control" id="passInput">
+                        <input type="password" placeholder="Enter your password" class="form-control" id="passInput" required>
                         <i class="fa-regular fa-eye toggle-password" onclick="togglePass('passInput', this)"></i>
                     </div>
                 </div>
@@ -70,28 +71,44 @@
                 <div class="form-group">
                     <label>Confirm Password</label>
                     <div class="password-input-wrapper">
-                        <input type="password" placeholder="Enter your password" class="form-control" id="confPassInput">
+                        <input type="password" placeholder="Confirm your password" class="form-control" id="confPassInput" required>
                         <i class="fa-regular fa-eye toggle-password" onclick="togglePass('confPassInput', this)"></i>
                     </div>
                 </div>
 
-                <a href="./department/department.html" type="submit" class="btn-login" style="margin-top: 1rem;">Sign Up</a>
-
-                <!-- Role Toggle Link -->
-                <div class="signup-link">
-                    <span id="roleQuestion">Are You student ?</span> 
-                    <a href="../signup.html" id="roleToggleBtn" onclick="toggleRole(event)">Sign Up</a>
-                </div>
-
-                <div class="signup-link" style="margin-top: 0.5rem;">
-                    Already Have An Account ? <a href="../../loginPage/login.html">Log In</a>
-                </div>
+                <button type="submit" class="btn-login">Sign Up</button>
             </form>
+
+            <form id="otpForm" hidden>
+                <h3 class="auth-subtitle">Verify your email OTP</h3>
+                <p class="auth-note">We sent a 6-digit OTP to <strong id="otpEmailLabel"></strong>. Enter it below to activate your account.</p>
+                <div class="form-group">
+                    <label>Email (Gmail only)</label>
+                    <input type="email" id="otpEmailInput" placeholder="name@gmail.com" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>OTP code</label>
+                    <input type="text" id="otpCodeInput" placeholder="6-digit OTP" class="form-control" maxlength="6" inputmode="numeric" required>
+                </div>
+                <button type="submit" class="btn-login">Verify OTP</button>
+                <button type="button" id="otpBackBtn" class="btn-secondary">Back to sign up</button>
+            </form>
+
+            <!-- Role Toggle Link -->
+            <div class="signup-link">
+                <span id="roleQuestion">Are You student ?</span>
+                <a href="../signup.html" id="roleToggleBtn" onclick="toggleRole(event)">Sign Up</a>
+            </div>
+
+            <div class="signup-link" style="margin-top: 0.5rem;">
+                Already Have An Account ? <a href="../../loginPage/login.html">Log In</a>
+            </div>
 
         </div>
     </div>
 
-        <script src="../../../../react-bootstrap.js"></script>
-    <script src="./signup-ins.js"></script>
+    <script src="../../../config.js"></script>
+    <script src="../../../react-bootstrap.js"></script>
+    <script src="../signup.js"></script>
 </body>
 </html>

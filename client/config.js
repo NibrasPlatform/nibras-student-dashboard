@@ -21,14 +21,17 @@
  *    - community: nibras_community_api_url
  *    - tracking: nibras_tracking_api_url
  *    - competitions: nibras_competitions_api_url
+ *    - googleClientId: nibras_google_client_id
  * 3. Defaults below
  */
 (function () {
-  const DEFAULT_ADMIN_API = 'https://nibras-admin-service-production.up.railway.app/api';
-  const DEFAULT_LEGACY_API = 'https://community-system-production.up.railway.app';
-  const DEFAULT_COMMUNITY_API = 'https://nibras-community.fly.dev';
-  const DEFAULT_TRACKING_API = 'https://nibras-api.fly.dev';
-  const DEFAULT_COMPETITIONS_API = 'https://competitionsproduction.up.railway.app';
+  const DEFAULT_MONOLITH_API = 'https://nibras-backend.up.railway.app/api';
+  const DEFAULT_ADMIN_API = DEFAULT_MONOLITH_API;
+  const DEFAULT_LEGACY_API = DEFAULT_MONOLITH_API;
+  const DEFAULT_COMMUNITY_API = DEFAULT_MONOLITH_API;
+  const DEFAULT_TRACKING_API = DEFAULT_MONOLITH_API;
+  const DEFAULT_COMPETITIONS_API = DEFAULT_MONOLITH_API;
+  const DEFAULT_GOOGLE_CLIENT_ID = 'your_google_oauth_client_id';
 
   const params = new URLSearchParams(window.location.search);
 
@@ -36,6 +39,26 @@
     if (typeof value !== 'string') return null;
     const trimmed = value.trim();
     return trimmed ? trimmed.replace(/\/+$/, '') : null;
+  };
+
+  const ensureApiBaseUrl = (value) => {
+    const normalized = normalizeUrl(value);
+    if (!normalized) return null;
+
+    try {
+      const parsed = new URL(normalized);
+      let pathname = parsed.pathname.replace(/\/+$/, '');
+      if (!pathname || pathname === '/') {
+        pathname = '/api';
+      } else if (!/^\/api(?:\/|$)/i.test(pathname)) {
+        pathname = `${pathname}/api`;
+      }
+      parsed.pathname = pathname;
+      return parsed.toString().replace(/\/+$/, '');
+    } catch (_) {
+      if (/\/api(?:\/|$)/i.test(normalized)) return normalized;
+      return `${normalized}/api`;
+    }
   };
 
   const readFirst = (...values) => {
@@ -46,7 +69,7 @@
     return null;
   };
 
-  const adminApi = readFirst(
+  const adminApi = ensureApiBaseUrl(readFirst(
     params.get('api'),
     params.get('adminApi'),
     localStorage.getItem('nibras_admin_api_url'),
@@ -54,34 +77,34 @@
     window.NIBRAS_API_URL,
     window.NIBRAS_BACKEND_URL,
     DEFAULT_ADMIN_API
-  );
+  )) || DEFAULT_ADMIN_API;
 
-  const legacyCommunityApi = readFirst(
+  const legacyCommunityApi = ensureApiBaseUrl(readFirst(
     params.get('legacyApi'),
     localStorage.getItem('nibras_legacy_api_url'),
     DEFAULT_LEGACY_API
-  );
+  )) || DEFAULT_LEGACY_API;
 
-  const communityApi = readFirst(
+  const communityApi = ensureApiBaseUrl(readFirst(
     params.get('communityApi'),
     params.get('discussionsApi'),
     localStorage.getItem('nibras_community_api_url'),
     DEFAULT_COMMUNITY_API
-  );
+  )) || DEFAULT_COMMUNITY_API;
 
-  const trackingApi = readFirst(
+  const trackingApi = ensureApiBaseUrl(readFirst(
     params.get('trackingApi'),
     params.get('trackApi'),
     localStorage.getItem('nibras_tracking_api_url'),
     DEFAULT_TRACKING_API
-  );
+  )) || DEFAULT_TRACKING_API;
 
-  const competitionsApi = readFirst(
+  const competitionsApi = ensureApiBaseUrl(readFirst(
     params.get('competitionsApi'),
     params.get('compApi'),
     localStorage.getItem('nibras_competitions_api_url'),
     DEFAULT_COMPETITIONS_API
-  );
+  )) || DEFAULT_COMPETITIONS_API;
 
   const services = Object.freeze({
     admin: adminApi,
@@ -90,6 +113,13 @@
     tracking: trackingApi,
     competitions: competitionsApi,
   });
+  const googleClientId = String(
+    params.get('googleClientId') ||
+    params.get('gClientId') ||
+    localStorage.getItem('nibras_google_client_id') ||
+    window.NIBRAS_GOOGLE_CLIENT_ID ||
+    DEFAULT_GOOGLE_CLIENT_ID
+  ).trim();
 
   const getServiceUrl = (service = 'admin') => services[service] || services.admin;
 
@@ -100,8 +130,10 @@
   window.NIBRAS_COMMUNITY_API_URL = services.community;
   window.NIBRAS_TRACKING_API_URL = services.tracking;
   window.NIBRAS_COMPETITIONS_API_URL = services.competitions;
+  window.NIBRAS_GOOGLE_CLIENT_ID = googleClientId;
   window.NibrasApiConfig = Object.freeze({
     services,
+    googleClientId,
     getServiceUrl,
   });
 

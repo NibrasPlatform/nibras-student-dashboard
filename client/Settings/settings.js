@@ -14,8 +14,8 @@ window.NibrasReact.run(() => {
         || window.NibrasShared?.resolveServiceUrl
         || (() => null);
 
-    const adminApiBase = String(resolveServiceUrl('admin') || 'https://nibras-admin-service-production.up.railway.app/api').replace(/\/+$/, '');
-    const trackingApiBase = String(resolveServiceUrl('tracking') || 'https://nibras-api.fly.dev').replace(/\/+$/, '');
+    const adminApiBase = String(resolveServiceUrl('admin') || 'https://nibras-backend.up.railway.app/api').replace(/\/+$/, '');
+    const trackingApiBase = String(resolveServiceUrl('tracking') || 'https://nibras-backend.up.railway.app/api').replace(/\/+$/, '');
     const githubServiceCandidates = ['tracking', 'admin'];
     const githubDisconnectPathCandidates = ['/v1/github/oauth/disconnect', '/v1/github/disconnect'];
 

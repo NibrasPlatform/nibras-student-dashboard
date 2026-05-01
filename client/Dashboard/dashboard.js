@@ -39,6 +39,14 @@ async function resolveUserName() {
     return 'Student';
 }
 
+// Initialize user session display on page load
+function initUserSession() {
+    const session = window.NibrasShared?.session;
+    if (session && typeof session.updateUserInfoDisplay === 'function') {
+        session.updateUserInfoDisplay();
+    }
+}
+
 const dashboardData = {
     user: "Student", // Will be updated by resolveUserName()
     stats: [
@@ -90,6 +98,9 @@ const dashboardData = {
 function initDashboard() {
     console.log('[DASHBOARD.JS] Initializing dashboard page');
 
+    // Initialize user session display (avatar, name, role)
+    initUserSession();
+
     // --- 1. SIDEBAR LOGIC ---
     const navLinks = document.querySelectorAll('.nav-link');
     navLinks.forEach(link => {
@@ -105,36 +116,6 @@ function initDashboard() {
         const welcomeMsg = document.getElementById('welcome-msg');
         if (welcomeMsg) {
             welcomeMsg.textContent = `Welcome back, ${name}!`;
-        }
-        // Also update sidebar user info if present
-        const sidebarUserInfo = document.querySelector('.user-profile h4');
-        if (sidebarUserInfo) {
-            try {
-                const fullUser = JSON.parse(localStorage.getItem('user'));
-                if (fullUser && fullUser.name) {
-                    sidebarUserInfo.textContent = fullUser.name;
-                }
-            } catch (_) {}
-        }
-        const sidebarUserRole = document.querySelector('.user-profile span');
-        if (sidebarUserRole) {
-            try {
-                const fullUser = JSON.parse(localStorage.getItem('user'));
-                if (fullUser && fullUser.role) {
-                    sidebarUserRole.textContent = fullUser.role;
-                }
-            } catch (_) {}
-        }
-        // Update avatar initials
-        const avatarCircle = document.querySelector('.avatar-circle');
-        if (avatarCircle) {
-            try {
-                const fullUser = JSON.parse(localStorage.getItem('user'));
-                if (fullUser && fullUser.name) {
-                    const initials = fullUser.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-                    avatarCircle.textContent = initials;
-                }
-            } catch (_) {}
         }
     }).catch(() => {
         // Silent fail — default name already set

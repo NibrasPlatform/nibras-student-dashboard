@@ -1,7 +1,7 @@
 window.NibrasReact.run(() => {
 
     // --- CONFIGURATION ---
-    const DEFAULT_LEGACY_COMMUNITY_URL = 'https://community-system-production.up.railway.app';
+    const DEFAULT_LEGACY_COMMUNITY_URL = 'https://nibras-backend.up.railway.app/api';
     const BACKEND_URL =
         window.NibrasShared?.resolveServiceUrl?.('legacyCommunity') ||
         window.NibrasApi?.resolveServiceUrl?.('legacyCommunity') ||
@@ -19,6 +19,8 @@ window.NibrasReact.run(() => {
     let currentQuestionId = null;
     let currentUserId = null;
     let currentUserRole = null;
+    const AI_TUTOR_MARKER = '<!--NIBRAS_AI_TUTOR-->';
+    const AI_PUBLISHED_QUESTIONS_KEY = 'nibras_ai_published_questions_v1';
 
 
     // --- SOCKET.IO SETUP ---
@@ -67,16 +69,38 @@ window.NibrasReact.run(() => {
 
     function buildPathCandidates(path) {
         const normalized = normalizePath(path);
-        if (!normalized.startsWith('/api/')) {
-            return [normalized, `/api${normalized}`];
+        const isAuthPath = /^\/(?:api\/)?auth(?:\/|$)/i.test(normalized);
+        const isCommunityPath = /^\/(?:api\/)?community(?:\/|$)/i.test(normalized);
+
+        if (isAuthPath) {
+            return dedupeList([
+                normalized.startsWith('/api/') ? normalized.replace(/^\/api/i, '') || '/' : normalized,
+                normalized.startsWith('/api/') ? normalized : `/api${normalized}`,
+            ]);
         }
-        return [normalized, normalized.replace(/^\/api/i, '') || '/'];
+
+        const communityPath = isCommunityPath
+            ? (normalized.startsWith('/api/') ? normalized.replace(/^\/api/i, '') : normalized)
+            : `/community${normalized}`;
+
+        return dedupeList([
+            communityPath,
+            `/api${communityPath}`,
+            normalized.startsWith('/api/') ? normalized.replace(/^\/api/i, '') || '/' : normalized,
+            normalized.startsWith('/api/') ? normalized : `/api${normalized}`,
+        ]);
     }
 
     let activeCommunityBaseUrl = normalizeBaseUrl(BACKEND_URL) || DEFAULT_LEGACY_COMMUNITY_URL;
 
+    function toSocketBaseUrl(url) {
+        const normalized = normalizeBaseUrl(url);
+        if (!normalized) return '';
+        return normalized.replace(/\/api(?:\/community)?$/i, '');
+    }
+
     function getSocketBaseUrl() {
-        return normalizeBaseUrl(activeCommunityBaseUrl) || normalizeBaseUrl(BACKEND_URL) || DEFAULT_LEGACY_COMMUNITY_URL;
+        return toSocketBaseUrl(activeCommunityBaseUrl) || toSocketBaseUrl(BACKEND_URL) || 'https://nibras-backend.up.railway.app';
     }
 
     function ensureSocketIoLoaded() {
@@ -157,7 +181,7 @@ window.NibrasReact.run(() => {
 
     // --- HELPER FUNCTIONS ---
     function getToken() {
-        return sharedAuth?.getToken?.() || window.NibrasApi?.getToken?.() || null;
+        return sharedAuth?.getToken?.() || window.NibrasApi?.getToken?.() || localStorage.getItem('token') || null;
     }
 
     function buildAuthHeaders(headers = {}, options = {}) {
@@ -264,6 +288,107 @@ window.NibrasReact.run(() => {
     function getInitials(name) {
         if (!name) return '??';
         return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    }
+
+    function extractEntityId(entity) {
+        if (entity == null) return null;
+        if (typeof entity === 'object') {
+            return entity._id || entity.id || entity.userId || null;
+        }
+        return entity;
+    }
+
+    function normalizeRole(roleValue) {
+        if (roleValue == null) return '';
+        if (typeof roleValue === 'object') {
+            const nestedRole = roleValue.name || roleValue.slug || roleValue.title || roleValue.role || '';
+            return String(nestedRole).trim().toLowerCase();
+        }
+        return String(roleValue).trim().toLowerCase();
+    }
+
+    function formatRoleLabel(roleValue, fallback = 'student') {
+        const normalized = normalizeRole(roleValue) || fallback;
+        return normalized
+            .split(/[\s_-]+/)
+            .filter(Boolean)
+            .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+            .join(' ');
+    }
+
+    function isAdminRole(roleValue) {
+        const role = normalizeRole(roleValue);
+        return role === 'admin' || role === 'super admin' || role === 'super_admin' || role === 'super-admin';
+    }
+
+    function isOwner(authorId) {
+        return Boolean(currentUserId && authorId && String(authorId) === String(currentUserId));
+    }
+
+    function canEditQuestion(questionData) {
+        return isOwner(questionData?.authorId);
+    }
+
+    function canDeleteQuestion(questionData) {
+        return canEditQuestion(questionData) || isAdminRole(currentUserRole);
+    }
+
+    function canEditAnswer(answerData) {
+        if (answerData?.isFromAI) return false;
+        return isOwner(answerData?.authorId);
+    }
+
+    function canDeleteAnswer(answerData) {
+        if (answerData?.isFromAI) return false;
+        return canEditAnswer(answerData) || isAdminRole(currentUserRole);
+    }
+
+    function extractAuthUser(payload) {
+        if (payload == null || typeof payload !== 'object') return null;
+        const data = payload.data && typeof payload.data === 'object' ? payload.data : payload;
+        const user = data.user || payload.user || null;
+        if (user && typeof user === 'object') return user;
+        if (data && typeof data === 'object' && (data._id || data.id)) return data;
+        return null;
+    }
+
+    function stripAiTutorMarker(text) {
+        return String(text || '').replace(/<!--\s*NIBRAS_AI_TUTOR\s*-->/gi, '').trim();
+    }
+
+    function hasAiTutorMarker(text) {
+        return /<!--\s*NIBRAS_AI_TUTOR\s*-->/i.test(String(text || ''));
+    }
+
+    function normalizeAnswerFingerprint(value) {
+        return stripAiTutorMarker(value)
+            .replace(/\s+/g, ' ')
+            .trim()
+            .toLowerCase();
+    }
+
+    function readAiPublishedQuestionMeta(questionId) {
+        if (!questionId) return null;
+        try {
+            const parsed = JSON.parse(localStorage.getItem(AI_PUBLISHED_QUESTIONS_KEY) || '{}');
+            return parsed[String(questionId)] || null;
+        } catch (_) {
+            return null;
+        }
+    }
+
+    function isBackendMarkedAi(comment) {
+        return Boolean(
+            comment?.isFromAI ||
+            comment?.isFromAi ||
+            comment?.aiGenerated ||
+            comment?.isAI ||
+            comment?.isAi ||
+            comment?.metadata?.isFromAI ||
+            comment?.meta?.isFromAI ||
+            normalizeRole(comment?.source) === 'ai_tutor' ||
+            normalizeRole(comment?.origin) === 'ai_tutor'
+        );
     }
 
     function formatTimeAgo(dateString) {
@@ -387,9 +512,10 @@ window.NibrasReact.run(() => {
         if (!token) return;
         try {
             const data = await requestLegacyApi('/auth/me');
-            if (data?.user) {
-                currentUserId = data.user._id;
-                currentUserRole = data.user.role;
+            const user = extractAuthUser(data);
+            if (user) {
+                currentUserId = extractEntityId(user);
+                currentUserRole = normalizeRole(user.role);
             }
         } catch (error) {
             console.error('Error loading current user:', error);
@@ -405,8 +531,10 @@ window.NibrasReact.run(() => {
 
         try {
             const data = await requestLegacyApi(`/questions/${questionId}`, { auth: false });
-            const question = data?.question;
-            const comments = data.answers || data.comments ||[];
+            const payload = data?.data && typeof data.data === 'object' ? data.data : data;
+            const question = payload?.question || data?.question;
+            const comments = payload?.answers || payload?.comments || data?.answers || data?.comments || [];
+            const localAiMeta = readAiPublishedQuestionMeta(questionId);
 
             if (!question) {
                 showError('Question not found.', 'empty');
@@ -417,7 +545,7 @@ window.NibrasReact.run(() => {
                 id: question._id,
                 title: question.title,
                 body: question.body,
-                authorId: question.author?._id || question.author,
+                authorId: extractEntityId(question.author),
                 author: question.author?.name || 'Unknown',
                 authorInitials: getInitials(question.author?.name),
                 votes: question.votesCount || 0,
@@ -425,21 +553,33 @@ window.NibrasReact.run(() => {
                 createdAt: question.createdAt,
                 time: formatTimeAgo(question.createdAt),
                 tags: question.tags ||[],
-                authorRole: question.author?.role || 'student',
+                authorRole: normalizeRole(question.author?.role) || 'student',
                 authorRep: question.author?.reputation || 0,
-                replies: comments.map(comment => ({
+                replies: comments.map(comment => {
+                    const rawBody = String(comment.body || '');
+                    const normalizedBody = stripAiTutorMarker(rawBody);
+                    const markedByBackend = isBackendMarkedAi(comment);
+                    const markedByMarker = hasAiTutorMarker(rawBody);
+                    const markedByLocalMeta =
+                        Boolean(localAiMeta?.answerFingerprint) &&
+                        normalizeAnswerFingerprint(normalizedBody) === String(localAiMeta.answerFingerprint || '');
+                    const isFromAI = Boolean(markedByBackend || markedByMarker || markedByLocalMeta);
+
+                    return {
                     id: comment._id,
-                    authorId: comment.author?._id || comment.author, // EXTRACT AUTHOR ID
+                    authorId: isFromAI ? '__ai_tutor__' : extractEntityId(comment.author),
                     votes: comment.votesCount || 0,
-                    author: comment.author?.name || 'Unknown',
-                    authorRole: comment.author?.role || 'student',
+                    author: isFromAI ? 'AI Tutor' : (comment.author?.name || 'Unknown'),
+                    authorRole: isFromAI ? 'ai_tutor' : (normalizeRole(comment.author?.role) || 'student'),
                     authorRep: comment.author?.reputation || 0,
-                    initials: getInitials(comment.author?.name),
+                    initials: isFromAI ? 'AI' : getInitials(comment.author?.name),
                     time: formatTimeAgo(comment.createdAt),
                     createdAt: comment.createdAt,
-                    text: comment.body,
-                    isPinned: comment.isPinned
-                }))
+                    text: normalizedBody,
+                    isPinned: comment.isPinned,
+                    isFromAI,
+                };
+                })
             };
 
             renderDetailView(currentQuestionData);
@@ -460,7 +600,7 @@ window.NibrasReact.run(() => {
 
     // --- RENDER FUNCTION ---
     function renderDetailView(q) {
-        const isAdmin = currentUserRole === 'admin';
+        const isAdmin = isAdminRole(currentUserRole);
         setAnswerComposerVisibility(true);
 
         // A. Render Tags
@@ -476,9 +616,9 @@ window.NibrasReact.run(() => {
 
         // Question Setting Menu
         let actionMenuHtml = '';
-        const isQuestionAuthor = currentUserId && String(q.authorId) === String(currentUserId);
+        const isQuestionAuthor = canEditQuestion(q);
 
-        if (isQuestionAuthor || isAdmin) {
+        if (canDeleteQuestion(q)) {
             actionMenuHtml = `
                 <div class="q-settings-dropdown" style="position: relative; display: inline-block;">
                     <button type="button" class="fa-solid fa-ellipsis-vertical action-menu-btn" style="background:none; border:none; cursor: pointer; padding: 4px 10px; font-size: 1.15rem; color: var(--text-secondary);" title="More options" aria-label="Open question actions"></button>
@@ -524,7 +664,7 @@ window.NibrasReact.run(() => {
                         <div class="author-av" style="width:36px; height:36px;">${q.authorInitials}</div>
                         <div class="detail-author-info">
                             <span class="detail-author-name">${q.author}</span>
-                            <span class="detail-author-meta">${q.authorRep} rep • ${q.authorRole}</span>
+                            <span class="detail-author-meta">${q.authorRep} rep • ${formatRoleLabel(q.authorRole)}</span>
                         </div>
                     </div>
                 </div>
@@ -539,7 +679,10 @@ window.NibrasReact.run(() => {
         q.replies.forEach(ans => {
             let roleBadge = '';
             let roleColor = 'bg-blue';
-            if (ans.authorRole === 'instructor') {
+            if (ans.isFromAI) {
+                roleColor = 'bg-purple';
+                roleBadge = `<span class="contrib-badge ${roleColor}">AI Tutor</span>`;
+            } else if (ans.authorRole === 'instructor') {
                 roleColor = 'bg-blue';
                 roleBadge = `<span class="contrib-badge ${roleColor}">Instructor</span>`;
             } else if (ans.authorRole === 'admin') {
@@ -550,11 +693,11 @@ window.NibrasReact.run(() => {
             const pinnedBadge = ans.isPinned ? `<span class="contrib-badge bg-green" style="margin-left:8px;"><i class="fa-solid fa-thumbtack"></i> Pinned</span>` : '';
 
             // --- COMMENT ACTION MENU LOGIC ---
-            const isCommentAuthor = currentUserId && String(ans.authorId) === String(currentUserId);
-            const canDeleteComment = isCommentAuthor || isAdmin;
+            const isCommentAuthor = canEditAnswer(ans);
+            const canDeleteComment = canDeleteAnswer(ans);
             let commentActionMenuHtml = '';
 
-            if (isCommentAuthor || canDeleteComment) {
+            if (canDeleteComment) {
                 commentActionMenuHtml = `
                     <div class="q-settings-dropdown" style="position: relative; display: inline-block;">
                         <button type="button" class="fa-solid fa-ellipsis-vertical action-menu-btn" style="background:none; border:none; cursor: pointer; padding: 4px 10px; font-size: 1.15rem; color: var(--text-secondary);" title="More options" aria-label="Open answer actions"></button>
@@ -626,8 +769,10 @@ window.NibrasReact.run(() => {
         // 1. Handle Share Link Click
         const shareButton = e.target.closest('.share-q-btn');
         if (shareButton) {
-            const shareUrl = `${window.location.origin}/Community/QuestionID/question.html?id=${currentQuestionId}`;
-            navigator.clipboard.writeText(shareUrl)
+            const shareUrl = new URL(window.location.href);
+            shareUrl.searchParams.set('id', currentQuestionId);
+            shareUrl.hash = '';
+            navigator.clipboard.writeText(shareUrl.toString())
                 .then(() => showToast('Link copied to clipboard!'))
                 .catch(() => showToast('Unable to copy link right now.', 'error'));
             return;
@@ -653,6 +798,10 @@ window.NibrasReact.run(() => {
         // ------------------------------------
         const editBtn = e.target.closest('.edit-q-btn');
         if (editBtn) {
+            if (!canEditQuestion(currentQuestionData)) {
+                showToast('You can only edit your own question.', 'error');
+                return;
+            }
             modalInvoker = editBtn;
             document.querySelector('#editModal h2').innerText = 'Edit Question';
             document.getElementById('edit-question-title').parentElement.style.display = 'block'; // Show title
@@ -669,6 +818,10 @@ window.NibrasReact.run(() => {
 
         const deleteBtn = e.target.closest('.delete-q-btn');
         if (deleteBtn) {
+            if (!canDeleteQuestion(currentQuestionData)) {
+                showToast('You do not have permission to delete this question.', 'error');
+                return;
+            }
             if (confirm('Are you sure you want to delete this question? This action cannot be undone.')) {
                 try {
                     await requestLegacyApi(`/questions/${currentQuestionId}`, {
@@ -693,6 +846,14 @@ window.NibrasReact.run(() => {
             const commentCard = e.target.closest('.answer-card');
             const commentId = commentCard.dataset.commentId;
             const commentData = currentQuestionData.replies.find(r => r.id === commentId);
+            if (commentData?.isFromAI) {
+                showToast('AI Tutor answers are locked and cannot be edited.', 'error');
+                return;
+            }
+            if (!canEditAnswer(commentData)) {
+                showToast('You can only edit your own answer.', 'error');
+                return;
+            }
             
             document.querySelector('#editModal h2').innerText = 'Edit Answer';
             document.getElementById('edit-question-title').parentElement.style.display = 'none'; // Hide title input!
@@ -721,8 +882,18 @@ window.NibrasReact.run(() => {
 
         const deleteCommentBtn = e.target.closest('.delete-comment-btn');
         if (deleteCommentBtn) {
+            const commentCard = e.target.closest('.answer-card');
+            const commentId = commentCard?.dataset?.commentId;
+            const commentData = currentQuestionData.replies.find(r => String(r.id) === String(commentId));
+            if (commentData?.isFromAI) {
+                showToast('AI Tutor answers are locked and cannot be deleted.', 'error');
+                return;
+            }
+            if (!canDeleteAnswer(commentData)) {
+                showToast('You do not have permission to delete this answer.', 'error');
+                return;
+            }
             if (confirm('Are you sure you want to delete this answer? This action cannot be undone.')) {
-                const commentId = e.target.closest('.answer-card').dataset.commentId;
                 try {
                     await requestLegacyApi(`/answers/${currentQuestionId}/${commentId}`, {
                         method: 'DELETE',
@@ -781,6 +952,9 @@ window.NibrasReact.run(() => {
                 let endpointPath, method, payload;
 
                 if (editType === 'question') {
+                    if (!canEditQuestion(currentQuestionData)) {
+                        throw new Error('You can only edit your own question.');
+                    }
                     const newTitle = document.getElementById('edit-question-title').value.trim();
                     if (!newTitle || !newBody) throw new Error('Title and details cannot be empty.');
                     
@@ -790,6 +964,13 @@ window.NibrasReact.run(() => {
 
                 } else if (editType === 'comment') {
                     const commentId = saveEditBtn.dataset.editId;
+                    const commentData = currentQuestionData.replies.find(r => String(r.id) === String(commentId));
+                    if (commentData?.isFromAI) {
+                        throw new Error('AI Tutor answers are locked and cannot be edited.');
+                    }
+                    if (!canEditAnswer(commentData)) {
+                        throw new Error('You can only edit your own answer.');
+                    }
                     if (!newBody) throw new Error('Answer cannot be empty.');
 
                     endpointPath = `/answers/${currentQuestionId}/${commentId}`;

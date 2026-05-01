@@ -13,10 +13,8 @@
     const token = (() => {
         try {
             if (typeof shared.auth?.getToken === 'function') return shared.auth.getToken();
-        } catch (_) {
-            return null;
-        }
-        return null;
+        } catch (_) {}
+        return localStorage.getItem('token') || null;
     })();
     let authEnabled = Boolean(token);
 

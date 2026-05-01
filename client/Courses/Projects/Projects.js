@@ -26,7 +26,7 @@ const milestoneStatusUiMap = Object.freeze({
 const projectsApiClient = window.NibrasProjectsApi?.createClient?.({
     baseUrl: window.NibrasShared?.resolveServiceUrl?.('tracking') || window.NIBRAS_TRACKING_API_URL,
     mockMode: window.NIBRAS_PROJECTS_MOCK_MODE === true,
-    getAuthToken: () => window.NibrasShared?.auth?.getToken?.() || null
+    getAuthToken: () => window.NibrasShared?.auth?.getToken?.() || localStorage.getItem('token') || null
 }) || null;
 
 // Utility: ID Normalization

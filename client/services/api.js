@@ -28,13 +28,8 @@
     'use strict';
 
     // Keep services available even if shared utilities initialize slightly later.
-    const apiFetch = (...args) => {
-        const fn = window.NibrasShared?.apiFetch || window.NibrasApi?.request;
-        if (typeof fn !== 'function') {
-            return Promise.reject(new Error('Nibras API utilities are not available. Ensure react-page-utils.js is loaded.'));
-        }
-        return fn(...args);
-    };
+
+    const isAuthErrorStatus = (status) => status === 401 || status === 403;
 
     const toQueryString = (filters = {}) => {
         const params = new URLSearchParams();
@@ -73,6 +68,493 @@
     };
 
     // ============================================================
+    // Internal Helpers
+    // ============================================================
+    const isAbsoluteUrl = (value) => /^https?:\/\//i.test(String(value || ''));
+
+    const joinUrl = (baseUrl, path) => {
+        const normalizedBase = String(baseUrl || '').replace(/\/+$/, '');
+        const normalizedPath = String(path || '');
+        if (!normalizedPath) return normalizedBase;
+        if (isAbsoluteUrl(normalizedPath)) return normalizedPath;
+        if (!normalizedBase) return normalizedPath;
+        if (normalizedPath.startsWith('/')) return `${normalizedBase}${normalizedPath}`;
+        return `${normalizedBase}/${normalizedPath}`;
+    };
+
+    const toPlainHeaders = (headers) => {
+        if (!headers) return {};
+        if (typeof Headers !== 'undefined' && headers instanceof Headers) {
+            const result = {};
+            headers.forEach((value, key) => {
+                result[key] = value;
+            });
+            return result;
+        }
+        return Object.assign({}, headers);
+    };
+
+    const hasHeader = (headers, key) =>
+        Object.keys(headers || {}).some((headerKey) => headerKey.toLowerCase() === String(key || '').toLowerCase());
+
+    const normalizeToken = (token) => {
+        if (typeof token !== 'string') return null;
+        const trimmed = token.trim();
+        if (!trimmed) return null;
+        if (/^bearer\s+/i.test(trimmed)) return trimmed.replace(/^bearer\s+/i, '').trim() || null;
+        return trimmed;
+    };
+
+    const tryParseJson = (value) => {
+        if (typeof value !== 'string') return { ok: false, value: null };
+        try {
+            return { ok: true, value: JSON.parse(value) };
+        } catch (_) {
+            return { ok: false, value: null };
+        }
+    };
+
+    const pickTokenCandidate = (value) => {
+        if (!value) return null;
+        if (typeof value === 'string') {
+            const parsed = tryParseJson(value);
+            if (parsed.ok) return pickTokenCandidate(parsed.value);
+            return normalizeToken(value);
+        }
+        if (typeof value === 'object') {
+            const candidates = [
+                value.token,
+                value.accessToken,
+                value.authToken,
+                value.jwt,
+                value?.tokens?.access?.token,
+                value?.tokens?.accessToken,
+            ];
+            for (let i = 0; i < candidates.length; i += 1) {
+                const token = pickTokenCandidate(candidates[i]);
+                if (token) return token;
+            }
+        }
+        return null;
+    };
+
+    const getTokenFromStorage = (storage) => {
+        const keys = ['token', 'nibras.webSession', 'accessToken', 'authToken', 'jwt'];
+        for (let i = 0; i < keys.length; i += 1) {
+            const token = pickTokenCandidate(safeStorageGet(storage, keys[i]));
+            if (token) return token;
+        }
+        return null;
+    };
+
+    const getToken = () => getTokenFromStorage(window.localStorage) || getTokenFromStorage(window.sessionStorage);
+
+    const getRefreshToken = () =>
+        safeStorageGet(window.localStorage, 'refreshToken') || safeStorageGet(window.sessionStorage, 'refreshToken');
+
+    const getUser = () => {
+        const raw = safeStorageGet(window.localStorage, 'user');
+        if (!raw) return null;
+        try {
+            return JSON.parse(raw);
+        } catch (_) {
+            return null;
+        }
+    };
+
+    const safeStorageGet = (storage, key) => {
+        if (!storage || !key) return null;
+        try {
+            return storage.getItem(key);
+        } catch (_) {
+            return null;
+        }
+    };
+
+    const extractAuth = (payload) => {
+        const data = payload && payload.data ? payload.data : payload || {};
+        const tokens = payload && payload.tokens ? payload.tokens : data.tokens || {};
+        const user = data.user || payload?.user || data;
+        const accessToken = data.token || payload?.token || tokens?.access?.token || null;
+        const refreshToken = data.refreshToken || payload?.refreshToken || tokens?.refresh?.token || null;
+        return {
+            accessToken,
+            refreshToken,
+            user: user && user._id ? user : payload?.data || null,
+        };
+    };
+
+    const setAuth = ({ token, accessToken, refreshToken, user }) => {
+        const finalAccess = accessToken || token || null;
+        if (finalAccess) window.localStorage.setItem('token', finalAccess);
+        if (refreshToken) window.localStorage.setItem('refreshToken', refreshToken);
+        if (user) window.localStorage.setItem('user', JSON.stringify(user));
+    };
+
+    const clearAuth = () => {
+        window.localStorage.removeItem('token');
+        window.localStorage.removeItem('refreshToken');
+        window.localStorage.removeItem('user');
+    };
+
+    const safeParseResponse = async (response) => {
+        let rawText = '';
+        try {
+            rawText = await response.text();
+        } catch (_) {
+            return { payload: null, rawText: '', isJson: false };
+        }
+
+        if (!rawText) {
+            return { payload: null, rawText: '', isJson: false };
+        }
+
+        const parsed = tryParseJson(rawText);
+        if (parsed.ok) {
+            return { payload: parsed.value, rawText, isJson: true };
+        }
+
+        return { payload: null, rawText, isJson: false };
+    };
+
+    const getErrorMessage = (payload, status, statusText, rawText) => {
+        if (status === 401) {
+            return 'Authentication required. Please sign in to continue.';
+        }
+        if (status === 403) {
+            return 'You do not have permission to perform this action.';
+        }
+
+        const candidates = [
+            payload?.message,
+            payload?.error?.message,
+            typeof payload?.error === 'string' ? payload.error : null,
+            Array.isArray(payload?.errors) && payload.errors.length
+                ? payload.errors.map((entry) => entry?.message || entry?.msg).filter(Boolean).join(' ')
+                : null,
+            rawText || null,
+            status ? `Request failed (${status}${statusText ? ` ${statusText}` : ''})` : null,
+            'Request failed',
+        ];
+
+        for (let i = 0; i < candidates.length; i += 1) {
+            const candidate = candidates[i];
+            if (typeof candidate === 'string' && candidate.trim()) return candidate.trim();
+        }
+        return 'Request failed';
+    };
+
+    const getErrorCode = (status, explicitCode = null) => explicitCode || AUTH_ERROR_CODES[status] || 'REQUEST_FAILED';
+    const AUTH_ERROR_CODES = Object.freeze({
+        401: 'UNAUTHORIZED',
+        403: 'FORBIDDEN',
+    });
+    const COMPETITIONS_REQUEST_TIMEOUT_MS = 15000;
+
+    const isCompetitionsFallbackCandidate = (error) => {
+        if (!error || typeof error !== 'object') return false;
+        const status = Number(error.status || 0);
+        const code = String(error.code || '').toUpperCase();
+        if (code === 'TIMEOUT' || code === 'NETWORK_ERROR') return true;
+        return status === 0 || status === 404 || status === 502 || status === 503 || status === 504;
+    };
+
+    const normalizeError = ({ status = 0, statusText = '', payload = null, rawText = '', service = 'admin', url = '', code = null }) => {
+        const message = getErrorMessage(payload, status, statusText, rawText);
+        return {
+            message,
+            status,
+            statusText,
+            code: getErrorCode(status, code),
+            isAuthError: isAuthErrorStatus(status),
+            payload,
+            rawText: rawText || '',
+            service,
+            url,
+        };
+    };
+
+    const toError = (normalizedError) => {
+        const err = new Error(normalizedError?.message || 'Request failed');
+        err.status = normalizedError?.status || 0;
+        err.statusText = normalizedError?.statusText || '';
+        err.code = normalizedError?.code || 'REQUEST_FAILED';
+        err.isAuthError = Boolean(normalizedError?.isAuthError);
+        err.payload = normalizedError?.payload || null;
+        err.service = normalizedError?.service || 'admin';
+        err.url = normalizedError?.url || '';
+        err.rawText = normalizedError?.rawText || '';
+        return err;
+    };
+
+    const buildAuthHeaders = (headers, options = {}) => {
+        const result = toPlainHeaders(headers);
+        const authEnabled = options.auth !== false;
+        if (!authEnabled) return result;
+
+        const replaceAuthorization = options.replaceAuthorization === true;
+        if (replaceAuthorization) {
+            Object.keys(result).forEach((key) => {
+                if (String(key).toLowerCase() === 'authorization') {
+                    delete result[key];
+                }
+            });
+        }
+
+        if (hasHeader(result, 'Authorization')) return result;
+
+        const token = normalizeToken(options.token || getToken());
+        if (token) result.Authorization = `Bearer ${token}`;
+        return result;
+    };
+
+    const resolveServiceUrl = (service = 'admin') => {
+        if (window.NibrasApiConfig && typeof window.NibrasApiConfig.getServiceUrl === 'function') {
+            return window.NibrasApiConfig.getServiceUrl(service);
+        }
+        // Use fallback values from window if config is missing
+        const fallbacks = {
+            admin: window.NIBRAS_API_URL || window.NIBRAS_BACKEND_URL,
+            legacyCommunity: window.NIBRAS_LEGACY_API_URL || window.NIBRAS_API_URL,
+            community: window.NIBRAS_COMMUNITY_API_URL || window.NIBRAS_API_URL,
+            tracking: window.NIBRAS_TRACKING_API_URL || window.NIBRAS_API_URL,
+            competitions: window.NIBRAS_COMPETITIONS_API_URL || window.NIBRAS_API_URL,
+        };
+        return fallbacks[service] || fallbacks.admin;
+    };
+
+    // ============================================================
+    // Core Request Logic (with Retry & Token Refresh)
+    // ============================================================
+    const emitAuthError = (normalizedError) => {
+        if (!normalizedError || !isAuthErrorStatus(normalizedError.status)) return;
+        if (typeof window?.dispatchEvent !== 'function' || typeof window?.CustomEvent !== 'function') return;
+        try {
+            window.dispatchEvent(new window.CustomEvent(AUTH_ERROR_EVENT, {
+                detail: {
+                    status: normalizedError.status,
+                    code: normalizedError.code,
+                    message: normalizedError.message,
+                    service: normalizedError.service,
+                    url: normalizedError.url,
+                },
+            }));
+        } catch (_) {
+            // ignore custom event dispatch failures
+        }
+    };
+
+    const request = async (path, options = {}) => {
+        const settings = Object.assign({}, options);
+        const service = settings.service || 'admin';
+        const authEnabled = settings.auth !== false;
+        const throwOnError = settings.throwOnError === true;
+        const timeoutMs = Number(settings.timeoutMs || settings.timeout || 0);
+        const method = (settings.method || 'GET').toUpperCase();
+        const explicitBaseUrl = settings.baseUrl || settings.serviceUrl || settings.url || null;
+
+        delete settings.service;
+        delete settings.auth;
+        delete settings.throwOnError;
+        delete settings.timeout;
+        delete settings.timeoutMs;
+        delete settings.baseUrl;
+        delete settings.serviceUrl;
+        delete settings.url;
+
+        const headers = buildAuthHeaders(settings.headers, { auth: authEnabled });
+        delete settings.headers;
+
+        const hasBody = Object.prototype.hasOwnProperty.call(settings, 'body') && settings.body != null;
+        const isJsonBody =
+            hasBody &&
+            typeof settings.body === 'object' &&
+            !(settings.body instanceof FormData) &&
+            !(typeof URLSearchParams !== 'undefined' && settings.body instanceof URLSearchParams) &&
+            !(typeof Blob !== 'undefined' && settings.body instanceof Blob) &&
+            !(typeof ArrayBuffer !== 'undefined' && settings.body instanceof ArrayBuffer);
+        if (isJsonBody) {
+            if (!hasHeader(headers, 'Content-Type')) headers['Content-Type'] = 'application/json';
+            settings.body = JSON.stringify(settings.body);
+        }
+        const baseUrl = explicitBaseUrl || resolveServiceUrl(service);
+        const requestUrl = joinUrl(baseUrl, path);
+
+        const controller = typeof AbortController === 'function' ? new AbortController() : null;
+        const timeoutId = timeoutMs > 0 && controller
+            ? window.setTimeout(() => controller.abort(), timeoutMs)
+            : null;
+
+        try {
+            const response = await fetch(requestUrl, Object.assign({}, settings, {
+                method,
+                headers,
+                signal: controller ? controller.signal : settings.signal,
+            }));
+            const parsed = await safeParseResponse(response);
+            const payload = parsed.payload;
+            const data = parsed.isJson ? payload : (parsed.rawText || null);
+
+            const result = {
+                ok: response.ok,
+                status: response.status,
+                statusText: response.statusText,
+                service,
+                url: requestUrl,
+                data: response.ok ? data : null,
+                payload,
+                rawText: parsed.rawText || '',
+                error: null,
+                response,
+            };
+
+            if (!response.ok) {
+                result.error = normalizeError({
+                    status: response.status,
+                    statusText: response.statusText,
+                    payload,
+                    rawText: parsed.rawText,
+                    service,
+                    url: requestUrl,
+                });
+                if (throwOnError) throw toError(result.error);
+            }
+
+            return result;
+        } catch (error) {
+            if (throwOnError && error && typeof error.status === 'number' && error.status > 0) {
+                throw error;
+            }
+            const isAbort = error && (error.name === 'AbortError' || /aborted|timeout/i.test(String(error.message || '')));
+            const normalizedError = normalizeError({
+                status: 0,
+                payload: null,
+                rawText: '',
+                service,
+                url: requestUrl,
+                code: isAbort ? 'TIMEOUT' : 'NETWORK_ERROR',
+            });
+            normalizedError.message = isAbort
+                ? `Request timeout after ${timeoutMs}ms`
+                : (error?.message || normalizedError.message);
+
+            if (throwOnError) throw toError(normalizedError);
+
+            return {
+                ok: false,
+                status: 0,
+                statusText: '',
+                service,
+                url: requestUrl,
+                data: null,
+                payload: null,
+                rawText: '',
+                error: normalizedError,
+                response: null,
+            };
+        } finally {
+            if (timeoutId) window.clearTimeout(timeoutId);
+        }
+    };
+
+    const REFRESH_ELIGIBLE_SERVICES = new Set(['admin', 'legacyCommunity', 'community', 'tracking', 'competitions']);
+    let refreshPromise = null;
+
+    const refreshAccessToken = async () => {
+        if (refreshPromise) return refreshPromise;
+
+        const refreshToken = getRefreshToken();
+        if (!refreshToken) return null;
+
+        refreshPromise = request('/auth/refresh-tokens', {
+            service: 'admin',
+            method: 'POST',
+            auth: false,
+            throwOnError: true,
+            body: { refreshToken },
+        })
+            .then((result) => {
+                const nextAuth = extractAuth(result?.data || {});
+                if (!nextAuth.accessToken) return null;
+                setAuth(nextAuth);
+                return nextAuth.accessToken;
+            })
+            .catch(() => {
+                clearAuth();
+                return null;
+            })
+            .finally(() => {
+                refreshPromise = null;
+            });
+
+        return refreshPromise;
+    };
+
+    const apiFetch = async (path, options = {}) => {
+        const service = options.service || 'admin';
+        const authEnabled = options.auth !== false;
+        const retryAuth = options.retryAuth !== false;
+        const requestedTimeout = Number(options.timeoutMs || options.timeout || 0);
+        const timeoutMs = requestedTimeout > 0
+            ? requestedTimeout
+            : (service === 'competitions' ? COMPETITIONS_REQUEST_TIMEOUT_MS : 0);
+        const requestOptions = Object.assign({}, options, {
+            service,
+            auth: authEnabled,
+            throwOnError: false,
+            timeoutMs,
+        });
+        delete requestOptions.retryAuth;
+
+        const headers = Object.assign({ 'Content-Type': 'application/json' }, toPlainHeaders(requestOptions.headers));
+        if (requestOptions.body instanceof FormData && !hasHeader(toPlainHeaders(options.headers), 'Content-Type')) {
+            delete headers['Content-Type'];
+        }
+        requestOptions.headers = headers;
+
+        let result = await request(path, requestOptions);
+
+        if (!result.ok && service === 'competitions' && isCompetitionsFallbackCandidate(result.error)) {
+            result = await request(path, Object.assign({}, requestOptions, {
+                service: 'admin',
+            }));
+        }
+
+        const shouldRetryWithRefresh =
+            REFRESH_ELIGIBLE_SERVICES.has(service) &&
+            authEnabled &&
+            retryAuth &&
+            result.status === 401 &&
+            path !== '/auth/login' &&
+            path !== '/auth/register' &&
+            path !== '/auth/refresh-tokens';
+
+        if (shouldRetryWithRefresh) {
+            const nextAccessToken = await refreshAccessToken();
+            if (nextAccessToken) {
+                const retryHeaders = buildAuthHeaders(headers, {
+                    token: nextAccessToken,
+                    replaceAuthorization: true,
+                });
+                result = await request(path, Object.assign({}, requestOptions, { headers: retryHeaders }));
+            }
+        }
+
+        if (authEnabled && isAuthErrorStatus(result.status)) {
+            emitAuthError(result.error || normalizeError({ status: result.status, service, url: result.url }));
+        }
+
+        if (!result.ok) {
+            throw toError(result.error || normalizeError({ status: result.status, service, url: result.url }));
+        }
+
+        return result.data;
+    };
+
+    let logoutRequestPromise = null;
+
+
+    // ============================================================
     // Auth Service (admin)
     // ============================================================
     const authService = {
@@ -80,7 +562,7 @@
          * Login with email and password
          * @param {string} email
          * @param {string} password
-         * @returns {Promise<{token: string, user: object}>}
+         * @returns {Promise<object>}
          */
         async login(email, password) {
             return apiFetch('/auth/login', {
@@ -95,7 +577,7 @@
         /**
          * Register a new user
          * @param {object} data - { name, email, password, role? }
-         * @returns {Promise<{token: string, user: object}>}
+         * @returns {Promise<object>}
          */
         async register(data) {
             return apiFetch('/auth/register', {
@@ -108,6 +590,37 @@
         },
 
         /**
+         * Verify email OTP for manual registration
+         * @param {string} email
+         * @param {string} otp
+         * @returns {Promise<object>}
+         */
+        async verifyOtp(email, otp) {
+            return apiFetch('/auth/verify-otp', {
+                service: 'admin',
+                method: 'POST',
+                auth: false,
+                retryAuth: false,
+                body: { email, otp },
+            });
+        },
+
+        /**
+         * Login or register with Google idToken
+         * @param {string} idToken
+         * @returns {Promise<object>}
+         */
+        async loginWithGoogle(idToken) {
+            return apiFetch('/auth/google', {
+                service: 'admin',
+                method: 'POST',
+                auth: false,
+                retryAuth: false,
+                body: { idToken },
+            });
+        },
+
+        /**
          * Get the currently authenticated user profile
          * @returns {Promise<{user: object}>}
          */
@@ -116,6 +629,21 @@
                 service: 'admin',
                 method: 'GET',
                 auth: true,
+            });
+        },
+
+        /**
+         * Revoke current refresh token session
+         * @param {string} refreshToken
+         * @returns {Promise<object>}
+         */
+        async logout(refreshToken) {
+            return apiFetch('/auth/logout', {
+                service: 'admin',
+                method: 'POST',
+                auth: true,
+                retryAuth: false,
+                body: { refreshToken },
             });
         },
     };
@@ -154,7 +682,7 @@
                 }
             });
             const query = params.toString();
-            return apiFetch(`/questions${query ? '?' + query : ''}`, {
+            return apiFetch(`/community/questions${query ? '?' + query : ''}`, {
                 service: 'legacyCommunity',
                 method: 'GET',
                 auth: false,
@@ -167,7 +695,7 @@
          * @returns {Promise<{question: object, answers: Array}>}
          */
         async getById(id) {
-            return apiFetch(`/questions/${id}`, {
+            return apiFetch(`/community/questions/${id}`, {
                 service: 'legacyCommunity',
                 method: 'GET',
                 auth: false,
@@ -180,7 +708,7 @@
          * @returns {Promise<object>}
          */
         async create(data) {
-            return apiFetch('/questions', {
+            return apiFetch('/community/questions', {
                 service: 'legacyCommunity',
                 method: 'POST',
                 auth: true,
@@ -195,7 +723,7 @@
          * @returns {Promise<object>}
          */
         async update(id, data) {
-            return apiFetch(`/questions/${id}`, {
+            return apiFetch(`/community/questions/${id}`, {
                 service: 'legacyCommunity',
                 method: 'PATCH',
                 auth: true,
@@ -209,7 +737,7 @@
          * @returns {Promise<object>}
          */
         async delete(id) {
-            return apiFetch(`/questions/${id}`, {
+            return apiFetch(`/community/questions/${id}`, {
                 service: 'legacyCommunity',
                 method: 'DELETE',
                 auth: true,
@@ -227,7 +755,7 @@
          * @returns {Promise<Array>}
          */
         async listByQuestion(questionId) {
-            return apiFetch(`/answers/question/${questionId}`, {
+            return apiFetch(`/community/answers/question/${questionId}`, {
                 service: 'legacyCommunity',
                 method: 'GET',
                 auth: false,
@@ -241,7 +769,7 @@
          * @returns {Promise<object>}
          */
         async getById(questionId, answerId) {
-            return apiFetch(`/answers/${questionId}/${answerId}`, {
+            return apiFetch(`/community/answers/${questionId}/${answerId}`, {
                 service: 'legacyCommunity',
                 method: 'GET',
                 auth: false,
@@ -255,7 +783,7 @@
          * @returns {Promise<object>}
          */
         async create(questionId, data) {
-            return apiFetch(`/answers/${questionId}`, {
+            return apiFetch(`/community/answers/${questionId}`, {
                 service: 'legacyCommunity',
                 method: 'POST',
                 auth: true,
@@ -271,7 +799,7 @@
          * @returns {Promise<object>}
          */
         async update(questionId, answerId, data) {
-            return apiFetch(`/answers/${questionId}/${answerId}`, {
+            return apiFetch(`/community/answers/${questionId}/${answerId}`, {
                 service: 'legacyCommunity',
                 method: 'PATCH',
                 auth: true,
@@ -286,7 +814,7 @@
          * @returns {Promise<object>}
          */
         async delete(questionId, answerId) {
-            return apiFetch(`/answers/${questionId}/${answerId}`, {
+            return apiFetch(`/community/answers/${questionId}/${answerId}`, {
                 service: 'legacyCommunity',
                 method: 'DELETE',
                 auth: true,
@@ -299,7 +827,7 @@
          * @returns {Promise<object>}
          */
         async accept(answerId) {
-            return apiFetch(`/answers/${answerId}/accept`, {
+            return apiFetch(`/community/answers/${answerId}/accept`, {
                 service: 'legacyCommunity',
                 method: 'PATCH',
                 auth: true,
@@ -318,7 +846,7 @@
          * @returns {Promise<{message: string, action: string, voteValue: number, votesCount: number}>}
          */
         async cast(data) {
-            return apiFetch('/votes', {
+            return apiFetch('/community/votes', {
                 service: 'legacyCommunity',
                 method: 'POST',
                 auth: true,
@@ -332,7 +860,8 @@
          * @returns {Promise<{value: number}>} 1, -1, or 0
          */
         async getMyVote(params) {
-            return apiFetch(`/votes/${params.targetType}/${params.targetId}`, {
+            const targetType = params.targetType === 'question' ? 'question' : 'answer';
+            return apiFetch(`/community/votes/${targetType}/${params.targetId}`, {
                 service: 'legacyCommunity',
                 method: 'GET',
                 auth: true,
@@ -350,7 +879,7 @@
          * @returns {Promise<{message: string, action: string, voteValue: number, votesCount: number}>}
          */
         async cast(data) {
-            return apiFetch('/votes', {
+            return apiFetch('/community/votes', {
                 service: 'community',
                 method: 'POST',
                 auth: true,
@@ -364,7 +893,8 @@
          * @returns {Promise<{value: number}>}
          */
         async getMyVote(params) {
-            return apiFetch(`/votes/${params.targetType}/${params.targetId}`, {
+            const targetType = params.targetType === 'thread' ? 'thread' : 'post';
+            return apiFetch(`/community/votes/${targetType}/${params.targetId}`, {
                 service: 'community',
                 method: 'GET',
                 auth: true,
@@ -381,7 +911,7 @@
          * @returns {Promise<Array>}
          */
         async list() {
-            return apiFetch('/tags', {
+            return apiFetch('/community/tags', {
                 service: 'legacyCommunity',
                 method: 'GET',
                 auth: false,
@@ -394,7 +924,7 @@
          * @returns {Promise<Array>}
          */
         async popular(limit = 5) {
-            return apiFetch(`/tags/popular?limit=${limit}`, {
+            return apiFetch(`/community/tags/popular?limit=${limit}`, {
                 service: 'legacyCommunity',
                 method: 'GET',
                 auth: false,
@@ -407,7 +937,7 @@
          * @returns {Promise<object>}
          */
         async getById(id) {
-            return apiFetch(`/tags/${id}`, {
+            return apiFetch(`/community/tags/${id}`, {
                 service: 'legacyCommunity',
                 method: 'GET',
                 auth: false,
@@ -418,6 +948,63 @@
     // ============================================================
     // Chatbot Service (legacy community)
     // ============================================================
+    const extractQuestionEntity = (payload) => {
+        const data = unwrapApiData(payload);
+        const candidates = [
+            payload?.data?.question,
+            payload?.question,
+            data?.question,
+            data,
+        ];
+
+        for (let i = 0; i < candidates.length; i += 1) {
+            const candidate = candidates[i];
+            if (!candidate || typeof candidate !== 'object') continue;
+            if (candidate._id || candidate.id) return candidate;
+        }
+
+        return null;
+    };
+
+    const extractQuestionId = (payload) => {
+        const question = extractQuestionEntity(payload);
+        if (question) return question._id || question.id || null;
+
+        const data = unwrapApiData(payload);
+        return (
+            payload?.data?.questionId ||
+            payload?.questionId ||
+            data?.questionId ||
+            null
+        );
+    };
+
+    const isRoleObjectIdCastError = (error) => {
+        const msg = String(error?.message || error?.payload?.message || '');
+        return /Cast to ObjectId failed/i.test(msg) && /path\s+"?role"?/i.test(msg);
+    };
+
+    const AI_TUTOR_MARKER = '<!--NIBRAS_AI_TUTOR-->';
+    const withAiTutorMarker = (answerText) => {
+        const normalized = String(answerText || '').trim();
+        if (!normalized) return normalized;
+        if (normalized.includes(AI_TUTOR_MARKER)) return normalized;
+        return `${normalized}\n\n${AI_TUTOR_MARKER}`;
+    };
+
+    const normalizePublishPayload = (data = {}) => {
+        const title = String(data?.title || '').trim();
+        const question = String(data?.question || '').trim();
+        const finalAnswer = withAiTutorMarker(String(data?.finalAnswer || '').trim());
+        const tags = Array.from(new Set(
+            (Array.isArray(data?.tags) ? data.tags : [])
+                .map((tag) => String(tag || '').trim())
+                .filter(Boolean)
+        ));
+
+        return { title, question, finalAnswer, tags };
+    };
+
     const chatbotService = {
         /**
          * Ask the AI chatbot a question
@@ -425,7 +1012,7 @@
          * @returns {Promise<{question: string, hints: Array, tags: Array, finalAnswer: string}>}
          */
         async ask(question) {
-            return apiFetch('/api/chatbot/ask', {
+            return apiFetch('/community/chatbot/ask', {
                 service: 'legacyCommunity',
                 method: 'POST',
                 auth: true,
@@ -439,12 +1026,38 @@
          * @returns {Promise<object>}
          */
         async publish(data) {
-            return apiFetch('/api/chatbot/publish', {
-                service: 'legacyCommunity',
-                method: 'POST',
-                auth: true,
-                body: data,
-            });
+            const payload = normalizePublishPayload(data);
+            try {
+                return await apiFetch('/community/chatbot/publish', {
+                    service: 'legacyCommunity',
+                    method: 'POST',
+                    auth: true,
+                    body: payload,
+                });
+            } catch (error) {
+                if (!isRoleObjectIdCastError(error)) throw error;
+
+                const questionPayload = await questionService.create({
+                    title: payload.title,
+                    body: payload.question,
+                    tags: payload.tags,
+                });
+                const questionId = extractQuestionId(questionPayload);
+                if (!questionId) throw error;
+
+                const answerPayload = await answerService.create(questionId, {
+                    body: payload.finalAnswer,
+                    isFromAI: true,
+                });
+
+                return {
+                    data: {
+                        question: extractQuestionEntity(questionPayload) || { _id: questionId, id: questionId },
+                        answer: unwrapApiData(answerPayload),
+                        source: 'community-route-fallback',
+                    },
+                };
+            }
         },
     };
 
@@ -461,7 +1074,7 @@
             return apiFetch(`/courses${toQueryString(filters)}`, {
                 service: 'community',
                 method: 'GET',
-                auth: false,
+                auth: true,
             });
         },
 
@@ -474,7 +1087,7 @@
             return apiFetch(`/courses/${id}`, {
                 service: 'community',
                 method: 'GET',
-                auth: false,
+                auth: true,
             });
         },
 
@@ -517,7 +1130,7 @@
          * @returns {Promise<{threads: Array}>}
          */
         async listByCourse(courseId, filters = {}) {
-            return apiFetch(`/threads/course/${courseId}${toQueryString(filters)}`, {
+            return apiFetch(`/community/threads/course/${courseId}${toQueryString(filters)}`, {
                 service: 'community',
                 method: 'GET',
                 auth: true,
@@ -530,7 +1143,7 @@
          * @returns {Promise<{thread: object}>}
          */
         async getById(threadId) {
-            return apiFetch(`/threads/${threadId}`, {
+            return apiFetch(`/community/threads/${threadId}`, {
                 service: 'community',
                 method: 'GET',
                 auth: true,
@@ -544,7 +1157,7 @@
          * @returns {Promise<{thread: object}>}
          */
         async create(courseId, data) {
-            return apiFetch(`/threads/${courseId}`, {
+            return apiFetch(`/community/threads/${courseId}`, {
                 service: 'community',
                 method: 'POST',
                 auth: true,
@@ -559,7 +1172,7 @@
          * @returns {Promise<{thread: object}>}
          */
         async update(threadId, data) {
-            return apiFetch(`/threads/${threadId}`, {
+            return apiFetch(`/community/threads/${threadId}`, {
                 service: 'community',
                 method: 'PATCH',
                 auth: true,
@@ -573,7 +1186,7 @@
          * @returns {Promise<{message: string}>}
          */
         async delete(threadId) {
-            return apiFetch(`/threads/${threadId}`, {
+            return apiFetch(`/community/threads/${threadId}`, {
                 service: 'community',
                 method: 'DELETE',
                 auth: true,
@@ -581,7 +1194,7 @@
         },
 
         async pin(threadId) {
-            return apiFetch(`/threads/${threadId}/pin`, {
+            return apiFetch(`/community/threads/${threadId}/pin`, {
                 service: 'community',
                 method: 'PATCH',
                 auth: true,
@@ -590,7 +1203,7 @@
         },
 
         async unpin(threadId) {
-            return apiFetch(`/threads/${threadId}/unpin`, {
+            return apiFetch(`/community/threads/${threadId}/unpin`, {
                 service: 'community',
                 method: 'PATCH',
                 auth: true,
@@ -599,7 +1212,7 @@
         },
 
         async close(threadId) {
-            return apiFetch(`/threads/${threadId}/close`, {
+            return apiFetch(`/community/threads/${threadId}/close`, {
                 service: 'community',
                 method: 'PATCH',
                 auth: true,
@@ -608,7 +1221,7 @@
         },
 
         async open(threadId) {
-            return apiFetch(`/threads/${threadId}/open`, {
+            return apiFetch(`/community/threads/${threadId}/open`, {
                 service: 'community',
                 method: 'PATCH',
                 auth: true,
@@ -627,7 +1240,7 @@
          * @returns {Promise<{posts: Array}>}
          */
         async listByThread(threadId) {
-            return apiFetch(`/posts/thread/${threadId}`, {
+            return apiFetch(`/community/posts/thread/${threadId}`, {
                 service: 'community',
                 method: 'GET',
                 auth: true,
@@ -640,7 +1253,7 @@
          * @returns {Promise<{post: object}>}
          */
         async getById(postId) {
-            return apiFetch(`/posts/${postId}`, {
+            return apiFetch(`/community/posts/${postId}`, {
                 service: 'community',
                 method: 'GET',
                 auth: true,
@@ -654,7 +1267,7 @@
          * @returns {Promise<{post: object}>}
          */
         async create(threadId, data) {
-            return apiFetch(`/posts/${threadId}`, {
+            return apiFetch(`/community/posts/${threadId}`, {
                 service: 'community',
                 method: 'POST',
                 auth: true,
@@ -669,7 +1282,7 @@
          * @returns {Promise<{post: object}>}
          */
         async update(postId, data) {
-            return apiFetch(`/posts/${postId}`, {
+            return apiFetch(`/community/posts/${postId}`, {
                 service: 'community',
                 method: 'PATCH',
                 auth: true,
@@ -683,7 +1296,7 @@
          * @returns {Promise<{message: string}>}
          */
         async delete(postId) {
-            return apiFetch(`/posts/${postId}`, {
+            return apiFetch(`/community/posts/${postId}`, {
                 service: 'community',
                 method: 'DELETE',
                 auth: true,
@@ -691,7 +1304,7 @@
         },
 
         async pin(postId) {
-            return apiFetch(`/posts/${postId}/pin`, {
+            return apiFetch(`/community/posts/${postId}/pin`, {
                 service: 'community',
                 method: 'PATCH',
                 auth: true,
@@ -700,7 +1313,7 @@
         },
 
         async accept(postId) {
-            return apiFetch(`/posts/${postId}/accept`, {
+            return apiFetch(`/community/posts/${postId}/accept`, {
                 service: 'community',
                 method: 'PATCH',
                 auth: true,
@@ -918,7 +1531,7 @@
         },
 
         async bookmarkContest(id) {
-            const payload = await apiFetch(`/user/contests/${encodeURIComponent(String(id || ''))}/bookmark`, {
+            const payload = await apiFetch(`/contests/user-contests/${encodeURIComponent(String(id || ''))}/bookmark`, {
                 service: 'competitions',
                 method: 'POST',
                 auth: true,
@@ -931,7 +1544,7 @@
         },
 
         async removeBookmark(id) {
-            const payload = await apiFetch(`/user/contests/${encodeURIComponent(String(id || ''))}/bookmark`, {
+            const payload = await apiFetch(`/contests/user-contests/${encodeURIComponent(String(id || ''))}/bookmark`, {
                 service: 'competitions',
                 method: 'DELETE',
                 auth: true,
@@ -944,7 +1557,7 @@
 
         async listBookmarks(filters = {}) {
             const query = buildQueryString({ page: filters.page, limit: filters.limit });
-            const payload = await apiFetch(`/user/contests/bookmarks${query}`, {
+            const payload = await apiFetch(`/contests/user-contests/bookmarks${query}`, {
                 service: 'competitions',
                 method: 'GET',
                 auth: true,
@@ -957,7 +1570,7 @@
         },
 
         async setReminder(id) {
-            const payload = await apiFetch(`/user/contests/${encodeURIComponent(String(id || ''))}/reminder`, {
+            const payload = await apiFetch(`/contests/user-contests/${encodeURIComponent(String(id || ''))}/reminder`, {
                 service: 'competitions',
                 method: 'POST',
                 auth: true,
@@ -970,7 +1583,7 @@
         },
 
         async removeReminder(id) {
-            const payload = await apiFetch(`/user/contests/${encodeURIComponent(String(id || ''))}/reminder`, {
+            const payload = await apiFetch(`/contests/user-contests/${encodeURIComponent(String(id || ''))}/reminder`, {
                 service: 'competitions',
                 method: 'DELETE',
                 auth: true,
@@ -983,7 +1596,7 @@
 
         async listReminders(filters = {}) {
             const query = buildQueryString({ page: filters.page, limit: filters.limit });
-            const payload = await apiFetch(`/user/contests/reminders${query}`, {
+            const payload = await apiFetch(`/contests/user-contests/reminders${query}`, {
                 service: 'competitions',
                 method: 'GET',
                 auth: true,
@@ -996,7 +1609,7 @@
         },
 
         async joinContest(id) {
-            const payload = await apiFetch(`/user/contests/${encodeURIComponent(String(id || ''))}/join`, {
+            const payload = await apiFetch(`/contests/user-contests/${encodeURIComponent(String(id || ''))}/join`, {
                 service: 'competitions',
                 method: 'POST',
                 auth: true,
@@ -1016,7 +1629,7 @@
                 page: filters.page,
                 limit: filters.limit,
             });
-            const payload = await apiFetch(`/user/contests/history${query}`, {
+            const payload = await apiFetch(`/contests/user-contests/history${query}`, {
                 service: 'competitions',
                 method: 'GET',
                 auth: true,
@@ -1028,7 +1641,7 @@
         },
 
         async linkAccounts(accounts) {
-            const payload = await apiFetch('/accounts/link', {
+            const payload = await apiFetch('/contests/accounts/link', {
                 service: 'competitions',
                 method: 'POST',
                 auth: true,
@@ -1041,7 +1654,7 @@
         },
 
         async startVerification(platform) {
-            const payload = await apiFetch('/accounts/verify/start', {
+            const payload = await apiFetch('/contests/accounts/verify/start', {
                 service: 'competitions',
                 method: 'POST',
                 auth: true,
@@ -1054,7 +1667,7 @@
         },
 
         async checkVerification(platform) {
-            const payload = await apiFetch('/accounts/verify/check', {
+            const payload = await apiFetch('/contests/accounts/verify/check', {
                 service: 'competitions',
                 method: 'POST',
                 auth: true,
@@ -1067,7 +1680,7 @@
         },
 
         async getAggregatedProfile(userId) {
-            const payload = await apiFetch(`/accounts/profile/${encodeURIComponent(String(userId || ''))}`, {
+            const payload = await apiFetch(`/contests/accounts/profile/${encodeURIComponent(String(userId || ''))}`, {
                 service: 'competitions',
                 method: 'GET',
                 auth: true,
@@ -1077,7 +1690,7 @@
 
         async syncProfile(options = {}) {
             const force = options.force === true;
-            const payload = await apiFetch(`/accounts/profile/sync${force ? '?force=true' : ''}`, {
+            const payload = await apiFetch(`/contests/accounts/profile/sync${force ? '?force=true' : ''}`, {
                 service: 'competitions',
                 method: 'POST',
                 auth: true,
