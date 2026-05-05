@@ -3,155 +3,177 @@ const projectsPageState = {
     trackingCourseId: '',
     activeViewId: 'my-projects-view',
     activeProjectId: '',
-    activeMilestoneId: '',
-    overview: null,
     ui: {
         statusCounters: { approved: 0, in_review: 0, complete: 0 },
-        projects: []
+        projects: [],
     },
-    asyncState: { loadingFeedback: false, submitting: false },
-    pollingInterval: null // Moved here to prevent memory leaks
+    pollingInterval: null,
+    groupWorkspaceStatusType: 'info',
 };
 
 const milestoneStatusUiMap = Object.freeze({
-    approved: { label: 'Approved', badgeClass: 'badge-graded', iconClass: 'fa-solid fa-check', iconContainerClass: 'm-graded', iconInlineStyle: '' },
-    in_review: { label: 'In Review', badgeClass: 'badge-submitted', iconClass: 'fa-solid fa-hourglass-half', iconContainerClass: 'm-submitted', iconInlineStyle: '' },
-    needs_changes: { label: 'Needs Changes', badgeClass: 'badge-late', iconClass: 'fa-solid fa-rotate-right', iconContainerClass: 'm-default', iconInlineStyle: 'border-color: var(--status-late-text); color: var(--status-late-text);' },
-    pending: { label: 'Pending', badgeClass: 'badge-default', iconClass: 'fa-solid fa-clock', iconContainerClass: 'm-default', iconInlineStyle: '' },
-    draft: { label: 'Draft Saved', badgeClass: 'badge-default', iconClass: 'fa-regular fa-floppy-disk', iconContainerClass: 'm-default', iconInlineStyle: '' },
-    complete: { label: 'Complete', badgeClass: 'badge-submitted', iconClass: 'fa-solid fa-flag-checkered', iconContainerClass: 'm-submitted', iconInlineStyle: '' },
-    default: { label: 'Pending', badgeClass: 'badge-default', iconClass: 'fa-solid fa-clock', iconContainerClass: 'm-default', iconInlineStyle: '' }
+    approved: {
+        label: 'Approved',
+        badgeClass: 'badge-graded',
+        iconClass: 'fa-solid fa-check',
+        iconContainerClass: 'm-graded',
+        canFeedback: true,
+        canSubmit: false,
+    },
+    in_review: {
+        label: 'In Review',
+        badgeClass: 'badge-submitted',
+        iconClass: 'fa-solid fa-hourglass-half',
+        iconContainerClass: 'm-submitted',
+        canFeedback: false,
+        canSubmit: false,
+    },
+    needs_changes: {
+        label: 'Needs Changes',
+        badgeClass: 'badge-late',
+        iconClass: 'fa-solid fa-rotate-right',
+        iconContainerClass: 'm-default',
+        canFeedback: true,
+        canSubmit: true,
+    },
+    pending: {
+        label: 'Pending',
+        badgeClass: 'badge-default',
+        iconClass: 'fa-solid fa-clock',
+        iconContainerClass: 'm-default',
+        canFeedback: false,
+        canSubmit: true,
+    },
+    complete: {
+        label: 'Complete',
+        badgeClass: 'badge-submitted',
+        iconClass: 'fa-solid fa-flag-checkered',
+        iconContainerClass: 'm-submitted',
+        canFeedback: true,
+        canSubmit: false,
+    },
+    default: {
+        label: 'Pending',
+        badgeClass: 'badge-default',
+        iconClass: 'fa-solid fa-clock',
+        iconContainerClass: 'm-default',
+        canFeedback: false,
+        canSubmit: true,
+    },
 });
 
 const projectsApiClient = window.NibrasProjectsApi?.createClient?.({
     baseUrl: window.NibrasShared?.resolveServiceUrl?.('tracking') || window.NIBRAS_TRACKING_API_URL,
-    mockMode: window.NIBRAS_PROJECTS_MOCK_MODE === true,
-    getAuthToken: () => window.NibrasShared?.auth?.getToken?.() || localStorage.getItem('token') || null
+    getAuthToken: () => window.NibrasShared?.auth?.getToken?.() || localStorage.getItem('token') || null,
 }) || null;
 
-// Utility: ID Normalization
 const IDs = {
-    toDom: (id) => String(id || '').startsWith('project-') ? id : `project-${id}`,
-    toApi: (id) => String(id || '').replace(/^project-/i, '')
+    toDom: (id) => String(id || '').startsWith('project-') ? String(id) : `project-${id}`,
+    toApi: (id) => String(id || '').replace(/^project-/i, ''),
 };
 
-// --- Main Initialization ---
-
 window.NibrasReact.run(() => {
-    // FIX: Ensure DOM is fully loaded before running logic
     document.addEventListener('DOMContentLoaded', () => {
-        // Always setup theme toggle first (works without course)
         setupThemeToggle();
-        
-        const selectedCourse = window.NibrasCourses?.getSelectedCourse?.();
-        if (!selectedCourse) return;
+        setGroupWorkspaceStatus('info', 'Student mode: Group Workspace is visible but read-only in this integration.');
 
-        // 1. Setup Course Context
+        const selectedCourse = window.NibrasCourses?.getSelectedCourse?.();
+        if (!selectedCourse) {
+            setApiNotice('Please select a course first.', 'empty');
+            return;
+        }
+
         const context = resolveProjectsCourseContext(selectedCourse);
         projectsPageState.courseId = String(context.localCourseId || '');
         projectsPageState.trackingCourseId = String(context.trackingCourseIdForApi || '');
 
-        // 2. Update UI Elements
         updateCourseMeta(selectedCourse);
         setupNavigationLinks(context.localCourseId);
-        
-        // 3. Load Data
-        void loadProjectsOverview();
 
-        // 4. Setup Form Listeners
         const submitForm = document.getElementById('milestoneSubmitForm');
         if (submitForm) submitForm.addEventListener('submit', handleMilestoneSubmit);
+
+        void loadProjectsOverview();
     });
 });
 
 async function loadProjectsOverview() {
-    if (!projectsApiClient) return;
+    if (!projectsApiClient) {
+        setApiNotice('Projects API is not configured.', 'error');
+        return;
+    }
+
     setApiNotice('Loading projects...', 'loading');
     try {
-        const response = await projectsApiClient.getProjectsOverview({ courseId: projectsPageState.trackingCourseId });
-        const payload = response.data;
-        if (payload && Array.isArray(payload.projects)) {
-            mergeOverviewToState(payload);
-            renderProjects();
-            setApiNotice(payload.pageError || '', payload.pageError ? 'empty' : '');
-        }
+        const response = await projectsApiClient.getProjectsOverview({
+            courseId: projectsPageState.trackingCourseId,
+        });
+        const payload = response?.data || {};
+        mergeOverviewToState(payload);
+        renderProjects();
+        updateHeaderStats();
+        setApiNotice(payload.pageError || '', payload.pageError ? 'empty' : '');
+        setGroupWorkspaceStatus('ok', 'Student mode: Group Workspace is read-only here. Tracking API connection is active.');
     } catch (error) {
-        setApiNotice('Unable to load projects.', 'error');
+        const message = formatRequestError(error, 'Unable to load projects.');
+        setApiNotice(message, 'error');
+        setGroupWorkspaceStatus('error', `Student mode: Group Workspace is read-only. API status: ${message}`);
     }
 }
 
-async function handleMilestoneSubmit(event) {
-    event.preventDefault();
-    const form = event.currentTarget;
-    if (!projectsApiClient) return;
+function mergeOverviewToState(payload) {
+    const projects = Array.isArray(payload?.projects) ? payload.projects : [];
+    projectsPageState.ui.projects = projects.map((project, index) => {
+        const projectId = IDs.toApi(project.projectId || project.id || index + 1);
+        const projectKey = String(project.projectKey || '');
 
-    const payload = buildSubmissionPayload(form);
-    setSubmissionBusy(true, 'Submitting...');
+        return {
+            domId: IDs.toDom(projectId),
+            apiProjectId: projectId,
+            projectKey,
+            card: {
+                title: String(project.title || `Project ${index + 1}`),
+                meta: String(project.cardMeta || ''),
+            },
+            details: {
+                title: String(project.title || `Project ${index + 1}`),
+                description: String(project.description || ''),
+            },
+            milestones: Array.isArray(project.milestones) ? project.milestones : [],
+            stats: {
+                completion: Number(project.stats?.completion || 0),
+                approved: Number(project.stats?.approved || 0),
+                in_review: Number(project.stats?.in_review || 0),
+                complete: Number(project.stats?.complete || 0),
+                total: Number(project.stats?.total || 0),
+            },
+            cli: {
+                setupCommand: `nibras setup --project ${projectKey || 'your-course/project-key'}`,
+            },
+        };
+    });
 
-    try {
-        const result = await projectsApiClient.submitMilestone(payload);
-        if (result.ok && result.data?.submissionId) {
-            showPulseTracker(result.data.submissionId);
-        } else {
-            setSubmissionMessage('Submitted successfully.', 'success');
-            setTimeout(() => closeModal('submissionModal'), 2000);
-        }
-    } catch (error) {
-        setSubmissionMessage(error.message || 'Submission failed.', 'error');
-    } finally {
-        // FIX: Always unlock button regardless of outcome
-        setSubmissionBusy(false);
+    if (!projectsPageState.ui.projects.length) {
+        projectsPageState.activeProjectId = '';
+    } else if (!projectsPageState.activeProjectId
+        || !projectsPageState.ui.projects.some((entry) => entry.domId === projectsPageState.activeProjectId)) {
+        projectsPageState.activeProjectId = projectsPageState.ui.projects[0].domId;
     }
+
+    const payloadCounters = payload?.statusCounters || {};
+    const computedCounters = projectsPageState.ui.projects.reduce((acc, project) => {
+        acc.approved += project.stats.approved;
+        acc.in_review += project.stats.in_review;
+        acc.complete += project.stats.complete;
+        return acc;
+    }, { approved: 0, in_review: 0, complete: 0 });
+
+    projectsPageState.ui.statusCounters = {
+        approved: Number(payloadCounters.approved ?? computedCounters.approved),
+        in_review: Number(payloadCounters.in_review ?? computedCounters.in_review),
+        complete: Number(payloadCounters.complete ?? computedCounters.complete),
+    };
 }
-
-function showPulseTracker(submissionId) {
-    const formContent = document.getElementById('milestone-form-content');
-    const pulseTracker = document.getElementById('modal-pulse-tracker');
-    const submitBtn = document.getElementById('submit-milestone-btn');
-
-    if (formContent) formContent.style.display = 'none';
-    if (pulseTracker) pulseTracker.style.display = 'block';
-    if (submitBtn) submitBtn.style.display = 'none';
-
-    updatePulseUI('queued');
-
-    // FIX: Use state-managed interval for clean clearing
-    projectsPageState.pollingInterval = setInterval(async () => {
-        try {
-            const statusData = await projectsApiClient.getSubmissionStatus(submissionId);
-            const status = String(statusData.status || '');
-            updatePulseUI(status);
-
-            if (['completed', 'passed', 'approved', 'failed', 'error'].includes(status)) {
-                clearInterval(projectsPageState.pollingInterval);
-                projectsPageState.pollingInterval = null;
-                document.getElementById('btn-close-pulse').style.display = 'inline-block';
-                void loadProjectsOverview();
-            }
-        } catch (e) { console.warn('Polling error:', e); }
-    }, 3000);
-}
-
-function closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.classList.remove('active');
-        modal.setAttribute('aria-hidden', 'true');
-    }
-
-    // FIX: Stop polling immediately if the modal is closed
-    if (modalId === 'submissionModal' && projectsPageState.pollingInterval) {
-        clearInterval(projectsPageState.pollingInterval);
-        projectsPageState.pollingInterval = null;
-    }
-
-    if (modalId === 'submissionModal') {
-        document.getElementById('milestoneSubmitForm')?.reset();
-        setSubmissionMessage('');
-    }
-}
-
-// --- Render Functions ---
 
 function renderProjects() {
     const tabsRoot = document.getElementById('projectListTabs');
@@ -160,20 +182,23 @@ function renderProjects() {
     const projects = projectsPageState.ui.projects;
     if (!projects.length) {
         tabsRoot.innerHTML = '<div class="project-card-tab active"><h3>No Projects Found</h3></div>';
+        const host = document.getElementById('projectDetailsHost');
+        if (host) host.innerHTML = '<div class="card"><p>No project details available yet.</p></div>';
+        updateCliHelpContent(null);
         return;
     }
 
-    tabsRoot.innerHTML = projects.map(p => `
-        <button type="button" class="project-card-tab ${p.domId === projectsPageState.activeProjectId ? 'active' : ''}" 
-                data-dom-id="${p.domId}">
-            <h3>${p.card.title}</h3>
-            <p>${p.card.meta}</p>
+    tabsRoot.innerHTML = projects.map((project) => `
+        <button type="button" class="project-card-tab ${project.domId === projectsPageState.activeProjectId ? 'active' : ''}"
+                data-dom-id="${escapeHtml(project.domId)}">
+            <h3>${escapeHtml(project.card.title)}</h3>
+            <p>${escapeHtml(project.card.meta || 'Project')}</p>
         </button>
     `).join('');
 
-    tabsRoot.querySelectorAll('.project-card-tab').forEach(btn => {
-        btn.onclick = () => {
-            projectsPageState.activeProjectId = btn.dataset.domId;
+    tabsRoot.querySelectorAll('.project-card-tab').forEach((button) => {
+        button.onclick = () => {
+            projectsPageState.activeProjectId = button.dataset.domId || '';
             renderProjects();
         };
     });
@@ -185,9 +210,10 @@ function renderProjectDetails() {
     const host = document.getElementById('projectDetailsHost');
     if (!host) return;
 
-    const project = projectsPageState.ui.projects.find(p => p.domId === projectsPageState.activeProjectId);
+    const project = projectsPageState.ui.projects.find((entry) => entry.domId === projectsPageState.activeProjectId);
     if (!project) {
-        host.innerHTML = '<p>Select a project to view details.</p>';
+        host.innerHTML = '<div class="card"><p>Select a project to view details.</p></div>';
+        updateCliHelpContent(null);
         return;
     }
 
@@ -196,63 +222,137 @@ function renderProjectDetails() {
             <div class="two-col-grid">
                 <div class="left-col">
                     <div class="card">
-                        <h3>${project.details.title}</h3>
-                        <p>${project.details.description}</p>
+                        <h3>${escapeHtml(project.details.title)}</h3>
+                        <p class="section-desc">${escapeHtml(project.details.description || 'No description provided yet.')}</p>
                     </div>
                     <div class="card">
                         <div class="card-header"><h4>Milestones</h4></div>
                         <div class="timeline">
-                            ${project.milestones.map(m => createMilestoneRow(project, m)).join('')}
+                            ${project.milestones.map((milestone) => createMilestoneRow(project, milestone)).join('')}
                         </div>
                     </div>
                 </div>
                 <div class="right-col">
                     <div class="card progress-widget">
-                        <h4>Progress: ${project.stats.completion}%</h4>
+                        <h4>Overall Progress: ${Math.max(0, Math.min(100, Math.round(project.stats.completion || 0)))}%</h4>
                         <div class="progress-bar-container">
-                            <div class="progress-fill" style="width: ${project.stats.completion}%"></div>
+                            <div class="progress-fill" style="width: ${Math.max(0, Math.min(100, Math.round(project.stats.completion || 0)))}%"></div>
                         </div>
+                        <div class="stat-row"><span>Approved</span><span class="stat-val green">${project.stats.approved}</span></div>
+                        <div class="stat-row"><span>In Review</span><span class="stat-val">${project.stats.in_review}</span></div>
+                        <div class="stat-row"><span>Total Milestones</span><span class="stat-val">${project.stats.total}</span></div>
                     </div>
+                    ${createCliQuickstartCard(project)}
                 </div>
             </div>
         </div>
     `;
+
+    updateCliHelpContent(project);
 }
 
-function createMilestoneRow(project, m) {
-    const status = m.status;
-    const cfg = milestoneStatusUiMap[status] || milestoneStatusUiMap.default;
-    const apiProjId = IDs.toApi(project.apiProjectId);
-    const apiMileId = m.apiMilestoneId;
+function createMilestoneRow(project, milestone) {
+    const status = String(milestone?.status || 'pending');
+    const config = milestoneStatusUiMap[status] || milestoneStatusUiMap.default;
+    const milestoneId = String(milestone?.apiMilestoneId || milestone?.id || '');
+    const canSubmit = config.canSubmit && milestoneId;
+    const canFeedback = config.canFeedback && milestoneId;
+
+    let actions = '';
+    if (canFeedback) {
+        actions += `<button class="btn btn-outline btn-sm" type="button" onclick="openFeedbackModal('${escapeHtml(project.apiProjectId)}','${escapeHtml(milestoneId)}')">View Feedback</button> `;
+    }
+    if (canSubmit) {
+        actions += `<button class="btn btn-primary btn-sm" type="button" onclick="openSubmissionModal('${escapeHtml(project.apiProjectId)}','${escapeHtml(milestoneId)}')">Submit Milestone</button>`;
+    }
+    if (!actions) actions = '<span class="card-subtitle">No action needed.</span>';
 
     return `
         <div class="milestone">
-            <div class="m-icon ${cfg.iconContainerClass}"><i class="${cfg.iconClass}"></i></div>
+            <div class="m-icon ${config.iconContainerClass}"><i class="${config.iconClass}"></i></div>
             <div class="m-content">
                 <div class="m-header">
-                    <h4>${m.title}</h4>
-                    <span class="status-badge ${cfg.badgeClass}">${cfg.label}</span>
+                    <h4>${escapeHtml(String(milestone?.title || 'Milestone'))}</h4>
+                    <span class="status-badge ${config.badgeClass}">${config.label}</span>
                 </div>
-                <div class="m-meta"><i class="fa-regular fa-calendar"></i> ${m.dueLabel || 'TBD'}</div>
-                <button class="btn btn-sm" onclick="openSubmissionModal('${apiProjId}', '${apiMileId}')">
-                    Submit Milestone
-                </button>
+                <div class="m-meta"><i class="fa-regular fa-calendar"></i> ${escapeHtml(String(milestone?.dueLabel || milestone?.dueDateLabel || 'TBD'))}</div>
+                <div class="cli-actions">${actions}</div>
             </div>
         </div>
     `;
 }
 
-// --- Helpers ---
+function createCliQuickstartCard(project) {
+    return `
+        <div class="card cli-quickstart">
+            <div class="card-header"><h4>CLI Quickstart</h4></div>
+            <p class="section-desc">Use the Nibras CLI to setup, test, and submit this project from your terminal.</p>
+            <div class="cli-command-box">
+                <code class="cli-command">${escapeHtml(project.cli.setupCommand)}</code>
+            </div>
+            <div class="cli-actions">
+                <button class="btn btn-outline btn-sm" type="button" onclick="copyActiveCliSetupCommand()">Copy setup command</button>
+                <button class="btn btn-primary btn-sm" type="button" onclick="openCliHelpModal()">Open CLI Guide</button>
+            </div>
+        </div>
+    `;
+}
 
-function mergeOverviewToState(payload) {
-    projectsPageState.ui.projects = payload.projects.map((p, i) => ({
-        domId: IDs.toDom(i + 1),
-        apiProjectId: IDs.toApi(p.projectId),
-        card: { title: p.title, meta: p.cardMeta || 'Individual' },
-        details: { title: p.title, description: p.description || '' },
-        milestones: p.milestones || [],
-        stats: p.stats || { completion: 0, approved: 0, total: 0 }
-    }));
+function updateHeaderStats() {
+    const counters = projectsPageState.ui.statusCounters;
+
+    const approved = document.querySelector('[data-counter="approved"]');
+    const inReview = document.querySelector('[data-counter="in_review"]');
+    const complete = document.querySelector('[data-counter="complete"]');
+    if (approved) approved.textContent = `Approved: ${counters.approved}`;
+    if (inReview) inReview.textContent = `In Review: ${counters.in_review}`;
+    if (complete) complete.textContent = `Complete: ${counters.complete}`;
+
+    const projects = projectsPageState.ui.projects;
+    const averageCompletion = projects.length
+        ? Math.round(projects.reduce((sum, project) => sum + (project.stats.completion || 0), 0) / projects.length)
+        : 0;
+    const completionLabel = document.querySelector('.header-stats .stat-line.secondary');
+    if (completionLabel) completionLabel.textContent = `${averageCompletion}% Complete`;
+}
+
+function updateCliHelpContent(project) {
+    const cliBase = projectsApiClient?.getCliBaseUrl?.() || resolveCliApiBase();
+    const projectKey = project?.projectKey || 'your-course/project-key';
+    const setupCommand = `nibras setup --project ${projectKey}`;
+    const loginCommand = `nibras login --api-base-url ${cliBase || 'https://nibras-web.fly.dev'}`;
+
+    const loginCode = document.getElementById('nibras-login');
+    const setupCode = document.getElementById('nibras-setup');
+    const setupHint = document.getElementById('nibras-setup-project-key');
+
+    if (loginCode) loginCode.textContent = loginCommand;
+    if (setupCode) setupCode.textContent = setupCommand;
+    if (setupHint) setupHint.textContent = projectKey;
+}
+
+async function handleMilestoneSubmit(event) {
+    event.preventDefault();
+    if (!projectsApiClient) return;
+
+    const payload = buildSubmissionPayload(event.currentTarget);
+    setSubmissionBusy(true, 'Submitting...');
+
+    try {
+        const result = await projectsApiClient.submitMilestone(payload);
+        const submissionId = String(result?.data?.submissionId || '');
+        if (submissionId) {
+            showPulseTracker(submissionId);
+        } else {
+            setSubmissionMessage('Submitted successfully.', 'success');
+            setTimeout(() => closeModal('submissionModal'), 1200);
+            await loadProjectsOverview();
+        }
+    } catch (error) {
+        setSubmissionMessage(formatRequestError(error, 'Submission failed.'), 'error');
+    } finally {
+        setSubmissionBusy(false);
+    }
 }
 
 function buildSubmissionPayload(form) {
@@ -260,99 +360,219 @@ function buildSubmissionPayload(form) {
     return {
         courseId: projectsPageState.trackingCourseId,
         projectId: IDs.toApi(data.get('project_id')),
-        milestoneId: data.get('milestone_id'),
-        submissionType: data.get('submission_type') || 'link',
-        resourceLink: data.get('resource_link'),
-        branch: data.get('submission_branch') || 'main',
-        commitSha: data.get('submission_commit_sha') || ''
+        milestoneId: String(data.get('milestone_id') || ''),
+        submissionType: String(data.get('submission_type') || 'github'),
+        resourceLink: String(data.get('resource_link') || ''),
+        branch: String(data.get('submission_branch') || 'main'),
+        commitSha: String(data.get('submission_commit_sha') || ''),
+        notes: String(data.get('notes') || ''),
     };
 }
 
-function setApiNotice(msg, type) {
-    const el = document.getElementById('projects-api-notice');
-    if (!el) return;
-    el.hidden = !msg;
-    el.textContent = msg;
-    el.style.color = type === 'error' ? 'red' : 'var(--text-secondary)';
-}
+function showPulseTracker(submissionId) {
+    const formContent = document.getElementById('milestone-form-content');
+    const pulseTracker = document.getElementById('modal-pulse-tracker');
+    const submitButton = document.getElementById('submit-milestone-btn');
+    const closePulseButton = document.getElementById('btn-close-pulse');
 
-function setSubmissionBusy(busy, msg) {
-    const btn = document.getElementById('submit-milestone-btn');
-    if (btn) btn.disabled = busy;
-    if (msg) setSubmissionMessage(msg);
-}
+    if (formContent) formContent.style.display = 'none';
+    if (pulseTracker) pulseTracker.style.display = 'block';
+    if (submitButton) submitButton.style.display = 'none';
+    if (closePulseButton) closePulseButton.style.display = 'none';
 
-function setSubmissionMessage(msg, type) {
-    const el = document.getElementById('submission-status-message');
-    if (el) {
-        el.textContent = msg;
-        el.style.color = type === 'success' ? 'green' : (type === 'error' ? 'red' : 'inherit');
+    updatePulseUI('queued');
+
+    if (projectsPageState.pollingInterval) {
+        clearInterval(projectsPageState.pollingInterval);
     }
+
+    projectsPageState.pollingInterval = setInterval(async () => {
+        try {
+            const statusData = await projectsApiClient.getSubmissionStatus(submissionId);
+            const status = String(statusData?.status || '');
+            updatePulseUI(status);
+
+            if (['completed', 'passed', 'approved', 'failed', 'error'].includes(status)) {
+                clearInterval(projectsPageState.pollingInterval);
+                projectsPageState.pollingInterval = null;
+                if (closePulseButton) closePulseButton.style.display = 'inline-block';
+                setSubmissionMessage(status === 'failed' ? 'Submission failed.' : 'Submission completed.', status === 'failed' ? 'error' : 'success');
+                await loadProjectsOverview();
+            }
+        } catch (error) {
+            clearInterval(projectsPageState.pollingInterval);
+            projectsPageState.pollingInterval = null;
+            setSubmissionMessage(formatRequestError(error, 'Unable to fetch submission status.'), 'error');
+        }
+    }, 3000);
 }
 
 function updatePulseUI(status) {
     const steps = { init: 'step-init', clone: 'step-clone', test: 'step-test', grade: 'step-grade' };
-    Object.values(steps).forEach(id => document.getElementById(id)?.classList.remove('step-active', 'step-done'));
-    
-    if (status === 'queued') document.getElementById(steps.init)?.classList.add('step-active');
-    else if (status === 'cloning') {
+    Object.values(steps).forEach((id) => {
+        const element = document.getElementById(id);
+        if (element) element.classList.remove('step-active', 'step-done');
+    });
+
+    if (status === 'queued') {
+        document.getElementById(steps.init)?.classList.add('step-active');
+        return;
+    }
+    if (status === 'cloning') {
         document.getElementById(steps.init)?.classList.add('step-done');
         document.getElementById(steps.clone)?.classList.add('step-active');
-    } else if (status === 'running') {
+        return;
+    }
+    if (status === 'running') {
         document.getElementById(steps.init)?.classList.add('step-done');
         document.getElementById(steps.clone)?.classList.add('step-done');
         document.getElementById(steps.test)?.classList.add('step-active');
-    } else if (status === 'completed') {
-        Object.values(steps).forEach(id => document.getElementById(id)?.classList.add('step-done'));
+        return;
+    }
+    if (['completed', 'passed', 'approved'].includes(status)) {
+        Object.values(steps).forEach((id) => document.getElementById(id)?.classList.add('step-done'));
+        return;
+    }
+    if (['failed', 'error'].includes(status)) {
+        document.getElementById(steps.init)?.classList.add('step-done');
+        document.getElementById(steps.clone)?.classList.add('step-done');
+        document.getElementById(steps.test)?.classList.add('step-done');
+        document.getElementById(steps.grade)?.classList.add('step-active');
+    }
+}
+
+function resetSubmissionModalUi() {
+    const form = document.getElementById('milestoneSubmitForm');
+    const formContent = document.getElementById('milestone-form-content');
+    const pulseTracker = document.getElementById('modal-pulse-tracker');
+    const submitButton = document.getElementById('submit-milestone-btn');
+    const closePulseButton = document.getElementById('btn-close-pulse');
+
+    if (form) form.reset();
+    if (formContent) formContent.style.display = 'block';
+    if (pulseTracker) pulseTracker.style.display = 'none';
+    if (submitButton) submitButton.style.display = 'inline-flex';
+    if (closePulseButton) closePulseButton.style.display = 'none';
+    setSubmissionMessage('');
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('active');
+        modal.setAttribute('aria-hidden', 'true');
+    }
+
+    if (modalId === 'submissionModal') {
+        if (projectsPageState.pollingInterval) {
+            clearInterval(projectsPageState.pollingInterval);
+            projectsPageState.pollingInterval = null;
+        }
+        resetSubmissionModalUi();
+    }
+}
+
+function setApiNotice(message, type) {
+    const element = document.getElementById('projects-api-notice');
+    if (!element) return;
+    element.hidden = !message;
+    element.textContent = message;
+    element.style.color = type === 'error' ? 'red' : 'var(--text-secondary)';
+}
+
+function setGroupWorkspaceStatus(type, message) {
+    const notice = document.getElementById('group-readonly-notice');
+    if (!notice) return;
+    projectsPageState.groupWorkspaceStatusType = type;
+    notice.textContent = message;
+    if (type === 'error') {
+        notice.style.color = 'red';
+    } else if (type === 'ok') {
+        notice.style.color = 'var(--status-graded-text)';
+    } else {
+        notice.style.color = 'var(--text-secondary)';
+    }
+}
+
+function formatRequestError(error, fallbackMessage) {
+    const code = String(error?.code || '').toUpperCase();
+    const status = Number(error?.status || 0);
+    const rawMessage = String(error?.message || '').trim();
+
+    if (code === 'NETWORK_OR_CORS' || rawMessage.toLowerCase().includes('failed to fetch')) {
+        return `Could not reach tracking API from ${window.location.origin}. Usually CORS/network. Add this origin to API CORS allowlist (NIBRAS_WEB_CORS_ORIGINS).`;
+    }
+    if (code === 'AUTH_REQUIRED' || status === 401) {
+        return 'Tracking API authentication is required. Please sign in again and retry.';
+    }
+    if (code === 'FORBIDDEN' || status === 403) {
+        return 'Your account does not have access to this course/milestone data yet.';
+    }
+    if (code === 'NOT_FOUND' || status === 404) {
+        return 'Requested project/milestone data was not found.';
+    }
+    return rawMessage || fallbackMessage;
+}
+
+function setSubmissionBusy(busy, message) {
+    const button = document.getElementById('submit-milestone-btn');
+    if (button) button.disabled = Boolean(busy);
+    if (message) setSubmissionMessage(message, busy ? '' : 'success');
+}
+
+function setSubmissionMessage(message, type) {
+    const element = document.getElementById('submission-status-message');
+    if (!element) return;
+    element.textContent = message || '';
+    if (type === 'error') {
+        element.style.color = 'red';
+    } else if (type === 'success') {
+        element.style.color = 'green';
+    } else {
+        element.style.color = 'inherit';
     }
 }
 
 function updateCourseMeta(course) {
-    const title = document.querySelector(".course-meta h4");
-    if (title) title.textContent = `${course.code}: ${course.title}`;
+    const sidebarTitle = document.querySelector('.course-meta h4');
+    if (sidebarTitle) sidebarTitle.textContent = `${course.code}: ${course.title}`;
+
+    const pageSubtitle = document.querySelector('.header-titles p');
+    if (pageSubtitle) pageSubtitle.textContent = `${course.code}: ${course.title}`;
 }
 
 function setupNavigationLinks(courseId) {
-    // Update data-nav-link elements
     const navLinks = [
-        { key: "courseContent", path: "../Course Description/courseContent.html" },
-        { key: "videos", path: "../Videos/videos.html" },
-        { key: "assignments", path: "../Assignments/Assignments.html" },
-        { key: "projects", path: "./Projects.html" },
-        { key: "grades", path: "../Grades/grades.html" },
+        { key: 'courseContent', path: '../Course Description/courseContent.html' },
+        { key: 'videos', path: '../Videos/videos.html' },
+        { key: 'assignments', path: '../Assignments/Assignments.html' },
+        { key: 'projects', path: './Projects.html' },
+        { key: 'grades', path: '../Grades/grades.html' },
     ];
 
     navLinks.forEach(({ key, path }) => {
-        const el = document.querySelector(`[data-nav-link="${key}"]`);
-        if (el) el.setAttribute("href", window.NibrasCourses.withCourseId(path, courseId));
+        const element = document.querySelector(`[data-nav-link="${key}"]`);
+        if (element) element.setAttribute('href', window.NibrasCourses.withCourseId(path, courseId));
     });
 
-    // Also update back button
-    const backBtn = document.querySelector(".back-btn");
-    if (backBtn) backBtn.setAttribute("href", window.NibrasCourses.withCourseId("../courses.html", courseId));
+    const backButton = document.querySelector('.back-btn');
+    if (backButton) backButton.setAttribute('href', window.NibrasCourses.withCourseId('../courses.html', courseId));
 }
 
 function setupThemeToggle() {
-    const btn = document.getElementById('themeBtn');
-    if (!btn) return;
-    
-    // Update button based on current theme
+    const button = document.getElementById('themeBtn');
+    if (!button) return;
+
     function updateThemeButton() {
         const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        const icon = btn.querySelector('i');
-        const text = btn.querySelector('span');
-        if (icon) {
-            icon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
-        }
-        if (text) {
-            text.textContent = isDark ? 'Light Mode' : 'Dark Mode';
-        }
+        const icon = button.querySelector('i');
+        const text = button.querySelector('span');
+        if (icon) icon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        if (text) text.textContent = isDark ? 'Light Mode' : 'Dark Mode';
     }
-    
-    // Set initial state
+
     updateThemeButton();
-    
-    btn.onclick = () => {
+    button.onclick = () => {
         const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', theme);
         localStorage.setItem('theme', theme);
@@ -363,13 +583,168 @@ function setupThemeToggle() {
 function resolveProjectsCourseContext(course) {
     return {
         localCourseId: course.id,
-        trackingCourseIdForApi: course.trackingCourseId || course.id
+        trackingCourseIdForApi: course.trackingCourseId || course.id,
     };
 }
 
-// Global access for modal buttons
-window.openSubmissionModal = (projId, mileId) => {
-    document.getElementById('modal_project_id').value = projId;
-    document.getElementById('modal_milestone_id').value = mileId;
-    document.getElementById('submissionModal').classList.add('active');
+function resolveCliApiBase() {
+    const raw = String(window.NibrasShared?.resolveServiceUrl?.('tracking') || window.NIBRAS_TRACKING_API_URL || '').trim();
+    if (!raw) return 'https://nibras-web.fly.dev';
+    return raw.replace(/\/+$/, '').replace(/\/v1$/i, '');
+}
+
+function escapeHtml(value) {
+    return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function formatDateTime(value) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return 'N/A';
+    return date.toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    });
+}
+
+window.switchView = (viewId, event) => {
+    projectsPageState.activeViewId = viewId;
+
+    document.querySelectorAll('.context-tab').forEach((tab) => {
+        tab.classList.remove('active');
+        tab.setAttribute('aria-pressed', 'false');
+    });
+
+    if (event?.target) {
+        event.target.classList.add('active');
+        event.target.setAttribute('aria-pressed', 'true');
+    }
+
+    document.querySelectorAll('.view-section').forEach((section) => {
+        section.classList.remove('active');
+    });
+
+    document.getElementById(viewId)?.classList.add('active');
+    if (viewId === 'my-projects-view') void loadProjectsOverview();
 };
+
+window.selectProject = (domId, event) => {
+    projectsPageState.activeProjectId = String(domId || '');
+    if (event?.target) {
+        document.querySelectorAll('.project-card-tab').forEach((button) => {
+            button.classList.remove('active');
+            button.setAttribute('aria-pressed', 'false');
+        });
+        event.target.classList.add('active');
+        event.target.setAttribute('aria-pressed', 'true');
+    }
+    renderProjects();
+};
+
+window.openSubmissionModal = (projectId, milestoneId) => {
+    document.getElementById('modal_project_id').value = String(projectId || '');
+    document.getElementById('modal_milestone_id').value = String(milestoneId || '');
+
+    const project = projectsPageState.ui.projects.find((entry) => entry.apiProjectId === IDs.toApi(projectId));
+    const projectKeyInput = document.getElementById('modal_project_key');
+    if (projectKeyInput && project?.projectKey) projectKeyInput.value = project.projectKey;
+
+    resetSubmissionModalUi();
+
+    const modal = document.getElementById('submissionModal');
+    if (modal) {
+        modal.classList.add('active');
+        modal.setAttribute('aria-hidden', 'false');
+    }
+};
+
+window.openFeedbackModal = async (projectId, milestoneId) => {
+    const modal = document.getElementById('feedbackModal');
+    if (modal) {
+        modal.classList.add('active');
+        modal.setAttribute('aria-hidden', 'false');
+    }
+
+    const statusBadge = document.getElementById('feedback-status-badge');
+    const comment = document.getElementById('feedback-comment');
+    const checklist = document.getElementById('feedback-checklist');
+    const historyBody = document.getElementById('history-body');
+    if (statusBadge) statusBadge.textContent = 'Loading...';
+    if (comment) comment.textContent = 'Loading feedback...';
+    if (checklist) checklist.innerHTML = '<li><i class="fa-regular fa-square"></i> Loading...</li>';
+    if (historyBody) historyBody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
+
+    if (!projectsApiClient) return;
+
+    try {
+        const response = await projectsApiClient.getMilestoneFeedbackHistory({
+            projectId: String(projectId || ''),
+            milestoneId: String(milestoneId || ''),
+        });
+        const submissions = Array.isArray(response?.data?.submissions) ? response.data.submissions : [];
+        const latestFeedback = response?.data?.latestFeedback || null;
+
+        if (statusBadge) {
+            const statusKey = String(latestFeedback?.status || '').toLowerCase();
+            const config = milestoneStatusUiMap[statusKey] || milestoneStatusUiMap.default;
+            statusBadge.textContent = config.label;
+            statusBadge.className = `status-badge ${config.badgeClass}`;
+        }
+
+        if (comment) {
+            comment.textContent = latestFeedback?.reviewerComment || 'No feedback available yet.';
+        }
+
+        if (checklist) {
+            checklist.innerHTML = latestFeedback?.reviewerComment
+                ? `<li><i class="fa-regular fa-square"></i> ${escapeHtml(latestFeedback.reviewerComment)}</li>`
+                : '<li><i class="fa-regular fa-square"></i> No required changes listed yet.</li>';
+        }
+
+        if (historyBody) {
+            if (!submissions.length) {
+                historyBody.innerHTML = '<tr><td colspan="4">No submission history yet.</td></tr>';
+            } else {
+                historyBody.innerHTML = submissions.map((entry, index) => {
+                    const statusKey = String(entry.status || '').toLowerCase();
+                    const config = milestoneStatusUiMap[statusKey] || milestoneStatusUiMap.default;
+                    return `
+                        <tr>
+                            <td>Attempt ${submissions.length - index}</td>
+                            <td>${escapeHtml(formatDateTime(entry.createdAt || entry.updatedAt))}</td>
+                            <td><span class="status-badge ${config.badgeClass}">${config.label}</span></td>
+                            <td>${escapeHtml(entry.reviewerComment || 'No notes')}</td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+        }
+    } catch (error) {
+        if (statusBadge) statusBadge.textContent = 'Error';
+        if (comment) comment.textContent = formatRequestError(error, 'Error loading feedback.');
+        if (checklist) checklist.innerHTML = '<li><i class="fa-regular fa-square"></i> Unable to load required changes.</li>';
+        if (historyBody) historyBody.innerHTML = '<tr><td colspan="4">Unable to load history. Check authentication, course access, and API connectivity.</td></tr>';
+    }
+};
+
+window.closeModal = closeModal;
+
+window.copyActiveCliSetupCommand = () => {
+    const project = projectsPageState.ui.projects.find((entry) => entry.domId === projectsPageState.activeProjectId);
+    const command = project?.cli?.setupCommand || 'nibras setup --project your-course/project-key';
+    navigator.clipboard.writeText(command).then(() => setApiNotice('CLI setup command copied.', 'info'));
+};
+
+window.addEventListener('beforeunload', () => {
+    if (projectsPageState.pollingInterval) {
+        clearInterval(projectsPageState.pollingInterval);
+        projectsPageState.pollingInterval = null;
+    }
+});

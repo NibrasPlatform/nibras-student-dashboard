@@ -362,6 +362,44 @@
         { title: "Surface and Flux Integrals", videos: [{ title: "Lecture 34", youtubeId: "sQ0BJ3H-cZ8" }] },
     ];
 
+    const math51MultiVideoLectures = [
+        { title: "Dot Product", videos: [{ title: "Lecture 1", youtubeId: "PxCxlsl_YwY" }] },
+        { title: "Lecture 2", videos: [{ title: "Lecture 2", youtubeId: "9FLItlbBUPY" }] },
+        { title: "Lecture 3", videos: [{ title: "Lecture 3", youtubeId: "bHdzkFrgRcA" }] },
+        { title: "Lecture 4", videos: [{ title: "Lecture 4", youtubeId: "YBajUR3EFSM" }] },
+        { title: "Lecture 5", videos: [{ title: "Lecture 5", youtubeId: "57jzPlxf4fk" }] },
+        { title: "Lecture 6", videos: [{ title: "Lecture 6", youtubeId: "0D4BbCa4gHo" }] },
+        { title: "Lecture 7", videos: [{ title: "Lecture 7", youtubeId: "U1EcnfTKXJ0" }] },
+        { title: "Lecture 8", videos: [{ title: "Lecture 8", youtubeId: "dK3NEf13nPc" }] },
+        { title: "Lecture 9", videos: [{ title: "Lecture 9", youtubeId: "UYe98CcxPbs" }] },
+        { title: "Lecture 10", videos: [{ title: "Lecture 10", youtubeId: "3_goGnJm5sA" }] },
+        { title: "Lecture 11", videos: [{ title: "Lecture 11", youtubeId: "7eZVshlT33Q" }] },
+        { title: "Lecture 12", videos: [{ title: "Lecture 12", youtubeId: "2XraaWefBd8" }] },
+        { title: "Lecture 13", videos: [{ title: "Lecture 13", youtubeId: "15HVevXRsBA" }] },
+        { title: "Lecture 14", videos: [{ title: "Lecture 14", youtubeId: "23xbkrpQuAo" }] },
+        { title: "Lecture 15", videos: [{ title: "Lecture 15", youtubeId: "ChiM2-MV-qM" }] },
+        { title: "Lecture 16", videos: [{ title: "Lecture 16", youtubeId: "YP_B0AapU0c" }] },
+        { title: "Lecture 17", videos: [{ title: "Lecture 17", youtubeId: "60e4hdCi1D4" }] },
+        { title: "Lecture 18", videos: [{ title: "Lecture 18", youtubeId: "UZb9hZIAvL4" }] },
+        { title: "Lecture 19", videos: [{ title: "Lecture 19", youtubeId: "xrypSZU8cBE" }] },
+        { title: "Lecture 20", videos: [{ title: "Lecture 20", youtubeId: "o7UCBjGsRTE" }] },
+        { title: "Lecture 21", videos: [{ title: "Lecture 21", youtubeId: "z5TPjZrsp2k" }] },
+        { title: "Lecture 22", videos: [{ title: "Lecture 22", youtubeId: "tYdoS0tkAHA" }] },
+        { title: "Lecture 23", videos: [{ title: "Lecture 23", youtubeId: "_CdoRiNSrqI" }] },
+        { title: "Lecture 24", videos: [{ title: "Lecture 24", youtubeId: "PnPIqh7Frlw" }] },
+        { title: "Lecture 25", videos: [{ title: "Lecture 25", youtubeId: "44R5HgbrUmc" }] },
+        { title: "Lecture 26", videos: [{ title: "Lecture 26", youtubeId: "RMBGQtwkoyU" }] },
+        { title: "Lecture 27", videos: [{ title: "Lecture 27", youtubeId: "phk05iSMezA" }] },
+        { title: "Lecture 28", videos: [{ title: "Lecture 28", youtubeId: "WfEQabCGAqI" }] },
+        { title: "Lecture 29", videos: [{ title: "Lecture 29", youtubeId: "wu8kXZSAp20" }] },
+        { title: "Lecture 30", videos: [{ title: "Lecture 30", youtubeId: "seO7-TwXH_I" }] },
+        { title: "Lecture 31", videos: [{ title: "Lecture 31", youtubeId: "tzoYhe3H5dM" }] },
+        { title: "Lecture 32", videos: [{ title: "Lecture 32", youtubeId: "sr7kCpzAuYw" }] },
+        { title: "Lecture 33", videos: [{ title: "Lecture 33", youtubeId: "BChhAS1sFvA" }] },
+        { title: "Lecture 34", videos: [{ title: "Lecture 34", youtubeId: "ZwpwmGP5ITM" }] },
+        { title: "Lecture 35", videos: [{ title: "Lecture 35", youtubeId: "24v9onS9Kcg" }] },
+    ];
+
     const practiceLabMeta = {
         id: PRACTICE_LAB_COURSE_ID,
         code: "PRACTICE 001",
@@ -640,6 +678,37 @@
         });
     }
 
+    function buildMath51Lessons(meta, completedLessons) {
+        return math51MultiVideoLectures.map((lecture, lectureIndex) => {
+            const lectureNumber = lectureIndex + 1;
+            const lessonId = `${meta.id}-lecture-${lectureNumber}`;
+            const isCompleted = lectureNumber <= completedLessons;
+            const isOpen = lectureNumber <= completedLessons + 1;
+            const videoItems = lecture.videos.map((video, videoIndex) => ({
+                id: `${lessonId}-video-${videoIndex + 1}`,
+                title: video.title,
+                duration: `${45 + ((lectureIndex + videoIndex) % 15)}:00`,
+                sourceType: "youtube",
+                youtube: `https://www.youtube.com/embed/${video.youtubeId}`,
+            }));
+
+            return {
+                id: lessonId,
+                title: `Lecture ${lectureNumber}: ${lecture.title}`,
+                duration: `${videoItems.length} video`,
+                completed: isCompleted,
+                locked: !isOpen,
+                videoItems,
+                activeVideoItemId: videoItems[0]?.id || "",
+                videoSources: {
+                    youtube: videoItems[0]?.youtube || "",
+                    html5: "",
+                },
+                captions: { en: null },
+            };
+        });
+    }
+
     function buildAssignments(meta, completedAssignments, seed) {
         const statuses = ["graded", "submitted", "not_started", "late", "not_started"];
         const statusLabels = {
@@ -727,7 +796,7 @@
 
     function buildCourse(meta, index) {
         const progressPercent = toPercent(meta.progress, 50);
-        const lectureCount = meta.id === "cs106a-programming-methodology" ? cs106aMultiVideoLectures.length : (meta.id === "cs106b-programming-abstractions" ? cs106bMultiVideoLectures.length : (meta.id === "cs106x-programming-abstractions-accelerated" ? cs106xMultiVideoLectures.length : (meta.id === "math-18-foundations-for-calculus" ? math18MultiVideoLectures.length : (meta.id === "math-19-calculus-i" ? math19MultiVideoLectures.length : (meta.id === "math-20-calculus-ii" ? math20MultiVideoLectures.length : (meta.id === "math-21-calculus-iii-calculus-with-infinite-processes" ? math21MultiVideoLectures.length : 8))))));
+        const lectureCount = meta.id === "cs106a-programming-methodology" ? cs106aMultiVideoLectures.length : (meta.id === "cs106b-programming-abstractions" ? cs106bMultiVideoLectures.length : (meta.id === "cs106x-programming-abstractions-accelerated" ? cs106xMultiVideoLectures.length : (meta.id === "math-18-foundations-for-calculus" ? math18MultiVideoLectures.length : (meta.id === "math-19-calculus-i" ? math19MultiVideoLectures.length : (meta.id === "math-20-calculus-ii" ? math20MultiVideoLectures.length : (meta.id === "math-21-calculus-iii-calculus-with-infinite-processes" ? math21MultiVideoLectures.length : (meta.id === "math-51-linear-algebra-multivariable-calculus-optimization" ? math51MultiVideoLectures.length : 8)))))));
         const completedLectures = Math.max(1, Math.min(lectureCount, Math.round((progressPercent / 100) * lectureCount)));
         const completedAssignments = Math.max(1, Math.min(5, Math.round((progressPercent / 100) * 5)));
         const term = "Fall 2024";
@@ -748,7 +817,9 @@
                                 ? buildMath20Lessons(meta, completedLectures)
                                 : meta.id === "math-21-calculus-iii-calculus-with-infinite-processes"
                                     ? buildMath21Lessons(meta, completedLectures)
-                                    : buildLessons(meta, completedLectures, index);
+                                    : meta.id === "math-51-linear-algebra-multivariable-calculus-optimization"
+                                        ? buildMath51Lessons(meta, completedLectures)
+                                        : buildLessons(meta, completedLectures, index);
         const currentLessonId = lessons[0]?.id || "";
 
         return {

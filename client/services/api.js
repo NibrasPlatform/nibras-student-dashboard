@@ -1130,6 +1130,52 @@
         }
     };
 
+    const isRecommendationNetworkError = (error) => {
+        const status = Number(error?.status || 0);
+        const code = String(error?.code || '').toUpperCase();
+        const message = String(error?.message || '').toLowerCase();
+        return status === 0 || code === 'NETWORK_ERROR' || message.includes('failed to fetch') || message.includes('network');
+    };
+
+    const buildLocalRecommendationFallback = (normalizedGrades, endpoint) => {
+        const entries = Object.entries(normalizedGrades).sort((a, b) => b[1] - a[1]);
+        const average = entries.length
+            ? Math.round(entries.reduce((sum, [, grade]) => sum + grade, 0) / entries.length)
+            : 0;
+
+        const strengths = entries.slice(0, 3).map(([code, grade]) => `${code}: ${grade}%`);
+        const trackSet = new Set();
+        entries.forEach(([code]) => {
+            const upper = String(code || '').toUpperCase();
+            if (/^(CS|CSE|SWE|SE)/.test(upper)) trackSet.add('Software Engineering');
+            if (/^(AI|ML|DS|STAT|MATH)/.test(upper)) trackSet.add('Data Science & AI');
+            if (/^(CYB|SEC|NET)/.test(upper)) trackSet.add('Cybersecurity');
+            if (/^(EE|ECE|PHY|EMB)/.test(upper)) trackSet.add('Embedded & Systems Engineering');
+            if (/^(HCI|UX|DES)/.test(upper)) trackSet.add('UI/UX Engineering');
+            if (/^(BUS|MGT|PM|FIN)/.test(upper)) trackSet.add('Product & Project Management');
+        });
+
+        if (!trackSet.size) {
+            if (average >= 85) {
+                trackSet.add('Advanced Software Engineering');
+                trackSet.add('Data Science & AI');
+            } else if (average >= 70) {
+                trackSet.add('Software Engineering');
+                trackSet.add('Product & Project Management');
+            } else {
+                trackSet.add('Foundation Track Reinforcement');
+                trackSet.add('Software Engineering');
+            }
+        }
+
+        return {
+            strengths,
+            recommendations: Array.from(trackSet).slice(0, 3),
+            explanation: `Recommendation API call is blocked from browser context (likely CORS) for: ${endpoint || 'configured endpoint'}. Showing local heuristic recommendations until server CORS is fixed.`,
+            source: 'local-fallback',
+        };
+    };
+
     const recommendationService = {
         /**
          * Retrieve raw grades payload from available backend routes.
@@ -1205,12 +1251,15 @@
             if (Object.keys(normalizedGrades).length === 0) {
                 throw new Error('No valid grades found to generate recommendations.');
             }
+            const configuredBaseUrl = resolveServiceUrl('recommendation');
+            const normalizedBaseUrl = normalizeRecommendationServiceBaseUrl(configuredBaseUrl);
             const readResponse = (payload) => {
                 const data = unwrapApiData(payload) || payload || {};
                 return {
                     strengths: Array.isArray(data.strengths) ? data.strengths : [],
                     recommendations: Array.isArray(data.recommendations) ? data.recommendations : [],
                     explanation: typeof data.explanation === 'string' ? data.explanation : '',
+                    source: 'api',
                 };
             };
 
@@ -1227,14 +1276,21 @@
                 const payload = await requestRecommend();
                 return readResponse(payload);
             } catch (error) {
-                if (!isRecommendationRouteNotFoundError(error)) throw error;
-                const configuredBaseUrl = resolveServiceUrl('recommendation');
-                const normalizedBaseUrl = normalizeRecommendationServiceBaseUrl(configuredBaseUrl);
-                if (!normalizedBaseUrl || normalizedBaseUrl === configuredBaseUrl) {
-                    throw error;
+                let resolvedError = error;
+                if (isRecommendationRouteNotFoundError(error) && normalizedBaseUrl && normalizedBaseUrl !== configuredBaseUrl) {
+                    try {
+                        const retryPayload = await requestRecommend(normalizedBaseUrl);
+                        return readResponse(retryPayload);
+                    } catch (retryError) {
+                        resolvedError = retryError;
+                    }
                 }
-                const retryPayload = await requestRecommend(normalizedBaseUrl);
-                return readResponse(retryPayload);
+
+                if (isRecommendationNetworkError(resolvedError)) {
+                    return buildLocalRecommendationFallback(normalizedGrades, normalizedBaseUrl || configuredBaseUrl || '');
+                }
+
+                throw resolvedError;
             }
         },
     };

@@ -34,7 +34,7 @@
   const DEFAULT_COMMUNITY_API = DEFAULT_MONOLITH_API;
   const DEFAULT_TRACKING_API = 'https://nibras-web.fly.dev';
   const DEFAULT_COMPETITIONS_API = DEFAULT_MONOLITH_API;
-  const DEFAULT_RECOMMENDATION_API = 'https://recommendationmodel-production-31e9.up.railway.app/api';
+  const DEFAULT_RECOMMENDATION_API = 'https://recommendationmodel-production-3e7b.up.railway.app/api/recommend';
   const DEFAULT_GOOGLE_CLIENT_ID = 'your_google_oauth_client_id';
 
   const params = new URLSearchParams(window.location.search);

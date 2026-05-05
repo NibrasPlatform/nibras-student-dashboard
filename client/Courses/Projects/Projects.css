@@ -204,6 +204,28 @@ select:focus-visible,
 .btn-outline { border: 1px solid var(--border-color); background-color: transparent; color: var(--text-primary); }
 .btn-outline:hover { background-color: var(--btn-secondary-bg); }
 
+.cli-quickstart .section-desc { margin-bottom: 12px; }
+.cli-command-box {
+    background: #111827;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+    overflow-x: auto;
+}
+.cli-command {
+    color: #93c5fd;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.8rem;
+    white-space: nowrap;
+}
+.cli-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
 /* Final Submission Box */
 .final-submission-box { border: 1px dashed var(--border-color); border-radius: 8px; padding: 24px; text-align: center; color: var(--text-secondary); font-size: 0.9rem; cursor: pointer; transition: background 0.2s; margin-top: 16px; background-color: var(--btn-secondary-bg); width: 100%; font: inherit; }
 .final-submission-box:hover { background-color: var(--border-color); color: var(--text-primary); }

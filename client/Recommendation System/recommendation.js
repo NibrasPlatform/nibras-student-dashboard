@@ -423,15 +423,20 @@
             updateExplanation(result.explanation);
 
             if (recommendationMeta) {
-                recommendationMeta.textContent = `Using ${Object.keys(grades).length} graded course records from ${gradeSource.source}.`;
+                const base = `Using ${Object.keys(grades).length} graded course records from ${gradeSource.source}.`;
+                recommendationMeta.textContent = result?.source === 'local-fallback'
+                    ? `${base} Recommendation API is currently blocked from browser (CORS), so local fallback logic was used.`
+                    : base;
             }
         } catch (error) {
             const message = String(error?.message || 'Failed to load recommendations.');
             setState('error', message);
             updateExplanation('');
             if (recommendationMeta) {
-                if (/route not found/i.test(message) || /recommend/i.test(message)) {
-                    recommendationMeta.textContent = 'Recommendation API request failed. Use the recommendation base URL (for example: https://recommendationmodel-production-31e9.up.railway.app or /api), not the full /api/recommend endpoint.';
+                if (/failed to fetch|network|cors/i.test(message)) {
+                    recommendationMeta.textContent = 'Recommendation API call was blocked by browser CORS policy. The API server must return Access-Control-Allow-Origin for this frontend origin.';
+                } else if (/route not found/i.test(message) || /recommend/i.test(message)) {
+                    recommendationMeta.textContent = 'Recommendation API request failed. Check that the configured recommendation base points to a server that exposes /api/recommend.';
                 } else {
                     recommendationMeta.textContent = 'Recommendation data could not be generated from backend grades.';
                 }
