@@ -32,7 +32,7 @@
   const DEFAULT_ADMIN_API = DEFAULT_MONOLITH_API;
   const DEFAULT_LEGACY_API = DEFAULT_MONOLITH_API;
   const DEFAULT_COMMUNITY_API = DEFAULT_MONOLITH_API;
-  const DEFAULT_TRACKING_API = DEFAULT_MONOLITH_API;
+  const DEFAULT_TRACKING_API = 'https://nibras-web.fly.dev';
   const DEFAULT_COMPETITIONS_API = DEFAULT_MONOLITH_API;
   const DEFAULT_RECOMMENDATION_API = 'https://recommendationmodel-production-31e9.up.railway.app/api';
   const DEFAULT_GOOGLE_CLIENT_ID = 'your_google_oauth_client_id';
@@ -112,12 +112,31 @@
     DEFAULT_COMMUNITY_API
   )) || DEFAULT_COMMUNITY_API;
 
-  const trackingApi = ensureApiBaseUrl(readFirst(
-    params.get('trackingApi'),
-    params.get('trackApi'),
-    localStorage.getItem('nibras_tracking_api_url'),
-    DEFAULT_TRACKING_API
-  )) || DEFAULT_TRACKING_API;
+  const trackingApi = (() => {
+    const raw = readFirst(
+      params.get('trackingApi'),
+      params.get('trackApi'),
+      localStorage.getItem('nibras_tracking_api_url'),
+      DEFAULT_TRACKING_API
+    );
+    if (!raw) return DEFAULT_TRACKING_API;
+    const normalized = normalizeUrl(raw);
+    if (!normalized) return DEFAULT_TRACKING_API;
+    try {
+      const parsed = new URL(normalized);
+      let pathname = parsed.pathname.replace(/\/+$/, '');
+      if (!pathname || pathname === '/') {
+        // Use /v1 directly for tracking API (not /api)
+        pathname = '/v1';
+      } else if (!/^\/v1(?:\/|$)/i.test(pathname)) {
+        pathname = `${pathname}/v1`;
+      }
+      parsed.pathname = pathname;
+      return parsed.toString().replace(/\/+$/, '');
+    } catch (_) {
+      return raw.replace(/\/+$/, '') + '/v1';
+    }
+  })();
 
   const competitionsApi = ensureApiBaseUrl(readFirst(
     params.get('competitionsApi'),

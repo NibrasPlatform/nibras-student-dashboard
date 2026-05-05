@@ -40,6 +40,9 @@ const IDs = {
 window.NibrasReact.run(() => {
     // FIX: Ensure DOM is fully loaded before running logic
     document.addEventListener('DOMContentLoaded', () => {
+        // Always setup theme toggle first (works without course)
+        setupThemeToggle();
+        
         const selectedCourse = window.NibrasCourses?.getSelectedCourse?.();
         if (!selectedCourse) return;
 
@@ -58,9 +61,6 @@ window.NibrasReact.run(() => {
         // 4. Setup Form Listeners
         const submitForm = document.getElementById('milestoneSubmitForm');
         if (submitForm) submitForm.addEventListener('submit', handleMilestoneSubmit);
-
-        // 5. Setup Theme
-        setupThemeToggle();
     });
 });
 
@@ -335,10 +335,28 @@ function setupNavigationLinks(courseId) {
 function setupThemeToggle() {
     const btn = document.getElementById('themeBtn');
     if (!btn) return;
+    
+    // Update button based on current theme
+    function updateThemeButton() {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const icon = btn.querySelector('i');
+        const text = btn.querySelector('span');
+        if (icon) {
+            icon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        }
+        if (text) {
+            text.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+        }
+    }
+    
+    // Set initial state
+    updateThemeButton();
+    
     btn.onclick = () => {
         const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', theme);
         localStorage.setItem('theme', theme);
+        updateThemeButton();
     };
 }
 
