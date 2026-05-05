@@ -36,11 +36,12 @@
 
         <div class="content-wrapper-centered">
             
-            <!-- Page Title Area -->
-            <div class="rec-intro-section">
+             <!-- Page Title Area -->
+             <div class="rec-intro-section">
                 <h1><i class="fa-solid fa-wand-magic-sparkles" style="color:var(--accent-blue); margin-right:10px;"></i> AI Career Recommendation</h1>
-                <p>Based on your capability profile (Programming, Algorithms, Math, etc.), our ML classifier has predicted the following tracks as your best fits.</p>
-            </div>
+                <p>Recommendations are generated from your backend grade records using the external ML recommendation API.</p>
+                <p class="recommendation-meta" id="recommendation-meta"></p>
+             </div>
 
             <!-- Recommendation List -->
             <div class="track-list" id="track-list-container">
@@ -48,12 +49,12 @@
             </div>
 
             <!-- AI Explanation Footer -->
-            <section class="card ai-footer-card">
+            <section class="card ai-footer-card" id="recommendation-explanation-card">
                 <div class="ai-footer-content">
                     <div class="ai-icon-box"><i class="fa-solid fa-robot"></i></div>
-                    <div>
-                        <h4>How is this calculated?</h4>
-                        <p>We calculate the <strong>Cosine Similarity</strong> between your capability vector and the ideal profile for each track. The "Top Contributors" section shows which of your specific skills contributed most to this recommendation.</p>
+                    <div id="recommendation-explanation-content">
+                        <h4>Advisor explanation</h4>
+                        <p>The full recommendation explanation will appear here after the API responds.</p>
                     </div>
                 </div>
             </section>
@@ -61,7 +62,7 @@
         </div>
     </main>
 
-        <script src="../../react-bootstrap.js"></script>
+        <script src="../react-bootstrap.js"></script>
     <script src="./recommendation.js"></script>
 </body>
 </html>

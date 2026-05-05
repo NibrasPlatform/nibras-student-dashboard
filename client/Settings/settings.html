@@ -234,7 +234,13 @@
         </div>
     </main>
 
-        <script src="../react-bootstrap.js"></script>
+        <script src="../react-page-utils.js"></script>
+    <script>
+        if (window.NibrasShared?.session?.updateUserInfoDisplay) {
+            window.NibrasShared.session.updateUserInfoDisplay();
+        }
+    </script>
+    <script src="../react-bootstrap.js"></script>
     <script src="./settings.js?v=20260417-3"></script>
 </body>
 </html>

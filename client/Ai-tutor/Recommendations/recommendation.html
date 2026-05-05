@@ -92,19 +92,33 @@
             <div class="rec-card-container">
                 <div class="rec-main-header">
                     <h3><i class="fa-solid fa-wand-magic-sparkles"></i> Personalized Learning Path</h3>
-                    <p>AI-curated recommendations based on your progress and goals</p>
+                    <p>AI-curated recommendations generated from your backend grade records.</p>
+                    <p class="rec-source-note" id="rec-source-note"></p>
                 </div>
 
                 <!-- Recommendation List -->
                 <div class="rec-list" id="rec-list-container">
                     <!-- JS Injected -->
                 </div>
+
+                <section class="rec-explanation-card">
+                    <h4><i class="fa-solid fa-robot"></i> Advisor explanation</h4>
+                    <div id="rec-explanation-content">
+                        <p>The recommendation explanation will appear here after loading.</p>
+                    </div>
+                </section>
             </div>
 
         </div>
     </main>
 
-        <script src="../../../react-bootstrap.js"></script>
+        <script src="../../react-page-utils.js"></script>
+    <script>
+        if (window.NibrasShared?.session?.updateUserInfoDisplay) {
+            window.NibrasShared.session.updateUserInfoDisplay();
+        }
+    </script>
+    <script src="../../react-bootstrap.js"></script>
     <script src="./recommendation.js"></script>
 </body>
 </html>

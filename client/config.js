@@ -7,6 +7,7 @@
  * - community: course-thread community backend
  * - tracking: nibras tracking/projects backend
  * - competitions: competitions backend
+ * - recommendation: recommendation model backend
  *
  * Override priority per service:
  * 1. Query parameter
@@ -15,12 +16,14 @@
  *    - community: ?communityApi=URL or ?discussionsApi=URL
  *    - tracking: ?trackingApi=URL or ?trackApi=URL
  *    - competitions: ?competitionsApi=URL or ?compApi=URL
+ *    - recommendation: ?recommendationApi=URL or ?recommendApi=URL or ?recApi=URL
  * 2. localStorage
  *    - admin: nibras_admin_api_url or nibras_api_url (legacy key)
  *    - legacyCommunity: nibras_legacy_api_url
  *    - community: nibras_community_api_url
  *    - tracking: nibras_tracking_api_url
  *    - competitions: nibras_competitions_api_url
+ *    - recommendation: nibras_recommendation_api_url
  *    - googleClientId: nibras_google_client_id
  * 3. Defaults below
  */
@@ -31,6 +34,7 @@
   const DEFAULT_COMMUNITY_API = DEFAULT_MONOLITH_API;
   const DEFAULT_TRACKING_API = DEFAULT_MONOLITH_API;
   const DEFAULT_COMPETITIONS_API = DEFAULT_MONOLITH_API;
+  const DEFAULT_RECOMMENDATION_API = 'https://recommendationmodel-production-31e9.up.railway.app/api';
   const DEFAULT_GOOGLE_CLIENT_ID = 'your_google_oauth_client_id';
 
   const params = new URLSearchParams(window.location.search);
@@ -58,6 +62,22 @@
     } catch (_) {
       if (/\/api(?:\/|$)/i.test(normalized)) return normalized;
       return `${normalized}/api`;
+    }
+  };
+
+  const ensureRecommendationApiBaseUrl = (value) => {
+    const normalizedBase = ensureApiBaseUrl(value);
+    if (!normalizedBase) return null;
+
+    try {
+      const parsed = new URL(normalizedBase);
+      let pathname = parsed.pathname.replace(/\/+$/, '');
+      pathname = pathname.replace(/\/recommend$/i, '');
+      if (!pathname || pathname === '/') pathname = '/api';
+      parsed.pathname = pathname;
+      return parsed.toString().replace(/\/+$/, '');
+    } catch (_) {
+      return normalizedBase.replace(/\/recommend$/i, '');
     }
   };
 
@@ -106,12 +126,22 @@
     DEFAULT_COMPETITIONS_API
   )) || DEFAULT_COMPETITIONS_API;
 
+  const recommendationApi = ensureRecommendationApiBaseUrl(readFirst(
+    params.get('recommendationApi'),
+    params.get('recommendApi'),
+    params.get('recApi'),
+    localStorage.getItem('nibras_recommendation_api_url'),
+    window.NIBRAS_RECOMMENDATION_API_URL,
+    DEFAULT_RECOMMENDATION_API
+  )) || DEFAULT_RECOMMENDATION_API;
+
   const services = Object.freeze({
     admin: adminApi,
     legacyCommunity: legacyCommunityApi,
     community: communityApi,
     tracking: trackingApi,
     competitions: competitionsApi,
+    recommendation: recommendationApi,
   });
   const googleClientId = String(
     params.get('googleClientId') ||
@@ -130,6 +160,7 @@
   window.NIBRAS_COMMUNITY_API_URL = services.community;
   window.NIBRAS_TRACKING_API_URL = services.tracking;
   window.NIBRAS_COMPETITIONS_API_URL = services.competitions;
+  window.NIBRAS_RECOMMENDATION_API_URL = services.recommendation;
   window.NIBRAS_GOOGLE_CLIENT_ID = googleClientId;
   window.NibrasApiConfig = Object.freeze({
     services,

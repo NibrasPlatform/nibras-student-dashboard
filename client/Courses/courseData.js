@@ -223,6 +223,145 @@
         { title: "What's Next", videos: [{ title: "Lecture 30", bilibiliId: "BV1PK411A7S4", page: 30 }] },
     ];
 
+    const math18MultiVideoLectures = [
+        { title: "Introduction to Calculus", videos: [{ title: "Lecture 1", youtubeId: "fYyARMqiaag" }] },
+        { title: "Functions and Their Properties", videos: [{ title: "Lecture 2", youtubeId: "1EGFSefe5II" }] },
+        { title: "Linear Functions and Rates of Change", videos: [{ title: "Lecture 3", youtubeId: "SzLF-wLZF_I" }] },
+        { title: "Polynomial and Rational Functions", videos: [{ title: "Lecture 4", youtubeId: "f-_UsIP5jyA" }] },
+        { title: "Exponential and Logarithmic Functions", videos: [{ title: "Lecture 5", youtubeId: "VSqOZNULRjQ" }] },
+        { title: "Trigonometric Functions", videos: [{ title: "Lecture 6", youtubeId: "OEE5-M4aY4k" }] },
+        { title: "Limits and Continuity", videos: [{ title: "Lecture 7", youtubeId: "PqQ5v94_NGM" }] },
+        { title: "Introduction to Derivatives", videos: [{ title: "Lecture 8", youtubeId: "962lLfW-8Jo" }] },
+        { title: "Differentiation Rules", videos: [{ title: "Lecture 9", youtubeId: "EY6FHX6asU0" }] },
+        { title: "Chain Rule and Implicit Differentiation", videos: [{ title: "Lecture 10", youtubeId: "AvCQQ3X4Nuc" }] },
+        { title: "Derivatives of Trigonometric Functions", videos: [{ title: "Lecture 11", youtubeId: "qr1WXiq3S3k" }] },
+        { title: "Related Rates", videos: [{ title: "Lecture 12", youtubeId: "RJJSiNz5oto" }] },
+        { title: "Applications of Derivatives", videos: [{ title: "Lecture 13", youtubeId: "8dr1dZjfhmc" }] },
+        { title: "Curve Sketching", videos: [{ title: "Lecture 14", youtubeId: "RUS4mKo9tBk" }] },
+        { title: "Optimization Problems", videos: [{ title: "Lecture 15", youtubeId: "43Qt6wc44To" }] },
+        { title: "Introduction to Integration", videos: [{ title: "Lecture 16", youtubeId: "Mx39JbbzEAo" }] },
+        { title: "Definite Integrals", videos: [{ title: "Lecture 17", youtubeId: "qW89xdGfSzw" }] },
+        { title: "Fundamental Theorem of Calculus", videos: [{ title: "Lecture 18", youtubeId: "nQ6tOORDQ3I" }] },
+        { title: "Integration Techniques", videos: [{ title: "Lecture 19", youtubeId: "29GbRaQxtzY" }] },
+        { title: "Integration by Parts", videos: [{ title: "Lecture 20", youtubeId: "-PYebK8DKPc" }] },
+        { title: "Trigonometric Integrals", videos: [{ title: "Lecture 21", youtubeId: "8u6woY05aL0" }] },
+        { title: "Integration of Rational Functions", videos: [{ title: "Lecture 22", youtubeId: "SWZcq_biZLw" }] },
+        { title: "Area Between Curves", videos: [{ title: "Lecture 23", youtubeId: "b2ZFpE_yrLg" }] },
+        { title: "Volumes of Revolution", videos: [{ title: "Lecture 24", youtubeId: "aiBD9aI69C8" }] },
+        { title: "Volumes Using Cross-Sections", videos: [{ title: "Lecture 25", youtubeId: "F0uuW-I6icY" }] },
+        { title: "Arc Length", videos: [{ title: "Lecture 26", youtubeId: "K0ORDCt5Ig0" }] },
+        { title: "Sequences and Series", videos: [{ title: "Lecture 27", youtubeId: "xjtEfS0vY2o" }] },
+        { title: "Infinite Series Convergence", videos: [{ title: "Lecture 28", youtubeId: "c7wur9Lixb0" }] },
+        { title: "Power Series", videos: [{ title: "Lecture 29", youtubeId: "GJOJl47l2_4" }] },
+        { title: "Taylor and Maclaurin Series", videos: [{ title: "Lecture 30", youtubeId: "BDmlottZVd4" }] },
+        { title: "Parametric Equations and Polar Coordinates", videos: [{ title: "Lecture 31", youtubeId: "5Yuw1jCBq-0" }] },
+    ];
+
+    const math19MultiVideoLectures = [
+        { title: "Rate of Change", videos: [{ title: "Lecture 1", youtubeId: "7K1sB05pE0A" }] },
+        { title: "Limits", videos: [{ title: "Lecture 2", youtubeId: "ryLdyDrBfvI" }] },
+        { title: "Derivatives", videos: [{ title: "Lecture 3", youtubeId: "kCPVBl953eY" }] },
+        { title: "Chain Rule", videos: [{ title: "Lecture 4", youtubeId: "4sTKcvYMNxk" }] },
+        { title: "Implicit Differentiation", videos: [{ title: "Lecture 5", youtubeId: "5q_3FDOkVRQ" }] },
+        { title: "Exponential and Log", videos: [{ title: "Lecture 6", youtubeId: "9v25gg2qJYE" }] },
+        { title: "Exam 1 Review", videos: [{ title: "Lecture 7", youtubeId: "eHJuAByQf5A" }] },
+        { title: "Linear and Quadratic Approximations", videos: [{ title: "Lecture 9", youtubeId: "BSAA0akmPEU" }] },
+        { title: "Curve Sketching", videos: [{ title: "Lecture 10", youtubeId: "eRCN3daFCmU" }] },
+        { title: "Max-min", videos: [{ title: "Lecture 11", youtubeId: "twzGBqPeW0M" }] },
+        { title: "Related Rates", videos: [{ title: "Lecture 12", youtubeId: "YN7k_bXXggY" }] },
+        { title: "Newton's Method", videos: [{ title: "Lecture 13", youtubeId: "sRIDVAcoG5A" }] },
+        { title: "Mean Value Theorem", videos: [{ title: "Lecture 14", youtubeId: "4Q37iOyBq44" }] },
+        { title: "Antiderivatives", videos: [{ title: "Lecture 15", youtubeId: "-MI0b4h3rS0" }] },
+        { title: "Differential Equations", videos: [{ title: "Lecture 16", youtubeId: "60VGKnYBpbg" }] },
+        { title: "Definite Integrals", videos: [{ title: "Lecture 18", youtubeId: "hjZhPczMkL4" }] },
+        { title: "First Fundamental Theorem", videos: [{ title: "Lecture 19", youtubeId: "1RLctDS2hUQ" }] },
+        { title: "Second Fundamental Theorem", videos: [{ title: "Lecture 20", youtubeId: "Pd2xP5zDsRw" }] },
+        { title: "Applications to Logarithms", videos: [{ title: "Lecture 21", youtubeId: "_JXPe2J069c" }] },
+        { title: "Volumes", videos: [{ title: "Lecture 22", youtubeId: "ShGBRUx2ub8" }] },
+        { title: "Work, Probability", videos: [{ title: "Lecture 23", youtubeId: "R9a_NHXrBcg" }] },
+        { title: "Numerical Integration", videos: [{ title: "Lecture 24", youtubeId: "jBkXbAgMj6s" }] },
+        { title: "Exam 3 Review", videos: [{ title: "Lecture 25", youtubeId: "zUEuKrxgHws" }] },
+        { title: "Trig Integrals", videos: [{ title: "Lecture 27", youtubeId: "Bv9kVDcj7yo" }] },
+        { title: "Inverse Substitution", videos: [{ title: "Lecture 28", youtubeId: "CXKoCMVqM9s" }] },
+        { title: "Partial Fractions", videos: [{ title: "Lecture 29", youtubeId: "HgEqXhsIq_g" }] },
+        { title: "Integration by Parts", videos: [{ title: "Lecture 30", youtubeId: "aeXp1zC6Hls" }] },
+        { title: "Parametric Equations", videos: [{ title: "Lecture 31", youtubeId: "TpWQlKHPyJ4" }] },
+        { title: "Polar Coordinates", videos: [{ title: "Lecture 32", youtubeId: "XRkgBWbWvg4" }] },
+        { title: "Exam 4 Review", videos: [{ title: "Lecture 33", youtubeId: "BGE3wb7H2PA" }] },
+        { title: "Indeterminate Forms", videos: [{ title: "Lecture 35", youtubeId: "PNTnmH6jsRI" }] },
+        { title: "Improper Integrals", videos: [{ title: "Lecture 36", youtubeId: "KhwQKE_tld0" }] },
+        { title: "Infinite Series", videos: [{ title: "Lecture 37", youtubeId: "MK_0QHbUnIA" }] },
+        { title: "Taylor's Series", videos: [{ title: "Lecture 38", youtubeId: "wOHrNt9ScYs" }] },
+        { title: "Final Review", videos: [{ title: "Lecture 39", youtubeId: "--lPz7VFnKI" }] },
+    ];
+
+    const math20MultiVideoLectures = [
+        { title: "The Natural Log Function", videos: [{ title: "Lecture 1", youtubeId: "H9eCT6f_Ftw" }] },
+        { title: "Derivatives of Inverse Functions", videos: [{ title: "Lecture 2", youtubeId: "HnsUNWNYZ28" }] },
+        { title: "Derivatives and Integrals of Exponential Functions", videos: [{ title: "Lecture 3", youtubeId: "5HlW7OnXUT4" }] },
+        { title: "Derivatives and Integrals of General Exponential Functions", videos: [{ title: "Lecture 4", youtubeId: "rR8imSHCuFk" }] },
+        { title: "Calculus of Inverse Trigonometric Functions", videos: [{ title: "Lecture 5", youtubeId: "ST3ORfqVYQw" }] },
+        { title: "A Discussion of Hyperbolic Functions", videos: [{ title: "Lecture 6", youtubeId: "3kPg0gkJQgc" }] },
+        { title: "Evaluating Limits of Indeterminate Forms", videos: [{ title: "Lecture 7", youtubeId: "Zd7wd24jeok" }] },
+        { title: "Integration By Parts", videos: [{ title: "Lecture 8", youtubeId: "EOwjiFpDY_s" }] },
+        { title: "Techniques For Trigonometric Integrals", videos: [{ title: "Lecture 9", youtubeId: "pLrUBjiEo-w" }] },
+        { title: "Integrals By Trigonometric Substitution", videos: [{ title: "Lecture 10", youtubeId: "q6JwTGpG8b4" }] },
+        { title: "Integration By Partial Fractions", videos: [{ title: "Lecture 11", youtubeId: "KJGp0pyPoVo" }] },
+        { title: "Improper Integrals", videos: [{ title: "Lecture 12", youtubeId: "g-M8FHslgdk" }] },
+        { title: "Differential Equations", videos: [{ title: "Lecture 13", youtubeId: "WxVaVzxsDb0" }] },
+        { title: "Convergence and Divergence of Sequences", videos: [{ title: "Lecture 14", youtubeId: "FoNLQvf4NUs" }] },
+        { title: "Series and Divergence Test", videos: [{ title: "Lecture 15", youtubeId: "DGcWMdW-72M" }] },
+        { title: "Integral Test for Series", videos: [{ title: "Lecture 16", youtubeId: "8jPpNK4GIVs" }] },
+        { title: "Comparison Test for Series", videos: [{ title: "Lecture 17", youtubeId: "ei8WKMAHky0" }] },
+        { title: "Alternating Series Test", videos: [{ title: "Lecture 18", youtubeId: "BhYPrQHDrjk" }] },
+        { title: "Absolute Convergence and Ratio Test", videos: [{ title: "Lecture 19", youtubeId: "g4iZJOwMkjU" }] },
+        { title: "Power Series", videos: [{ title: "Lecture 20", youtubeId: "TGD-TP1c7i4" }] },
+        { title: "Taylor and Maclaurin Series", videos: [{ title: "Lecture 21", youtubeId: "3VHol7eosLA" }] },
+        { title: "Taylor Polynomials", videos: [{ title: "Lecture 22", youtubeId: "RbreIk02B3c" }] },
+        { title: "Parametric Equations", videos: [{ title: "Lecture 23", youtubeId: "d4KADBFqpR0" }] },
+        { title: "Calculus of Parametric Equations", videos: [{ title: "Lecture 24", youtubeId: "1H6HrfX_qCA" }] },
+        { title: "Polar Coordinates", videos: [{ title: "Lecture 25", youtubeId: "sWUyFQQ5QeI" }] },
+        { title: "Calculus of Polar Equations", videos: [{ title: "Lecture 26", youtubeId: "Kh265EC11OI" }] },
+        { title: "Numerical Integration", videos: [{ title: "Lecture 27", youtubeId: "RTX-ik_8i-k" }] },
+    ];
+
+    const math21MultiVideoLectures = [
+        { title: "An Introduction to Vectors", videos: [{ title: "Lecture 1", youtubeId: "tGVnBAHLApA" }] },
+        { title: "Vectors in 3-D Coordinate System", videos: [{ title: "Lecture 2", youtubeId: "ZAv3bF2GznI" }] },
+        { title: "Using the Dot Product", videos: [{ title: "Lecture 3", youtubeId: "TKlGMRghcDs" }] },
+        { title: "The Cross Product", videos: [{ title: "Lecture 4", youtubeId: "qqfhgStQ-cA" }] },
+        { title: "Lines and Planes in 3-D", videos: [{ title: "Lecture 5", youtubeId: "IB1-lrPQjCw" }] },
+        { title: "Cylinders and Surfaces in 3-D", videos: [{ title: "Lecture 6", youtubeId: "aBlKxFsoMZw" }] },
+        { title: "Using Cylindrical and Spherical Coordinates", videos: [{ title: "Lecture 7", youtubeId: "rDeo721ogtk" }] },
+        { title: "An Introduction To Vector Functions", videos: [{ title: "Lecture 8", youtubeId: "YThPIdcwr78" }] },
+        { title: "Derivatives and Integrals of Vector Functions", videos: [{ title: "Lecture 9", youtubeId: "v_o-allq8LQ" }] },
+        { title: "Arc Length and Parameterization", videos: [{ title: "Lecture 10", youtubeId: "Hu72QVWsMlg" }] },
+        { title: "TNB Frames, Curvature, Torsion", videos: [{ title: "Lecture 11", youtubeId: "l7eDxflL-e0" }] },
+        { title: "Velocity and Acceleration", videos: [{ title: "Lecture 12", youtubeId: "yq4Cj1_bmnE" }] },
+        { title: "Intro to Multivariable Functions", videos: [{ title: "Lecture 13", youtubeId: "nIJQPX5kxp4" }] },
+        { title: "Limits and Continuity of Multivariable Functions", videos: [{ title: "Lecture 14", youtubeId: "MFF4mvyhAyA" }] },
+        { title: "Partial Derivatives", videos: [{ title: "Lecture 15", youtubeId: "EkZGBdY0vlg" }] },
+        { title: "Differentials of Multivariable Functions", videos: [{ title: "Lecture 16", youtubeId: "J72AKZtUpgY" }] },
+        { title: "The Chain Rule for Multivariable Functions", videos: [{ title: "Lecture 17", youtubeId: "tXryaM-mTpY" }] },
+        { title: "Directional Derivatives and Gradients", videos: [{ title: "Lecture 18", youtubeId: "tDPp5uWSIiU" }] },
+        { title: "Tangent Planes and Normal Lines", videos: [{ title: "Lecture 19", youtubeId: "yLbqHfuWsr8" }] },
+        { title: "Extrema of Functions of 2 Variables", videos: [{ title: "Lecture 20", youtubeId: "kPL28zgEFk8" }] },
+        { title: "Constrained Optimization with LaGrange Multipliers", videos: [{ title: "Lecture 21", youtubeId: "nUfYR5FBGZc" }] },
+        { title: "Introduction to Double Integrals", videos: [{ title: "Lecture 22", youtubeId: "lv_awaaT6gY" }] },
+        { title: "Double/Repeated/Iterated Integrals", videos: [{ title: "Lecture 23", youtubeId: "HxRG_phgGUw" }] },
+        { title: "Double Integrals over Polar Regions", videos: [{ title: "Lecture 24", youtubeId: "HA41kYxVYnw" }] },
+        { title: "Center of Mass for Lamina in 2-D", videos: [{ title: "Lecture 25", youtubeId: "WNZ8vMgaPgg" }] },
+        { title: "Triple Integrals", videos: [{ title: "Lecture 26", youtubeId: "uTLM_iEcVdA" }] },
+        { title: "Triple Integrals with Cylindrical and Spherical Coordinates", videos: [{ title: "Lecture 27", youtubeId: "R4vnw-yPnZ8" }] },
+        { title: "Change of Variables in Multiple Integrals", videos: [{ title: "Lecture 28", youtubeId: "VVPu5fWssPg" }] },
+        { title: "Introduction to Vector Fields", videos: [{ title: "Lecture 29", youtubeId: "71Z1RVYZ8HY" }] },
+        { title: "Divergence and Curl of Vector Fields", videos: [{ title: "Lecture 30", youtubeId: "TMWevkxtS9s" }] },
+        { title: "Line Integrals Over Non-Conservative Fields", videos: [{ title: "Lecture 31", youtubeId: "t6vtOOAnqyU" }] },
+        { title: "Line Integrals on Conservative Vector Fields", videos: [{ title: "Lecture 32", youtubeId: "HhopxDkW4L8" }] },
+        { title: "Green's Theorem", videos: [{ title: "Lecture 33", youtubeId: "OnyCk62hEL4" }] },
+        { title: "Surface and Flux Integrals", videos: [{ title: "Lecture 34", youtubeId: "sQ0BJ3H-cZ8" }] },
+    ];
+
     const practiceLabMeta = {
         id: PRACTICE_LAB_COURSE_ID,
         code: "PRACTICE 001",
@@ -377,6 +516,130 @@
         });
     }
 
+    function buildMath18Lessons(meta, completedLessons) {
+        return math18MultiVideoLectures.map((lecture, lectureIndex) => {
+            const lectureNumber = lectureIndex + 1;
+            const lessonId = `${meta.id}-lecture-${lectureNumber}`;
+            const isCompleted = lectureNumber <= completedLessons;
+            const isOpen = lectureNumber <= completedLessons + 1;
+            const videoItems = lecture.videos.map((video, videoIndex) => ({
+                id: `${lessonId}-video-${videoIndex + 1}`,
+                title: video.title,
+                duration: `${30 + ((lectureIndex + videoIndex) % 20)}:00`,
+                sourceType: "youtube",
+                youtube: `https://www.youtube.com/embed/${video.youtubeId}`,
+            }));
+
+            return {
+                id: lessonId,
+                title: `Lecture ${lectureNumber}: ${lecture.title}`,
+                duration: `${videoItems.length} video`,
+                completed: isCompleted,
+                locked: !isOpen,
+                videoItems,
+                activeVideoItemId: videoItems[0]?.id || "",
+                videoSources: {
+                    youtube: videoItems[0]?.youtube || "",
+                    html5: "",
+                },
+                captions: { en: null },
+            };
+        });
+    }
+
+    function buildMath19Lessons(meta, completedLessons) {
+        return math19MultiVideoLectures.map((lecture, lectureIndex) => {
+            const lectureNumber = lectureIndex + 1;
+            const lessonId = `${meta.id}-lecture-${lectureNumber}`;
+            const isCompleted = lectureNumber <= completedLessons;
+            const isOpen = lectureNumber <= completedLessons + 1;
+            const videoItems = lecture.videos.map((video, videoIndex) => ({
+                id: `${lessonId}-video-${videoIndex + 1}`,
+                title: video.title,
+                duration: `${45 + ((lectureIndex + videoIndex) % 15)}:00`,
+                sourceType: "youtube",
+                youtube: `https://www.youtube.com/embed/${video.youtubeId}`,
+            }));
+
+            return {
+                id: lessonId,
+                title: `Lecture ${lectureNumber}: ${lecture.title}`,
+                duration: `${videoItems.length} video`,
+                completed: isCompleted,
+                locked: !isOpen,
+                videoItems,
+                activeVideoItemId: videoItems[0]?.id || "",
+                videoSources: {
+                    youtube: videoItems[0]?.youtube || "",
+                    html5: "",
+                },
+                captions: { en: null },
+            };
+        });
+    }
+
+    function buildMath20Lessons(meta, completedLessons) {
+        return math20MultiVideoLectures.map((lecture, lectureIndex) => {
+            const lectureNumber = lectureIndex + 1;
+            const lessonId = `${meta.id}-lecture-${lectureNumber}`;
+            const isCompleted = lectureNumber <= completedLessons;
+            const isOpen = lectureNumber <= completedLessons + 1;
+            const videoItems = lecture.videos.map((video, videoIndex) => ({
+                id: `${lessonId}-video-${videoIndex + 1}`,
+                title: video.title,
+                duration: `${45 + ((lectureIndex + videoIndex) % 15)}:00`,
+                sourceType: "youtube",
+                youtube: `https://www.youtube.com/embed/${video.youtubeId}`,
+            }));
+
+            return {
+                id: lessonId,
+                title: `Lecture ${lectureNumber}: ${lecture.title}`,
+                duration: `${videoItems.length} video`,
+                completed: isCompleted,
+                locked: !isOpen,
+                videoItems,
+                activeVideoItemId: videoItems[0]?.id || "",
+                videoSources: {
+                    youtube: videoItems[0]?.youtube || "",
+                    html5: "",
+                },
+                captions: { en: null },
+            };
+        });
+    }
+
+    function buildMath21Lessons(meta, completedLessons) {
+        return math21MultiVideoLectures.map((lecture, lectureIndex) => {
+            const lectureNumber = lectureIndex + 1;
+            const lessonId = `${meta.id}-lecture-${lectureNumber}`;
+            const isCompleted = lectureNumber <= completedLessons;
+            const isOpen = lectureNumber <= completedLessons + 1;
+            const videoItems = lecture.videos.map((video, videoIndex) => ({
+                id: `${lessonId}-video-${videoIndex + 1}`,
+                title: video.title,
+                duration: `${45 + ((lectureIndex + videoIndex) % 15)}:00`,
+                sourceType: "youtube",
+                youtube: `https://www.youtube.com/embed/${video.youtubeId}`,
+            }));
+
+            return {
+                id: lessonId,
+                title: `Lecture ${lectureNumber}: ${lecture.title}`,
+                duration: `${videoItems.length} video`,
+                completed: isCompleted,
+                locked: !isOpen,
+                videoItems,
+                activeVideoItemId: videoItems[0]?.id || "",
+                videoSources: {
+                    youtube: videoItems[0]?.youtube || "",
+                    html5: "",
+                },
+                captions: { en: null },
+            };
+        });
+    }
+
     function buildAssignments(meta, completedAssignments, seed) {
         const statuses = ["graded", "submitted", "not_started", "late", "not_started"];
         const statusLabels = {
@@ -464,7 +727,7 @@
 
     function buildCourse(meta, index) {
         const progressPercent = toPercent(meta.progress, 50);
-        const lectureCount = meta.id === "cs106a-programming-methodology" ? cs106aMultiVideoLectures.length : (meta.id === "cs106b-programming-abstractions" ? cs106bMultiVideoLectures.length : (meta.id === "cs106x-programming-abstractions-accelerated" ? cs106xMultiVideoLectures.length : 8));
+        const lectureCount = meta.id === "cs106a-programming-methodology" ? cs106aMultiVideoLectures.length : (meta.id === "cs106b-programming-abstractions" ? cs106bMultiVideoLectures.length : (meta.id === "cs106x-programming-abstractions-accelerated" ? cs106xMultiVideoLectures.length : (meta.id === "math-18-foundations-for-calculus" ? math18MultiVideoLectures.length : (meta.id === "math-19-calculus-i" ? math19MultiVideoLectures.length : (meta.id === "math-20-calculus-ii" ? math20MultiVideoLectures.length : (meta.id === "math-21-calculus-iii-calculus-with-infinite-processes" ? math21MultiVideoLectures.length : 8))))));
         const completedLectures = Math.max(1, Math.min(lectureCount, Math.round((progressPercent / 100) * lectureCount)));
         const completedAssignments = Math.max(1, Math.min(5, Math.round((progressPercent / 100) * 5)));
         const term = "Fall 2024";
@@ -477,7 +740,15 @@
                 ? buildCs106bLessons(meta, completedLectures)
                 : meta.id === "cs106x-programming-abstractions-accelerated"
                     ? buildCs106xLessons(meta, completedLectures)
-                    : buildLessons(meta, completedLectures, index);
+                    : meta.id === "math-18-foundations-for-calculus"
+                        ? buildMath18Lessons(meta, completedLectures)
+                        : meta.id === "math-19-calculus-i"
+                            ? buildMath19Lessons(meta, completedLectures)
+                            : meta.id === "math-20-calculus-ii"
+                                ? buildMath20Lessons(meta, completedLectures)
+                                : meta.id === "math-21-calculus-iii-calculus-with-infinite-processes"
+                                    ? buildMath21Lessons(meta, completedLectures)
+                                    : buildLessons(meta, completedLectures, index);
         const currentLessonId = lessons[0]?.id || "";
 
         return {

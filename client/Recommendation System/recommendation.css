@@ -82,6 +82,19 @@ body { background-color: var(--bg-body); color: var(--text-primary); min-height:
 .rec-intro-section { margin-bottom: 3rem; text-align: center; }
 .rec-intro-section h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; justify-content: center; display: flex; align-items: center; }
 .rec-intro-section p { font-size: 1rem; color: var(--text-secondary); max-width: 700px; margin: 0 auto; line-height: 1.5; }
+.recommendation-meta { margin-top: 0.75rem !important; font-size: 0.9rem !important; }
+
+.recommendation-state {
+    border: 1px dashed var(--border-color);
+    border-radius: 12px;
+    background-color: var(--bg-card);
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    color: var(--text-secondary);
+}
+.state-icon { color: var(--accent-blue); font-size: 1.05rem; }
 
 /* TRACK CARD */
 .track-list { display: flex; flex-direction: column; gap: 2rem; }
@@ -96,6 +109,9 @@ body { background-color: var(--bg-body); color: var(--text-primary); min-height:
 .rank-circle {
     width: 50px; height: 50px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 700; font-size: 1.2rem; flex-shrink: 0;
 }
+.rank-circle.rank-gold { background-color: var(--rank-gold); color: var(--text-gold); }
+.rank-circle.rank-silver { background-color: var(--rank-silver); color: var(--text-silver); }
+.rank-circle.rank-bronze { background-color: var(--rank-bronze); color: var(--text-bronze); }
 .rank-label { font-size: 0.6rem; text-transform: uppercase; font-weight: 600; margin-top: -2px; }
 
 .track-info h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: 0.25rem; color: var(--text-primary); }
@@ -104,14 +120,33 @@ body { background-color: var(--bg-body); color: var(--text-primary); min-height:
 /* Match Badge */
 .match-box { text-align: right; min-width: 120px; }
 .match-badge { padding: 6px 14px; border-radius: 20px; font-weight: 700; font-size: 0.9rem; display: inline-block; }
+.match-badge.match-high { background-color: var(--match-green-bg); color: var(--match-green-text); }
+.match-badge.match-medium { background-color: var(--match-blue-bg); color: var(--match-blue-text); }
+.match-badge.match-low { background-color: var(--match-orange-bg); color: var(--match-orange-text); }
 .match-bar-track { width: 100%; height: 6px; background-color: var(--border-color); border-radius: 3px; margin-top: 8px; overflow: hidden; }
 .match-bar-fill { height: 100%; }
+.match-bar-fill.match-high { background-color: var(--match-green-text); }
+.match-bar-fill.match-medium { background-color: var(--match-blue-text); }
+.match-bar-fill.match-low { background-color: var(--match-orange-text); }
 
 /* EXPLANATION SECTION (Replacing Skills/Strengths) */
 .explanation-section {
     margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);
 }
 .exp-title { font-size: 0.85rem; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.5px; margin-bottom: 1rem; font-weight: 600; }
+.track-reason { color: var(--text-primary); font-size: 0.95rem; line-height: 1.55; }
+
+.strength-chips { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.strength-chip {
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    background-color: var(--tag-bg);
+    color: var(--text-primary);
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 0.35rem 0.7rem;
+}
+.strength-chip-muted { opacity: 0.7; font-weight: 500; }
 
 .contributors-list { display: flex; flex-direction: column; gap: 0.8rem; }
 .contrib-row { display: flex; align-items: center; gap: 1rem; }
@@ -131,3 +166,22 @@ body { background-color: var(--bg-body); color: var(--text-primary); min-height:
 .ai-icon-box { width: 32px; height: 32px; background-color: var(--why-box-bg); color: var(--accent-blue); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
 .ai-footer-content h4 { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; }
 .ai-footer-content p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5; }
+
+.explanation-heading {
+    font-size: 1rem;
+    margin-bottom: 0.55rem;
+    margin-top: 0.35rem;
+    color: var(--text-primary);
+}
+.explanation-paragraph {
+    font-size: 0.92rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 0.7rem;
+}
+.explanation-list {
+    margin-left: 1rem;
+    margin-bottom: 0.8rem;
+    color: var(--text-secondary);
+}
+.explanation-list li { margin-bottom: 0.35rem; }

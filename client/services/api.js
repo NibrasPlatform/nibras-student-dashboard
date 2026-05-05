@@ -19,6 +19,7 @@
  * - competitionsService: Competitions contests/problems/accounts flows (competitions service)
  * - tagService: Get/create/update tags (legacy community service)
  * - chatbotService: AI chat ask/publish (legacy community service)
+ * - recommendationService: ML track recommendations from grades (recommendation service)
  *
  * Usage:
  *   const user = await window.NibrasServices.authService.getMe();
@@ -319,6 +320,7 @@
             community: window.NIBRAS_COMMUNITY_API_URL || window.NIBRAS_API_URL,
             tracking: window.NIBRAS_TRACKING_API_URL || window.NIBRAS_API_URL,
             competitions: window.NIBRAS_COMPETITIONS_API_URL || window.NIBRAS_API_URL,
+            recommendation: window.NIBRAS_RECOMMENDATION_API_URL || window.NIBRAS_API_URL,
         };
         return fallbacks[service] || fallbacks.admin;
     };
@@ -1062,6 +1064,182 @@
     };
 
     // ============================================================
+    // Recommendation Service (recommendation backend)
+    // ============================================================
+    const normalizeRecommendationGrade = (value) => {
+        if (typeof value === 'number' && Number.isFinite(value)) {
+            if (value < 0) return 0;
+            if (value > 100) return 100;
+            return value;
+        }
+        if (typeof value === 'string') {
+            const parsed = Number(value.replace('%', '').trim());
+            if (!Number.isFinite(parsed)) return null;
+            return normalizeRecommendationGrade(parsed);
+        }
+        return null;
+    };
+
+    const sanitizeRecommendationGrades = (grades) => {
+        const source = grades && typeof grades === 'object' ? grades : {};
+        const normalized = {};
+        Object.keys(source).forEach((courseCode) => {
+            const code = String(courseCode || '').trim();
+            if (!code) return;
+            const grade = normalizeRecommendationGrade(source[courseCode]);
+            if (grade == null) return;
+            normalized[code] = Number(grade.toFixed(2));
+        });
+        return normalized;
+    };
+
+    const isRecommendationRouteNotFoundError = (error) => {
+        const status = Number(error?.status || 0);
+        const message = String(error?.message || error?.payload?.message || '').toLowerCase();
+        if (status === 404) return true;
+        return message.includes('route not found') || message.includes('not found');
+    };
+
+    const isRecommendationAuthError = (error) => {
+        const status = Number(error?.status || 0);
+        return status === 401 || status === 403;
+    };
+
+    const requestRecommendationGradesCandidate = async (candidate) => apiFetch(candidate.path, {
+        service: candidate.service,
+        method: candidate.method || 'GET',
+        auth: candidate.auth !== false,
+        retryAuth: candidate.retryAuth !== false,
+        body: candidate.body,
+        baseUrl: candidate.baseUrl || null,
+    });
+
+    const normalizeRecommendationServiceBaseUrl = (value) => {
+        if (typeof value !== 'string') return null;
+        const trimmed = value.trim().replace(/\/+$/, '');
+        if (!trimmed) return null;
+        try {
+            const parsed = new URL(trimmed);
+            let pathname = parsed.pathname.replace(/\/+$/, '');
+            pathname = pathname.replace(/\/recommend$/i, '');
+            if (!pathname || pathname === '/') pathname = '/api';
+            parsed.pathname = pathname;
+            return parsed.toString().replace(/\/+$/, '');
+        } catch (_) {
+            return trimmed.replace(/\/recommend$/i, '');
+        }
+    };
+
+    const recommendationService = {
+        /**
+         * Retrieve raw grades payload from available backend routes.
+         * Tries multiple routes/services to tolerate partial deployments.
+         * @param {{refreshSheet?: boolean}} options
+         * @returns {Promise<{payload: any, source: string}>}
+         */
+        async getGradesPayload(options = {}) {
+            const refreshSheet = options.refreshSheet === true;
+
+            if (refreshSheet) {
+                const generateCandidates = [
+                    { service: 'tracking', path: '/v1/programs/student/me/generate-sheet', method: 'POST', body: {} },
+                    { service: 'admin', path: '/v1/programs/student/me/generate-sheet', method: 'POST', body: {} },
+                ];
+                for (let i = 0; i < generateCandidates.length; i += 1) {
+                    const candidate = generateCandidates[i];
+                    try {
+                        await requestRecommendationGradesCandidate(candidate);
+                        break;
+                    } catch (error) {
+                        if (isRecommendationAuthError(error)) throw error;
+                        if (!isRecommendationRouteNotFoundError(error)) {
+                            // keep trying other candidates; read route may still succeed
+                        }
+                    }
+                }
+            }
+
+            const readCandidates = [
+                { service: 'tracking', path: '/v1/programs/student/me/sheet' },
+                { service: 'tracking', path: '/v1/programs/student/me' },
+                { service: 'admin', path: '/v1/programs/student/me/sheet' },
+                { service: 'admin', path: '/v1/programs/student/me' },
+                { service: 'admin', path: '/courses?page=1&limit=100' },
+                { service: 'admin', path: '/courses' },
+                { service: 'community', path: '/courses?page=1&limit=100' },
+            ];
+
+            const non404Errors = [];
+            for (let i = 0; i < readCandidates.length; i += 1) {
+                const candidate = readCandidates[i];
+                try {
+                    const payload = await requestRecommendationGradesCandidate(candidate);
+                    return {
+                        payload,
+                        source: `${candidate.service}:${candidate.path}`,
+                    };
+                } catch (error) {
+                    if (isRecommendationAuthError(error)) throw error;
+                    if (isRecommendationRouteNotFoundError(error)) continue;
+                    non404Errors.push(error);
+                }
+            }
+
+            if (non404Errors.length > 0) {
+                throw non404Errors[0];
+            }
+
+            const notFound = new Error('No compatible backend grades endpoint was found.');
+            notFound.status = 404;
+            notFound.code = 'GRADES_ROUTE_NOT_FOUND';
+            throw notFound;
+        },
+
+        /**
+         * Get top recommendations from student grades
+         * @param {Record<string, number|string>} grades
+         * @returns {Promise<{strengths: string[], recommendations: string[], explanation?: string}>}
+         */
+        async recommend(grades) {
+            const normalizedGrades = sanitizeRecommendationGrades(grades);
+            if (Object.keys(normalizedGrades).length === 0) {
+                throw new Error('No valid grades found to generate recommendations.');
+            }
+            const readResponse = (payload) => {
+                const data = unwrapApiData(payload) || payload || {};
+                return {
+                    strengths: Array.isArray(data.strengths) ? data.strengths : [],
+                    recommendations: Array.isArray(data.recommendations) ? data.recommendations : [],
+                    explanation: typeof data.explanation === 'string' ? data.explanation : '',
+                };
+            };
+
+            const requestRecommend = (baseUrl) => apiFetch('/recommend', {
+                service: 'recommendation',
+                method: 'POST',
+                auth: false,
+                retryAuth: false,
+                body: { grades: normalizedGrades },
+                baseUrl: baseUrl || null,
+            });
+
+            try {
+                const payload = await requestRecommend();
+                return readResponse(payload);
+            } catch (error) {
+                if (!isRecommendationRouteNotFoundError(error)) throw error;
+                const configuredBaseUrl = resolveServiceUrl('recommendation');
+                const normalizedBaseUrl = normalizeRecommendationServiceBaseUrl(configuredBaseUrl);
+                if (!normalizedBaseUrl || normalizedBaseUrl === configuredBaseUrl) {
+                    throw error;
+                }
+                const retryPayload = await requestRecommend(normalizedBaseUrl);
+                return readResponse(retryPayload);
+            }
+        },
+    };
+
+    // ============================================================
     // Community Courses Service (course-thread backend)
     // ============================================================
     const communityCourseService = {
@@ -1750,6 +1928,7 @@
         competitionsService,
         tagService,
         chatbotService,
+        recommendationService,
     });
 
     console.log('[NibrasServices] Initialized. Available as window.NibrasServices');

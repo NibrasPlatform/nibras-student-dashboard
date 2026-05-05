@@ -159,6 +159,12 @@
         </div>
     </div>
 
+    <script src="../../react-page-utils.js"></script>
+    <script>
+        if (window.NibrasShared?.session?.updateUserInfoDisplay) {
+            window.NibrasShared.session.updateUserInfoDisplay();
+        }
+    </script>
     <script src="../../react-bootstrap.js"></script>
     <script src="./question.js"></script>
 </body>
