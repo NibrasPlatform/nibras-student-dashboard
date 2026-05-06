@@ -1232,6 +1232,20 @@
             }
 
             if (non404Errors.length > 0) {
+                const networkOrCorsError = non404Errors.find(isRecommendationNetworkError);
+                if (networkOrCorsError) {
+                    const origin = (typeof window !== 'undefined' && window.location && window.location.origin)
+                        ? window.location.origin
+                        : 'this origin';
+                    const explicitError = new Error(
+                        `Could not reach tracking API from ${origin}. Usually CORS/network. Add this origin to API CORS allowlist (NIBRAS_WEB_CORS_ORIGINS).`
+                    );
+                    explicitError.status = Number(networkOrCorsError?.status || 0);
+                    explicitError.code = 'TRACKING_NETWORK_OR_CORS';
+                    explicitError.service = networkOrCorsError?.service || 'tracking';
+                    explicitError.url = networkOrCorsError?.url || '';
+                    throw explicitError;
+                }
                 throw non404Errors[0];
             }
 
@@ -1723,10 +1737,61 @@
     // ============================================================
     // Competitions Service (competitions backend)
     // ============================================================
+    const normalizeCompetitionsServiceBaseUrl = (value) => {
+        if (typeof value !== 'string') return null;
+        const trimmed = value.trim().replace(/\/+$/, '');
+        return trimmed || null;
+    };
+
+    const getCompetitionsBaseCandidates = () => {
+        const configured = normalizeCompetitionsServiceBaseUrl(resolveServiceUrl('competitions'));
+        if (!configured) return [null];
+
+        const candidates = [configured];
+        if (/\/api$/i.test(configured)) {
+            candidates.push(configured.replace(/\/api$/i, ''));
+        } else {
+            candidates.push(`${configured}/api`);
+        }
+
+        return Array.from(new Set(candidates.filter(Boolean)));
+    };
+
+    const isCompetitionsCompatibilityRetryableError = (error) => {
+        const status = Number(error?.status || 0);
+        const code = String(error?.code || '').toUpperCase();
+        if (status === 0 || code === 'NETWORK_ERROR' || code === 'TIMEOUT') return true;
+        return status === 404 || status === 405 || status === 501 || status === 502 || status === 503 || status === 504;
+    };
+
+    const requestCompetitionsWithCompatibility = async (pathCandidates, options = {}) => {
+        const paths = Array.isArray(pathCandidates) ? pathCandidates : [pathCandidates];
+        const baseCandidates = getCompetitionsBaseCandidates();
+        let lastError = null;
+
+        for (let b = 0; b < baseCandidates.length; b += 1) {
+            const baseUrl = baseCandidates[b];
+            for (let p = 0; p < paths.length; p += 1) {
+                const path = paths[p];
+                try {
+                    return await apiFetch(path, Object.assign({}, options, {
+                        service: 'competitions',
+                        baseUrl: baseUrl || null,
+                    }));
+                } catch (error) {
+                    lastError = error;
+                    if (isAuthErrorStatus(Number(error?.status || 0))) throw error;
+                    if (!isCompetitionsCompatibilityRetryableError(error)) throw error;
+                }
+            }
+        }
+
+        throw lastError || new Error('No compatible competitions endpoint found.');
+    };
+
     const competitionsService = {
         async getMe() {
-            const payload = await apiFetch('/auth/me', {
-                service: 'competitions',
+            const payload = await requestCompetitionsWithCompatibility('/auth/me', {
                 method: 'GET',
                 auth: true,
             });
@@ -1743,8 +1808,7 @@
                 sortBy: filters.sortBy,
                 order: filters.order,
             });
-            const payload = await apiFetch(`/contests${query}`, {
-                service: 'competitions',
+            const payload = await requestCompetitionsWithCompatibility(`/contests${query}`, {
                 method: 'GET',
                 auth: false,
             });
@@ -1756,8 +1820,7 @@
         },
 
         async getContestById(id) {
-            const payload = await apiFetch(`/contests/${encodeURIComponent(String(id || ''))}`, {
-                service: 'competitions',
+            const payload = await requestCompetitionsWithCompatibility(`/contests/${encodeURIComponent(String(id || ''))}`, {
                 method: 'GET',
                 auth: false,
             });
@@ -1765,8 +1828,12 @@
         },
 
         async bookmarkContest(id) {
-            const payload = await apiFetch(`/contests/user-contests/${encodeURIComponent(String(id || ''))}/bookmark`, {
-                service: 'competitions',
+            const contestId = encodeURIComponent(String(id || ''));
+            const payload = await requestCompetitionsWithCompatibility([
+                `/user-contests/${contestId}/bookmark`,
+                `/user/contests/${contestId}/bookmark`,
+                `/contests/user-contests/${contestId}/bookmark`,
+            ], {
                 method: 'POST',
                 auth: true,
                 body: {},
@@ -1778,8 +1845,12 @@
         },
 
         async removeBookmark(id) {
-            const payload = await apiFetch(`/contests/user-contests/${encodeURIComponent(String(id || ''))}/bookmark`, {
-                service: 'competitions',
+            const contestId = encodeURIComponent(String(id || ''));
+            const payload = await requestCompetitionsWithCompatibility([
+                `/user-contests/${contestId}/bookmark`,
+                `/user/contests/${contestId}/bookmark`,
+                `/contests/user-contests/${contestId}/bookmark`,
+            ], {
                 method: 'DELETE',
                 auth: true,
             });
@@ -1791,8 +1862,11 @@
 
         async listBookmarks(filters = {}) {
             const query = buildQueryString({ page: filters.page, limit: filters.limit });
-            const payload = await apiFetch(`/contests/user-contests/bookmarks${query}`, {
-                service: 'competitions',
+            const payload = await requestCompetitionsWithCompatibility([
+                `/user-contests/bookmarks${query}`,
+                `/user/contests/bookmarks${query}`,
+                `/contests/user-contests/bookmarks${query}`,
+            ], {
                 method: 'GET',
                 auth: true,
             });
@@ -1804,8 +1878,12 @@
         },
 
         async setReminder(id) {
-            const payload = await apiFetch(`/contests/user-contests/${encodeURIComponent(String(id || ''))}/reminder`, {
-                service: 'competitions',
+            const contestId = encodeURIComponent(String(id || ''));
+            const payload = await requestCompetitionsWithCompatibility([
+                `/user-contests/${contestId}/reminder`,
+                `/user/contests/${contestId}/reminder`,
+                `/contests/user-contests/${contestId}/reminder`,
+            ], {
                 method: 'POST',
                 auth: true,
                 body: {},
@@ -1817,8 +1895,12 @@
         },
 
         async removeReminder(id) {
-            const payload = await apiFetch(`/contests/user-contests/${encodeURIComponent(String(id || ''))}/reminder`, {
-                service: 'competitions',
+            const contestId = encodeURIComponent(String(id || ''));
+            const payload = await requestCompetitionsWithCompatibility([
+                `/user-contests/${contestId}/reminder`,
+                `/user/contests/${contestId}/reminder`,
+                `/contests/user-contests/${contestId}/reminder`,
+            ], {
                 method: 'DELETE',
                 auth: true,
             });
@@ -1830,8 +1912,11 @@
 
         async listReminders(filters = {}) {
             const query = buildQueryString({ page: filters.page, limit: filters.limit });
-            const payload = await apiFetch(`/contests/user-contests/reminders${query}`, {
-                service: 'competitions',
+            const payload = await requestCompetitionsWithCompatibility([
+                `/user-contests/reminders${query}`,
+                `/user/contests/reminders${query}`,
+                `/contests/user-contests/reminders${query}`,
+            ], {
                 method: 'GET',
                 auth: true,
             });
@@ -1843,8 +1928,12 @@
         },
 
         async joinContest(id) {
-            const payload = await apiFetch(`/contests/user-contests/${encodeURIComponent(String(id || ''))}/join`, {
-                service: 'competitions',
+            const contestId = encodeURIComponent(String(id || ''));
+            const payload = await requestCompetitionsWithCompatibility([
+                `/user-contests/${contestId}/join`,
+                `/user/contests/${contestId}/join`,
+                `/contests/user-contests/${contestId}/join`,
+            ], {
                 method: 'POST',
                 auth: true,
                 body: {},
@@ -1863,8 +1952,11 @@
                 page: filters.page,
                 limit: filters.limit,
             });
-            const payload = await apiFetch(`/contests/user-contests/history${query}`, {
-                service: 'competitions',
+            const payload = await requestCompetitionsWithCompatibility([
+                `/user-contests/history${query}`,
+                `/user/contests/history${query}`,
+                `/contests/user-contests/history${query}`,
+            ], {
                 method: 'GET',
                 auth: true,
             });
@@ -1875,8 +1967,10 @@
         },
 
         async linkAccounts(accounts) {
-            const payload = await apiFetch('/contests/accounts/link', {
-                service: 'competitions',
+            const payload = await requestCompetitionsWithCompatibility([
+                '/accounts/link',
+                '/contests/accounts/link',
+            ], {
                 method: 'POST',
                 auth: true,
                 body: accounts || {},
@@ -1888,8 +1982,10 @@
         },
 
         async startVerification(platform) {
-            const payload = await apiFetch('/contests/accounts/verify/start', {
-                service: 'competitions',
+            const payload = await requestCompetitionsWithCompatibility([
+                '/accounts/verify/start',
+                '/contests/accounts/verify/start',
+            ], {
                 method: 'POST',
                 auth: true,
                 body: { platform },
@@ -1901,8 +1997,10 @@
         },
 
         async checkVerification(platform) {
-            const payload = await apiFetch('/contests/accounts/verify/check', {
-                service: 'competitions',
+            const payload = await requestCompetitionsWithCompatibility([
+                '/accounts/verify/check',
+                '/contests/accounts/verify/check',
+            ], {
                 method: 'POST',
                 auth: true,
                 body: { platform },
@@ -1914,8 +2012,11 @@
         },
 
         async getAggregatedProfile(userId) {
-            const payload = await apiFetch(`/contests/accounts/profile/${encodeURIComponent(String(userId || ''))}`, {
-                service: 'competitions',
+            const encodedUserId = encodeURIComponent(String(userId || ''));
+            const payload = await requestCompetitionsWithCompatibility([
+                `/accounts/profile/${encodedUserId}`,
+                `/contests/accounts/profile/${encodedUserId}`,
+            ], {
                 method: 'GET',
                 auth: true,
             });
@@ -1924,8 +2025,11 @@
 
         async syncProfile(options = {}) {
             const force = options.force === true;
-            const payload = await apiFetch(`/contests/accounts/profile/sync${force ? '?force=true' : ''}`, {
-                service: 'competitions',
+            const query = force ? '?force=true' : '';
+            const payload = await requestCompetitionsWithCompatibility([
+                `/accounts/profile/sync${query}`,
+                `/contests/accounts/profile/sync${query}`,
+            ], {
                 method: 'POST',
                 auth: true,
                 body: {},
@@ -1938,8 +2042,7 @@
             if (filters.difficulty) queryFilters.difficulty = filters.difficulty;
             if (Array.isArray(filters.tags)) queryFilters.tags = filters.tags.join(',');
             else if (filters.tags) queryFilters.tags = filters.tags;
-            const payload = await apiFetch(`/problems${buildQueryString(queryFilters)}`, {
-                service: 'competitions',
+            const payload = await requestCompetitionsWithCompatibility(`/problems${buildQueryString(queryFilters)}`, {
                 method: 'GET',
                 auth: true,
             });
@@ -1948,8 +2051,7 @@
         },
 
         async getRoadmap() {
-            const payload = await apiFetch('/problems/roadmap', {
-                service: 'competitions',
+            const payload = await requestCompetitionsWithCompatibility('/problems/roadmap', {
                 method: 'GET',
                 auth: true,
             });
@@ -1957,8 +2059,7 @@
         },
 
         async getProgress() {
-            const payload = await apiFetch('/problems/progress', {
-                service: 'competitions',
+            const payload = await requestCompetitionsWithCompatibility('/problems/progress', {
                 method: 'GET',
                 auth: true,
             });

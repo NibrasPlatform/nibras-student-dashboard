@@ -86,10 +86,14 @@
     const renderRankings = () => {
         if (!rankContainer) return;
         const linkedAccounts = state.profile?.linkedAccounts || {};
+        const profileData = state.profile?.profile || {};
+        const platformsData = state.profile?.platforms || {};
         const verification = state.profile?.verification || {};
+        const cfHandle = linkedAccounts.codeforces || platformsData.codeforces?.handle || profileData.codeforces?.handle || profileData.codeforces || null;
+        const lcUsername = linkedAccounts.leetcode || platformsData.leetcode?.username || profileData.leetcode?.username || profileData.leetcode || null;
         const rows = [
-            { label: 'Codeforces Handle', value: linkedAccounts.codeforces || 'Not linked' },
-            { label: 'LeetCode Username', value: linkedAccounts.leetcode || 'Not linked' },
+            { label: 'Codeforces Handle', value: cfHandle || 'Not linked' },
+            { label: 'LeetCode Username', value: lcUsername || 'Not linked' },
             { label: 'Codeforces Verification', value: verification.codeforces?.status || 'unverified' },
             { label: 'LeetCode Verification', value: verification.leetcode?.status || 'unverified' },
             { label: 'Successful Sync Platforms', value: String(syncSuccessCount()) },
@@ -110,7 +114,11 @@
         const totals = getProgressTotals();
         const percent = totals.total ? Math.round((totals.solved / totals.total) * 100) : 0;
         const linked = state.profile?.linkedAccounts || {};
-        const linkedCount = Object.values(linked).filter(Boolean).length;
+        const profileData = state.profile?.profile || {};
+        const platformsData = state.profile?.platforms || {};
+        const hasCf = !!(linked.codeforces || platformsData.codeforces?.handle || profileData.codeforces?.handle || profileData.codeforces);
+        const hasLc = !!(linked.leetcode || platformsData.leetcode?.username || profileData.leetcode?.username || profileData.leetcode);
+        const linkedCount = [hasCf, hasLc].filter(Boolean).length;
 
         rateContainer.innerHTML = `
             <div class="rating-progress-row">
@@ -165,6 +173,7 @@
             state.profile = profile || {};
             state.progress = progress || {};
             state.history = history || null;
+            console.log('[loadRankingData] verification:', profile?.verification);
             renderStats();
             renderRankings();
             renderProgress('');
@@ -224,9 +233,23 @@
             return;
         }
         try {
+            if (competitionsService?.checkVerification) {
+                const checkResult = await competitionsService.checkVerification(platform);
+                const currentStatus = checkResult?.data?.status?.toLowerCase();
+                if (currentStatus === 'verified') {
+                    renderProgress(`${platform} account is already verified!`);
+                    return;
+                }
+                if (currentStatus === 'pending') {
+                    renderProgress(`${platform} verification is pending. Check again in a moment or complete the verification step.`);
+                    return;
+                }
+            }
             const result = await competitionsService.startVerification(platform);
             const tokenValue = result?.data?.token ? ` Token: ${result.data.token}` : '';
-            renderProgress(`Verification started for ${platform}.${tokenValue}`);
+            const platformName = platform === 'codeforces' ? 'Codeforces' : 'LeetCode';
+            renderProgress(`${platformName} verification started.${tokenValue} Click the button again to check status.`);
+            await loadRankingData();
         } catch (error) {
             if (Number(error?.status || 0) === 401 || Number(error?.status || 0) === 403) {
                 renderProgress('Your current session is not authorized for Competitions. Please sign in with a competitions account.');
@@ -289,4 +312,41 @@
     renderRankings();
     renderProgress('');
     void loadRankingData();
+
+    const accountLinksContainer = document.getElementById('account-links-container');
+    const accountLinkStatus = document.getElementById('account-link-status');
+
+    const linkAccountSimple = async (platform) => {
+        const platformName = platform === 'codeforces' ? 'Codeforces' : 'LeetCode';
+        const username = prompt(`Enter your ${platformName} username:`);
+        if (!username || !username.trim()) {
+            accountLinkStatus.innerHTML = '<span style="color:var(--status-error-text);">Username is required.</span>';
+            return;
+        }
+        try {
+            if (competitionsService?.linkAccounts) {
+                const body = platform === 'codeforces' 
+                    ? { codeforcesHandle: username.trim() }
+                    : { leetcodeUsername: username.trim() };
+                console.log('[Link Account] Sending request with body:', JSON.stringify(body));
+                const result = await competitionsService.linkAccounts(body);
+                console.log('[Link Account] Response:', result);
+                accountLinkStatus.innerHTML = `<span style="color:var(--status-success-text);">${platformName} account linked! Reloading profile...</span>`;
+                await loadRankingData();
+                console.log('[Link Account] Profile after reload:', state.profile);
+            } else {
+                accountLinkStatus.innerHTML = '<span style="color:var(--status-error-text);">Link service not available.</span>';
+            }
+        } catch (error) {
+            console.error('[Link Account] Error:', error);
+            accountLinkStatus.innerHTML = `<span style="color:var(--status-error-text);">Failed to link: ${error?.message || 'Unknown error'}</span>`;
+        }
+    };
+
+    accountLinksContainer?.addEventListener('click', (event) => {
+        const target = event.target.closest('[data-action="link-account"]');
+        if (!target) return;
+        const platform = target.dataset.platform;
+        linkAccountSimple(platform);
+    });
 });

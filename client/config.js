@@ -33,8 +33,8 @@
   const DEFAULT_LEGACY_API = DEFAULT_MONOLITH_API;
   const DEFAULT_COMMUNITY_API = DEFAULT_MONOLITH_API;
   const DEFAULT_TRACKING_API = 'https://nibras-web.fly.dev';
-  const DEFAULT_COMPETITIONS_API = DEFAULT_MONOLITH_API;
-  const DEFAULT_RECOMMENDATION_API = 'https://recommendationmodel-production-3e7b.up.railway.app/api/recommend';
+  const DEFAULT_COMPETITIONS_API = 'https://nibras-backend.up.railway.app';
+  const DEFAULT_RECOMMENDATION_API = 'https://recommendationmodel-production-0f8e.up.railway.app/api/recommend';
   const DEFAULT_GOOGLE_CLIENT_ID = 'your_google_oauth_client_id';
 
   const params = new URLSearchParams(window.location.search);
@@ -78,6 +78,20 @@
       return parsed.toString().replace(/\/+$/, '');
     } catch (_) {
       return normalizedBase.replace(/\/recommend$/i, '');
+    }
+  };
+
+  const ensureCompetitionsApiBaseUrl = (value) => {
+    const normalizedBase = ensureApiBaseUrl(value);
+    if (!normalizedBase) return null;
+    try {
+      const parsed = new URL(normalizedBase);
+      let pathname = parsed.pathname.replace(/\/+$/, '');
+      if (!pathname || pathname === '/') pathname = '/api';
+      parsed.pathname = pathname;
+      return parsed.toString().replace(/\/+$/, '');
+    } catch (_) {
+      return normalizedBase.endsWith('/api') ? normalizedBase : normalizedBase + '/api';
     }
   };
 
@@ -125,20 +139,17 @@
     try {
       const parsed = new URL(normalized);
       let pathname = parsed.pathname.replace(/\/+$/, '');
-      if (!pathname || pathname === '/') {
-        // Use /v1 directly for tracking API (not /api)
-        pathname = '/v1';
-      } else if (!/^\/v1(?:\/|$)/i.test(pathname)) {
-        pathname = `${pathname}/v1`;
-      }
+      // Keep tracking base at host/root (or custom prefix), because callers already use /v1 paths.
+      pathname = pathname.replace(/\/v1$/i, '');
+      if (!pathname || pathname === '/') pathname = '/';
       parsed.pathname = pathname;
       return parsed.toString().replace(/\/+$/, '');
     } catch (_) {
-      return raw.replace(/\/+$/, '') + '/v1';
+      return raw.replace(/\/+$/, '').replace(/\/v1$/i, '');
     }
   })();
 
-  const competitionsApi = ensureApiBaseUrl(readFirst(
+  const competitionsApi = ensureCompetitionsApiBaseUrl(readFirst(
     params.get('competitionsApi'),
     params.get('compApi'),
     localStorage.getItem('nibras_competitions_api_url'),

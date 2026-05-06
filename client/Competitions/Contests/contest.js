@@ -86,10 +86,10 @@
     const refreshStats = () => {
         if (!statsContainer) return;
         const stats = [
-            { label: 'Running Contests', value: String(runningContests.length), icon: 'fa-solid fa-bolt', color: 'yellow' },
-            { label: 'Upcoming Contests', value: String(upcomingContests.length), icon: 'fa-solid fa-calendar-days', color: 'green' },
-            { label: 'Bookmarked', value: String(bookmarkedContestIds.size), icon: 'fa-regular fa-bookmark', color: 'blue' },
-            { label: 'Reminders', value: String(reminderContestIds.size), icon: 'fa-regular fa-bell', color: 'purple' },
+            { label: 'Running Contests', value: String(runningContests.length), icon: 'fa-solid fa-bolt', color: 'yellow', action: null },
+            { label: 'Upcoming Contests', value: String(upcomingContests.length), icon: 'fa-solid fa-calendar-days', color: 'green', action: null },
+            { label: 'Bookmarked', value: String(bookmarkedContestIds.size), icon: 'fa-regular fa-bookmark', color: 'blue', action: 'view-bookmarks' },
+            { label: 'Reminders', value: String(reminderContestIds.size), icon: 'fa-regular fa-bell', color: 'purple', action: null },
         ];
         statsContainer.innerHTML = '';
         stats.forEach((stat) => {
@@ -100,7 +100,7 @@
             if (stat.color === 'blue') { bgVar = 'var(--stat-blue-bg)'; textVar = 'var(--stat-blue-text)'; }
             if (stat.color === 'purple') { bgVar = 'var(--stat-purple-bg)'; textVar = 'var(--stat-purple-text)'; }
             statsContainer.innerHTML += `
-                <div class="stat-card">
+                <div class="stat-card" ${stat.action ? `style="cursor:pointer" data-action="${stat.action}"` : ''}>
                     <div class="stat-info">
                         <span>${stat.label}</span>
                         <h2>${stat.value}</h2>
@@ -111,6 +111,61 @@
                 </div>
             `;
         });
+    };
+
+    const showBookmarksModal = async () => {
+        if (!competitionsService) return;
+        if (!authEnabled) {
+            showFeedback('Sign in to view bookmarked contests.', 'unauthorized');
+            return;
+        }
+        try {
+            const result = await competitionsService.listBookmarks({ page: 1, limit: 100 });
+            const bookmarkedContests = result?.contests || [];
+            if (bookmarkedContests.length === 0) {
+                showFeedback('No bookmarked contests yet.', 'info');
+                return;
+            }
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width:500px;max-height:80vh;overflow-y:auto;background:var(--bg-card);padding:20px;border-radius:8px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                        <h3 style="margin:0;">Bookmarked Contests</h3>
+                        <button class="modal-close" style="background:none;border:none;font-size:24px;cursor:pointer;">&times;</button>
+                    </div>
+                    <div class="bookmarks-list">
+                        ${bookmarkedContests.map(c => `
+                            <div style="padding:12px;border-bottom:1px solid var(--border-color);">
+                                <h4 style="margin:0 0 8px 0;">${c.title || 'Untitled Contest'}</h4>
+                                <div style="font-size:12px;color:var(--text-secondary);">
+                                    <span>${c.platform || ''}</span> | 
+                                    <span>${formatDateTime(c.startTime)}</span> | 
+                                    <span>${formatDuration(c.duration)}</span>
+                                </div>
+                                <button class="btn-register-full" data-action="unbookmark" data-id="${c._id || c.id}" style="margin-top:8px;">
+                                    <i class="fa-solid fa-bookmark"></i> Remove
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            modal.querySelector('.modal-close').addEventListener('click', () => modal.remove());
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) modal.remove();
+            });
+            modal.querySelectorAll('[data-action="unbookmark"]').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const id = e.target.closest('[data-id]').dataset.id;
+                    await handleContestAction('bookmark', id);
+                    modal.remove();
+                });
+            });
+        } catch (error) {
+            showFeedback('Failed to load bookmarks.', 'error');
+        }
     };
 
     const renderRunning = () => {
@@ -184,12 +239,12 @@
                     <div class="uc-meta-row" style="margin-top: 10px; gap: 8px;">
                         <button class="btn-register-full" data-action="join" data-id="${contestId}">Join</button>
                         <button class="btn-register-full" data-action="bookmark" data-id="${contestId}">
-                            ${isBookmarked ? 'Unbookmark' : 'Bookmark'}
+                            ${isBookmarked ? '<i class="fa-solid fa-bookmark"></i> Bookmarked' : '<i class="fa-regular fa-bookmark"></i> Bookmark'}
                         </button>
                         <button class="btn-register-full" data-action="reminder" data-id="${contestId}">
-                            ${hasReminder ? 'Remove Reminder' : 'Set Reminder'}
+                            ${hasReminder ? '<i class="fa-solid fa-bell"></i> Remove' : '<i class="fa-regular fa-bell"></i> Set Reminder'}
                         </button>
-                        <button class="btn-register-full" data-action="open" data-id="${contestId}">Open</button>
+                        <button class="btn-register-full" data-action="open" data-id="${contestId}" ${contest.status === 'upcoming' ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}>Open</button>
                     </div>
                 </div>
             `;
@@ -219,6 +274,10 @@
         if (!contestId || !competitionsService) return;
         const contest = findContestById(contestId);
         if (action === 'open') {
+            if (contest?.status === 'upcoming') {
+                showFeedback('This contest has not started yet. You can join when it begins.', 'info');
+                return;
+            }
             if (contest?.url) {
                 window.open(contest.url, '_blank', 'noopener,noreferrer');
             } else {
@@ -230,8 +289,28 @@
         if (!ensureAuth()) return;
         try {
             if (action === 'join') {
-                await competitionsService.joinContest(contestId);
-                showFeedback('Contest joined successfully.', 'info');
+                const contest = findContestById(contestId);
+                console.log('Join contest debug:', JSON.stringify(contest));
+                let targetUrl = contest?.joinUrl;
+                console.log('joinUrl from API:', targetUrl);
+                console.log('contestIdOnPlatform:', contest?.contestIdOnPlatform);
+                console.log('contest.id:', contest?.id);
+                if (!targetUrl && contest?.contestIdOnPlatform) {
+                    if (contest.platform === 'codeforces') {
+                        targetUrl = `https://codeforces.com/contestRegistration/${contest.contestIdOnPlatform}`;
+                    } else if (contest.platform === 'atcoder') {
+                        targetUrl = `https://atcoder.jp/contests/${contest.contestIdOnPlatform}`;
+                    } else if (contest.platform === 'leetcode') {
+                        targetUrl = `https://leetcode.com/contest/${contest.contestIdOnPlatform}/`;
+                    }
+                }
+                console.log('Final targetUrl:', targetUrl);
+                if (targetUrl) {
+                    window.open(targetUrl, '_blank', 'noopener,noreferrer');
+                } else {
+                    await competitionsService.joinContest(contestId);
+                    showFeedback('Contest joined successfully.', 'info');
+                }
             } else if (action === 'bookmark') {
                 if (bookmarkedContestIds.has(contestId)) {
                     await competitionsService.removeBookmark(contestId);
@@ -366,6 +445,15 @@
         const button = event.target.closest('button[data-action][data-id]');
         if (!button) return;
         handleContestAction(button.dataset.action, button.dataset.id);
+    });
+
+    statsContainer?.addEventListener('click', (event) => {
+        const statCard = event.target.closest('.stat-card');
+        if (!statCard) return;
+        const action = statCard.dataset.action;
+        if (action === 'view-bookmarks') {
+            showBookmarksModal();
+        }
     });
 
     refreshStats();
