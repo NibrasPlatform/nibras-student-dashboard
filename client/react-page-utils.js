@@ -728,10 +728,37 @@
     const requireAuth = (redirectUrl = '/Login/loginPage/login.html') => {
         const token = getToken();
         if (!token) {
-            window.location.href = redirectUrl;
-            return false;
+            // Check for new session-based auth
+            const sessionToken = safeStorageGet(window.localStorage, 'nibras_session_token');
+            if (!sessionToken) {
+                window.location.href = redirectUrl;
+                return false;
+            }
+            return true;
         }
         return true;
+    };
+
+    /**
+     * Get current user from new tracking API session
+     * @returns {Promise<object|null>}
+     */
+    const fetchTrackingSession = async () => {
+        const trackingApi = resolveServiceUrl('tracking');
+        try {
+            const response = await fetch(`${trackingApi}/v1/web/session`, {
+                method: 'GET',
+                credentials: 'include',
+            });
+            if (response.ok) {
+                const userData = await response.json();
+                return userData;
+            }
+            return null;
+        } catch (err) {
+            console.error('[NibrasShared] Failed to fetch tracking session:', err);
+            return null;
+        }
     };
 
     window.NibrasApi = nibrasApi;
@@ -744,6 +771,7 @@
         session: {
             updateUserInfoDisplay,
             requireAuth,
+            fetchTrackingSession,
         },
         uiStates: {
             render: renderUiState,

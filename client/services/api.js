@@ -2068,6 +2068,254 @@
     };
 
     // ============================================================
+    // Tracking Session Service (new backend - port 4848)
+    // ============================================================
+    const sessionService = {
+        /**
+         * Get current authenticated user from new tracking API
+         * @returns {Promise<{id, login, systemRole, githubAccount, enrolledCourses, accessibleCourseCount}>}
+         */
+        async getCurrentUser() {
+            return apiFetch('/v1/web/session', {
+                service: 'tracking',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        /**
+         * Health check for tracking API
+         * @returns {Promise<object>}
+         */
+        async healthCheck() {
+            return apiFetch('/v1/health', {
+                service: 'tracking',
+                method: 'GET',
+                auth: false,
+            });
+        },
+    };
+
+    // ============================================================
+    // Tracking Courses Service (new backend)
+    // ============================================================
+    const trackingCourseService = {
+        /**
+         * List courses the current user is enrolled in
+         * @returns {Promise<Array>}
+         */
+        async list() {
+            return apiFetch('/v1/tracking/courses', {
+                service: 'tracking',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        /**
+         * Get course details
+         * @param {string} courseId
+         * @returns {Promise<object>}
+         */
+        async getById(courseId) {
+            return apiFetch(`/v1/tracking/courses/${encodeURIComponent(String(courseId))}`, {
+                service: 'tracking',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        /**
+         * Get grade export CSV
+         * @param {string} courseId
+         * @returns {Promise<string>}
+         */
+        async getGradesCsv(courseId) {
+            const response = await fetch(
+                `${resolveServiceUrl('tracking')}/v1/tracking/courses/${encodeURIComponent(String(courseId))}/grades.csv`,
+                {
+                    method: 'GET',
+                    credentials: 'include',
+                }
+            );
+            if (!response.ok) {
+                const error = new Error(`Failed to download grades: ${response.status}`);
+                error.status = response.status;
+                throw error;
+            }
+            return response.text();
+        },
+    };
+
+    // ============================================================
+    // Tracking Projects Service (new backend)
+    // ============================================================
+    const trackingProjectService = {
+        /**
+         * List projects for a course
+         * @param {string} courseId
+         * @returns {Promise<Array>}
+         */
+        async listByCourse(courseId) {
+            return apiFetch(`/v1/tracking/courses/${encodeURIComponent(String(courseId))}/projects`, {
+                service: 'tracking',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        /**
+         * Get project details
+         * @param {string} projectId
+         * @returns {Promise<object>}
+         */
+        async getById(projectId) {
+            return apiFetch(`/v1/tracking/projects/${encodeURIComponent(String(projectId))}`, {
+                service: 'tracking',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        /**
+         * Get milestones for a project
+         * @param {string} projectId
+         * @returns {Promise<Array>}
+         */
+        async getMilestones(projectId) {
+            return apiFetch(`/v1/tracking/projects/${encodeURIComponent(String(projectId))}/milestones`, {
+                service: 'tracking',
+                method: 'GET',
+                auth: true,
+            });
+        },
+    };
+
+    // ============================================================
+    // Tracking Milestones Service (new backend)
+    // ============================================================
+    const trackingMilestoneService = {
+        /**
+         * Get milestone details
+         * @param {string} milestoneId
+         * @returns {Promise<object>}
+         */
+        async getById(milestoneId) {
+            return apiFetch(`/v1/tracking/milestones/${encodeURIComponent(String(milestoneId))}`, {
+                service: 'tracking',
+                method: 'GET',
+                auth: true,
+            });
+        },
+    };
+
+    // ============================================================
+    // GitHub Repository Service (new backend)
+    // ============================================================
+    const githubService = {
+        /**
+         * Validate a GitHub repository for submission
+         * @param {string} repoUrl
+         * @returns {Promise<{owner, name, defaultBranch, visibility, permission}>}
+         */
+        async validateRepo(repoUrl) {
+            return apiFetch('/v1/github/repositories/validate', {
+                service: 'tracking',
+                method: 'POST',
+                auth: true,
+                body: { repoUrl },
+            });
+        },
+
+        /**
+         * Get GitHub App install URL
+         * @returns {Promise<{installUrl}>}
+         */
+        async getInstallUrl() {
+            return apiFetch('/v1/github/install-url', {
+                service: 'tracking',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        /**
+         * Get GitHub App configuration
+         * @returns {Promise<{configured, appName, webBaseUrl}>}
+         */
+        async getConfig() {
+            return apiFetch('/v1/github/config', {
+                service: 'tracking',
+                method: 'GET',
+                auth: false,
+            });
+        },
+    };
+
+    // ============================================================
+    // Submission Service (new backend)
+    // ============================================================
+    const submissionService = {
+        /**
+         * Create a new submission
+         * @param {string} projectId
+         * @param {string} repoUrl
+         * @param {string} notes
+         * @returns {Promise<{id, projectId, status, createdAt}>}
+         */
+        async create(projectId, repoUrl, notes) {
+            return apiFetch('/v1/submissions', {
+                service: 'tracking',
+                method: 'POST',
+                auth: true,
+                body: { projectId, repoUrl, notes },
+            });
+        },
+
+        /**
+         * Get submission status
+         * @param {string} id
+         * @returns {Promise<object>}
+         */
+        async getById(id) {
+            return apiFetch(`/v1/submissions/${encodeURIComponent(String(id))}`, {
+                service: 'tracking',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        /**
+         * List submissions for a course (instructor)
+         * @param {string} courseId
+         * @returns {Promise<Array>}
+         */
+        async listByCourse(courseId) {
+            return apiFetch(`/v1/tracking/courses/${encodeURIComponent(String(courseId))}/submissions`, {
+                service: 'tracking',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        /**
+         * Submit instructor review
+         * @param {string} id
+         * @param {number} score
+         * @param {string} feedback
+         * @returns {Promise<object>}
+         */
+        async submitReview(id, score, feedback) {
+            return apiFetch(`/v1/tracking/submissions/${encodeURIComponent(String(id))}/review`, {
+                service: 'tracking',
+                method: 'POST',
+                auth: true,
+                body: { score, feedback },
+            });
+        },
+    };
+
+    // ============================================================
     // Expose on window
     // ============================================================
     window.NibrasServices = Object.freeze({
@@ -2086,6 +2334,12 @@
         tagService,
         chatbotService,
         recommendationService,
+        sessionService,
+        trackingCourseService,
+        trackingProjectService,
+        trackingMilestoneService,
+        githubService,
+        submissionService,
     });
 
     console.log('[NibrasServices] Initialized. Available as window.NibrasServices');

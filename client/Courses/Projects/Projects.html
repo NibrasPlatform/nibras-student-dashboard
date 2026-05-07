@@ -497,22 +497,29 @@
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                         <h3 style="font-size: 1rem; font-weight: 600;">Latest Feedback</h3>
                         <div style="display: flex; gap: 8px; align-items: center;">
-                            <button id="btn-toggle-project-ai" class="btn btn-outline btn-sm" style="display: none;">
+                            <button id="btn-toggle-project-ai" class="btn btn-outline btn-sm">
                                 <i class="fa-solid fa-brain"></i> AI Analysis
                             </button>
                             <span class="status-badge badge-late" id="feedback-status-badge">Needs Changes</span>
                         </div>
                     </div>
-                    
+
                     <div class="feedback-box">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.9rem;">
-                            <strong>Rubric Score:</strong>
-                            <span style="color: var(--text-secondary);"><span style="color: var(--text-primary); font-weight: 600;" id="feedback-rubric-score">65</span> / 100</span>
+                        <div style="display: grid; gap: 1rem; margin-bottom: 1rem;">
+                            <div>
+                                <strong>Rubric Score:</strong>
+                                <span style="color: var(--text-secondary);"><span style="color: var(--text-primary); font-weight: 600;" id="feedback-rubric-score">65</span> / 100</span>
+                            </div>
+                            <div id="feedback-test-results" style="display: none;">
+                                <strong>Test Results:</strong><pre id="feedback-test-results-content" style="background: var(--bg-secondary); padding: 0.5rem; border-radius: 4px; overflow-x: auto;"></pre>
+                            </div>
+                            <div id="feedback-instructor-comment">
+                                <p class="instructor-comment" id="feedback-comment">"Good start on the UI components and routing. However, accessibility needs major work, and the mobile view is currently breaking on the product catalog page. Please address the checklist below and resubmit."</p>
+                            </div>
                         </div>
-                        <p class="instructor-comment" id="feedback-comment">"Good start on the UI components and routing. However, accessibility needs major work, and the mobile view is currently breaking on the product catalog page. Please address the checklist below and resubmit."</p>
                     </div>
 
-                    <!-- NEW: AI Deep Analysis for Projects -->
+                    <!-- AI Deep Analysis for Projects -->
                     <div id="project-ai-analysis" style="display: none; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px dashed var(--border-color);">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                             <h4 style="font-size: 0.9rem; font-weight: 600;"><i class="fa-solid fa-microchip"></i> Semantic Reasoning</h4>

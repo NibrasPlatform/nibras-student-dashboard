@@ -70,9 +70,9 @@ window.NibrasReact.run(() => {
         const method = String(settings.method || "GET").toUpperCase();
         const authEnabled = settings.auth !== false;
         const headers = Object.assign({}, settings.headers || {});
-        const hasContentType = Object.keys(headers).some((key) => key.toLowerCase() === "content-type");
+        const hasContentType = Object.keys(headers || {}).some((key) => key.toLowerCase() === "content-type");
 
-        if (authEnabled && !Object.keys(headers).some((key) => key.toLowerCase() === "authorization")) {
+        if (authEnabled && !Object.keys(headers || {}).some((key) => key.toLowerCase() === "authorization")) {
             const token = getToken();
             if (token) headers.Authorization = `Bearer ${token}`;
         }
@@ -545,7 +545,7 @@ window.NibrasReact.run(() => {
         state.socket.on("post:created", (payload) => {
             const incomingThreadId = normalizeIdentifier(payload?.threadId);
             if (!incomingThreadId || incomingThreadId !== state.threadId) return;
-            if (state.posts.some((post) => getId(post) === normalizeIdentifier(payload?.id))) return;
+            if (!state.posts || state.posts.some((post) => getId(post) === normalizeIdentifier(payload?.id))) return;
             const hydratedPost = Object.assign({}, payload, {
                 _id: payload?.id,
                 author: payload?.author || {},

@@ -702,6 +702,69 @@ window.openFeedbackModal = async (projectId, milestoneId) => {
             comment.textContent = latestFeedback?.reviewerComment || 'No feedback available yet.';
         }
 
+        // Test Results
+        const testResultsContainer = document.getElementById('feedback-test-results');
+        const testResultsContent = document.getElementById('feedback-test-results-content');
+        if (testResultsContainer && testResultsContent) {
+            if (latestFeedback?.testResults) {
+                testResultsContainer.style.display = 'block';
+                // Assuming testResults is a string; if it's an object, we might need to format it.
+                testResultsContent.textContent = typeof latestFeedback.testResults === 'string'
+                    ? latestFeedback.testResults
+                    : JSON.stringify(latestFeedback.testResults, null, 2);
+            } else {
+                testResultsContainer.style.display = 'none';
+                testResultsContent.textContent = '';
+            }
+        }
+
+        // AI Evidence
+        const aiAnalysisContainer = document.getElementById('project-ai-analysis');
+        const aiConfidence = document.getElementById('project-ai-confidence');
+        const aiReasoning = document.getElementById('project-ai-reasoning');
+        const aiEvidence = document.getElementById('project-ai-evidence');
+        const toggleAiButton = document.getElementById('btn-toggle-project-ai');
+        if (aiAnalysisContainer && aiConfidence && aiReasoning && aiEvidence && toggleAiButton) {
+            if (latestFeedback?.aiEvidence) {
+                // Show the AI analysis section
+                aiAnalysisContainer.style.display = 'block';
+                // Set confidence if available
+                if (latestFeedback.aiEvidence.confidence !== undefined) {
+                    aiConfidence.textContent = `Confidence: ${latestFeedback.aiEvidence.confidence}%`;
+                } else {
+                    aiConfidence.textContent = 'Confidence: --%';
+                }
+                // Set reasoning
+                aiReasoning.textContent = latestFeedback.aiEvidence.reasoning || 'No reasoning provided.';
+                // Set evidence (assuming it's a string or code)
+                aiEvidence.textContent = typeof latestFeedback.aiEvidence.evidence === 'string'
+                    ? latestFeedback.aiEvidence.evidence
+                    : JSON.stringify(latestFeedback.aiEvidence.evidence, null, 2);
+                // Show the toggle button
+                toggleAiButton.style.display = 'inline-block';
+
+                // Add toggle functionality
+                toggleAiButton.onclick = () => {
+                    const isHidden = aiAnalysisContainer.style.display === 'none';
+                    aiAnalysisContainer.style.display = isHidden ? 'block' : 'none';
+                    toggleAiButton.textContent = isHidden ?
+                        '<i class="fa-solid fa-brain"></i> Hide AI Analysis' :
+                        '<i class="fa-solid fa-brain"></i> AI Analysis';
+                };
+            } else {
+                // Hide the AI analysis section
+                aiAnalysisContainer.style.display = 'none';
+                // Reset content
+                aiConfidence.textContent = 'Confidence: --%';
+                aiReasoning.textContent = '...';
+                aiEvidence.textContent = '...';
+                // Hide the toggle button
+                toggleAiButton.style.display = 'none';
+                // Remove any existing onclick handler
+                toggleAiButton.onclick = null;
+            }
+        }
+
         if (checklist) {
             checklist.innerHTML = latestFeedback?.reviewerComment
                 ? `<li><i class="fa-regular fa-square"></i> ${escapeHtml(latestFeedback.reviewerComment)}</li>`

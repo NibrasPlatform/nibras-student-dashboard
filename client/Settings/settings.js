@@ -16,6 +16,35 @@ window.NibrasReact.run(() => {
 
     const adminApiBase = String(resolveServiceUrl('admin') || 'https://nibras-backend.up.railway.app/api').replace(/\/+$/, '');
     const trackingApiBase = String(resolveServiceUrl('tracking') || 'https://nibras-backend.up.railway.app/api').replace(/\/+$/, '');
+    // Course context for preferences
+    const selectedCourseId = localStorage.getItem('selectedCourseId') || '';
+
+    function getPreferenceStorageKey(suffix, courseId) {
+        return courseId ? `pref-${suffix}-${courseId}` : `pref-${suffix}`;
+    }
+
+    function loadPreferences() {
+        const langKey = getPreferenceStorageKey('lang', selectedCourseId);
+        const timezoneKey = getPreferenceStorageKey('timezone', selectedCourseId);
+        const levelKey = getPreferenceStorageKey('level', selectedCourseId);
+
+        const lang = localStorage.getItem(langKey) || settingsData.preferences.language;
+        const timezone = localStorage.getItem(timezoneKey) || settingsData.preferences.timezone;
+        const level = localStorage.getItem(levelKey) || settingsData.preferences.level;
+
+        return { language: lang, timezone: timezone, level: level };
+    }
+
+    function savePreferences(prefs) {
+        const langKey = getPreferenceStorageKey('lang', selectedCourseId);
+        const timezoneKey = getPreferenceStorageKey('timezone', selectedCourseId);
+        const levelKey = getPreferenceStorageKey('level', selectedCourseId);
+
+        localStorage.setItem(langKey, prefs.language);
+        localStorage.setItem(timezoneKey, prefs.timezone);
+        localStorage.setItem(levelKey, prefs.level);
+    }
+
     const githubServiceCandidates = ['tracking', 'admin'];
     const githubDisconnectPathCandidates = ['/v1/github/oauth/disconnect', '/v1/github/disconnect'];
 
@@ -388,9 +417,20 @@ window.NibrasReact.run(() => {
         `;
     });
 
-    document.getElementById('pref-lang').value = settingsData.preferences.language;
-    document.getElementById('pref-timezone').value = settingsData.preferences.timezone;
-    document.getElementById('pref-level').value = settingsData.preferences.level;
+    const prefs = loadPreferences();
+    document.getElementById('pref-lang').value = prefs.language;
+    document.getElementById('pref-timezone').value = prefs.timezone;
+    document.getElementById('pref-level').value = prefs.level;
+
+    // Update course context banner
+    const banner = document.getElementById('course-context-banner');
+    if (banner) {
+        if (selectedCourseId) {
+            banner.textContent = `Editing settings for course ID: ${selectedCourseId}`;
+        } else {
+            banner.textContent = 'Editing global settings';
+        }
+    }
 
     const privContainer = document.getElementById('privacy-container');
     privContainer.innerHTML = '';
@@ -432,20 +472,30 @@ window.NibrasReact.run(() => {
         }
     }
 
-    // --- 6. SAVE (profile update endpoint not yet available) ---
+    // --- 6. SAVE PREFERENCES ---
     document.querySelector('.btn-save').addEventListener('click', () => {
         const btn = document.querySelector('.btn-save');
         const originalText = btn.textContent;
         btn.textContent = "Saving...";
         btn.disabled = true;
+
+        // Get current values from form
+        const prefs = {
+            language: document.getElementById('pref-lang').value,
+            timezone: document.getElementById('pref-timezone').value,
+            level: document.getElementById('pref-level').value
+        };
+
+        // Save preferences
+        savePreferences(prefs);
+
+        // Show success message
+        btn.textContent = "Settings saved!";
+        btn.style.backgroundColor = "var(--accent-blue, #2563eb)";
         setTimeout(() => {
-            btn.textContent = "Profile update not yet available";
-            btn.style.backgroundColor = "var(--tag-red-text, #dc2626)";
-            setTimeout(() => {
-                btn.textContent = originalText;
-                btn.style.backgroundColor = "";
-                btn.disabled = false;
-            }, 2500);
-        }, 800);
+            btn.textContent = originalText;
+            btn.style.backgroundColor = "";
+            btn.disabled = false;
+        }, 1500);
     });
 });

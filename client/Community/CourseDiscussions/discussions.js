@@ -50,6 +50,7 @@ window.NibrasReact.run(() => {
                 // ignore storage access errors
             }
         }
+        // Return empty string if no token found, don't crash
         return "";
     };
 
@@ -70,10 +71,11 @@ window.NibrasReact.run(() => {
         const method = String(settings.method || "GET").toUpperCase();
         const authEnabled = settings.auth !== false;
         const headers = Object.assign({}, settings.headers || {});
-        const hasContentType = Object.keys(headers).some((key) => key.toLowerCase() === "content-type");
+        const hasContentType = Object.keys(headers || {}).some((key) => key.toLowerCase() === "content-type");
 
-        if (authEnabled && !Object.keys(headers).some((key) => key.toLowerCase() === "authorization")) {
+        if (authEnabled && !Object.keys(headers || {}).some((key) => key.toLowerCase() === "authorization")) {
             const token = getToken();
+            console.log('[DEBUG] Token for', path, ':', token ? 'Found' : 'NOT FOUND');
             if (token) headers.Authorization = `Bearer ${token}`;
         }
 
@@ -314,18 +316,27 @@ window.NibrasReact.run(() => {
     }
 
     async function bootstrap() {
-        await loadCurrentUser();
-        if (!state.user) {
-            renderAuthRequiredState();
-            return;
-        }
-        await loadCommunityCourses();
+        console.log('[Bootstrap] Starting...');
+        try {
+            await loadCurrentUser();
+            console.log('[Bootstrap] User loaded:', state.user);
+            if (!state.user) {
+                renderAuthRequiredState();
+                return;
+            }
+            await loadCommunityCourses();
+            console.log('[Bootstrap] Courses loaded:', state.availableCourses.length);
 
-        pickInitialCommunityCourse();
-        renderCourseSelect();
-        renderEnrollmentState();
-        initSocket();
-        await loadThreads({ announce: true });
+            pickInitialCommunityCourse();
+            renderCourseSelect();
+            renderEnrollmentState();
+            initSocket();
+            await loadThreads({ announce: true });
+            console.log('[Bootstrap] Done');
+        } catch (error) {
+            console.error('[Bootstrap] Error:', error);
+            showNotice('Error loading page: ' + error.message, 'error');
+        }
     }
 
     async function refreshAll(options = {}) {
@@ -340,10 +351,14 @@ window.NibrasReact.run(() => {
 
     async function loadCurrentUser() {
         try {
+            console.log('[Auth] Loading user via communityAuthService...');
             const payload = await communityAuthService.getMe();
+            console.log('[Auth] Payload:', payload);
             state.user = pickEntity(payload, "user");
+            console.log('[Auth] User set to:', state.user);
             clearNotice();
         } catch (error) {
+            console.error('[Auth] Error:', error);
             state.user = null;
             showErrorNotice(error, "Sign in is required to access course discussions.");
             renderAuthRequiredState();
@@ -351,8 +366,15 @@ window.NibrasReact.run(() => {
     }
 
     async function loadCommunityCourses() {
-        const payload = await communityCourseService.list();
-        state.availableCourses = pickArray(payload, "courses");
+        try {
+            const payload = await communityCourseService.list();
+            console.log('[Courses] Response:', payload);
+            state.availableCourses = pickArray(payload, "courses");
+            console.log('[Courses] Loaded:', state.availableCourses.length);
+        } catch (error) {
+            console.error('[Courses] Error:', error);
+            state.availableCourses = [];
+        }
     }
 
     function pickInitialCommunityCourse() {
@@ -567,6 +589,7 @@ window.NibrasReact.run(() => {
 
     async function loadThreadVotes() {
         state.threadVoteById.clear();
+        if (!state.threads || !state.threads.length) return;
         const voteJobs = state.threads.map(async (thread) => {
                 const threadId = getId(thread);
                 if (!threadId) return;
@@ -764,6 +787,7 @@ window.NibrasReact.run(() => {
             return { enrolled: true, privileged: true };
         }
         const enrolledCourses = Array.isArray(state.user?.enrolledCourses) ? state.user.enrolledCourses : [];
+        if (!enrolledCourses.length) return { enrolled: false, privileged: false };
         const enrolled = enrolledCourses.some((entry) => normalizeIdentifier(entry?.course?._id || entry?.course) === normalizeIdentifier(state.communityCourseId));
         return { enrolled, privileged: false };
     }

@@ -363,6 +363,79 @@
     ];
 
     const math51MultiVideoLectures = [
+        { title: "1. The Geometry of Linear Equations", videos: [{ title: "Lecture 1", youtubeId: "J7DzL2_Na80" }] },
+        { title: "2. Elimination with Matrices", videos: [{ title: "Lecture 2", youtubeId: "QVKj3LADCnA" }] },
+        { title: "3. Multiplication and Inverse Matrices", videos: [{ title: "Lecture 3", youtubeId: "FX4C-JpTFgY" }] },
+        { title: "4. Factorization into A = LU", videos: [{ title: "Lecture 4", youtubeId: "MsIvs_6vC38" }] },
+        { title: "5. Transposes, Permutations, Spaces R^n", videos: [{ title: "Lecture 5", youtubeId: "JibVXBElKL0" }] },
+        { title: "6. Column Space and Nullspace", videos: [{ title: "Lecture 6", youtubeId: "8o5Cmfpeo6g" }] },
+        { title: "7. Solving Ax = 0", videos: [{ title: "Lecture 7", youtubeId: "VqP2tREMvt0" }] },
+        { title: "8. Solving Ax = b", videos: [{ title: "Lecture 8", youtubeId: "9Q1q7s1jTzU" }] },
+        { title: "9. Independence, Basis, and Dimension", videos: [{ title: "Lecture 9", youtubeId: "yjBerM5jWsc" }] },
+        { title: "10. The Four Fundamental Subspaces", videos: [{ title: "Lecture 10", youtubeId: "nHlE7EgJFds" }] },
+        { title: "11. Matrix Spaces", videos: [{ title: "Lecture 11", youtubeId: "2IdtqGM6KWU" }] },
+        { title: "12. Graphs and Networks", videos: [{ title: "Lecture 12", youtubeId: "6-wh6yvk6uc" }] },
+        { title: "13. Quiz 1 Review", videos: [{ title: "Lecture 13", youtubeId: "l88D4r74gtM" }] },
+        { title: "14. Orthogonal Vectors and Subspaces", videos: [{ title: "Lecture 14", youtubeId: "YzZUIYRCE38" }] },
+        { title: "15. Projections and Least Squares", videos: [{ title: "Lecture 15", youtubeId: "Y_Ac6KiQ1t0" }] },
+        { title: "16. Projection Matrices and Least Squares", videos: [{ title: "Lecture 16", youtubeId: "osh80YCg_GM" }] },
+        { title: "17. Orthogonal Matrices and Gram-Schmidt", videos: [{ title: "Lecture 17", youtubeId: "0MtwqhIwdrI" }] },
+        { title: "18. Gram-Schmidt and A = QR", videos: [{ title: "Lecture 18", youtubeId: "srxexLishgY" }] },
+        { title: "19. Determinants", videos: [{ title: "Lecture 19", youtubeId: "23LLB9mNJvc" }] },
+        { title: "20. Determinant Properties and Volume", videos: [{ title: "Lecture 20", youtubeId: "QNpj-gOXW9M" }] },
+        { title: "21. Eigenvalues and Eigenvectors", videos: [{ title: "Lecture 21", youtubeId: "cdZnhQjJu4I" }] },
+        { title: "22. Diagonalization and Powers of A", videos: [{ title: "Lecture 22", youtubeId: "13r9QY6cmjc" }] },
+        { title: "23. Differential Equations", videos: [{ title: "Lecture 23", youtubeId: "IZqwi0wJovM" }] },
+        { title: "24. Complex Matrices", videos: [{ title: "Lecture 24", youtubeId: "lGGDIGizcQ0" }] },
+        { title: "25. Similar Matrices and Jordan Form", videos: [{ title: "Lecture 25", youtubeId: "UCc9q_cAhho" }] },
+        { title: "26. SVD", videos: [{ title: "Lecture 26", youtubeId: "M0Sa8fLOajA" }] },
+        { title: "27. SVD Applications", videos: [{ title: "Lecture 27", youtubeId: "vF7eyJ2g3kU" }] },
+        { title: "28. Quiz 2 Review", videos: [{ title: "Lecture 28", youtubeId: "TSdXJw83kyA" }] },
+        { title: "29. Linear Transformations", videos: [{ title: "Lecture 29", youtubeId: "TX_vooSnhm8" }] },
+        { title: "30. Change of Basis", videos: [{ title: "Lecture 30", youtubeId: "Ts3o2I8_Mxc" }] },
+        { title: "31. Left Inverse and Right Inverse", videos: [{ title: "Lecture 31", youtubeId: "0h43aV4aH7I" }] },
+        { title: "32. Final Course Review", videos: [{ title: "Lecture 32", youtubeId: "HgC1l_6ySkc" }] },
+        { title: "33. Final Exam Review", videos: [{ title: "Lecture 33", youtubeId: "Go2aLo7ZOlU" }] },
+        { title: "34. Summary of Linear Algebra", videos: [{ title: "Lecture 34", youtubeId: "RWvi4Vx4CDc" }] },
+    ];
+
+    const math52MultiVideoLectures = [
+        { title: "The Geometrical View of y'=f(x,y): Direction Fields, Integral Curves",                                                                                                            videos: [{ title: "Lecture 1",  youtubeId: "XDhJ8lVGbl8" }] },
+        { title: "Euler's Numerical Method for y'=f(x,y) and its Generalizations",                                                                                                                 videos: [{ title: "Lecture 2",  youtubeId: "LbKKzMag5Rc" }] },
+        { title: "Solving First-order Linear ODE's; Steady-state and Transient Solutions",                                                                                                         videos: [{ title: "Lecture 3",  youtubeId: "tVzaX9u6YAE" }] },
+        { title: "First-order Substitution Methods: Bernouilli and Homogeneous ODE's",                                                                                                             videos: [{ title: "Lecture 4",  youtubeId: "WBJ_iXudb-s" }] },
+        { title: "First-order Autonomous ODE's: Qualitative Methods, Applications",                                                                                                                videos: [{ title: "Lecture 5",  youtubeId: "te6Mplq3DCU" }] },
+        { title: "Complex Numbers and Complex Exponentials",                                                                                                                                       videos: [{ title: "Lecture 6",  youtubeId: "EQJBp6Ym-6A" }] },
+        { title: "First-order Linear with Constant Coefficients: Behavior of Solutions, Use of Complex Methods",                                                                                   videos: [{ title: "Lecture 7",  youtubeId: "SioXozu-Loo" }] },
+        { title: "Continuation: Applications to Temperature, Mixing, RC-circuit, Decay, and Growth Models",                                                                                       videos: [{ title: "Lecture 8",  youtubeId: "MdzfsfBNJIw" }] },
+        { title: "Solving Second-order Linear ODE's with Constant Coefficients: The Three Cases",                                                                                                  videos: [{ title: "Lecture 9",  youtubeId: "vP-oRQqmeg4" }] },
+        { title: "Continuation: Complex Characteristic Roots; Undamped and Damped Oscillations",                                                                                                  videos: [{ title: "Lecture 10", youtubeId: "YQ7HEE8-OfA" }] },
+        { title: "Theory of General Second-order Linear Homogeneous ODE's: Superposition, Uniqueness, Wronskians",                                                                                 videos: [{ title: "Lecture 11", youtubeId: "rZ3-nFV6l8w" }] },
+        { title: "Continuation: General Theory for Inhomogeneous ODE's. Stability Criteria for the Constant-coefficient ODE's",                                                                   videos: [{ title: "Lecture 12", youtubeId: "eyNm7XGJr4s" }] },
+        { title: "Finding Particular Solutions to Inhomogeneous ODE's: Operator and Solution Formulas Involving Exponentials",                                                                     videos: [{ title: "Lecture 13", youtubeId: "9KbpbBMThTE" }] },
+        { title: "Interpretation of the Exceptional Case: Resonance",                                                                                                                             videos: [{ title: "Lecture 14", youtubeId: "Y9_zrupnz0Q" }] },
+        { title: "Introduction to Fourier Series; Basic Formulas for Period 2π",                                                                                                                  videos: [{ title: "Lecture 15", youtubeId: "EWWw0jryj1A" }] },
+        { title: "Continuation: More General Periods; Even and Odd Functions; Periodic Extension",                                                                                                 videos: [{ title: "Lecture 16", youtubeId: "xWa5_OXI6VM" }] },
+        { title: "Finding Particular Solutions via Fourier Series; Resonant Terms; Hearing Musical Sounds",                                                                                        videos: [{ title: "Lecture 17", youtubeId: "yD0_EQLxHcw" }] },
+        { title: "Engineering Applications (Guest Lecture by Prof. Miller & Vandiver)",                                                                                                            videos: [{ title: "Lecture 18", youtubeId: "pRIEYR5JHQA" }] },
+        { title: "Introduction to the Laplace Transform; Basic Formulas",                                                                                                                         videos: [{ title: "Lecture 19", youtubeId: "sZ2qulI6GEk" }] },
+        { title: "Derivative Formulas; Using the Laplace Transform to Solve Linear ODE's",                                                                                                        videos: [{ title: "Lecture 20", youtubeId: "qZHseRxAWZ8" }] },
+        { title: "Convolution Formula: Proof, Connection with Laplace Transform, Application to Physical Problems",                                                                                videos: [{ title: "Lecture 21", youtubeId: "3ejfkMHr_DE" }] },
+        { title: "Using Laplace Transform to Solve ODE's with Discontinuous Inputs",                                                                                                              videos: [{ title: "Lecture 22", youtubeId: "_YVcjNmjHik" }] },
+        { title: "Use with Impulse Inputs; Dirac Delta Function, Weight and Transfer Functions",                                                                                                   videos: [{ title: "Lecture 23", youtubeId: "peYvLk_HZdw" }] },
+        { title: "Introduction to First-order Systems of ODE's; Solution by Elimination, Geometric Interpretation of a System",                                                                   videos: [{ title: "Lecture 24", youtubeId: "MCrDzhpu3-s" }] },
+        { title: "Homogeneous Linear Systems with Constant Coefficients: Solution via Matrix Eigenvalues (Real and Distinct Case)",                                                                videos: [{ title: "Lecture 25", youtubeId: "heBvViSi9xQ" }] },
+        { title: "Continuation: Repeated Real Eigenvalues, Complex Eigenvalues",                                                                                                                  videos: [{ title: "Lecture 26", youtubeId: "hEtWqTPPXuc" }] },
+        { title: "Sketching Solutions of 2x2 Homogeneous Linear System with Constant Coefficients",                                                                                               videos: [{ title: "Lecture 27", youtubeId: "e3FfmXtkppM" }] },
+        { title: "Matrix Methods for Inhomogeneous Systems: Theory, Fundamental Matrix, Variation of Parameters",                                                                                  videos: [{ title: "Lecture 28", youtubeId: "2SuTN8rpe4I" }] },
+        { title: "Matrix Exponentials; Application to Solving Systems",                                                                                                                           videos: [{ title: "Lecture 29", youtubeId: "zreI4HllD80" }] },
+        { title: "Decoupling Linear Systems with Constant Coefficients",                                                                                                                          videos: [{ title: "Lecture 30", youtubeId: "uNOyxQwIV8o" }] },
+        { title: "Non-linear Autonomous Systems: Finding the Critical Points and Sketching Trajectories; the Non-linear Pendulum",                                                                 videos: [{ title: "Lecture 31", youtubeId: "UJG0f0BSX14" }] },
+        { title: "Limit Cycles: Existence and Non-existence Criteria",                                                                                                                            videos: [{ title: "Lecture 32", youtubeId: "z-meBrqcy_I" }] },
+        { title: "Relation Between Non-linear Systems and First-order ODE's; Structural Stability of a System, Borderline Sketching Cases; Illustrations Using Volterra's Equation and Principle", videos: [{ title: "Lecture 33", youtubeId: "kRR9EVzr4lc" }] },
+    ];
+
+    const math53MultiVideoLectures = [
         { title: "Dot Product", videos: [{ title: "Lecture 1", youtubeId: "PxCxlsl_YwY" }] },
         { title: "Lecture 2", videos: [{ title: "Lecture 2", youtubeId: "9FLItlbBUPY" }] },
         { title: "Lecture 3", videos: [{ title: "Lecture 3", youtubeId: "bHdzkFrgRcA" }] },
@@ -398,6 +471,408 @@
         { title: "Lecture 33", videos: [{ title: "Lecture 33", youtubeId: "BChhAS1sFvA" }] },
         { title: "Lecture 34", videos: [{ title: "Lecture 34", youtubeId: "ZwpwmGP5ITM" }] },
         { title: "Lecture 35", videos: [{ title: "Lecture 35", youtubeId: "24v9onS9Kcg" }] },
+    ];
+
+    const cs103MultiVideoLectures = [
+        { title: "Introduction and Proofs",                          videos: [{ title: "Lecture 1",  youtubeId: "L3LMbpZIKhQ" }] },
+        { title: "Induction",                                        videos: [{ title: "Lecture 2",  youtubeId: "z8HKWUWS-lA" }] },
+        { title: "Strong Induction",                                 videos: [{ title: "Lecture 3",  youtubeId: "NuGDkmwEObM" }] },
+        { title: "Number Theory I",                                  videos: [{ title: "Lecture 4",  youtubeId: "NuY7szYSXSw" }] },
+        { title: "Number Theory II",                                 videos: [{ title: "Lecture 5",  youtubeId: "XX7ePR21Ook" }] },
+        { title: "Graph Theory and Coloring",                        videos: [{ title: "Lecture 6",  youtubeId: "h9wxtqoa1jY" }] },
+        { title: "Matching Problems",                                videos: [{ title: "Lecture 7",  youtubeId: "5RSMLgy06Ew" }] },
+        { title: "Graph Theory II: Minimum Spanning Trees",          videos: [{ title: "Lecture 8",  youtubeId: "GJpt_3ie4WU" }] },
+        { title: "Communication Networks",                           videos: [{ title: "Lecture 9",  youtubeId: "bTyxpoi2dmM" }] },
+        { title: "Graph Theory III",                                 videos: [{ title: "Lecture 10", youtubeId: "DOIp5D7VMS4" }] },
+        { title: "Relations, Partial Orders, and Scheduling",        videos: [{ title: "Lecture 11", youtubeId: "1nScXLQAQ9A" }] },
+        { title: "Sums",                                             videos: [{ title: "Lecture 12", youtubeId: "fAeShezAGLE" }] },
+        { title: "Sums and Asymptotics",                             videos: [{ title: "Lecture 13", youtubeId: "X9eErxRjQEI" }] },
+        { title: "Divide and Conquer Recurrences",                   videos: [{ title: "Lecture 14", youtubeId: "Kqf0uO0oV6s" }] },
+        { title: "Linear Recurrences",                               videos: [{ title: "Lecture 15", youtubeId: "TWBB-JlmYUc" }] },
+        { title: "Counting Rules I",                                 videos: [{ title: "Lecture 16", youtubeId: "pNt5Ll6hGqo" }] },
+        { title: "Counting Rules II",                                videos: [{ title: "Lecture 17", youtubeId: "09yIb3VHhMI" }] },
+        { title: "Probability Introduction",                         videos: [{ title: "Lecture 18", youtubeId: "SmFwFdESMHI" }] },
+        { title: "Conditional Probability",                          videos: [{ title: "Lecture 19", youtubeId: "E6FbvM-FGZ8" }] },
+        { title: "Independence",                                     videos: [{ title: "Lecture 20", youtubeId: "l1BCv3qqW4A" }] },
+        { title: "Random Variables",                                 videos: [{ title: "Lecture 21", youtubeId: "MOfhhFaQdjw" }] },
+        { title: "Expectation I",                                    videos: [{ title: "Lecture 22", youtubeId: "gGlMSe7uEkA" }] },
+        { title: "Expectation II",                                   videos: [{ title: "Lecture 23", youtubeId: "oI9fMUqgfxY" }] },
+        { title: "Large Deviations",                                 videos: [{ title: "Lecture 24", youtubeId: "q4mwO2qS2z4" }] },
+        { title: "Random Walks",                                     videos: [{ title: "Lecture 25", youtubeId: "56iFMY8QW2k" }] },
+    ];
+
+    const cs107MultiVideoLectures = [
+        { title: "Course Introduction", videos: [{ title: "Lecture 1", videoId: "ucberkeley_webcast_gJJeUFyuvvg" }] },
+        { title: "Intro to the C Programming Language, Part I", videos: [{ title: "Lecture 2", videoId: "ucberkeley_webcast_mZgoX-yLqxM" }] },
+        { title: "Intro to the C Programming Language, Part II", videos: [{ title: "Lecture 3", videoId: "ucberkeley_webcast_DJa1tBk6gPM" }] },
+        { title: "Intro to the C Programming Language, Part III", videos: [{ title: "Lecture 4", videoId: "ucberkeley_webcast_7WTass69OYM" }] },
+        { title: "Intro to Assembly Language, MIPS Intro", videos: [{ title: "Lecture 5", videoId: "ucberkeley_webcast_zUYCZYKaUrk" }] },
+        { title: "MIPS, MIPS Functions", videos: [{ title: "Lecture 6", videoId: "ucberkeley_webcast_DEqOkfYhDS4" }] },
+        { title: "MIPS Instruction Formats", videos: [{ title: "Lecture 7", videoId: "ucberkeley_webcast_tjjWdaDiXio" }] },
+        { title: "Running a Program (Compiling, Assembling, Linking, Loading)", videos: [{ title: "Lecture 8", videoId: "ucberkeley_webcast_Z4r9AWu8D18" }] },
+        { title: "Synchronous Digital Systems", videos: [{ title: "Lecture 9", videoId: "ucberkeley_webcast_SstCrz0xUzw" }] },
+        { title: "Finite State Machines, Functional Units", videos: [{ title: "Lecture 10", videoId: "ucberkeley_webcast__MOzj6gXrU0" }] },
+        { title: "Single-Cycle CPU Datapath & Control, Part 1", videos: [{ title: "Lecture 11", videoId: "ucberkeley_webcast_OOBwKAXZjlk" }] },
+        { title: "Single-Cycle CPU Datapath & Control, Part 2", videos: [{ title: "Lecture 12", videoId: "ucberkeley_webcast_ZnxKHKVvQl4" }] },
+        { title: "Pipelining", videos: [{ title: "Lecture 13", videoId: "ucberkeley_webcast_oIawE3IseRA" }] },
+        { title: "Caches Part 1", videos: [{ title: "Lecture 14", videoId: "ucberkeley_webcast_XeOftiVV49o" }] },
+        { title: "Caches Part 2", videos: [{ title: "Lecture 15", videoId: "ucberkeley_webcast_ERtmeRRES5U" }] },
+        { title: "Caches Part 3", videos: [{ title: "Lecture 16", videoId: "ucberkeley_webcast_N4bfyyVEPRc" }] },
+        { title: "Performance and Floating Point Arithmetic", videos: [{ title: "Lecture 17", videoId: "ucberkeley_webcast_z8rFDWFDj8c" }] },
+        { title: "Amdahl's Law and Data-Level Parallelism", videos: [{ title: "Lecture 18", videoId: "ucberkeley_webcast_xNJyfcv7YsQ" }] },
+        { title: "Thread Level Parallelism (TLP) and OpenMP Intro", videos: [{ title: "Lecture 19", videoId: "ucberkeley_webcast_OrrIbXqfu4U" }] },
+        { title: "Thread Level Parallelism (TLP) and OpenMP", videos: [{ title: "Lecture 20", videoId: "ucberkeley_webcast_1o6078uavdo" }] },
+        { title: "Warehouse-Scale Computing, MapReduce, and Spark", videos: [{ title: "Lecture 21", videoId: "ucberkeley_webcast_BDdvnVOWkSE" }] },
+        { title: "Operating Systems, Interrupts, Virtual Memory Intro", videos: [{ title: "Lecture 22", videoId: "ucberkeley_webcast_9X3Tioo3deA" }] },
+        { title: "Virtual Memory, Intro to I/O", videos: [{ title: "Lecture 23", videoId: "ucberkeley_webcast__bW31WWiQbo" }] },
+        { title: "More I/O: DMA, Disks, Networking", videos: [{ title: "Lecture 24", videoId: "ucberkeley_webcast_QhFnRQ2pJyw" }] },
+        { title: "Dependability and RAID", videos: [{ title: "Lecture 25", videoId: "ucberkeley_webcast_2hAJwG9G9PE" }] },
+        { title: "Course Summary", videos: [{ title: "Lecture 26", videoId: "ucberkeley_webcast_kpjywuTwpMc" }] },
+    ];
+
+    const cs110MultiVideoLectures = [
+        { title: "Course Introduction", videos: [{ title: "Lecture 1", youtubeId: "_LFGjZ0Sc6I" }] },
+        { title: "File Systems - Fundamentals", videos: [{ title: "Lecture 2", youtubeId: "Dbg2N7T6D_c" }] },
+        { title: "Unix v6 Filesystem Architecture", videos: [{ title: "Lecture 3", youtubeId: "vUyKpzg6vYk" }] },
+        { title: "Filesystem Data Structures, System Calls, Intro to Multiprocessing", videos: [{ title: "Lecture 4", youtubeId: "DSPc5LIVWHw" }] },
+        { title: "execvp System Call - Introduction", videos: [{ title: "Lecture 5", youtubeId: "RDk_CY0HT_E" }] },
+        { title: "execvp, pipe, dup2, and Signals", videos: [{ title: "Lecture 6", youtubeId: "Yf380zTr_ro" }] },
+        { title: "Signals - Deep Dive", videos: [{ title: "Lecture 7", youtubeId: "d9Pou4L7j0s" }] },
+        { title: "Race Conditions, Deadlock, and Data Integrity", videos: [{ title: "Lecture 8", youtubeId: "YE4MW01u7mg" }] },
+        { title: "Introduction to Threads", videos: [{ title: "Lecture 9", youtubeId: "bw68rvYNG8k" }] },
+        { title: "From C Threads to C++ Threads", videos: [{ title: "Lecture 10", youtubeId: "lyODXaZ2Zg8" }] },
+        { title: "Multithreading, Condition Variables, and Semaphores", videos: [{ title: "Lecture 11", youtubeId: "7U3Eo0ynmHo" }] },
+        { title: "Review: mutex, condition_variable_any, semaphore", videos: [{ title: "Lecture 12", youtubeId: "l4PrC3mCPJY" }] },
+        { title: "Ice Cream Shop Simulation - Concurrency Patterns", videos: [{ title: "Lecture 13", youtubeId: "rA4iG8eYzi4" }] },
+        { title: "Introduction to Networking", videos: [{ title: "Lecture 14", youtubeId: "oLvSC6TCqdI" }] },
+        { title: "Networks and Clients - Socket Programming", videos: [{ title: "Lecture 15", youtubeId: "akQOgmL2a-8" }] },
+        { title: "Network System Calls", videos: [{ title: "Lecture 16", youtubeId: "eTKrkFAg6WI" }] },
+        { title: "Web Proxy Implementation", videos: [{ title: "Lecture 17", youtubeId: "wqI_BRyB2tM" }] },
+        { title: "MapReduce - Distributed Computing Fundamentals", videos: [{ title: "Lecture 18", youtubeId: "y-MDGT5-OAY" }] },
+        { title: "Principles of System Design", videos: [{ title: "Lecture 19", youtubeId: "L3w6NE3_sCA" }] },
+        { title: "Course Wrap-up and Advanced Topics", videos: [{ title: "Lecture 20", youtubeId: "y5xvYX0m61E" }] },
+    ];
+
+    const cs161PlaylistA_BlackboardLectures = [
+        {
+            title: "Introduction & Asymptotic Analysis",
+            source: "Stanford Blackboard Lectures",
+            videos: [
+                { title: "Lecture 1 - Introduction", youtubeId: "yRM3sc57q0c" },
+                { title: "Lecture 2 - Big-O Notation", youtubeId: "QfRSeibcugw" },
+                { title: "Lecture 3 - Asymptotic Analysis Examples", youtubeId: "5rZCkblZFZM" },
+            ],
+        },
+        {
+            title: "Divide and Conquer",
+            source: "Stanford Blackboard Lectures",
+            videos: [
+                { title: "Lecture 4 - MergeSort: Motivation and Example", youtubeId: "kiyRJ7GVWro" },
+                { title: "Lecture 5 - MergeSort: Pseudocode", youtubeId: "rBd5w0rQaFo" },
+                { title: "Lecture 6 - MergeSort: Analysis", youtubeId: "8ArtRiTkYEw" },
+                { title: "Lecture 7 - Karatsuba Multiplication", youtubeId: "JCbZayFr9RE" },
+            ],
+        },
+        {
+            title: "Master Method & Recurrences",
+            source: "Stanford Blackboard Lectures",
+            videos: [
+                { title: "Lecture 8 - Master Method: Motivation", youtubeId: "6dGDcszz2DM" },
+                { title: "Lecture 9 - Master Method: Formal Statement", youtubeId: "rXiojCN9nIs" },
+                { title: "Lecture 10 - Master Method: Six Examples", youtubeId: "4l1MvY7iGhs" },
+                { title: "Lecture 11 - Proof of the Master Method", youtubeId: "6BVNhKm0vpE" },
+            ],
+        },
+        {
+            title: "Sorting & QuickSort",
+            source: "Stanford Blackboard Lectures",
+            videos: [
+                { title: "Lecture 12 - QuickSort: Overview", youtubeId: "ETo1cpLN7kk" },
+                { title: "Lecture 13 - Partitioning Around a Pivot", youtubeId: "LYzdRN5iFdA" },
+                { title: "Lecture 14 - Choosing a Good Pivot", youtubeId: "kqO46FOUTbI" },
+                { title: "Lecture 15 - QuickSort Analysis", youtubeId: "sToWtKSYlMw" },
+                { title: "Lecture 16 - Sorting Lower Bound", youtubeId: "aFveIyII5D4" },
+            ],
+        },
+        {
+            title: "Randomized Algorithms & Linear-Time Selection",
+            source: "Stanford Blackboard Lectures",
+            videos: [
+                { title: "Lecture 17 - Randomized Linear-Time Selection", youtubeId: "nFw6x7DoYbs" },
+                { title: "Lecture 18 - Randomized Selection: Analysis", youtubeId: "rX2u2CnpveQ" },
+                { title: "Lecture 19 - Deterministic Linear-Time Selection", youtubeId: "L5-4cPW5HoU" },
+                { title: "Lecture 20 - Deterministic Selection: Analysis", youtubeId: "6ntwpZmHN-g" },
+            ],
+        },
+        {
+            title: "Graphs & Graph Search",
+            source: "Stanford Blackboard Lectures",
+            videos: [
+                { title: "Lecture 21 - Graphs: The Basics", youtubeId: "4Ih3UhVuEtw" },
+                { title: "Lecture 22 - Graph Representations", youtubeId: "b-Mfu8dPv9U" },
+                { title: "Lecture 23 - Graph Search Overview", youtubeId: "SW6jwg7WS48" },
+                { title: "Lecture 24 - Breadth-First Search", youtubeId: "73qCvXsYkfk" },
+                { title: "Lecture 25 - Depth-First Search", youtubeId: "_9_VUNrWGUs" },
+                { title: "Lecture 26 - Topological Sort", youtubeId: "ozso3xxkVGU" },
+            ],
+        },
+        {
+            title: "Strongly Connected Components",
+            source: "Stanford Blackboard Lectures",
+            videos: [
+                { title: "Lecture 27 - Computing SCCs (Part 1)", youtubeId: "O98hLTYVN3c" },
+                { title: "Lecture 28 - Computing SCCs (Part 2)", youtubeId: "gbs3UNRJIYk" },
+                { title: "Lecture 29 - Structure of the Web", youtubeId: "7YodysGShlo" },
+            ],
+        },
+        {
+            title: "Shortest Paths & Dijkstra's Algorithm",
+            source: "Stanford Blackboard Lectures",
+            videos: [
+                { title: "Lecture 30 - Shortest Paths & Dijkstra's Algorithm", youtubeId: "jRlNVmRjdRk" },
+                { title: "Lecture 31 - Dijkstra's Algorithm: Examples", youtubeId: "ahYhIzLklYo" },
+                { title: "Lecture 32 - Correctness of Dijkstra's Algorithm", youtubeId: "sb7j3EW055M" },
+                { title: "Lecture 33 - Implementation with Heaps", youtubeId: "00LtSn_PQjc" },
+            ],
+        },
+        {
+            title: "Data Structures: Heaps, BSTs & Hash Tables",
+            source: "Stanford Blackboard Lectures",
+            videos: [
+                { title: "Lecture 34 - Heaps: Operations and Applications", youtubeId: "mNYHDv7SbDI" },
+                { title: "Lecture 35 - Heaps: Implementation Details", youtubeId: "6VI5kJu8Mv4" },
+                { title: "Lecture 36 - Balanced Search Trees", youtubeId: "IbNZ-x1I2IM" },
+                { title: "Lecture 37 - Rotations", youtubeId: "CZkBqasoH8c" },
+                { title: "Lecture 38 - Hash Tables: Operations & Applications", youtubeId: "Qu183GFHbZQ" },
+                { title: "Lecture 39 - Hash Tables: Implementation", youtubeId: "j5KkC-wjlK4" },
+                { title: "Lecture 40 - Bloom Filters", youtubeId: "zYlxP7F3Z3c" },
+            ],
+        },
+        {
+            title: "Greedy Algorithms & Minimum Spanning Trees",
+            source: "Stanford Blackboard Lectures",
+            videos: [
+                { title: "Lecture 41 - Introduction to Greedy Algorithms", youtubeId: "NTFmxA3qgoo" },
+                { title: "Lecture 42 - Minimum Spanning Trees: Problem Definition", youtubeId: "tDj9BkaQDO8" },
+                { title: "Lecture 43 - Prim's MST Algorithm", youtubeId: "jsvOPssDVJA" },
+                { title: "Lecture 44 - Kruskal's MST Algorithm", youtubeId: "SZuCspj5AJc" },
+                { title: "Lecture 45 - Huffman Codes", youtubeId: "NM6FZB7IfS8" },
+                { title: "Lecture 46 - Single-Link Clustering", youtubeId: "MSSzOs1X4K8" },
+            ],
+        },
+    ];
+
+    const cs109MultiVideoLectures = [
+        { title: "Counting", videos: [{ title: "Lecture 1", youtubeId: "2MuDZIAzBMY" }] },
+        { title: "Combinatorics", videos: [{ title: "Lecture 2", youtubeId: "ag4Ei15CG0c" }] },
+        { title: "What is Probability?", videos: [{ title: "Lecture 3", youtubeId: "EGgMCE2AgyU" }] },
+        { title: "Conditional Probability and Bayes", videos: [{ title: "Lecture 4", youtubeId: "NHRoXvPaZqY" }] },
+        { title: "Independence", videos: [{ title: "Lecture 5", youtubeId: "zTJDZ2wmaRU" }] },
+        { title: "Random Variables and Expectation", videos: [{ title: "Lecture 6", youtubeId: "8QCg2ur-3fo" }] },
+        { title: "Variance, Bernoulli, Binomial", videos: [{ title: "Lecture 7", youtubeId: "I2UBspTNAG0" }] },
+        { title: "Poisson", videos: [{ title: "Lecture 8", youtubeId: "QV3IRiG6dVs" }] },
+        { title: "Continuous Random Variables", videos: [{ title: "Lecture 9", youtubeId: "OFgBn4rQkqc" }] },
+        { title: "Normal Distribution", videos: [{ title: "Lecture 10", youtubeId: "rpB_NNXiWlM" }] },
+        { title: "Joint Distributions", videos: [{ title: "Lecture 11", youtubeId: "8Il2M7kbQSc" }] },
+        { title: "Inference I", videos: [{ title: "Lecture 12", youtubeId: "d0ImA7m4BEg" }] },
+        { title: "Inference II", videos: [{ title: "Lecture 13", youtubeId: "d0ImA7m4BEg" }] },
+        { title: "Modelling", videos: [{ title: "Lecture 14", youtubeId: "q9lk8l8P-E4" }] },
+        { title: "General Inference", videos: [{ title: "Lecture 15", youtubeId: "c0QGjtu9GZg" }] },
+        { title: "Beta", videos: [{ title: "Lecture 16", youtubeId: "aOhk9mFrHdU" }] },
+        { title: "Adding Random Variables", videos: [{ title: "Lecture 17", youtubeId: "UEyHbI9FRtM" }] },
+        { title: "Central Limit Theorem", videos: [{ title: "Lecture 18", youtubeId: "6Q9wT6JGMMM" }] },
+        { title: "Bootstrapping and P-Values", videos: [{ title: "Lecture 19", youtubeId: "NXJwyPT1vsc" }] },
+        { title: "Algorithmic Analysis", videos: [{ title: "Lecture 20", youtubeId: "Ht9yUPtppwY" }] },
+        { title: "M.L.E.", videos: [{ title: "Lecture 21", youtubeId: "utFEufMXHgw" }] },
+        { title: "M.A.P.", videos: [{ title: "Lecture 22", youtubeId: "sL1zOr-P4xc" }] },
+        { title: "Naive Bayes", videos: [{ title: "Lecture 23", youtubeId: "yqF3DvDVpvw" }] },
+        { title: "Logistic Regression", videos: [{ title: "Lecture 24", youtubeId: "ILqZWvDWKEc" }] },
+        { title: "Deep Learning", videos: [{ title: "Lecture 25", youtubeId: "MSfI6TTgyl4" }] },
+        { title: "Fairness", videos: [{ title: "Lecture 26", youtubeId: "cbzwbr5H_LA" }] },
+        { title: "Advanced Probability", videos: [{ title: "Lecture 27", youtubeId: "BquE8Z9htws" }] },
+        { title: "Future of Probability", videos: [{ title: "Lecture 28", youtubeId: "SoXygq5LtiM" }] },
+        { title: "Counting (Review)", videos: [{ title: "Lecture 29", youtubeId: "yyKSsjRt42o" }] },
+    ];
+
+    const phys41MultiVideoLectures = [
+        { title: "Lecture 1", videos: [{ title: "Lecture 1", youtubeId: "5ucfHd8FWKw" }] },
+        { title: "Lecture 2", videos: [{ title: "Lecture 2", youtubeId: "i4u7SZjoAs4" }] },
+        { title: "Lecture 3", videos: [{ title: "Lecture 3", youtubeId: "ErlP_SBcA1s" }] },
+        { title: "Lecture 4", videos: [{ title: "Lecture 4", youtubeId: "xZn4l1TSvPQ" }] },
+        { title: "Lecture 5", videos: [{ title: "Lecture 5", youtubeId: "Q3v_2znHCvg" }] },
+        { title: "Lecture 6", videos: [{ title: "Lecture 6", youtubeId: "5zXYEVWSIsg" }] },
+        { title: "Lecture 7", videos: [{ title: "Lecture 7", youtubeId: "yLb_a1EE888" }] },
+        { title: "Lecture 8", videos: [{ title: "Lecture 8", youtubeId: "89SjJv30kGU" }] },
+        { title: "Lecture 9", videos: [{ title: "Lecture 9", youtubeId: "NiCMMn12CIs" }] },
+        { title: "Lecture 10", videos: [{ title: "Lecture 10", youtubeId: "IV9NhNIrrDw" }] },
+        { title: "Lecture 11", videos: [{ title: "Lecture 11", youtubeId: "RBaBEjzMr4E" }] },
+        { title: "Lecture 12", videos: [{ title: "Lecture 12", youtubeId: "sffRo1-_D8E" }] },
+        { title: "Lecture 13", videos: [{ title: "Lecture 13", youtubeId: "7WDiK3flILc" }] },
+        { title: "Lecture 14", videos: [{ title: "Lecture 14", youtubeId: "dlJtUvRaGdE" }] },
+        { title: "Lecture 15", videos: [{ title: "Lecture 15", youtubeId: "uo86ir31pn0" }] },
+        { title: "Lecture 16", videos: [{ title: "Lecture 16", youtubeId: "emrHcqEvXpw" }] },
+        { title: "Lecture 17", videos: [{ title: "Lecture 17", youtubeId: "_0PrwAbgoMA" }] },
+        { title: "Lecture 18", videos: [{ title: "Lecture 18", youtubeId: "tniGFmPQc0E" }] },
+        { title: "Lecture 19", videos: [{ title: "Lecture 19", youtubeId: "gEX7MjWwocE" }] },
+        { title: "Lecture 20", videos: [{ title: "Lecture 20", youtubeId: "bX4liSWB4Gk" }] },
+        { title: "Lecture 21", videos: [{ title: "Lecture 21", youtubeId: "vkWY73HnNYA" }] },
+        { title: "Lecture 22", videos: [{ title: "Lecture 22", youtubeId: "0mGd0JUmgm8" }] },
+        { title: "Lecture 23", videos: [{ title: "Lecture 23", youtubeId: "FNOfxJxceIM" }] },
+        { title: "Lecture 24", videos: [{ title: "Lecture 24", youtubeId: "9NS0JcjNdp4" }] },
+        { title: "Lecture 25", videos: [{ title: "Lecture 25", youtubeId: "30Ww1HsRblM" }] },
+        { title: "Lecture 26", videos: [{ title: "Lecture 26", youtubeId: "n1cXiw3s72k" }] },
+        { title: "Lecture 27", videos: [{ title: "Lecture 27", youtubeId: "1GvCIlHihEA" }] },
+        { title: "Lecture 28", videos: [{ title: "Lecture 28", youtubeId: "Vg8t8_IOHDg" }] },
+        { title: "Lecture 29", videos: [{ title: "Lecture 29", youtubeId: "ol1COj0LACs" }] },
+        { title: "Lecture 30", videos: [{ title: "Lecture 30", youtubeId: "D2lW7o32fzk" }] },
+        { title: "Lecture 31", videos: [{ title: "Lecture 31", youtubeId: "sN-m5WkbMyI" }] },
+        { title: "Lecture 32", videos: [{ title: "Lecture 32", youtubeId: "YGR5_Hf9dDg" }] },
+        { title: "Lecture 33", videos: [{ title: "Lecture 33", youtubeId: "dvWKCH0ocu8" }] },
+        { title: "Lecture 34", videos: [{ title: "Lecture 34", youtubeId: "7Kq8BINVDiw" }] },
+        { title: "Lecture 35", videos: [{ title: "Lecture 35", youtubeId: "bHocXJ4rv5g" }] },
+        { title: "Lecture 36", videos: [{ title: "Lecture 36", youtubeId: "0qEIs6ie2q8" }] },
+        { title: "Lecture 37", videos: [{ title: "Lecture 37", youtubeId: "efpiHD_2O8E" }] },
+        { title: "Lecture 38", videos: [{ title: "Lecture 38", youtubeId: "2TZa151GC-0" }] },
+        { title: "Lecture 39", videos: [{ title: "Lecture 39", youtubeId: "fLuyZ7ayDog" }] },
+        { title: "Lecture 40", videos: [{ title: "Lecture 40", youtubeId: "Lpd_TddOSZY" }] },
+        { title: "Lecture 41", videos: [{ title: "Lecture 41", youtubeId: "EX0uHJbIw68" }] },
+        { title: "Lecture 42", videos: [{ title: "Lecture 42", youtubeId: "nCDOa63Jd6M" }] },
+        { title: "Lecture 43", videos: [{ title: "Lecture 43", youtubeId: "z5JfWSocZUQ" }] },
+        { title: "Lecture 44", videos: [{ title: "Lecture 44", youtubeId: "EHCACV8rdig" }] },
+        { title: "Lecture 45", videos: [{ title: "Lecture 45", youtubeId: "MoRip5VVdkI" }] },
+        { title: "Lecture 46", videos: [{ title: "Lecture 46", youtubeId: "YLDRzy8Dcgo" }] },
+        { title: "Lecture 47", videos: [{ title: "Lecture 47", youtubeId: "6-7BOpZ2k04" }] },
+        { title: "Lecture 48", videos: [{ title: "Lecture 48", youtubeId: "-M8swpL-Ij8" }] },
+        { title: "Lecture 49", videos: [{ title: "Lecture 49", youtubeId: "efH7pq9YVQw" }] },
+        { title: "Lecture 50", videos: [{ title: "Lecture 50", youtubeId: "0QF_uCgZW4Y" }] },
+        { title: "Lecture 51", videos: [{ title: "Lecture 51", youtubeId: "X9K8LT7SCZ0" }] },
+        { title: "Lecture 52", videos: [{ title: "Lecture 52", youtubeId: "O_M8asN10oQ" }] },
+        { title: "Lecture 53", videos: [{ title: "Lecture 53", youtubeId: "IWD-Aue6aIk" }] },
+        { title: "Lecture 54", videos: [{ title: "Lecture 54", youtubeId: "6h3T3qIkxqw" }] },
+        { title: "Lecture 55", videos: [{ title: "Lecture 55", youtubeId: "Idx3VgOpUDk" }] },
+        { title: "Lecture 56", videos: [{ title: "Lecture 56", youtubeId: "mHVnpuhfpvI" }] },
+        { title: "Lecture 57", videos: [{ title: "Lecture 57", youtubeId: "DSk8HTcB7x0" }] },
+        { title: "Lecture 58", videos: [{ title: "Lecture 58", youtubeId: "EhgF2OViDDs" }] },
+        { title: "Lecture 59", videos: [{ title: "Lecture 59", youtubeId: "oILq3xz_XtU" }] },
+        { title: "Lecture 60", videos: [{ title: "Lecture 60", youtubeId: "hxa6jAYA980" }] },
+        { title: "Lecture 61", videos: [{ title: "Lecture 61", youtubeId: "ZMa-xKcM2L8" }] },
+        { title: "Lecture 62", videos: [{ title: "Lecture 62", youtubeId: "ThP6wQkf5ec" }] },
+    ];
+
+    const phys43MultiVideoLectures = [
+        { title: "Introduction", videos: [{ title: "Introduction", youtubeId: "rtlJoXxlSFE" }] },
+        { title: "Electric Charges and Forces - Coulomb's Law - Polarization", videos: [{ title: "Lecture 1", youtubeId: "x1-SibwIPM4" }] },
+        { title: "Electric Field Lines, Superposition, Inductive Charging, Dipoles", videos: [{ title: "Lecture 2", youtubeId: "Pd9HY8iLiCA" }] },
+        { title: "Electric Flux, Gauss' Law, Examples", videos: [{ title: "Lecture 3", youtubeId: "Zu2gomaDqnM" }] },
+        { title: "Electrostatic Potential, Electric Energy, Equipotential Surfaces", videos: [{ title: "Lecture 4", youtubeId: "QpVxj3XrLgk" }] },
+        { title: "E = -grad V, Conductors, Electrostatic Shielding (Faraday Cage)", videos: [{ title: "Lecture 5", youtubeId: "JhV-GOS4y8g" }] },
+        { title: "High-voltage Breakdown, Lightning, Sparks, St. Elmo's Fire", videos: [{ title: "Lecture 6", youtubeId: "ww0XJUqFHXU" }] },
+        { title: "Capacitance, Electric Field Energy", videos: [{ title: "Lecture 7", youtubeId: "qyP1xZCB62E" }] },
+        { title: "Polarization, Dielectrics, Van de Graaff Generator, Capacitors", videos: [{ title: "Lecture 8", youtubeId: "GAtAG938AQc" }] },
+        { title: "Electric Currents, Resistivity, Conductivity, Ohm's Law", videos: [{ title: "Lecture 9", youtubeId: "PJqOaHBgr30" }] },
+        { title: "Batteries, Power, Kirchhoff's Rules, Circuits, Kelvin Water Dropper", videos: [{ title: "Lecture 10", youtubeId: "ViwSDL657L4" }] },
+        { title: "Magnetic Fields, Lorentz Force, Torques, Electric Motors (DC)", videos: [{ title: "Lecture 11", youtubeId: "0y9x7CS5Vrk" }] },
+        { title: "First Exam Review", videos: [{ title: "Lecture 12", youtubeId: "08WJDvgr2Zc" }] },
+        { title: "Moving Charges in B-fields, Cyclotrons, Mass Spectrometers, LHC", videos: [{ title: "Lecture 13", youtubeId: "sDnG1JhZ2N4" }] },
+        { title: "Biot-Savart, div B = 0, High-voltage Power Lines, Leyden Jar", videos: [{ title: "Lecture 14", youtubeId: "By2ogrSwgVo" }] },
+        { title: "Ampere's Law, Solenoids, Kelvin Water Dropper (revisited)", videos: [{ title: "Lecture 15", youtubeId: "MXuZ1SRjpqk" }] },
+        { title: "Electromagnetic Induction, Faraday's Law, Lenz Law, SUPER DEMO", videos: [{ title: "Lecture 16", youtubeId: "nGQbA2jwkWI" }] },
+        { title: "Motional EMF, Dynamos, Eddy Currents, Magnetic Breaking", videos: [{ title: "Lecture 17", youtubeId: "MzAPu_p2wI4" }] },
+        { title: "Displacement Current, Synchronous Motors, Explanation Secret Top", videos: [{ title: "Lecture 18", youtubeId: "3sP9kh4xtKo" }] },
+        { title: "Magnetic Levitation, Human Heart, Superconductivity, Aurora Borealis", videos: [{ title: "Lecture 19", youtubeId: "rLZLa-fyt1w" }] },
+        { title: "Inductance, RL Circuits, Magnetic Field Energy", videos: [{ title: "Lecture 20", youtubeId: "t2micky_3uI" }] },
+        { title: "Magnetic Materials, Dia- Para- & Ferromagnetism", videos: [{ title: "Lecture 21", youtubeId: "1xFRtdN5IJA" }] },
+        { title: "Maxwell's Equations - 600 Daffodil Ceremony", videos: [{ title: "Lecture 22", youtubeId: "ckUyN5XNG0Y" }] },
+        { title: "Second Exam Review", videos: [{ title: "Lecture 23", youtubeId: "KrXbnIohemY" }] },
+        { title: "Transformers, Car Coils, RC Circuits", videos: [{ title: "Lecture 24", youtubeId: "6w3SzI_s5Sg" }] },
+        { title: "Driven LRC Circuits, Metal Detectors", videos: [{ title: "Lecture 25", youtubeId: "FWMhk6x785Q" }] },
+        { title: "Traveling Waves, Standing Waves, Musical Instruments", videos: [{ title: "Lecture 26", youtubeId: "D_RIzl1uCxY" }] },
+        { title: "Destructive Resonance, Electromagnetic Waves, Speed of Light", videos: [{ title: "Lecture 27", youtubeId: "D3tnZzhSISo" }] },
+        { title: "Poynting Vector, Oscillating Charges, Polarization, Radiation Pressure", videos: [{ title: "Lecture 28", youtubeId: "6lb040GCs2M" }] },
+        { title: "Snell's Law, Index of Refraction, Huygen's Principle, Color", videos: [{ title: "Lecture 29", youtubeId: "irpjwXpa4xU" }] },
+        { title: "Polarizers, Malus' Law, Light Scattering, Blue Skies, Red Sunsets", videos: [{ title: "Lecture 30", youtubeId: "ESAPg7w3wm8" }] },
+        { title: "Rainbows, Fog Bows, Haloes, Glories, Sun Dogs", videos: [{ title: "Lecture 31", youtubeId: "pj0wXRLXai8" }] },
+        { title: "Third Exam Review", videos: [{ title: "Lecture 32", youtubeId: "94dV7ucEEkY" }] },
+        { title: "Double-slit Interference, Interferometers", videos: [{ title: "Lecture 33", youtubeId: "1rYF72PXVks" }] },
+        { title: "Diffraction, Gratings, Resolving Power, Angular Resolution", videos: [{ title: "Lecture 34", youtubeId: "sKO8n_-xtDc" }] },
+        { title: "Doppler Effect, Big Bang, Cosmology", videos: [{ title: "Lecture 35", youtubeId: "tDC2UDhRGkA" }] },
+        { title: "Farewell Special - My Early Days in Astrophysics, Huge Balloons", videos: [{ title: "Lecture 36", youtubeId: "lFTUtK6xBCU" }] },
+        { title: "Kirchhoff's Loop Rule Is For The Birds", videos: [{ title: "Bonus", youtubeId: "LzT_YZ0xCFY" }] },
+    ];
+
+    const bioMultiVideoLectures = [
+        { title: "Introduction", videos: [{ title: "Lecture 1", youtubeId: "lm8ywGl9AIQ" }] },
+        { title: "Biochemistry I", videos: [{ title: "Lecture 2", youtubeId: "RJf9jRf-Ekw" }] },
+        { title: "Biochemistry II", videos: [{ title: "Lecture 3", youtubeId: "3zJI3dYB7gc" }] },
+        { title: "Biochemistry III", videos: [{ title: "Lecture 4", youtubeId: "6BPDK1b3jDg" }] },
+        { title: "Biochemistry IV", videos: [{ title: "Lecture 5", youtubeId: "7aNYj3zyVkc" }] },
+        { title: "Biochemistry V", videos: [{ title: "Lecture 6", youtubeId: "SGHx6jKvxr8" }] },
+        { title: "Biochemistry VI", videos: [{ title: "Lecture 7", youtubeId: "R3DI6W9iKtU" }] },
+        { title: "Biochemistry VI (cont.) - DNA as Genetic Material", videos: [{ title: "Lecture 8", youtubeId: "7ZlzvS7YoSM" }] },
+        { title: "Molecular Biology I", videos: [{ title: "Lecture 9", youtubeId: "mJhgkUWLtX8" }] },
+        { title: "Molecular Biology II - Process of Science", videos: [{ title: "Lecture 10", youtubeId: "Ncszdp4YQDY" }] },
+        { title: "Molecular Biology III", videos: [{ title: "Lecture 11", youtubeId: "Uf7qNWklQkE" }] },
+        { title: "Molecular Biology IV", videos: [{ title: "Lecture 12", youtubeId: "40Sum5KfG1Q" }] },
+        { title: "Molecular Biology IV (cont.) - Gene Regulation I", videos: [{ title: "Lecture 13", youtubeId: "BhS5s1T1as8" }] },
+        { title: "Gene Regulation II", videos: [{ title: "Lecture 14", youtubeId: "vES9nISxtjk" }] },
+        { title: "Bacterial Genetics", videos: [{ title: "Lecture 15", youtubeId: "uQRTFmC5_GA" }] },
+        { title: "The Biosphere", videos: [{ title: "Lecture 16", youtubeId: "gaHQ_1Sp5_s" }] },
+        { title: "Carbon and Energy Metabolism", videos: [{ title: "Lecture 17", youtubeId: "5WqgNOSoD_M" }] },
+        { title: "Productivity and Food Webs", videos: [{ title: "Lecture 18", youtubeId: "hWdAt9SzP0I" }] },
+        { title: "Regulation of Productivity", videos: [{ title: "Lecture 19", youtubeId: "4owydSnRHuE" }] },
+        { title: "Limiting Factors and Biogeochemical Cycles", videos: [{ title: "Lecture 20", youtubeId: "zIXGgyOwtUk" }] },
+        { title: "Mendelian Genetics", videos: [{ title: "Lecture 21", youtubeId: "eiDX9dw866E" }] },
+        { title: "Mitosis and Meiosis", videos: [{ title: "Lecture 22", youtubeId: "g6VEnimixRk" }] },
+        { title: "Diploid Genetics", videos: [{ title: "Lecture 23", youtubeId: "fQKMD2iFe5w" }] },
+        { title: "Recombinant DNA I", videos: [{ title: "Lecture 24", youtubeId: "l5x9qAVUK7s" }] },
+        { title: "Recombinant DNA II", videos: [{ title: "Lecture 25", youtubeId: "EO9SMD6fIsI" }] },
+        { title: "Recombinant DNA III", videos: [{ title: "Lecture 26", youtubeId: "5W4EnYzNRdA" }] },
+        { title: "Recombinant DNA III (cont.) - Immunology I", videos: [{ title: "Lecture 27", youtubeId: "kAN_eTW_ig0" }] },
+        { title: "Immunology II", videos: [{ title: "Lecture 28", youtubeId: "Y8eEMYqkwz0" }] },
+        { title: "Population Growth I", videos: [{ title: "Lecture 29", youtubeId: "Yr-cZg9eqp4" }] },
+        { title: "Population Growth II", videos: [{ title: "Lecture 30", youtubeId: "rKquepVheyM" }] },
+        { title: "Population Genetics and Evolution", videos: [{ title: "Lecture 31", youtubeId: "LBR4pEC7kwU" }] },
+        { title: "Molecular Evolution", videos: [{ title: "Lecture 32", youtubeId: "ONYokXoy04Q" }] },
+        { title: "Communities I", videos: [{ title: "Lecture 33", youtubeId: "GAArnLLlFtQ" }] },
+        { title: "Communities II", videos: [{ title: "Lecture 34", youtubeId: "5_QWoGFUPaI" }] },
+    ];
+
+    const chemMultiVideoLectures = [
+        { title: "The Importance of Chemical Principles", videos: [{ title: "Lecture 1", youtubeId: "YkYeYhXUeEE" }] },
+        { title: "Atomic Structure", videos: [{ title: "Lecture 2", youtubeId: "ustfXi-mpkI" }] },
+        { title: "Wave-Particle Duality of Light", videos: [{ title: "Lecture 3", youtubeId: "_U6YamvF7BE" }] },
+        { title: "Wave-Particle Duality of Matter; Schrödinger Equation", videos: [{ title: "Lecture 4", youtubeId: "Qg7pQ_CYaIQ" }] },
+        { title: "Hydrogen Atom Energy Levels", videos: [{ title: "Lecture 5", youtubeId: "kO0VmaLkgj8" }] },
+        { title: "Hydrogen Atom Wavefunctions (Orbitals)", videos: [{ title: "Lecture 6", youtubeId: "V-RPM3e8Ws0" }] },
+        { title: "Multielectron Atoms", videos: [{ title: "Lecture 7", youtubeId: "-jJz5OMmuP0" }] },
+        { title: "The Periodic Table and Periodic Trends", videos: [{ title: "Lecture 8", youtubeId: "LWmVdG0uj2g" }] },
+        { title: "Periodic Table; Ionic and Covalent Bonds", videos: [{ title: "Lecture 9", youtubeId: "NIZFPnHtrBA" }] },
+        { title: "Introduction to Lewis Structures", videos: [{ title: "Lecture 10", youtubeId: "ed_XR1BzuQs" }] },
+        { title: "Lewis Structures: Breakdown of the Octet Rule", videos: [{ title: "Lecture 11", youtubeId: "Hc5ODj1Ml6c" }] },
+        { title: "The Shapes of Molecules: VSEPR Theory", videos: [{ title: "Lecture 12", youtubeId: "Ja9eEQQzTic" }] },
+        { title: "Molecular Orbital Theory", videos: [{ title: "Lecture 13", youtubeId: "O192jrR80oo" }] },
+        { title: "Valence Bond Theory and Hybridization", videos: [{ title: "Lecture 14", youtubeId: "BBbuj0XpaiQ" }] },
+        { title: "Thermodynamics: Bond and Reaction Enthalpies", videos: [{ title: "Lecture 15", youtubeId: "wS1MX-C2V9w" }] },
+        { title: "Thermodynamics: Gibbs Free Energy and Entropy", videos: [{ title: "Lecture 16", youtubeId: "OjhZYx1FbhI" }] },
+        { title: "Thermodynamics: Now What Happens When You Heat It Up?", videos: [{ title: "Lecture 17", youtubeId: "awdQqF9CFt0" }] },
+        { title: "Introduction to Chemical Equilibrium", videos: [{ title: "Lecture 18", youtubeId: "f0udxGcoztE" }] },
+        { title: "Chemical Equilibrium: Le Châtelier's Principle", videos: [{ title: "Lecture 19", youtubeId: "AVL5AwJrrEU" }] },
+        { title: "Solubility and Acid-Base Equilibrium", videos: [{ title: "Lecture 20", youtubeId: "FJCVSswFXyE" }] },
+        { title: "Acid-Base Equilibrium: Is MIT Water Safe to Drink?", videos: [{ title: "Lecture 21", youtubeId: "pJdUR2uak2s" }] },
+        { title: "Acid-Base Equilibrium: Salt Solutions and Buffers", videos: [{ title: "Lecture 22", youtubeId: "caonmXHGB60" }] },
+        { title: "Acid-Base Titrations Part I", videos: [{ title: "Lecture 23", youtubeId: "pIwp65fPyYU" }] },
+        { title: "Acid-Base Titrations Part II", videos: [{ title: "Lecture 24", youtubeId: "Om_5b29d_9g" }] },
+        { title: "Oxidation-Reduction and Electrochemical Cells", videos: [{ title: "Lecture 25", youtubeId: "BZzkyqe6KD8" }] },
+        { title: "Chemical and Biological Oxidations", videos: [{ title: "Lecture 26", youtubeId: "f6Z99Gu6XEE" }] },
+        { title: "Introduction to Transition Metals", videos: [{ title: "Lecture 27", youtubeId: "JBgbUI3pxV0" }] },
+        { title: "Transition Metals: Crystal Field Theory Part I", videos: [{ title: "Lecture 28", youtubeId: "lLdPSLNxDqA" }] },
+        { title: "Transition Metals: Crystal Field Theory Part II", videos: [{ title: "Lecture 29", youtubeId: "CFPnZ66nge4" }] },
+        { title: "Kinetics: Rate Laws", videos: [{ title: "Lecture 30", youtubeId: "B7iFcW8USjQ" }] },
+        { title: "Nuclear Chemistry and Chemical Kinetics", videos: [{ title: "Lecture 31", youtubeId: "XKeAd4xybjM" }] },
+        { title: "Kinetics: Reaction Mechanisms", videos: [{ title: "Lecture 32", youtubeId: "4q0T9c7jotw" }] },
+        { title: "Kinetics and Temperature", videos: [{ title: "Lecture 33", youtubeId: "KHkNrbSKFic" }] },
+        { title: "Kinetics: Catalysts", videos: [{ title: "Lecture 34", youtubeId: "p8AAjZXr5dg" }] },
+        { title: "Applying Chemical Principles", videos: [{ title: "Lecture 35", youtubeId: "pn1cxuBmhtI" }] },
     ];
 
     const practiceLabMeta = {
@@ -709,6 +1184,367 @@
         });
     }
 
+    function buildMath52Lessons(meta, completedLessons) {
+        return math52MultiVideoLectures.map((lecture, lectureIndex) => {
+            const lectureNumber = lectureIndex + 1;
+            const lessonId = `${meta.id}-lecture-${lectureNumber}`;
+            const isCompleted = lectureNumber <= completedLessons;
+            const isOpen = lectureNumber <= completedLessons + 1;
+            const videoItems = lecture.videos.map((video, videoIndex) => ({
+                id: `${lessonId}-video-${videoIndex + 1}`,
+                title: video.title,
+                duration: `${30 + ((lectureIndex + videoIndex) % 20)}:00`,
+                sourceType: "youtube",
+                youtube: `https://www.youtube.com/embed/${video.youtubeId}`,
+            }));
+
+            return {
+                id: lessonId,
+                title: `Lecture ${lectureNumber}: ${lecture.title}`,
+                duration: `${videoItems.length} video`,
+                completed: isCompleted,
+                locked: !isOpen,
+                videoItems,
+                activeVideoItemId: videoItems[0]?.id || "",
+                videoSources: {
+                    youtube: videoItems[0]?.youtube || "",
+                    html5: "",
+                },
+                captions: { en: null },
+            };
+        });
+    }
+
+    function buildMath53Lessons(meta, completedLessons) {
+        return math53MultiVideoLectures.map((lecture, lectureIndex) => {
+            const lectureNumber = lectureIndex + 1;
+            const lessonId = `${meta.id}-lecture-${lectureNumber}`;
+            const isCompleted = lectureNumber <= completedLessons;
+            const isOpen = lectureNumber <= completedLessons + 1;
+            const videoItems = lecture.videos.map((video, videoIndex) => ({
+                id: `${lessonId}-video-${videoIndex + 1}`,
+                title: video.title,
+                duration: `${30 + ((lectureIndex + videoIndex) % 20)}:00`,
+                sourceType: "youtube",
+                youtube: `https://www.youtube.com/embed/${video.youtubeId}`,
+            }));
+
+            return {
+                id: lessonId,
+                title: `Lecture ${lectureNumber}: ${lecture.title}`,
+                duration: `${videoItems.length} video`,
+                completed: isCompleted,
+                locked: !isOpen,
+                videoItems,
+                activeVideoItemId: videoItems[0]?.id || "",
+                videoSources: {
+                    youtube: videoItems[0]?.youtube || "",
+                    html5: "",
+                },
+                captions: { en: null },
+            };
+        });
+    }
+
+    function buildCs103Lessons(meta, completedLessons) {
+        return cs103MultiVideoLectures.map((lecture, lectureIndex) => {
+            const lectureNumber = lectureIndex + 1;
+            const lessonId = `${meta.id}-lecture-${lectureNumber}`;
+            const isCompleted = lectureNumber <= completedLessons;
+            const isOpen = lectureNumber <= completedLessons + 1;
+            const videoItems = lecture.videos.map((video, videoIndex) => ({
+                id: `${lessonId}-video-${videoIndex + 1}`,
+                title: video.title,
+                duration: `${30 + ((lectureIndex + videoIndex) % 20)}:00`,
+                sourceType: "youtube",
+                youtube: `https://www.youtube.com/embed/${video.youtubeId}`,
+            }));
+
+            return {
+                id: lessonId,
+                title: `Lecture ${lectureNumber}: ${lecture.title}`,
+                duration: `${videoItems.length} video`,
+                completed: isCompleted,
+                locked: !isOpen,
+                videoItems,
+                activeVideoItemId: videoItems[0]?.id || "",
+                videoSources: {
+                    youtube: videoItems[0]?.youtube || "",
+                    html5: "",
+                },
+                captions: { en: null },
+            };
+        });
+    }
+
+    function buildCS107Lessons(meta, completedLessons) {
+        return cs107MultiVideoLectures.map((lecture, lectureIndex) => {
+            const lectureNumber = lectureIndex + 1;
+            const lessonId = `${meta.id}-lecture-${lectureNumber}`;
+            const isCompleted = lectureNumber <= completedLessons;
+            const isOpen = lectureNumber <= completedLessons + 1;
+
+            const videoItems = lecture.videos.map((video, videoIndex) => {
+                const archiveId = video.videoId;
+                const embedUrl = archiveId.startsWith('http') 
+                    ? archiveId 
+                    : `https://archive.org/embed/${archiveId}`;
+                
+                return {
+                    id: `${lessonId}-video-${videoIndex + 1}`,
+                    title: video.title,
+                    duration: `${70 + ((lectureIndex + videoIndex) % 15)}:00`,
+                    sourceType: "internet_archive",
+                    youtube: embedUrl,
+                };
+            });
+
+            return {
+                id: lessonId,
+                title: `Lecture ${lectureNumber}: ${lecture.title}`,
+                duration: `${videoItems.length} video`,
+                completed: isCompleted,
+                locked: !isOpen,
+                videoItems,
+                activeVideoItemId: videoItems[0]?.id || "",
+                videoSources: {
+                    youtube: videoItems[0]?.youtube || "",
+                    html5: "",
+                },
+                captions: { en: null },
+            };
+        });
+    }
+
+    function buildCS110Lessons(meta, completedLessons) {
+        return cs110MultiVideoLectures.map((lecture, lectureIndex) => {
+            const lectureNumber = lectureIndex + 1;
+            const lessonId = `${meta.id}-lecture-${lectureNumber}`;
+            const isCompleted = lectureNumber <= completedLessons;
+            const isOpen = lectureNumber <= completedLessons + 1;
+
+            const videoItems = lecture.videos.map((video, videoIndex) => ({
+                id: `${lessonId}-video-${videoIndex + 1}`,
+                title: video.title,
+                duration: `${65 + ((lectureIndex + videoIndex) % 15)}:00`,
+                sourceType: "youtube",
+                youtube: `https://www.youtube.com/embed/${video.youtubeId}`,
+            }));
+
+            return {
+                id: lessonId,
+                title: `Lecture ${lectureNumber}: ${lecture.title}`,
+                duration: `${videoItems.length} video`,
+                completed: isCompleted,
+                locked: !isOpen,
+                videoItems,
+                activeVideoItemId: videoItems[0]?.id || "",
+                videoSources: {
+                    youtube: videoItems[0]?.youtube || "",
+                    html5: "",
+                },
+                captions: { en: null },
+            };
+        });
+    }
+
+    function buildCS161LessonsPlaylistA(meta, completedLessons) {
+        return cs161PlaylistA_BlackboardLectures.map((topic, topicIndex) => {
+            const lessonNumber = topicIndex + 1;
+            const lessonId = `${meta.id}-topic-${lessonNumber}`;
+            const isCompleted = lessonNumber <= completedLessons;
+            const isOpen = lessonNumber <= completedLessons + 1;
+
+            const videoItems = topic.videos.map((video, videoIndex) => ({
+                id: `${lessonId}-video-${videoIndex + 1}`,
+                title: video.title,
+                duration: `${12 + ((topicIndex + videoIndex) % 8)}:00`,
+                sourceType: "youtube",
+                youtube: `https://www.youtube.com/embed/${video.youtubeId}`,
+            }));
+
+            return {
+                id: lessonId,
+                title: topic.title,
+                subtitle: topic.source,
+                duration: `${videoItems.length} video${videoItems.length > 1 ? "s" : ""}`,
+                completed: isCompleted,
+                locked: !isOpen,
+                videoItems,
+                activeVideoItemId: videoItems[0]?.id || "",
+                videoSources: {
+                    youtube: videoItems[0]?.youtube || "",
+                    html5: "",
+                },
+                captions: { en: null },
+            };
+        });
+    }
+
+    function buildCs109Lessons(meta, completedLessons) {
+        return cs109MultiVideoLectures.map((lecture, lectureIndex) => {
+            const lectureNumber = lectureIndex + 1;
+            const lessonId = `${meta.id}-lecture-${lectureNumber}`;
+            const isCompleted = lectureNumber <= completedLessons;
+            const isOpen = lectureNumber <= completedLessons + 1;
+
+            const videoItems = lecture.videos.map((video, videoIndex) => ({
+                id: `${lessonId}-video-${videoIndex + 1}`,
+                title: video.title,
+                duration: `${60 + ((lectureIndex + videoIndex) % 20)}:00`,
+                sourceType: "youtube",
+                youtube: `https://www.youtube.com/embed/${video.youtubeId}`,
+            }));
+
+            return {
+                id: lessonId,
+                title: `Lecture ${lectureNumber}: ${lecture.title}`,
+                duration: `${videoItems.length} video`,
+                completed: isCompleted,
+                locked: !isOpen,
+                videoItems,
+                activeVideoItemId: videoItems[0]?.id || "",
+                videoSources: {
+                    youtube: videoItems[0]?.youtube || "",
+                    html5: "",
+                },
+                captions: { en: null },
+            };
+        });
+    }
+
+    function buildPhys41Lessons(meta, completedLessons) {
+        return phys41MultiVideoLectures.map((lecture, lectureIndex) => {
+            const lectureNumber = lectureIndex + 1;
+            const lessonId = `${meta.id}-lecture-${lectureNumber}`;
+            const isCompleted = lectureNumber <= completedLessons;
+            const isOpen = lectureNumber <= completedLessons + 1;
+
+            const videoItems = lecture.videos.map((video, videoIndex) => ({
+                id: `${lessonId}-video-${videoIndex + 1}`,
+                title: video.title,
+                duration: `${50 + ((lectureIndex + videoIndex) % 10)}:00`,
+                sourceType: "youtube",
+                youtube: `https://www.youtube.com/embed/${video.youtubeId}`,
+            }));
+
+            return {
+                id: lessonId,
+                title: `Lecture ${lectureNumber}: ${lecture.title}`,
+                duration: `${videoItems.length} video`,
+                completed: isCompleted,
+                locked: !isOpen,
+                videoItems,
+                activeVideoItemId: videoItems[0]?.id || "",
+                videoSources: {
+                    youtube: videoItems[0]?.youtube || "",
+                    html5: "",
+                },
+                captions: { en: null },
+            };
+        });
+    }
+
+    function buildPhys43Lessons(meta, completedLessons) {
+        return phys43MultiVideoLectures.map((lecture, lectureIndex) => {
+            const lectureNumber = lectureIndex + 1;
+            const lessonId = `${meta.id}-lecture-${lectureNumber}`;
+            const isCompleted = lectureNumber <= completedLessons;
+            const isOpen = lectureNumber <= completedLessons + 1;
+
+            const videoItems = lecture.videos.map((video, videoIndex) => ({
+                id: `${lessonId}-video-${videoIndex + 1}`,
+                title: video.title,
+                duration: `${50 + ((lectureIndex + videoIndex) % 10)}:00`,
+                sourceType: "youtube",
+                youtube: `https://www.youtube.com/embed/${video.youtubeId}`,
+            }));
+
+            return {
+                id: lessonId,
+                title: `Lecture ${lectureNumber}: ${lecture.title}`,
+                duration: `${videoItems.length} video`,
+                completed: isCompleted,
+                locked: !isOpen,
+                videoItems,
+                activeVideoItemId: videoItems[0]?.id || "",
+                videoSources: {
+                    youtube: videoItems[0]?.youtube || "",
+                    html5: "",
+                },
+                captions: { en: null },
+            };
+        });
+    }
+
+    function buildBioLessons(meta, completedLessons) {
+        return bioMultiVideoLectures.map((lecture, lectureIndex) => {
+            const lectureNumber = lectureIndex + 1;
+            const lessonId = `${meta.id}-lecture-${lectureNumber}`;
+            const isCompleted = lectureNumber <= completedLessons;
+            const isOpen = lectureNumber <= completedLessons + 1;
+
+            const videoItems = lecture.videos.map((video, videoIndex) => ({
+                id: `${lessonId}-video-${videoIndex + 1}`,
+                title: video.title,
+                duration: `${50 + ((lectureIndex + videoIndex) % 15)}:00`,
+                sourceType: "youtube",
+                youtube: video.youtubeId.startsWith("PLACEHOLDER") 
+                    ? "" 
+                    : `https://www.youtube.com/embed/${video.youtubeId}`,
+            }));
+
+            return {
+                id: lessonId,
+                title: `Lecture ${lectureNumber}: ${lecture.title}`,
+                duration: `${videoItems.length} video`,
+                completed: isCompleted,
+                locked: !isOpen,
+                videoItems,
+                activeVideoItemId: videoItems[0]?.id || "",
+                videoSources: {
+                    youtube: videoItems[0]?.youtube || "",
+                    html5: "",
+                },
+                captions: { en: null },
+            };
+        });
+    }
+
+    function buildChemLessons(meta, completedLessons) {
+        return chemMultiVideoLectures.map((lecture, lectureIndex) => {
+            const lectureNumber = lectureIndex + 1;
+            const lessonId = `${meta.id}-lecture-${lectureNumber}`;
+            const isCompleted = lectureNumber <= completedLessons;
+            const isOpen = lectureNumber <= completedLessons + 1;
+
+            const videoItems = lecture.videos.map((video, videoIndex) => ({
+                id: `${lessonId}-video-${videoIndex + 1}`,
+                title: video.title,
+                duration: `${50 + ((lectureIndex + videoIndex) % 15)}:00`,
+                sourceType: "youtube",
+                youtube: video.youtubeId.startsWith("PLACEHOLDER") 
+                    ? "" 
+                    : `https://www.youtube.com/embed/${video.youtubeId}`,
+            }));
+
+            return {
+                id: lessonId,
+                title: `Lecture ${lectureNumber}: ${lecture.title}`,
+                duration: `${videoItems.length} video`,
+                completed: isCompleted,
+                locked: !isOpen,
+                videoItems,
+                activeVideoItemId: videoItems[0]?.id || "",
+                videoSources: {
+                    youtube: videoItems[0]?.youtube || "",
+                    html5: "",
+                },
+                captions: { en: null },
+            };
+        });
+    }
+
     function buildAssignments(meta, completedAssignments, seed) {
         const statuses = ["graded", "submitted", "not_started", "late", "not_started"];
         const statusLabels = {
@@ -796,7 +1632,28 @@
 
     function buildCourse(meta, index) {
         const progressPercent = toPercent(meta.progress, 50);
-        const lectureCount = meta.id === "cs106a-programming-methodology" ? cs106aMultiVideoLectures.length : (meta.id === "cs106b-programming-abstractions" ? cs106bMultiVideoLectures.length : (meta.id === "cs106x-programming-abstractions-accelerated" ? cs106xMultiVideoLectures.length : (meta.id === "math-18-foundations-for-calculus" ? math18MultiVideoLectures.length : (meta.id === "math-19-calculus-i" ? math19MultiVideoLectures.length : (meta.id === "math-20-calculus-ii" ? math20MultiVideoLectures.length : (meta.id === "math-21-calculus-iii-calculus-with-infinite-processes" ? math21MultiVideoLectures.length : (meta.id === "math-51-linear-algebra-multivariable-calculus-optimization" ? math51MultiVideoLectures.length : 8)))))));
+        const lectureCountMap = {
+            "cs106a-programming-methodology": cs106aMultiVideoLectures.length,
+            "cs106b-programming-abstractions": cs106bMultiVideoLectures.length,
+            "cs106x-programming-abstractions-accelerated": cs106xMultiVideoLectures.length,
+            "math-18-foundations-for-calculus": math18MultiVideoLectures.length,
+            "math-19-calculus-i": math19MultiVideoLectures.length,
+            "math-20-calculus-ii": math20MultiVideoLectures.length,
+            "math-21-calculus-iii-calculus-with-infinite-processes": math21MultiVideoLectures.length,
+            "math-51-linear-algebra-multivariable-calculus-optimization": math51MultiVideoLectures.length,
+            "math-52-multivariable-integration-ordinary-differential-equations": math52MultiVideoLectures.length,
+            "math-53-differential-calculus-of-several-variables": math53MultiVideoLectures.length,
+            "cs-103-mathematical-foundations-of-computing": cs103MultiVideoLectures.length,
+            "cs-107-computer-organization-systems": cs107MultiVideoLectures.length,
+            "cs-110-principles-of-computer-systems-operating-systems-principles": cs110MultiVideoLectures.length,
+            "cs-161-design-analysis-of-algorithms": cs161PlaylistA_BlackboardLectures.length,
+            "cs-109-probability-for-computer-scientists-theory-of-probability": cs109MultiVideoLectures.length,
+            "phys-41-introductory-mechanics-course-classical-mechanics": phys41MultiVideoLectures.length,
+            "phys-43-electricity-and-magnetism": phys43MultiVideoLectures.length,
+            "bio-biology": bioMultiVideoLectures.length,
+            "chem-chemistry": chemMultiVideoLectures.length,
+        };
+        const lectureCount = lectureCountMap[meta.id] || 8;
         const completedLectures = Math.max(1, Math.min(lectureCount, Math.round((progressPercent / 100) * lectureCount)));
         const completedAssignments = Math.max(1, Math.min(5, Math.round((progressPercent / 100) * 5)));
         const term = "Fall 2024";
@@ -819,7 +1676,29 @@
                                     ? buildMath21Lessons(meta, completedLectures)
                                     : meta.id === "math-51-linear-algebra-multivariable-calculus-optimization"
                                         ? buildMath51Lessons(meta, completedLectures)
-                                        : buildLessons(meta, completedLectures, index);
+                                        : meta.id === "math-52-multivariable-integration-ordinary-differential-equations"
+                                            ? buildMath52Lessons(meta, completedLectures)
+                                            : meta.id === "math-53-differential-calculus-of-several-variables"
+                                                ? buildMath53Lessons(meta, completedLectures)
+                                                : meta.id === "cs-103-mathematical-foundations-of-computing"
+                                                    ? buildCs103Lessons(meta, completedLectures)
+                                                    : meta.id === "cs-107-computer-organization-systems"
+                                                        ? buildCS107Lessons(meta, completedLectures)
+                                                        : meta.id === "cs-110-principles-of-computer-systems-operating-systems-principles"
+                                                            ? buildCS110Lessons(meta, completedLectures)
+                                                            : meta.id === "cs-161-design-analysis-of-algorithms"
+                                                                ? buildCS161LessonsPlaylistA(meta, completedLectures)
+                                                                : meta.id === "cs-109-probability-for-computer-scientists-theory-of-probability"
+                                                                    ? buildCs109Lessons(meta, completedLectures)
+                                                                    : meta.id === "phys-41-introductory-mechanics-course-classical-mechanics"
+                                                                        ? buildPhys41Lessons(meta, completedLectures)
+                                                                        : meta.id === "phys-43-electricity-and-magnetism"
+                                                                            ? buildPhys43Lessons(meta, completedLectures)
+                                                                            : meta.id === "bio-biology"
+                                                                                ? buildBioLessons(meta, completedLectures)
+                                                                                : meta.id === "chem-chemistry"
+                                                                                    ? buildChemLessons(meta, completedLectures)
+                                                                                    : buildLessons(meta, completedLectures, index);
         const currentLessonId = lessons[0]?.id || "";
 
         return {
@@ -1192,6 +2071,42 @@
         );
     }
 
+    function getTrackingBaseUrl() {
+        return (
+            window.NibrasShared?.resolveServiceUrl?.("tracking") ||
+            window.NibrasApi?.resolveServiceUrl?.("tracking") ||
+            window.NibrasApiConfig?.getServiceUrl?.("tracking") ||
+            window.NIBRAS_TRACKING_API_URL ||
+            window.NIBRAS_API_URL ||
+            (/^https?:/i.test(window.location?.origin || "") ? window.location.origin.replace(/\/+$/, "") : "")
+        );
+    }
+
+    async function trackApiFetch(path) {
+        const shared = window.NibrasShared;
+        if (shared && typeof shared.apiFetch === "function") {
+            return shared.apiFetch(path, { service: "tracking" });
+        }
+
+        const token =
+            shared?.auth?.getToken?.() ||
+            window.NibrasApi?.getToken?.() ||
+            null;
+        const headers = shared?.auth?.buildAuthHeaders
+            ? shared.auth.buildAuthHeaders({ "Content-Type": "application/json" }, { token })
+            : window.NibrasApi?.buildAuthHeaders?.({ "Content-Type": "application/json" }, { token }) || { "Content-Type": "application/json" };
+        const response = await fetch(`${getTrackingBaseUrl()}${path}`, {
+            headers,
+        });
+
+        const payload = await response.json();
+        if (!response.ok) {
+            const message = payload?.message || payload?.error || `Request failed (${response.status})`;
+            throw new Error(message);
+        }
+        return payload;
+    }
+
     async function adminApiFetch(path) {
         const shared = window.NibrasShared;
         if (shared && typeof shared.apiFetch === "function") {
@@ -1228,7 +2143,7 @@
         if (remoteCourseState.byLocalId) return remoteCourseState.byLocalId;
         if (remoteCourseState.loadingPromise) return remoteCourseState.loadingPromise;
 
-        remoteCourseState.loadingPromise = adminApiFetch("/courses?page=1&limit=100")
+        remoteCourseState.loadingPromise = trackApiFetch("/v1/tracking/courses?page=1&limit=100")
             .then((payload) => {
                 const remoteList = parseArrayPayload(payload);
                 const lookupIndex = buildLocalCourseLookupIndex();

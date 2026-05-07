@@ -47,8 +47,20 @@
             
             <h2 class="auth-title">Reset Password</h2>
 
+            <!-- Info Message -->
+            <div class="info-message">
+                <i class="fa-solid fa-envelope-circle-check"></i>
+                <span>A verification code has been sent to <strong id="userEmail">your email</strong></span>
+            </div>
+
             <form id="newPasswordForm">
                 
+                <!-- OTP -->
+                <div class="form-group">
+                    <label>Verification Code</label>
+                    <input type="text" placeholder="Enter 6-digit OTP" class="form-control" id="otp" maxlength="6" autocomplete="one-time-code">
+                </div>
+
                 <!-- New Password -->
                 <div class="form-group">
                     <label>New Password</label>
@@ -74,7 +86,7 @@
         </div>
     </div>
 
-        <script src="../../../../react-bootstrap.js"></script>
+        <script src="../../../react-bootstrap.js"></script>
     <script src="./confirm.js"></script>
 </body>
 </html>

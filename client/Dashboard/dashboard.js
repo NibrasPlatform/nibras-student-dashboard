@@ -2,42 +2,111 @@ console.log('[DASHBOARD.JS] Script started (direct execution)');
 
 // --- 2. BACKEND DATA ---
 const savedGPA = localStorage.getItem('calculatedGPA');
+let selectedCourseId = localStorage.getItem('selectedCourseId') || '';
+let dashboardData = {};
+
+// Helper to resolve tracking service base URL
+function getTrackingBaseUrl() {
+    const shared = window.NibrasShared || {};
+    return (
+        (typeof shared.resolveServiceUrl === 'function' ? shared.resolveServiceUrl('tracking') : null) ||
+        window.NibrasApi?.resolveServiceUrl?.('tracking') ||
+        window.NibrasApiConfig?.getServiceUrl?.('tracking') ||
+        window.NIBRAS_TRACKING_API_URL ||
+        window.NIBRAS_API_URL ||
+        (/^https?:/i.test(window.location?.origin || '') ? window.location.origin.replace(/\/+$/, '') : '')
+    );
+}
+
+// Helper to create a requestJson function for tracking service
+function createTrackingRequestJson() {
+    const shared = window.NibrasShared || {};
+    return shared.apiFetch
+        ? shared.apiFetch.bind(shared)
+        : async (path, options = {}) => {
+            const headers = Object.assign({ 'Content-Type': 'application/json' }, options.headers || {});
+            const token = shared?.auth?.getToken?.() ||
+              window.NibrasApi?.getToken?.() ||
+              null;
+            if (token) {
+                headers.Authorization = `Bearer ${token}`;
+            }
+            const baseUrl = getTrackingBaseUrl();
+            const response = await fetch(`${baseUrl}${path}`, {
+                method: options.method || 'GET',
+                headers,
+                body: options.body,
+            });
+            const payload = await response.json();
+            if (!response.ok) {
+                const error = new Error(payload?.message || `Request failed (${response.status})`);
+                error.status = response.status;
+                error.payload = payload;
+                throw error;
+            }
+            return payload;
+        };
+}
 
 // Resolve user name: try API first, fall back to cached user, then hardcoded default
 async function resolveUserName() {
-    // Check cached user first
+    // Check cached/nibras user first
     try {
-        const cachedUser = JSON.parse(localStorage.getItem('user'));
-        if (cachedUser && cachedUser.name) {
-            return cachedUser.name.split(' ')[0]; // First name only for welcome message
+        const cachedUser = JSON.parse(localStorage.getItem('nibras_user') || localStorage.getItem('user') || 'null');
+        if (cachedUser && cachedUser.login) {
+            return cachedUser.login; // New API uses 'login' (GitHub username)
         }
     } catch (_) {}
 
-    // Try fetching from admin service
+    // Try fetching from new tracking session service
     try {
-        const token = localStorage.getItem('token');
-        if (!token) return 'Student';
-
-        const apiFetch = window.NibrasShared?.apiFetch;
-        if (!apiFetch) return 'Student';
-
-        const data = await apiFetch('/auth/me', {
-            service: 'admin',
-            method: 'GET',
-            auth: true,
-        });
-        const user = data?.user || data;
-        if (user && user.name) {
-            // Update cached user
-            localStorage.setItem('user', JSON.stringify(user));
-            return user.name.split(' ')[0];
+        const requestJson = createTrackingRequestJson();
+        const sessionData = await requestJson('/v1/web/session', { method: 'GET' });
+        if (sessionData && sessionData.login) {
+            localStorage.setItem('nibras_user', JSON.stringify(sessionData));
+            return sessionData.login;
         }
     } catch (err) {
-        console.warn('[DASHBOARD.JS] Could not fetch user profile:', err.message);
+        console.warn('[DASHBOARD.JS] Could not fetch tracking session:', err.message);
     }
 
     return 'Student';
 }
+
+// Load courses for switcher and fetch dashboard data
+async function loadCourseSwitcher() {
+    try {
+        const requestJson = createTrackingRequestJson();
+        const courses = await requestJson('/v1/tracking/courses', { method: 'GET' });
+        const courseList = Array.isArray(courses) ? courses : [];
+        const selector = document.getElementById('course-switcher');
+        if (!selector) return;
+        // Clear existing options except the first "All Courses"
+        selector.innerHTML = '<option value="">All Courses</option>';
+        courseList.forEach(course => {
+            const option = document.createElement('option');
+            option.value = course.id || course._id || '';
+            option.textContent = course.title || course.name || 'Untitled Course';
+            selector.appendChild(option);
+        });
+        // Set selected course if matches localStorage
+        if (selectedCourseId) {
+            selector.value = selectedCourseId;
+        }
+    } catch (error) {
+        console.warn('[DASHBOARD.JS] Failed to load courses for switcher:', error);
+    }
+}
+
+async function fetchDashboardData(courseId) {
+    const requestJson = createTrackingRequestJson();
+    let path = '/v1/tracking/dashboard/student';
+    if (courseId) {
+        path += `?courseId=${encodeURIComponent(courseId)}`;
+    }
+    return await requestJson(path, { method: 'GET' });
+}
+
 
 // Initialize user session display on page load
 function initUserSession() {
@@ -47,53 +116,148 @@ function initUserSession() {
     }
 }
 
-const dashboardData = {
-    user: "Student", // Will be updated by resolveUserName()
-    stats: [
-        { label: "Courses Enrolled", value: "6", icon: "fa-solid fa-book-bookmark", color: "pink" },
-        { label: "Problems Solved", value: "142", icon: "fa-solid fa-bullseye", color: "orange" },
-        { label: "Contest Rating", value: "1,847", icon: "fa-solid fa-heart", color: "green" },
-        { label: "Study Streak", value: "12 days", icon: "fa-regular fa-clock", color: "blue" },
-        { 
-            label: "Total GPA", 
-            value: savedGPA ? `${savedGPA}/4.0` : "Calculate", 
-            icon: "fa-solid fa-graduation-cap", 
-            color: "purple",
-            id: "gpa-box",       
-            isClickable: true    
+(async () => {
+    try {
+        const userName = await resolveUserName();
+        const shared = window.NibrasShared || {};
+        const trackingApiBase =
+            (typeof shared.resolveServiceUrl === 'function' ? shared.resolveServiceUrl('tracking') : null) ||
+            window.NibrasApi?.resolveServiceUrl?.('tracking') ||
+            window.NibrasApiConfig?.getServiceUrl?.('tracking') ||
+            window.NIBRAS_TRACKING_API_URL ||
+            window.NIBRAS_API_URL ||
+            (/^https?:/i.test(window.location?.origin || '') ? window.location.origin.replace(/\/+$/, '') : '');
+
+        const requestJson = shared.apiFetch
+            ? shared.apiFetch.bind(shared)
+            : async (path, options = {}) => {
+                const headers = Object.assign({ 'Content-Type': 'application/json' }, options.headers || {});
+                const token = shared?.auth?.getToken?.() ||
+                  window.NibrasApi?.getToken?.() ||
+                  null;
+                if (token) {
+                  headers.Authorization = `Bearer ${token}`;
+                }
+                const response = await fetch(`${trackingApiBase}${path}`, {
+                  method: options.method || 'GET',
+                  headers,
+                  body: options.body,
+                });
+                const payload = await response.json();
+                if (!response.ok) {
+                  const error = new Error(payload?.message || `Request failed (${response.status})`);
+                  error.status = response.status;
+                  error.payload = payload;
+                  throw error;
+                }
+                return payload;
+            };
+        // Load courses for switcher
+        await loadCourseSwitcher();
+        // Determine courseId
+        const courseId = selectedCourseId;
+        let path = '/v1/tracking/dashboard/student';
+        if (courseId) {
+            path += `?courseId=${encodeURIComponent(courseId)}`;
         }
-    ],
-    // Milestones Data
-    milestones: [
-        { title: "E-Commerce Platform", completed: 60, status: "On Track", color: "#3b82f6", due: "Jan 15" },
-        { title: "Portfolio Website", completed: 85, status: "Reviewing", color: "#10b981", due: "Dec 20" },
-        { title: "AI Chatbot", completed: 30, status: "At Risk", color: "#f59e0b", due: "Dec 25" }
-    ],
-    activities: [
-        { title: "Data Structures Assignment 3", sub: "CS 201", tag: "2 days", tagColor: "#2563eb", borderColor: "#f59e0b" },
-        { title: "Weekly Programming Contest", sub: "Competitive Programming", tag: "5 hours", tagColor: "#dc2626", borderColor: "#2563eb" },
-        { title: "Binary Tree Traversal Question", sub: "CS 201", tag: "answered", tagColor: "#2563eb", borderColor: "#10b981" },
-        { title: "Web Development Project", sub: "CS 301", tag: "1 week", tagColor: "#2563eb", borderColor: "#ef4444" }
-    ],
-    progress: [
-        { subject: "Data Structures & Algorithms", percent: 85 },
-        { subject: "Database Systems", percent: 72 },
-        { subject: "Web Development", percent: 91 },
-        { subject: "Competitive Programming", percent: 68 }
-    ],
-    deadlines: [
-        { title: "Algorithm Analysis Quiz", code: "CS 202", date: "Tomorrow, 2:00 PM" },
-        { title: "Database Design Project", code: "CS 301", date: "Friday, 11:59 PM" },
-        { title: "Monthly Contest", code: "Competitive Programming", date: "Saturday, 10:00 AM" }
-    ],
-    achievements: [
-        { title: "First Steps", icon: "fa-solid fa-medal" },
-        { title: "Team Player", icon: "fa-solid fa-medal" },
-        { title: "Top Contributor", icon: "fa-solid fa-medal" },
-        { title: "Problem Solver", icon: "fa-solid fa-medal" },
-        { title: "7-Day Streak", icon: "fa-solid fa-medal" }
-    ]
-};
+        const dashboardPayload = await requestJson(path, { method: 'GET' });
+
+        // Process the dashboardPayload to build dashboardData
+        let courseCount = 0;
+        let totalMilestones = 0;
+        let approvedMilestones = 0;
+
+        const projects = dashboardPayload.projects || [];
+
+        courseCount = projects.length;
+
+        projects.forEach(project => {
+            const stats = project.stats || {};
+            totalMilestones += stats.total || 0;
+            approvedMilestones += stats.approved || 0;
+        });
+
+        const statsArray = [
+            { label: "Courses Enrolled", value: courseCount, icon: "fa-solid fa-book-bookmark", color: "pink" },
+            { label: "Milestones Completed", value: approvedMilestones, icon: "fa-solid fa-bullseye", color: "orange" },
+            { label: "Total Milestones", value: totalMilestones, icon: "fa-solid fa-heart", color: "green" },
+            { label: "Study Streak", value: "12 days", icon: "fa-regular fa-clock", color: "blue" },
+            {
+                label: "Total GPA",
+                value: savedGPA ? `${savedGPA}/4.0` : "Calculate",
+                icon: "fa-solid fa-graduation-cap",
+                color: "purple",
+                id: "gpa-box",
+                isClickable: true
+            }
+        ];
+
+        // Flatten milestones from all projects and take first 3
+        const allMilestones = [];
+        projects.forEach(project => {
+            (project.milestones || []).forEach(milestone => {
+                allMilestones.push(milestone);
+            });
+        });
+
+        const dashboardMilestones = allMilestones.slice(0, 3).map(milestone => {
+            let statusLabel = milestone.status || 'pending';
+            let statusColor = '#6b7280'; // default gray
+            let completedPercent = 0;
+
+            switch (statusLabel) {
+                case 'approved':
+                case 'complete':
+                    statusLabel = 'Complete';
+                    statusColor = '#10b981'; // green
+                    completedPercent = 100;
+                    break;
+                case 'in_review':
+                    statusLabel = 'In Review';
+                    statusColor = '#10b981'; // green
+                    completedPercent = 0;
+                    break;
+                case 'needs_changes':
+                    statusLabel = 'Needs Changes';
+                    statusColor = '#f97316'; // orange-red
+                    completedPercent = 0;
+                    break;
+                case 'pending':
+                default:
+                    statusLabel = 'Pending';
+                    statusColor = '#6b7280'; // gray
+                    completedPercent = 0;
+                    break;
+            }
+
+            return {
+                title: milestone.title || 'Milestone',
+                completed: completedPercent,
+                status: statusLabel,
+                color: statusColor,
+                due: milestone.dueLabel || 'TBD'
+            };
+        });
+
+        const dashboardData = {
+            user: userName,
+            stats: statsArray,
+            milestones: dashboardMilestones,
+            activities: [],
+            progress: [],
+            deadlines: [],
+            achievements: []
+        };
+
+        renderDashboard(dashboardData);
+    } catch (error) {
+        console.warn('[DASHBOARD.JS] Failed to fetch dashboard data, using hardcoded data:', error);
+        // Fallback to hardcoded dashboardData
+        const userName = await resolveUserName();
+        dashboardData.user = userName;
+        renderDashboard(dashboardData);
+    }
+})();
 
 function initDashboard() {
     console.log('[DASHBOARD.JS] Initializing dashboard page');
@@ -130,13 +294,13 @@ function initDashboard() {
             console.error('[DASHBOARD.JS] ERROR: welcome-msg not found!');
             return;
         }
-        
+
         welcomeMsg.textContent = `Welcome back, ${data.user}!`;
 
         // Render Stats
         const statsContainer = document.getElementById('stats-container');
         statsContainer.innerHTML = '';
-        
+
         data.stats.forEach(stat => {
             let bgVar, textVar;
             if(stat.color === 'pink') { bgVar = 'var(--stat-icon-bg-pink)'; textVar = 'var(--stat-icon-text-pink)'; }
@@ -202,7 +366,7 @@ function initDashboard() {
     function renderMilestones(milestones) {
         const container = document.getElementById('milestone-container');
         container.innerHTML = '';
-        
+
         milestones.forEach(ms => {
             let statusClass = 'status-track';
             if(ms.status === 'Reviewing' || ms.completed > 90) statusClass = 'status-completed';
@@ -259,7 +423,6 @@ function initDashboard() {
                     <option value="2.3">C+</option>
                     <option value="2.0">C</option>
                     <option value="1.7">C-</option>
-                    <option value="1.3">D+</option>
                     <option value="1.0">D</option>
                     <option value="0.0">F</option>
                 </select>
@@ -283,7 +446,7 @@ function initDashboard() {
             });
 
             if (count === 0 || totalCredits === 0) { alert("Please enter valid data."); return; }
-            
+
             const finalGPA = (totalPoints / totalCredits).toFixed(2);
             gpaResultValue.textContent = finalGPA;
             gpaResultDetails.innerHTML = `<span>${count} Courses</span> <span>${totalCredits} Credits</span>`;

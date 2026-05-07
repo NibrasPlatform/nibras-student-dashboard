@@ -39,29 +39,42 @@ window.NibrasReact.run(() => {
                 return;
             }
 
-            // Password reset endpoint not yet available on backend
-            // Show user-friendly feedback instead of doing nothing
             const submitBtn = resetForm.querySelector('button[type="submit"]');
             const originalText = submitBtn?.textContent || 'Continue';
 
             if (submitBtn) {
-                submitBtn.textContent = 'Password reset not yet available';
+                submitBtn.textContent = 'Sending OTP...';
                 submitBtn.style.opacity = '0.7';
                 submitBtn.disabled = true;
+            }
 
-                setTimeout(() => {
+            try {
+                const res = await fetch('https://nibras-backend.up.railway.app/api/auth/forgot-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    alert(data.message || 'Failed to send reset OTP.');
                     submitBtn.textContent = originalText;
                     submitBtn.style.opacity = '';
                     submitBtn.disabled = false;
-                }, 3000);
+                    return;
+                }
+
+                localStorage.setItem('resetEmail', email);
+                window.location.href = '../Confirm%20Password/confirm.html';
+            } catch (error) {
+                console.error('[FORGOT PASSWORD ERROR]', error);
+                alert('Network error. Please try again.');
+                if (submitBtn) {
+                    submitBtn.textContent = originalText;
+                    submitBtn.style.opacity = '';
+                    submitBtn.disabled = false;
+                }
             }
-
-            console.log('[PASSWORD RESET] Forgot password requested for:', email);
-            console.log('[PASSWORD RESET] Backend does not yet support password reset.');
-
-            // Store email for the next step and navigate
-            localStorage.setItem('resetEmail', email);
-            window.location.href = '../Confirm%20Password/confirm.html';
         });
     }
 });

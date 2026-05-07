@@ -32,7 +32,7 @@
   const DEFAULT_ADMIN_API = DEFAULT_MONOLITH_API;
   const DEFAULT_LEGACY_API = DEFAULT_MONOLITH_API;
   const DEFAULT_COMMUNITY_API = DEFAULT_MONOLITH_API;
-  const DEFAULT_TRACKING_API = 'https://nibras-web.fly.dev';
+  const DEFAULT_TRACKING_API = 'https://nibras-api.fly.dev';
   const DEFAULT_COMPETITIONS_API = 'https://nibras-backend.up.railway.app';
   const DEFAULT_RECOMMENDATION_API = 'https://recommendationmodel-production-0f8e.up.railway.app/api/recommend';
   const DEFAULT_GOOGLE_CLIENT_ID = 'your_google_oauth_client_id';
@@ -149,6 +149,17 @@
     }
   })();
 
+  // New: ensure tracking API uses session-based auth (cookie)
+  const ensureTrackingApiUrl = (value) => {
+    if (!value) return null;
+    try {
+      const parsed = new URL(value);
+      return parsed.origin; // Return just origin for session-based requests
+    } catch (_) {
+      return value;
+    }
+  };
+
   const competitionsApi = ensureCompetitionsApiBaseUrl(readFirst(
     params.get('competitionsApi'),
     params.get('compApi'),
@@ -174,6 +185,7 @@
     recommendation: recommendationApi,
   });
   const googleClientId = String(
+    window.NibrasApiConfig?.googleClientId ||
     params.get('googleClientId') ||
     params.get('gClientId') ||
     localStorage.getItem('nibras_google_client_id') ||
@@ -192,9 +204,10 @@
   window.NIBRAS_COMPETITIONS_API_URL = services.competitions;
   window.NIBRAS_RECOMMENDATION_API_URL = services.recommendation;
   window.NIBRAS_GOOGLE_CLIENT_ID = googleClientId;
+  const existingGoogleClientId = window.NibrasApiConfig?.googleClientId;
   window.NibrasApiConfig = Object.freeze({
     services,
-    googleClientId,
+    googleClientId: existingGoogleClientId || googleClientId,
     getServiceUrl,
   });
 

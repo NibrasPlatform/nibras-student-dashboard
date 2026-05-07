@@ -352,3 +352,37 @@
     color: #9ca3af;        /* Grey color */
     z-index: 10;           /* Ensure it sits on top of the input */
 }
+
+/* Info Message */
+.info-message {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 1rem;
+    background-color: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: 8px;
+    color: #0369a1;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+    text-align: left;
+}
+
+[data-theme="dark"] .info-message {
+    background-color: #1e3a5f;
+    border-color: #1e40af;
+    color: #93c5fd;
+}
+
+.info-message i {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+/* OTP Input Styling */
+#otp {
+    letter-spacing: 0.3em;
+    font-size: 1.2rem !important;
+    font-weight: 600;
+    text-align: center;
+}
