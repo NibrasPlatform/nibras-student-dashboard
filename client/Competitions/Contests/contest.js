@@ -21,6 +21,8 @@
     const statsContainer = document.getElementById('stats-container');
     const liveContainer = document.getElementById('live-container');
     const upcomingContainer = document.getElementById('upcoming-container');
+    const bookmarksContainer = document.getElementById('bookmarks-container');
+    const remindersContainer = document.getElementById('reminders-container');
     const contentWrapper = document.querySelector('.content-wrapper');
     const feedbackNotice = document.createElement('div');
     feedbackNotice.hidden = true;
@@ -31,6 +33,8 @@
     let upcomingContests = [];
     let bookmarkedContestIds = new Set();
     let reminderContestIds = new Set();
+    let bookmarkedContests = [];
+    let reminderContests = [];
     const isAuthError = (error) => Number(error?.status || 0) === 401 || Number(error?.status || 0) === 403;
 
     const showFeedback = (message, tone = 'info') => {
@@ -88,7 +92,7 @@
         const stats = [
             { label: 'Running Contests', value: String(runningContests.length), icon: 'fa-solid fa-bolt', color: 'yellow', action: null },
             { label: 'Upcoming Contests', value: String(upcomingContests.length), icon: 'fa-solid fa-calendar-days', color: 'green', action: null },
-            { label: 'Bookmarked', value: String(bookmarkedContestIds.size), icon: 'fa-regular fa-bookmark', color: 'blue', action: 'view-bookmarks' },
+            { label: 'Bookmarked', value: String(bookmarkedContestIds.size), icon: 'fa-regular fa-bookmark', color: 'blue', action: null },
             { label: 'Reminders', value: String(reminderContestIds.size), icon: 'fa-regular fa-bell', color: 'purple', action: null },
         ];
         statsContainer.innerHTML = '';
@@ -255,6 +259,122 @@
         refreshStats();
         renderRunning();
         renderUpcoming();
+        renderBookmarks();
+        renderReminders();
+    };
+
+    const renderBookmarks = () => {
+        if (!bookmarksContainer) return;
+        
+        if (!authEnabled) {
+            bookmarksContainer.innerHTML = `
+                <div class="empty-state">
+                    <i class="fa-regular fa-bookmark"></i>
+                    <p>Sign in to view your bookmarked contests</p>
+                </div>
+            `;
+            return;
+        }
+
+        if (!bookmarkedContests.length) {
+            bookmarksContainer.innerHTML = `
+                <div class="empty-state">
+                    <i class="fa-regular fa-bookmark"></i>
+                    <p>No bookmarked contests yet</p>
+                </div>
+            `;
+            return;
+        }
+
+        bookmarksContainer.innerHTML = '';
+        bookmarkedContests.forEach((contest) => {
+            const contestId = contest._id || contest.id || '';
+            const hasReminder = reminderContestIds.has(contestId);
+            const badge = contest.platform
+                ? `<span class="saved-platform">${contest.platform}</span>`
+                : '';
+
+            bookmarksContainer.innerHTML += `
+                <div class="saved-card">
+                    <div class="saved-info">
+                        <h4>${contest.title || 'Untitled Contest'} ${badge}</h4>
+                        <div class="saved-meta">
+                            <span><i class="fa-regular fa-clock"></i> ${formatDuration(contest.duration)}</span>
+                            <span><i class="fa-regular fa-calendar"></i> ${formatDateTime(contest.startTime)}</span>
+                            ${contest.status ? `<span class="badge ${contest.status === 'running' ? 'bg-green' : 'bg-blue'}">${contest.status}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="saved-actions">
+                        <button class="btn-icon remove" data-action="bookmark" data-id="${contestId}" title="Remove bookmark">
+                            <i class="fa-solid fa-bookmark"></i>
+                        </button>
+                        <button class="btn-icon ${hasReminder ? 'active' : ''}" data-action="reminder" data-id="${contestId}" title="${hasReminder ? 'Remove reminder' : 'Set reminder'}">
+                            <i class="fa-${hasReminder ? 'solid' : 'regular'} fa-bell"></i>
+                        </button>
+                        <button class="btn-icon" data-action="open" data-id="${contestId}" title="Open contest">
+                            <i class="fa-solid fa-external-link-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+    };
+
+    const renderReminders = () => {
+        if (!remindersContainer) return;
+        
+        if (!authEnabled) {
+            remindersContainer.innerHTML = `
+                <div class="empty-state">
+                    <i class="fa-regular fa-bell"></i>
+                    <p>Sign in to view your reminders</p>
+                </div>
+            `;
+            return;
+        }
+
+        if (!reminderContests.length) {
+            remindersContainer.innerHTML = `
+                <div class="empty-state">
+                    <i class="fa-regular fa-bell"></i>
+                    <p>No reminders set</p>
+                </div>
+            `;
+            return;
+        }
+
+        remindersContainer.innerHTML = '';
+        reminderContests.forEach((contest) => {
+            const contestId = contest._id || contest.id || '';
+            const isBookmarked = bookmarkedContestIds.has(contestId);
+            const badge = contest.platform
+                ? `<span class="saved-platform">${contest.platform}</span>`
+                : '';
+
+            remindersContainer.innerHTML += `
+                <div class="saved-card">
+                    <div class="saved-info">
+                        <h4>${contest.title || 'Untitled Contest'} ${badge}</h4>
+                        <div class="saved-meta">
+                            <span><i class="fa-regular fa-clock"></i> ${formatDuration(contest.duration)}</span>
+                            <span><i class="fa-regular fa-calendar"></i> ${formatDateTime(contest.startTime)}</span>
+                            ${contest.status ? `<span class="badge ${contest.status === 'running' ? 'bg-green' : 'bg-blue'}">${contest.status}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="saved-actions">
+                        <button class="btn-icon ${isBookmarked ? 'active' : ''}" data-action="bookmark" data-id="${contestId}" title="${isBookmarked ? 'Remove bookmark' : 'Bookmark'}">
+                            <i class="fa-${isBookmarked ? 'solid' : 'regular'} fa-bookmark"></i>
+                        </button>
+                        <button class="btn-icon remove" data-action="reminder" data-id="${contestId}" title="Remove reminder">
+                            <i class="fa-solid fa-bell"></i>
+                        </button>
+                        <button class="btn-icon" data-action="open" data-id="${contestId}" title="Open contest">
+                            <i class="fa-solid fa-external-link-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
     };
 
     const findContestById = (id) => {
@@ -317,20 +437,42 @@
                 if (bookmarkedContestIds.has(contestId)) {
                     await competitionsService.removeBookmark(contestId);
                     bookmarkedContestIds.delete(contestId);
+                    bookmarkedContests = bookmarkedContests.filter((c) => (c._id || c.id) !== contestId);
                     showFeedback('Bookmark removed.', 'info');
                 } else {
                     await competitionsService.bookmarkContest(contestId);
                     bookmarkedContestIds.add(contestId);
+                    const contest = findContestById(contestId);
+                    if (contest && !bookmarkedContests.some((c) => (c._id || c.id) === contestId)) {
+                        bookmarkedContests.push(contest);
+                    } else if (!contest) {
+                        const result = await competitionsService.listBookmarks({ page: 1, limit: 100 });
+                        bookmarkedContests = (result?.contests || []).map((entry) => {
+                            if (entry.contestId && typeof entry.contestId === 'object') return entry.contestId;
+                            return entry;
+                        }).filter(Boolean);
+                    }
                     showFeedback('Contest bookmarked.', 'info');
                 }
             } else if (action === 'reminder') {
                 if (reminderContestIds.has(contestId)) {
                     await competitionsService.removeReminder(contestId);
                     reminderContestIds.delete(contestId);
+                    reminderContests = reminderContests.filter((c) => (c._id || c.id) !== contestId);
                     showFeedback('Reminder removed.', 'info');
                 } else {
                     await competitionsService.setReminder(contestId);
                     reminderContestIds.add(contestId);
+                    const contest = findContestById(contestId);
+                    if (contest && !reminderContests.some((c) => (c._id || c.id) === contestId)) {
+                        reminderContests.push(contest);
+                    } else if (!contest) {
+                        const result = await competitionsService.listReminders({ page: 1, limit: 100 });
+                        reminderContests = (result?.contests || []).map((entry) => {
+                            if (entry.contestId && typeof entry.contestId === 'object') return entry.contestId;
+                            return entry;
+                        }).filter(Boolean);
+                    }
                     showFeedback('Reminder set.', 'info');
                 }
             }
@@ -369,18 +511,34 @@
 
             bookmarkedContestIds = new Set();
             reminderContestIds = new Set();
+            bookmarkedContests = [];
+            reminderContests = [];
             if (authEnabled) {
                 const [bookmarkResult, reminderResult] = await Promise.allSettled([
                     competitionsService.listBookmarks({ page: 1, limit: 100 }),
                     competitionsService.listReminders({ page: 1, limit: 100 }),
                 ]);
                 if (bookmarkResult.status === 'fulfilled') {
-                    bookmarkedContestIds = new Set((bookmarkResult.value?.contests || []).map(contestIdFromEntry).filter(Boolean));
+                    const bookmarkContests = bookmarkResult.value?.contests || [];
+                    bookmarkedContests = bookmarkContests.map((entry) => {
+                        if (entry.contestId && typeof entry.contestId === 'object') {
+                            return entry.contestId;
+                        }
+                        return entry;
+                    }).filter(Boolean);
+                    bookmarkedContestIds = new Set(bookmarkContests.map(contestIdFromEntry).filter(Boolean));
                 } else if (isAuthError(bookmarkResult.reason)) {
                     authEnabled = false;
                 }
                 if (reminderResult.status === 'fulfilled') {
-                    reminderContestIds = new Set((reminderResult.value?.contests || []).map(contestIdFromEntry).filter(Boolean));
+                    const reminderContestList = reminderResult.value?.contests || [];
+                    reminderContests = reminderContestList.map((entry) => {
+                        if (entry.contestId && typeof entry.contestId === 'object') {
+                            return entry.contestId;
+                        }
+                        return entry;
+                    }).filter(Boolean);
+                    reminderContestIds = new Set(reminderContestList.map(contestIdFromEntry).filter(Boolean));
                 } else if (isAuthError(reminderResult.reason)) {
                     authEnabled = false;
                 }
@@ -444,6 +602,18 @@
     });
 
     upcomingContainer?.addEventListener('click', (event) => {
+        const button = event.target.closest('button[data-action][data-id]');
+        if (!button) return;
+        handleContestAction(button.dataset.action, button.dataset.id);
+    });
+
+    bookmarksContainer?.addEventListener('click', (event) => {
+        const button = event.target.closest('button[data-action][data-id]');
+        if (!button) return;
+        handleContestAction(button.dataset.action, button.dataset.id);
+    });
+
+    remindersContainer?.addEventListener('click', (event) => {
         const button = event.target.closest('button[data-action][data-id]');
         if (!button) return;
         handleContestAction(button.dataset.action, button.dataset.id);

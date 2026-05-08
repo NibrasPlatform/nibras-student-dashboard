@@ -1953,6 +1953,7 @@
                 limit: filters.limit,
             });
             const payload = await requestCompetitionsWithCompatibility([
+                '/contests/user-contests/history',
                 '/user-contests/history',
             ], {
                 method: 'GET',
