@@ -85,18 +85,20 @@
 
     const renderRankings = () => {
         if (!rankContainer) return;
-        const linkedAccounts = state.profile?.linkedAccounts || {};
-        const profileData = state.profile?.profile || {};
+        
         const platformsData = state.profile?.platforms || {};
-        const verification = state.profile?.verification || {};
-        const cfHandle = linkedAccounts.codeforces || platformsData.codeforces?.handle || profileData.codeforces?.handle || profileData.codeforces || null;
-        const lcUsername = linkedAccounts.leetcode || platformsData.leetcode?.username || profileData.leetcode?.username || profileData.leetcode || null;
+        const cfHandle = platformsData.codeforces?.handle || null;
+        const lcUsername = platformsData.leetcode?.username || null;
+        
+        // Get verification status
+        const cfVerify = platformsData.codeforces?.verification?.status || 'unverified';
+        const lcVerify = platformsData.leetcode?.verification?.status || 'unverified';
+        
         const rows = [
             { label: 'Codeforces Handle', value: cfHandle || 'Not linked' },
             { label: 'LeetCode Username', value: lcUsername || 'Not linked' },
-            { label: 'Codeforces Verification', value: verification.codeforces?.status || 'unverified' },
-            { label: 'LeetCode Verification', value: verification.leetcode?.status || 'unverified' },
-            { label: 'Successful Sync Platforms', value: String(syncSuccessCount()) },
+            { label: 'Codeforces Verification', value: cfVerify },
+            { label: 'LeetCode Verification', value: lcVerify },
         ];
         rankContainer.innerHTML = '';
         rows.forEach((item) => {
@@ -110,17 +112,18 @@
     };
 
     const renderProgress = (message = '') => {
-        if (!rateContainer) return;
+        let container = rateContainer || document.getElementById('rating-content-container');
+        if (!container) return;
+        
         const totals = getProgressTotals();
         const percent = totals.total ? Math.round((totals.solved / totals.total) * 100) : 0;
-        const linked = state.profile?.linkedAccounts || {};
-        const profileData = state.profile?.profile || {};
+        
         const platformsData = state.profile?.platforms || {};
-        const hasCf = !!(linked.codeforces || platformsData.codeforces?.handle || profileData.codeforces?.handle || profileData.codeforces);
-        const hasLc = !!(linked.leetcode || platformsData.leetcode?.username || profileData.leetcode?.username || profileData.leetcode);
+        const hasCf = !!(platformsData.codeforces?.handle);
+        const hasLc = !!(platformsData.leetcode?.username);
         const linkedCount = [hasCf, hasLc].filter(Boolean).length;
 
-        rateContainer.innerHTML = `
+        container.innerHTML = `
             <div class="rating-progress-row">
                 <span class="rp-label">Solved / Total Problems</span>
                 <span class="rp-val">${totals.solved} / ${totals.total}</span>
@@ -147,43 +150,27 @@
     };
 
     const loadRankingData = async () => {
-        if (!competitionsService) {
-            if (uiStates?.render) uiStates.render(rateContainer, { state: 'error', message: 'Competitions service is unavailable.' });
-            return;
-        }
-        if (!token) {
-            if (uiStates?.render) {
-                uiStates.render(rankContainer, { state: 'unauthorized', message: 'Sign in to view ranking data.' });
-                uiStates.render(rateContainer, { state: 'unauthorized', message: 'Sign in to link and sync accounts.' });
-            }
-            return;
-        }
-
-        if (uiStates?.render) uiStates.render(rateContainer, { state: 'loading', message: 'Loading ranking data...' });
         try {
-            const me = await competitionsService.getMe();
-            state.me = me;
-
-            const [profile, progress, history] = await Promise.all([
-                me?._id || me?.id ? competitionsService.getAggregatedProfile(me._id || me.id) : Promise.resolve(null),
-                competitionsService.getProgress(),
-                competitionsService.listHistory({ page: 1, limit: 1 }),
+            const currentUser = await competitionsService.getMe();
+            const userId = currentUser?._id || currentUser?.id;
+            
+            if (!userId) {
+                renderProgress('Please login to view rankings');
+                return;
+            }
+            
+            const [profile, progress] = await Promise.all([
+                competitionsService.getAggregatedProfile(userId).catch(() => ({})),
+                competitionsService.getProgress().catch(() => ({}))
             ]);
-
+            
             state.profile = profile || {};
             state.progress = progress || {};
-            state.history = history || null;
-            console.log('[loadRankingData] verification:', profile?.verification);
             renderStats();
             renderRankings();
             renderProgress('');
         } catch (error) {
-            const stateInfo = uiStates?.fromError ? uiStates.fromError(error, 'Could not load ranking data.') : { state: 'error', message: error?.message || 'Could not load ranking data.' };
-            if (Number(error?.status || 0) === 401 || Number(error?.status || 0) === 403) {
-                stateInfo.state = 'unauthorized';
-                stateInfo.message = 'Your current session is not authorized for Competitions. Please sign in with a competitions account.';
-            }
-            if (uiStates?.render) uiStates.render(rateContainer, { state: stateInfo.state, message: stateInfo.message });
+            renderProgress('Could not load data');
         }
     };
 
@@ -197,11 +184,15 @@
             renderProgress('No account data provided.');
             return;
         }
+        console.log('[linkAccounts] Payload:', payload);
         try {
-            await competitionsService.linkAccounts(payload);
+            console.log('[linkAccounts] Calling service...');
+            const result = await competitionsService.linkAccounts(payload);
+            console.log('[linkAccounts] Result:', result);
             renderProgress('Accounts linked successfully. Reloading profile...');
             await loadRankingData();
         } catch (error) {
+            console.error('[linkAccounts] Error:', error);
             if (Number(error?.status || 0) === 401 || Number(error?.status || 0) === 403) {
                 renderProgress('Your current session is not authorized for Competitions. Please sign in with a competitions account.');
                 return;
@@ -232,25 +223,35 @@
             renderProgress('Verification canceled. Platform must be codeforces or leetcode.');
             return;
         }
+        console.log('[Verification] Starting for platform:', platform);
         try {
             if (competitionsService?.checkVerification) {
-                const checkResult = await competitionsService.checkVerification(platform);
-                const currentStatus = checkResult?.data?.status?.toLowerCase();
-                if (currentStatus === 'verified') {
-                    renderProgress(`${platform} account is already verified!`);
-                    return;
-                }
-                if (currentStatus === 'pending') {
-                    renderProgress(`${platform} verification is pending. Check again in a moment or complete the verification step.`);
-                    return;
+                try {
+                    console.log('[Verification] Checking current status for:', platform);
+                    const checkResult = await competitionsService.checkVerification(platform);
+                    console.log('[Verification] Check result:', checkResult);
+                    const currentStatus = checkResult?.data?.status?.toLowerCase();
+                    if (currentStatus === 'verified') {
+                        renderProgress(`${platform} account is already verified!`);
+                        return;
+                    }
+                    if (currentStatus === 'pending') {
+                        renderProgress(`${platform} verification is pending. Check again in a moment or complete the verification step.`);
+                        return;
+                    }
+                } catch (checkError) {
+                    console.log('[Verification] No pending session, proceeding to start:', checkError.message);
                 }
             }
+            console.log('[Verification] Starting verification for:', platform);
             const result = await competitionsService.startVerification(platform);
+            console.log('[Verification] Start result:', result);
             const tokenValue = result?.data?.token ? ` Token: ${result.data.token}` : '';
             const platformName = platform === 'codeforces' ? 'Codeforces' : 'LeetCode';
             renderProgress(`${platformName} verification started.${tokenValue} Click the button again to check status.`);
-            await loadRankingData();
+            loadRankingData();
         } catch (error) {
+            console.error('[Verification] Error:', error);
             if (Number(error?.status || 0) === 401 || Number(error?.status || 0) === 403) {
                 renderProgress('Your current session is not authorized for Competitions. Please sign in with a competitions account.');
                 return;
@@ -310,8 +311,8 @@
 
     renderStats();
     renderRankings();
-    renderProgress('');
-    void loadRankingData();
+    renderProgress('Loading data...');
+    loadRankingData();
 
     const accountLinksContainer = document.getElementById('account-links-container');
     const accountLinkStatus = document.getElementById('account-link-status');

@@ -135,6 +135,10 @@ window.NibrasReact.run(() => {
         if (authEnabled) {
             Object.assign(headers, buildAuthHeaders(headers));
         }
+        // Prevent 304 Not Modified responses - force fresh data
+        headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
+        headers['Pragma'] = 'no-cache';
+        headers['Expires'] = '0';
         if (isJsonBody && !hasContentType) {
             headers['Content-Type'] = 'application/json';
         }
@@ -319,10 +323,13 @@ window.NibrasReact.run(() => {
                 requestLegacyApi('/tags', { auth: false }),
                 requestLegacyApi('/tags/popular?limit=1000', { auth: false }),
             ]);
-            const allTags = allData?.tags || [];
+            console.log('[DEBUG] Tags response:', allData);
+            console.log('[DEBUG] Popular tags response:', popData);
+            
+            const allTags = allData?.data?.tags || allData?.tags || [];
             availableModalTags = allTags.map(t => t.name).sort();
 
-            const popTags = popData?.tags || [];
+            const popTags = popData?.data?.tags || popData?.tags || [];
 
             communityData.popularTags = popTags.map(t => ({
                 name: t.name,
@@ -357,7 +364,9 @@ window.NibrasReact.run(() => {
             }
 
             const data = await requestLegacyApi('/questions', { auth: false });
-            const questionsArray = data.data ? data.data : (data.questions ? data.questions : data);
+            console.log('[DEBUG] Questions response:', data);
+            
+            const questionsArray = data?.data?.questions || data?.questions || (Array.isArray(data?.data) ? data.data : []);
 
             if (Array.isArray(questionsArray)) {
                 communityData.questions = questionsArray;

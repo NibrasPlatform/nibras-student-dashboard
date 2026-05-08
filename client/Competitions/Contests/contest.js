@@ -291,19 +291,21 @@
             if (action === 'join') {
                 const contest = findContestById(contestId);
                 console.log('Join contest debug:', JSON.stringify(contest));
+                
                 let targetUrl = contest?.joinUrl;
-                console.log('joinUrl from API:', targetUrl);
-                console.log('contestIdOnPlatform:', contest?.contestIdOnPlatform);
-                console.log('contest.id:', contest?.id);
+                
+                // Build platform-specific registration URL if not provided
                 if (!targetUrl && contest?.contestIdOnPlatform) {
                     if (contest.platform === 'codeforces') {
+                        // Codeforces: use contestIdOnPlatform for registration
                         targetUrl = `https://codeforces.com/contestRegistration/${contest.contestIdOnPlatform}`;
+                    } else if (contest.platform === 'leetcode') {
+                        targetUrl = `https://leetcode.com/contest/${contest.contestIdOnPlatform}`;
                     } else if (contest.platform === 'atcoder') {
                         targetUrl = `https://atcoder.jp/contests/${contest.contestIdOnPlatform}`;
-                    } else if (contest.platform === 'leetcode') {
-                        targetUrl = `https://leetcode.com/contest/${contest.contestIdOnPlatform}/`;
                     }
                 }
+                
                 console.log('Final targetUrl:', targetUrl);
                 if (targetUrl) {
                     window.open(targetUrl, '_blank', 'noopener,noreferrer');

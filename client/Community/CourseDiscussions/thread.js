@@ -72,6 +72,11 @@ window.NibrasReact.run(() => {
         const headers = Object.assign({}, settings.headers || {});
         const hasContentType = Object.keys(headers || {}).some((key) => key.toLowerCase() === "content-type");
 
+        // Prevent 304 Not Modified responses - force fresh data
+        headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
+        headers['Pragma'] = 'no-cache';
+        headers['Expires'] = '0';
+
         if (authEnabled && !Object.keys(headers || {}).some((key) => key.toLowerCase() === "authorization")) {
             const token = getToken();
             if (token) headers.Authorization = `Bearer ${token}`;

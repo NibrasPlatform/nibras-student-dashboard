@@ -1953,9 +1953,7 @@
                 limit: filters.limit,
             });
             const payload = await requestCompetitionsWithCompatibility([
-                `/user-contests/history${query}`,
-                `/user/contests/history${query}`,
-                `/contests/user-contests/history${query}`,
+                '/user-contests/history',
             ], {
                 method: 'GET',
                 auth: true,
@@ -1968,8 +1966,8 @@
 
         async linkAccounts(accounts) {
             const payload = await requestCompetitionsWithCompatibility([
-                '/accounts/link',
                 '/contests/accounts/link',
+                '/accounts/link',
             ], {
                 method: 'POST',
                 auth: true,
@@ -1983,8 +1981,8 @@
 
         async startVerification(platform) {
             const payload = await requestCompetitionsWithCompatibility([
-                '/accounts/verify/start',
                 '/contests/accounts/verify/start',
+                '/accounts/verify/start',
             ], {
                 method: 'POST',
                 auth: true,
@@ -1998,8 +1996,8 @@
 
         async checkVerification(platform) {
             const payload = await requestCompetitionsWithCompatibility([
-                '/accounts/verify/check',
                 '/contests/accounts/verify/check',
+                '/accounts/verify/check',
             ], {
                 method: 'POST',
                 auth: true,
@@ -2014,7 +2012,6 @@
         async getAggregatedProfile(userId) {
             const encodedUserId = encodeURIComponent(String(userId || ''));
             const payload = await requestCompetitionsWithCompatibility([
-                `/accounts/profile/${encodedUserId}`,
                 `/contests/accounts/profile/${encodedUserId}`,
             ], {
                 method: 'GET',
@@ -2059,11 +2056,17 @@
         },
 
         async getProgress() {
-            const payload = await requestCompetitionsWithCompatibility('/problems/progress', {
-                method: 'GET',
-                auth: true,
-            });
-            return unwrapApiData(payload) || {};
+            try {
+                const payload = await requestCompetitionsWithCompatibility([
+                    '/problems/progress',
+                ], {
+                    method: 'GET',
+                    auth: true,
+                });
+                return unwrapApiData(payload) || {};
+            } catch (e) {
+                return {};
+            }
         },
     };
 

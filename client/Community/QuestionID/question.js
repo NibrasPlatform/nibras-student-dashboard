@@ -218,6 +218,10 @@ window.NibrasReact.run(() => {
         if (authEnabled) {
             Object.assign(headers, buildAuthHeaders(headers));
         }
+        // Prevent 304 Not Modified responses - force fresh data
+        headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
+        headers['Pragma'] = 'no-cache';
+        headers['Expires'] = '0';
         if (isJsonBody && !hasContentType) {
             headers['Content-Type'] = 'application/json';
         }
