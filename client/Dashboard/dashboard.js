@@ -107,6 +107,39 @@ async function fetchDashboardData(courseId) {
     return await requestJson(path, { method: 'GET' });
 }
 
+// Fetch from new courses backend (GitHub backend: Dummy-Nibras)
+async function fetchDashboardFromCoursesBackend() {
+    const coursesService = window.NibrasServices?.coursesService;
+    if (!coursesService || typeof coursesService.getDashboard !== 'function') {
+        throw new Error('Courses service unavailable');
+    }
+    const response = await coursesService.getDashboard();
+    if (!response?.success) {
+        throw new Error(response?.message || 'Courses backend returned unsuccessful response');
+    }
+    return response.data;
+}
+
+// Transform courses backend response to match dashboard format
+function transformCoursesDashboardToDashboard(response) {
+    const { stats = {}, courses = [] } = response;
+    return {
+        projects: courses.map(course => ({
+            id: course._id || course.id,
+            title: course.title,
+            stats: {
+                total: course.assignmentsCount || 0,
+                approved: 0
+            },
+            milestones: []
+        })),
+        stats: {
+            coursesEnrolled: stats.coursesEnrolled || courses.length,
+            overallProgress: stats.overallProgress || 0
+        }
+    };
+}
+
 
 // Initialize user session display on page load
 function initUserSession() {
@@ -154,13 +187,25 @@ function initUserSession() {
             };
         // Load courses for switcher
         await loadCourseSwitcher();
-        // Determine courseId
-        const courseId = selectedCourseId;
-        let path = '/v1/tracking/dashboard/student';
-        if (courseId) {
-            path += `?courseId=${encodeURIComponent(courseId)}`;
+
+        // Try new courses backend first, fall back to tracking if it fails
+        let dashboardPayload;
+        let dashboardSource = 'tracking';
+        try {
+            const coursesResponse = await fetchDashboardFromCoursesBackend();
+            dashboardPayload = transformCoursesDashboardToDashboard(coursesResponse);
+            dashboardSource = 'courses';
+            console.log('[DASHBOARD.JS] Using new courses backend');
+        } catch (coursesError) {
+            console.warn('[DASHBOARD.JS] Courses backend unavailable, falling back to tracking:', coursesError.message);
+            // Fall back to tracking backend
+            const courseId = selectedCourseId;
+            let path = '/v1/tracking/dashboard/student';
+            if (courseId) {
+                path += `?courseId=${encodeURIComponent(courseId)}`;
+            }
+            dashboardPayload = await requestJson(path, { method: 'GET' });
         }
-        const dashboardPayload = await requestJson(path, { method: 'GET' });
 
         // Process the dashboardPayload to build dashboardData
         let courseCount = 0;
@@ -183,12 +228,12 @@ function initUserSession() {
             { label: "Total Milestones", value: totalMilestones, icon: "fa-solid fa-heart", color: "green" },
             { label: "Study Streak", value: "12 days", icon: "fa-regular fa-clock", color: "blue" },
             {
-                label: "Total GPA",
-                value: savedGPA ? `${savedGPA}/4.0` : "Calculate",
+                label: dashboardSource === 'courses' ? "Overall Progress" : "Total GPA",
+                value: dashboardSource === 'courses' ? `${dashboardPayload.stats?.overallProgress || 0}%` : (savedGPA ? `${savedGPA}/4.0` : "Calculate"),
                 icon: "fa-solid fa-graduation-cap",
                 color: "purple",
-                id: "gpa-box",
-                isClickable: true
+                id: dashboardSource !== 'courses' ? "gpa-box" : undefined,
+                isClickable: dashboardSource !== 'courses'
             }
         ];
 

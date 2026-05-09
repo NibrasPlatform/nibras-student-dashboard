@@ -264,6 +264,22 @@
     const loadBackendGrades = async () => {
         const recommendationService = window.NibrasServices?.recommendationService;
         const programService = window.NibrasServices?.programService;
+        const coursesService = window.NibrasServices?.coursesService;
+
+        // Try new courses backend first (GitHub backend: Dummy-Nibras)
+        if (coursesService && typeof coursesService.getGrades === 'function') {
+            try {
+                const response = await coursesService.getGrades();
+                if (response?.success && response?.data?.grades) {
+                    const grades = extractGradeEntries(response.data.grades);
+                    if (Object.keys(grades).length > 0) {
+                        return { grades, source: 'courses:/ai/grades' };
+                    }
+                }
+            } catch (error) {
+                console.warn('[RECOMMENDATION.JS] Courses backend grades failed:', error?.message || error);
+            }
+        }
 
         if (recommendationService && typeof recommendationService.getGradesPayload === 'function') {
             const firstPayloadResult = await recommendationService.getGradesPayload();

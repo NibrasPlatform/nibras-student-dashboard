@@ -5,6 +5,7 @@
     const FALLBACK_COMMUNITY_URL = window.NIBRAS_COMMUNITY_API_URL || window.NIBRAS_API_URL || window.NIBRAS_BACKEND_URL || MONOLITH_FALLBACK_URL;
     const FALLBACK_TRACKING_URL = window.NIBRAS_TRACKING_API_URL || window.NIBRAS_API_URL || window.NIBRAS_BACKEND_URL || MONOLITH_FALLBACK_URL;
     const FALLBACK_COMPETITIONS_URL = window.NIBRAS_COMPETITIONS_API_URL || window.NIBRAS_API_URL || window.NIBRAS_BACKEND_URL || MONOLITH_FALLBACK_URL;
+    const FALLBACK_COURSES_URL = window.NIBRAS_COURSES_API_URL || window.NIBRAS_API_URL || window.NIBRAS_BACKEND_URL || MONOLITH_FALLBACK_URL;
 
     const onReady = (cb) => {
         if (document.readyState === 'loading') {
@@ -33,6 +34,7 @@
         if (service === 'community') return FALLBACK_COMMUNITY_URL;
         if (service === 'tracking') return FALLBACK_TRACKING_URL;
         if (service === 'competitions') return FALLBACK_COMPETITIONS_URL;
+        if (service === 'courses') return FALLBACK_COURSES_URL;
         return FALLBACK_ADMIN_URL;
     };
 
@@ -529,7 +531,7 @@
         }
     };
 
-    const REFRESH_ELIGIBLE_SERVICES = new Set(['admin', 'legacyCommunity', 'community', 'tracking', 'competitions']);
+    const REFRESH_ELIGIBLE_SERVICES = new Set(['admin', 'legacyCommunity', 'community', 'tracking', 'competitions', 'courses']);
     let refreshPromise = null;
 
     const refreshAccessToken = async () => {

@@ -8,6 +8,7 @@
  * - tracking: nibras tracking/projects backend
  * - competitions: competitions backend
  * - recommendation: recommendation model backend
+ * - courses: GitHub backend (Dummy-Nibras) for courses/progress/grades
  *
  * Override priority per service:
  * 1. Query parameter
@@ -17,6 +18,7 @@
  *    - tracking: ?trackingApi=URL or ?trackApi=URL
  *    - competitions: ?competitionsApi=URL or ?compApi=URL
  *    - recommendation: ?recommendationApi=URL or ?recommendApi=URL or ?recApi=URL
+ *    - courses: ?coursesApi=URL or ?courseApi=URL
  * 2. localStorage
  *    - admin: nibras_admin_api_url or nibras_api_url (legacy key)
  *    - legacyCommunity: nibras_legacy_api_url
@@ -24,6 +26,7 @@
  *    - tracking: nibras_tracking_api_url
  *    - competitions: nibras_competitions_api_url
  *    - recommendation: nibras_recommendation_api_url
+ *    - courses: nibras_courses_api_url
  *    - googleClientId: nibras_google_client_id
  * 3. Defaults below
  */
@@ -35,6 +38,7 @@
   const DEFAULT_TRACKING_API = 'https://nibras-api.fly.dev';
   const DEFAULT_COMPETITIONS_API = 'https://nibras-backend.up.railway.app';
   const DEFAULT_RECOMMENDATION_API = 'https://recommendationmodel-production-0f8e.up.railway.app/api/recommend';
+  const DEFAULT_COURSES_API = 'http://localhost:3000/api';
   const DEFAULT_GOOGLE_CLIENT_ID = 'your_google_oauth_client_id';
 
   const params = new URLSearchParams(window.location.search);
@@ -176,6 +180,13 @@
     DEFAULT_RECOMMENDATION_API
   )) || DEFAULT_RECOMMENDATION_API;
 
+  const coursesApi = ensureApiBaseUrl(readFirst(
+    params.get('coursesApi'),
+    params.get('courseApi'),
+    localStorage.getItem('nibras_courses_api_url'),
+    DEFAULT_COURSES_API
+  )) || DEFAULT_COURSES_API;
+
   const services = Object.freeze({
     admin: adminApi,
     legacyCommunity: legacyCommunityApi,
@@ -183,6 +194,7 @@
     tracking: trackingApi,
     competitions: competitionsApi,
     recommendation: recommendationApi,
+    courses: coursesApi,
   });
   const googleClientId = String(
     window.NibrasApiConfig?.googleClientId ||
@@ -203,6 +215,7 @@
   window.NIBRAS_TRACKING_API_URL = services.tracking;
   window.NIBRAS_COMPETITIONS_API_URL = services.competitions;
   window.NIBRAS_RECOMMENDATION_API_URL = services.recommendation;
+  window.NIBRAS_COURSES_API_URL = services.courses;
   window.NIBRAS_GOOGLE_CLIENT_ID = googleClientId;
   const existingGoogleClientId = window.NibrasApiConfig?.googleClientId;
   window.NibrasApiConfig = Object.freeze({

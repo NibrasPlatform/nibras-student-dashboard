@@ -12,9 +12,10 @@
         return source.replace(/[^/]*$/, '');
     };
     const BOOTSTRAP_BASE = resolveBootstrapBase();
-    const CONFIG_SRC = new URL('config.js', BOOTSTRAP_BASE).toString();
-    const SHARED_UTILS_SRC = new URL('react-page-utils.js', BOOTSTRAP_BASE).toString();
-    const SERVICES_SRC = new URL('services/api.js', BOOTSTRAP_BASE).toString();
+    const timestamp = Date.now();
+    const CONFIG_SRC = new URL(`config.js?v=${timestamp}`, BOOTSTRAP_BASE).toString();
+    const SHARED_UTILS_SRC = new URL(`react-page-utils.js?v=${timestamp}`, BOOTSTRAP_BASE).toString();
+    const SERVICES_SRC = new URL(`services/api.js?v=${timestamp}`, BOOTSTRAP_BASE).toString();
     const SCRIPT_ATTR = 'data-react-bootstrap-src';
     let bootstrapDepsPromise = null;
 

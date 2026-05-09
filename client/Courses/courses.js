@@ -86,6 +86,24 @@ function initCourses() {
     }
 
     async function hydrateCoursesFromAdmin() {
+        // Try new courses backend first (GitHub backend: Dummy-Nibras)
+        const coursesService = window.NibrasServices?.coursesService;
+        if (coursesService && typeof coursesService.list === 'function') {
+            try {
+                const response = await coursesService.list({ page: 1, limit: 100 });
+                if (response?.success && Array.isArray(response.data?.courses)) {
+                    const remoteCourses = response.data.courses;
+                    console.log('[COURSES.JS] Hydrated from courses backend:', remoteCourses.length, 'courses');
+                    coursesData = remoteCourses.filter((course) => course.type === "practice_lab" || course.level === "Beginner");
+                    filterAndRender(activeCategory);
+                    return;
+                }
+            } catch (error) {
+                console.warn('[COURSES.JS] Courses backend failed, trying admin:', error?.message || error);
+            }
+        }
+
+        // Fall back to old admin courses
         const loadAdminCourses = window.NibrasCourses?.getAdminCoursesList;
         if (typeof loadAdminCourses !== 'function') return;
         try {

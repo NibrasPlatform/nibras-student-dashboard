@@ -321,6 +321,7 @@
             tracking: window.NIBRAS_TRACKING_API_URL || window.NIBRAS_API_URL,
             competitions: window.NIBRAS_COMPETITIONS_API_URL || window.NIBRAS_API_URL,
             recommendation: window.NIBRAS_RECOMMENDATION_API_URL || window.NIBRAS_API_URL,
+            courses: window.NIBRAS_COURSES_API_URL || window.NIBRAS_API_URL,
         };
         return fallbacks[service] || fallbacks.admin;
     };
@@ -459,7 +460,7 @@
         }
     };
 
-    const REFRESH_ELIGIBLE_SERVICES = new Set(['admin', 'legacyCommunity', 'community', 'tracking', 'competitions']);
+    const REFRESH_ELIGIBLE_SERVICES = new Set(['admin', 'legacyCommunity', 'community', 'tracking', 'competitions', 'courses']);
     let refreshPromise = null;
 
     const refreshAccessToken = async () => {
@@ -1966,24 +1967,36 @@
         },
 
         async linkAccounts(accounts) {
-            const payload = await requestCompetitionsWithCompatibility([
-                '/contests/accounts/link',
-                '/accounts/link',
-            ], {
-                method: 'POST',
-                auth: true,
-                body: accounts || {},
-            });
+            const results = [];
+            if (accounts.codeforcesHandle) {
+                const payload = await requestCompetitionsWithCompatibility([
+                    '/contests/accounts/link',
+                ], {
+                    method: 'POST',
+                    auth: true,
+                    body: { platform: 'codeforces', handle: accounts.codeforcesHandle },
+                });
+                results.push({ platform: 'codeforces', data: unwrapApiData(payload) });
+            }
+            if (accounts.leetcodeUsername) {
+                const payload = await requestCompetitionsWithCompatibility([
+                    '/contests/accounts/link',
+                ], {
+                    method: 'POST',
+                    auth: true,
+                    body: { platform: 'leetcode', handle: accounts.leetcodeUsername },
+                });
+                results.push({ platform: 'leetcode', data: unwrapApiData(payload) });
+            }
             return {
-                message: payload?.message || 'Accounts linked successfully',
-                data: unwrapApiData(payload),
+                message: results.length > 0 ? 'Accounts linked successfully' : 'No accounts to link',
+                data: results,
             };
         },
 
         async startVerification(platform) {
             const payload = await requestCompetitionsWithCompatibility([
                 '/contests/accounts/verify/start',
-                '/accounts/verify/start',
             ], {
                 method: 'POST',
                 auth: true,
@@ -1998,7 +2011,6 @@
         async checkVerification(platform) {
             const payload = await requestCompetitionsWithCompatibility([
                 '/contests/accounts/verify/check',
-                '/accounts/verify/check',
             ], {
                 method: 'POST',
                 auth: true,
@@ -2025,7 +2037,6 @@
             const force = options.force === true;
             const query = force ? '?force=true' : '';
             const payload = await requestCompetitionsWithCompatibility([
-                `/accounts/profile/sync${query}`,
                 `/contests/accounts/profile/sync${query}`,
             ], {
                 method: 'POST',
@@ -2320,6 +2331,157 @@
     };
 
     // ============================================================
+    // Courses Service (GitHub backend: Dummy-Nibras)
+    // ============================================================
+    const coursesService = {
+        /**
+         * Get student dashboard with stats and enrolled courses
+         * @returns {Promise<{success: boolean, data: {stats: object, courses: Array}}>}
+         */
+        async getDashboard() {
+            return apiFetch('/courses/my-dashboard', {
+                service: 'courses',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        /**
+         * List all courses with optional filters
+         * @param {object} filters - { level, category, search, page, limit, sortBy, sortOrder }
+         * @returns {Promise<{success: boolean, data: {courses: Array}}>}
+         */
+        async list(filters = {}) {
+            return apiFetch(`/courses${toQueryString(filters)}`, {
+                service: 'courses',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        /**
+         * Get a course by ID
+         * @param {string} courseId
+         * @returns {Promise<{success: boolean, data: {course: object}>}
+         */
+        async getById(courseId) {
+            return apiFetch(`/courses/${encodeURIComponent(String(courseId))}`, {
+                service: 'courses',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        /**
+         * Get a course by course code
+         * @param {string} code - Course code (e.g., 'CS106A')
+         * @returns {Promise<{success: boolean, data: {course: object}>}
+         */
+        async getByCode(code) {
+            return apiFetch(`/courses/code/${encodeURIComponent(String(code).toLowerCase())}`, {
+                service: 'courses',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        /**
+         * Get courses filtered by academic level
+         * @param {string} level - 'Beginner', 'Intermediate', or 'Advanced'
+         * @returns {Promise<{success: boolean, data: {courses: Array}>}
+         */
+        async getByLevel(level) {
+            return apiFetch(`/courses/level/${encodeURIComponent(String(level))}`, {
+                service: 'courses',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        /**
+         * Get current student progress for a course
+         * @param {string} courseId
+         * @returns {Promise<{success: boolean, data: {items: Array, percentage: number, status: string}}>}
+         */
+        async getProgress(courseId) {
+            return apiFetch(`/courses/${encodeURIComponent(String(courseId))}/progress`, {
+                service: 'courses',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        /**
+         * Toggle section completion status
+         * @param {string} courseId
+         * @param {string} sectionId
+         * @param {boolean} isCompleted
+         * @returns {Promise<{success: boolean, data: {message: string}>}
+         */
+        async toggleSection(courseId, sectionId, isCompleted) {
+            return apiFetch(`/courses/${encodeURIComponent(String(courseId))}/sections/${encodeURIComponent(String(sectionId))}/toggle`, {
+                service: 'courses',
+                method: 'POST',
+                auth: true,
+                body: { isCompleted },
+            });
+        },
+
+        /**
+         * Get global progress across all courses
+         * @returns {Promise<{success: boolean, data: {averageProgress: number, coursesCount: number}}>}
+         */
+        async getGlobalProgress() {
+            return apiFetch('/courses/progress/global', {
+                service: 'courses',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        /**
+         * Create or update a student assignment submission
+         * @param {object} data - { courseId, assignmentId, githubLink }
+         * @returns {Promise<{success: boolean, data: {submission: object}}>}
+         */
+        async createSubmission(data) {
+            return apiFetch('/submissions', {
+                service: 'courses',
+                method: 'POST',
+                auth: true,
+                body: data,
+            });
+        },
+
+        /**
+         * Update submission status (admin/instructor only)
+         * @param {string} submissionId
+         * @param {string} status - 'pending', 'approved', or 'needs_changes'
+         * @returns {Promise<{success: boolean, data: {submission: object}}>}
+         */
+        async updateSubmissionStatus(submissionId, status) {
+            return apiFetch(`/submissions/${encodeURIComponent(String(submissionId))}/status`, {
+                service: 'courses',
+                method: 'PATCH',
+                auth: true,
+                body: { status },
+            });
+        },
+
+        /**
+         * Get AI grades for recommendations (only approved submissions)
+         * @returns {Promise<{success: boolean, enoughData: boolean, data: {grades: object}}>}
+         */
+        async getGrades() {
+            return apiFetch('/ai/grades', {
+                service: 'courses',
+                method: 'GET',
+                auth: true,
+            });
+        },
+    };
+
+    // ============================================================
     // Expose on window
     // ============================================================
     window.NibrasServices = Object.freeze({
@@ -2344,6 +2506,7 @@
         trackingMilestoneService,
         githubService,
         submissionService,
+        coursesService,
     });
 
     console.log('[NibrasServices] Initialized. Available as window.NibrasServices');
