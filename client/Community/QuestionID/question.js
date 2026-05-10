@@ -157,6 +157,9 @@ window.NibrasReact.run(() => {
                 if (countSpan) {
                     countSpan.innerText = data.votesCount;
                 }
+                const targetType = data.targetType === 'question' ? 'question' : 'answer';
+                voteValueCache.set(`${targetType}:${data.targetId}`, Number(data.userVoteValue ?? 0));
+                saveVoteToStorage(targetType, data.targetId, Number(data.userVoteValue ?? 0));
             }
         });
         socket.on('disconnect', () => {
@@ -303,12 +306,30 @@ window.NibrasReact.run(() => {
     }
 
     function normalizeRole(roleValue) {
+        // Handle null/undefined
         if (roleValue == null) return '';
+        
+        // If it's an ObjectId (24-char hex string like "69ed60065eb43a53b3ff9ebe"), treat as unknown role
+        if (typeof roleValue === 'object' && roleValue._id) {
+            // It's likely a populated role object - extract the name
+            const nestedRole = roleValue.name || roleValue.slug || roleValue.title || roleValue.role || '';
+            return String(nestedRole).trim().toLowerCase();
+        }
+        
+        // Check if it's an ObjectId string (24-character hex)
+        const roleStr = String(roleValue);
+        if (/^[0-9a-fA-F]{24}$/.test(roleStr)) {
+            // This is an ObjectId reference - treat as unknown user role
+            return '';
+        }
+        
+        // Handle object with role info
         if (typeof roleValue === 'object') {
             const nestedRole = roleValue.name || roleValue.slug || roleValue.title || roleValue.role || '';
             return String(nestedRole).trim().toLowerCase();
         }
-        return String(roleValue).trim().toLowerCase();
+        
+        return roleStr.trim().toLowerCase();
     }
 
     function formatRoleLabel(roleValue, fallback = 'student') {
@@ -1000,8 +1021,39 @@ window.NibrasReact.run(() => {
     }
 
     // --- VOTING LOGIC ---
+    const VOTES_STORAGE_KEY = 'nibras_votes_v2';
+
+    function getVotesFromStorage() {
+        try {
+            const stored = localStorage.getItem(VOTES_STORAGE_KEY);
+            return stored ? JSON.parse(stored) : {};
+        } catch {
+            return {};
+        }
+    }
+
+    function saveVoteToStorage(targetType, targetId, voteValue) {
+        try {
+            const votes = getVotesFromStorage();
+            votes[`${targetType}:${targetId}`] = voteValue;
+            localStorage.setItem(VOTES_STORAGE_KEY, JSON.stringify(votes));
+        } catch {}
+    }
+
+    function seedCacheFromStorage(targetType, targetId) {
+        const votes = getVotesFromStorage();
+        const cacheKey = `${targetType}:${targetId}`;
+        if (votes[cacheKey] !== undefined) {
+            voteValueCache.set(cacheKey, Number(votes[cacheKey]));
+        }
+    }
+
     async function fetchVoteValue(targetType, targetId) {
         const cacheKey = `${targetType}:${targetId}`;
+        if (voteValueCache.has(cacheKey)) {
+            return voteValueCache.get(cacheKey);
+        }
+        seedCacheFromStorage(targetType, targetId);
         if (voteValueCache.has(cacheKey)) {
             return voteValueCache.get(cacheKey);
         }
@@ -1011,8 +1063,9 @@ window.NibrasReact.run(() => {
 
         const requestPromise = requestLegacyApi(`/votes/${targetType}/${targetId}`)
             .then((data) => {
-                const voteValue = Number(data.vote?.value || 0);
+                const voteValue = Number(data.value ?? 0);
                 voteValueCache.set(cacheKey, voteValue);
+                saveVoteToStorage(targetType, targetId, voteValue);
                 return voteValue;
             })
             .catch(() => null)
@@ -1135,6 +1188,7 @@ window.NibrasReact.run(() => {
 
                 pageVotes.set(targetId, { type, value: data.voteValue || voteValue });
                 voteValueCache.set(`${targetType}:${targetId}`, Number(data.voteValue || voteValue));
+                saveVoteToStorage(targetType, targetId, Number(data.voteValue || voteValue));
 
             } catch (error) {
                 console.error('Voting error:', error);
@@ -1142,6 +1196,7 @@ window.NibrasReact.run(() => {
                 countSpan.innerText = currentVotes;
                 const targetType = type === 'question' ? 'question' : 'answer';
                 voteValueCache.set(`${targetType}:${targetId}`, currentUserVote);
+                saveVoteToStorage(targetType, targetId, currentUserVote);
             }
         }
     });

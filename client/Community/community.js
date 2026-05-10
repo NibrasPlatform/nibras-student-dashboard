@@ -677,8 +677,34 @@ window.NibrasReact.run(() => {
             downBtn.setAttribute('aria-pressed', value === -1 ? 'true' : 'false');
     }
 
+    const VOTES_STORAGE_KEY = 'nibras_votes_v2';
+    function getVotesFromStorage() {
+        try {
+            const stored = localStorage.getItem(VOTES_STORAGE_KEY);
+            return stored ? JSON.parse(stored) : {};
+        } catch { return {}; }
+    }
+    function saveVoteToStorage(questionId, voteValue) {
+        try {
+            const votes = getVotesFromStorage();
+            votes[`question:${questionId}`] = voteValue;
+            localStorage.setItem(VOTES_STORAGE_KEY, JSON.stringify(votes));
+        } catch {}
+    }
+    function seedVotesFromStorage(questionId) {
+        const votes = getVotesFromStorage();
+        const cached = votes[`question:${questionId}`];
+        if (cached !== undefined) {
+            questionVoteFetchCache.set(questionId, Number(cached));
+            userVotes.set(questionId, Number(cached));
+        }
+    }
     async function fetchQuestionVoteValue(questionId) {
         if (!questionId || questionId === 'undefined') return null;
+        if (questionVoteFetchCache.has(questionId)) {
+            return questionVoteFetchCache.get(questionId);
+        }
+        seedVotesFromStorage(questionId);
         if (questionVoteFetchCache.has(questionId)) {
             return questionVoteFetchCache.get(questionId);
         }
@@ -690,6 +716,7 @@ window.NibrasReact.run(() => {
             .then((data) => {
                 const value = Number(data.value ?? 0);
                 questionVoteFetchCache.set(questionId, value);
+                saveVoteToStorage(questionId, value);
                 return value;
             })
             .catch(() => null)
@@ -711,6 +738,7 @@ window.NibrasReact.run(() => {
 
             const pendingIds = [];
             uniqueQuestionIds.forEach((questionId) => {
+                seedVotesFromStorage(questionId);
                 if (questionVoteFetchCache.has(questionId)) {
                     const value = Number(questionVoteFetchCache.get(questionId) ?? 0);
                     userVotes.set(questionId, value);
@@ -810,6 +838,7 @@ window.NibrasReact.run(() => {
             const confirmedVoteValue = Number(data.voteValue ?? voteValue);
             userVotes.set(questionId, confirmedVoteValue);
             questionVoteFetchCache.set(questionId, confirmedVoteValue);
+            saveVoteToStorage(questionId, confirmedVoteValue);
 
         } catch (error) {
             console.error("Voting error:", error);
@@ -818,6 +847,7 @@ window.NibrasReact.run(() => {
             countSpan.innerText = currentVotes;
             userVotes.set(questionId, currentUserVote);
             questionVoteFetchCache.set(questionId, currentUserVote);
+            saveVoteToStorage(questionId, currentUserVote);
             showToast("Failed to register vote. Please try again.", "error");
         }
     }

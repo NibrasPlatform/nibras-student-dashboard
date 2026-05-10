@@ -1975,6 +1975,7 @@
                     method: 'POST',
                     auth: true,
                     body: { platform: 'codeforces', handle: accounts.codeforcesHandle },
+                    timeoutMs: 60000,
                 });
                 results.push({ platform: 'codeforces', data: unwrapApiData(payload) });
             }
@@ -1985,6 +1986,7 @@
                     method: 'POST',
                     auth: true,
                     body: { platform: 'leetcode', handle: accounts.leetcodeUsername },
+                    timeoutMs: 60000,
                 });
                 results.push({ platform: 'leetcode', data: unwrapApiData(payload) });
             }
@@ -2001,6 +2003,7 @@
                 method: 'POST',
                 auth: true,
                 body: { platform },
+                timeoutMs: 60000, // 60 second timeout
             });
             return {
                 message: payload?.message || 'Verification started',
@@ -2015,6 +2018,7 @@
                 method: 'POST',
                 auth: true,
                 body: { platform },
+                timeoutMs: 60000, // 60 second timeout
             });
             return {
                 message: payload?.message || '',

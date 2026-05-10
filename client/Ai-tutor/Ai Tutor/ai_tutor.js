@@ -301,6 +301,39 @@ window.NibrasReact.run(() => {
         return err.message || 'Something went wrong.';
     };
 
+    const getJson = (path) => {
+        const shared = window.NibrasShared;
+        if (shared && typeof shared.apiFetch === 'function') {
+            return shared.apiFetch(path, {
+                method: 'GET',
+                service: 'legacyCommunity',
+            });
+        }
+        const BACKEND_URL = resolveLegacyApiBase();
+        return fetch(`${BACKEND_URL}${path}`, {
+            method: 'GET',
+            headers: buildAuthHeaders({ 'Content-Type': 'application/json' }),
+        }).then(async (response) => {
+            let payload = null;
+            try {
+                payload = await response.json();
+            } catch (_) {
+                payload = null;
+            }
+            if (!response.ok) {
+                const message =
+                    (payload && (payload.message || payload.error)) ||
+                    `Request failed (${response.status})`;
+                const err = new Error(message);
+                err.status = response.status;
+                err.code = response.status === 401 ? 'UNAUTHORIZED' : (response.status === 403 ? 'FORBIDDEN' : 'REQUEST_FAILED');
+                err.payload = payload;
+                throw err;
+            }
+            return payload;
+        });
+    };
+
     const extractPayloadData = (payload) => {
         if (payload == null || typeof payload !== 'object') return null;
         return Object.prototype.hasOwnProperty.call(payload, 'data') ? payload.data : payload;
@@ -361,7 +394,9 @@ window.NibrasReact.run(() => {
     let sessionHints = [];
     let sessionFinalAnswer = '';
     let sessionQuestion = '';
-    let sessionTags =[]; // <-- ADDED
+    let sessionTags =[];
+    let sessionMatchedQuestionId = null;
+    let sessionMatchedQuestion = null;
     let currentHintIndex = 0;
     let modalReturnFocus = null;
 
@@ -387,8 +422,14 @@ window.NibrasReact.run(() => {
         sessionHints = [];
         sessionFinalAnswer = '';
         sessionQuestion = '';
-        sessionTags =[]; // <-- ADDED
+        sessionTags =[];
+        sessionMatchedQuestionId = null;
+        sessionMatchedQuestion = null;
         currentHintIndex = 0;
+        const matchBanner = document.getElementById('community-match-banner');
+        const matchBannerFull = document.getElementById('community-match-banner-full');
+        if (matchBanner) matchBanner.style.display = 'none';
+        if (matchBannerFull) matchBannerFull.style.display = 'none';
     };
 
     const renderFullAnswer = () => {
@@ -403,6 +444,33 @@ window.NibrasReact.run(() => {
         body.textContent = sessionFinalAnswer || '(No answer text.)';
         fullAnswerContainer.appendChild(head);
         fullAnswerContainer.appendChild(body);
+    };
+
+    const renderMatchBanner = (targetBanner) => {
+        if (!sessionMatchedQuestion || !targetBanner) return;
+        const questionId = sessionMatchedQuestion._id || sessionMatchedQuestion.id;
+        const questionUrl = `../../Community/QuestionID/question.html?id=${encodeURIComponent(questionId)}`;
+        const authorName = sessionMatchedQuestion.author?.name || sessionMatchedQuestion.author || 'Unknown';
+        const votesCount = sessionMatchedQuestion.votesCount ?? sessionMatchedQuestion.votes ?? 0;
+        const answersCount = sessionMatchedQuestion.answersCount ?? sessionMatchedQuestion.answers ?? 0;
+
+        const titleEl = targetBanner.querySelector('.match-question-title') || document.getElementById('match-question-title-full');
+        const metaEl = targetBanner.querySelector('.match-question-meta') || document.getElementById('match-question-meta-full');
+        const viewBtn = targetBanner.querySelector('.btn-match-view') || document.getElementById('match-view-btn-full');
+
+        if (titleEl) {
+            titleEl.textContent = sessionMatchedQuestion.title || 'Untitled Question';
+            titleEl.href = questionUrl;
+        }
+        if (metaEl) {
+            metaEl.innerHTML = `<span><i class="fa-solid fa-user"></i> ${escapeHtml(authorName)}</span>` +
+                `<span><i class="fa-solid fa-caret-up"></i> ${votesCount} votes</span>` +
+                `<span><i class="fa-regular fa-comment-dots"></i> ${answersCount} answers</span>`;
+        }
+        if (viewBtn) {
+            viewBtn.href = questionUrl;
+        }
+        targetBanner.style.display = 'flex';
     };
 
     if (askAiBtn) {
@@ -443,6 +511,28 @@ window.NibrasReact.run(() => {
                 const rawHints = Array.isArray(data.hints) ? data.hints : [];
                 sessionHints = rawHints.map(normalizeHint).filter(Boolean);
                 currentHintIndex = 0;
+                sessionMatchedQuestionId = data.communityQuestion || null;
+                sessionMatchedQuestion = null;
+
+                if (sessionMatchedQuestionId) {
+                    try {
+                        const questionPayload = await getJson(`/community/questions/${sessionMatchedQuestionId}`);
+                        const questionData = questionPayload?.data?.question || questionPayload?.question || null;
+                        if (questionData) {
+                            sessionMatchedQuestion = questionData;
+                        }
+                    } catch (_) {
+                        sessionMatchedQuestion = null;
+                    }
+                }
+
+                const matchBanner = document.getElementById('community-match-banner');
+                const matchBannerFull = document.getElementById('community-match-banner-full');
+                if (matchBanner) matchBanner.style.display = 'none';
+                if (matchBannerFull) matchBannerFull.style.display = 'none';
+                if (sessionMatchedQuestion && matchBanner) {
+                    renderMatchBanner(matchBanner);
+                }
 
                 askAiBtn.parentElement.style.display = 'none';
                 interactionArea.style.display = 'block';
@@ -476,6 +566,10 @@ window.NibrasReact.run(() => {
             interactionTitle.style.display = 'none';
             renderFullAnswer();
             fullAnswerContainer.style.display = 'block';
+            const matchBannerFull = document.getElementById('community-match-banner-full');
+            if (sessionMatchedQuestion && matchBannerFull) {
+                renderMatchBanner(matchBannerFull);
+            }
             postAnswerActions.style.display = 'flex';
         });
     }

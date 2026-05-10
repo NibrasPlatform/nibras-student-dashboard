@@ -94,11 +94,21 @@ window.NibrasReact.run(() => {
         q.replies.forEach(ans => {
             // Role Badge Logic
             let roleBadge = '';
+            let roleText = 'Student'; // Default role text
+            
             if(ans.role) {
+                const roleStr = String(ans.role);
+                // Check if it's an ObjectId (24-char hex) - don't display it
+                if (!/^[0-9a-fA-F]{24}$/.test(roleStr)) {
+                    roleText = roleStr;
+                }
+                
                 let color = 'bg-blue';
-                if(ans.role === 'Helper') color = 'bg-green';
-                if(ans.role === 'Rising Star') color = 'bg-purple';
-                roleBadge = `<span class="contrib-badge ${color}">${ans.role}</span>`;
+                if(roleText === 'Helper') color = 'bg-green';
+                if(roleText === 'Rising Star') color = 'bg-purple';
+                if(roleText === 'Instructor' || roleText === 'instructor') color = 'bg-purple';
+                if(roleText === 'Admin' || roleText === 'admin') color = 'bg-red';
+                roleBadge = `<span class="contrib-badge ${color}">${roleText}</span>`;
             }
 
             ansContainer.innerHTML += `

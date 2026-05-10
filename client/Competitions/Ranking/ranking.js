@@ -262,7 +262,11 @@
                 renderProgress('Your current session is not authorized for Competitions. Please sign in with a competitions account.');
                 return null;
             }
-            renderProgress(error?.message || 'Failed to start verification.');
+            if (error?.code === 'TIMEOUT') {
+                renderProgress('Verification request timed out. The backend took too long. Please try again.');
+            } else {
+                renderProgress(error?.message || 'Failed to start verification.');
+            }
             return null;
         }
     };
@@ -298,7 +302,11 @@
                 renderProgress('Your current session is not authorized for Competitions. Please sign in with a competitions account.');
                 return;
             }
-            renderProgress(error?.message || 'Failed to check verification.');
+            if (error?.code === 'TIMEOUT') {
+                renderProgress('Verification check timed out. Please try again.');
+            } else {
+                renderProgress(error?.message || 'Failed to check verification.');
+            }
         }
     };
 

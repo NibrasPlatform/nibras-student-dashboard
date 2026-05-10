@@ -160,10 +160,48 @@
                             <div id="hints-container" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
                             </div>
 
+                            <!-- Community Match Banner -->
+                            <div id="community-match-banner" class="community-match-banner" style="display: none; margin-bottom: 20px;">
+                                <div class="match-banner-icon">
+                                    <i class="fa-solid fa-comments"></i>
+                                </div>
+                                <div class="match-banner-body">
+                                    <div class="match-banner-header">
+                                        <i class="fa-solid fa-link" style="margin-right: 6px;"></i>
+                                        Similar Question Found
+                                    </div>
+                                    <a id="match-question-title" class="match-question-title" href="#" target="_blank"></a>
+                                    <div class="match-question-meta" id="match-question-meta"></div>
+                                </div>
+                                <a id="match-view-btn" href="#" class="btn-match-view" target="_blank">
+                                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                    View in Community
+                                </a>
+                            </div>
+
                             <!-- Where full answer is displayed -->
                             <div id="full-answer-container" style="display: none; background-color: rgba(37, 99, 235, 0.05); border: 1px solid rgba(37, 99, 235, 0.2); padding: 20px; border-radius: 8px; line-height: 1.6;">
                             </div>
                             
+                            <!-- Community Match Banner (inside full answer) -->
+                            <div id="community-match-banner-full" class="community-match-banner community-match-banner-inline" style="display: none; margin-top: 16px;">
+                                <div class="match-banner-icon">
+                                    <i class="fa-solid fa-comments"></i>
+                                </div>
+                                <div class="match-banner-body">
+                                    <div class="match-banner-header">
+                                        <i class="fa-solid fa-link" style="margin-right: 6px;"></i>
+                                        Similar Question Found
+                                    </div>
+                                    <a id="match-question-title-full" class="match-question-title" href="#" target="_blank"></a>
+                                    <div class="match-question-meta" id="match-question-meta-full"></div>
+                                </div>
+                                <a id="match-view-btn-full" href="#" class="btn-match-view" target="_blank">
+                                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                    View in Community
+                                </a>
+                            </div>
+
                             <!-- Post Answer Actions -->
                             <div id="post-answer-actions" style="display: none; margin-top: 15px; gap: 10px; flex-wrap: wrap;">
                                 <button class="btn-ask" id="reset-chat-btn" type="button"><i class="fa-solid fa-rotate-right"></i> Ask Another Question</button>
