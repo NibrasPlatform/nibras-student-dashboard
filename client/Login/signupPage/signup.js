@@ -30,18 +30,25 @@ window.NibrasReact.run(() => {
 
         (async () => {
             try {
-                const response = await fetch(`${window.NibrasApiConfig?.getServiceUrl?.('admin') || ''}/auth/google`, {
+                const apiBase = window.NibrasApiConfig?.getServiceUrl?.('admin')
+                    || window.NIBRAS_API_URL
+                    || window.NIBRAS_BACKEND_URL
+                    || window.location.origin;
+                const response = await fetch(`${apiBase}/auth/google`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ access_token: accessToken }),
                 });
                 const payload = await response.json();
-                if (payload.tokens?.access?.token) {
-                    localStorage.setItem('nibras_access_token', payload.tokens.access.token);
-                    if (payload.tokens.refresh?.token) {
-                        localStorage.setItem('nibras_refresh_token', payload.tokens.refresh.token);
-                    }
-                    localStorage.setItem('nibras_user', JSON.stringify(payload.data));
+                if (payload.tokens?.access?.token || payload.data?.token || payload.token) {
+                    const authResult = { accessToken: null, refreshToken: null, user: null };
+                    const data = payload.data || payload;
+                    const tokens = payload.tokens || {};
+                    authResult.accessToken = data.token || data.accessToken || payload.token || tokens?.access?.token || tokens?.accessToken || null;
+                    authResult.refreshToken = data.refreshToken || payload.refreshToken || tokens?.refresh?.token || tokens?.refreshToken || null;
+                    authResult.user = data.user || payload.user || data;
+                    setAuthData(authResult);
+                    sessionStorage.removeItem('google_access_token');
                     window.location.href = '../../Dashboard/dashboard.html';
                     return;
                 }
@@ -110,9 +117,9 @@ window.NibrasReact.run(() => {
             shared.auth.setAuth({ accessToken, refreshToken, user });
             return;
         }
-        if (accessToken) localStorage.setItem('token', accessToken);
-        if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
-        if (user) localStorage.setItem('user', JSON.stringify(user));
+        if (accessToken) window.localStorage.setItem('token', accessToken);
+        if (refreshToken) window.localStorage.setItem('refreshToken', refreshToken);
+        if (user) window.localStorage.setItem('user', JSON.stringify(user));
     };
 
     const themeBtn = document.getElementById('themeBtn');
@@ -166,6 +173,12 @@ window.NibrasReact.run(() => {
     const googleSignInContainer = document.getElementById('googleSignInContainer');
     const googleAuthStatus = document.getElementById('googleAuthStatus');
     const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/i;
+
+    if (sessionStorage.getItem('google_auth_error')) {
+        const err = sessionStorage.getItem('google_auth_error');
+        sessionStorage.removeItem('google_auth_error');
+        setNotice(err, 'error');
+    }
 
     const setNotice = (message, tone = 'info') => {
         if (!signupNotice) return;
