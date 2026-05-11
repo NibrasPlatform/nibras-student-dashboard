@@ -1745,14 +1745,19 @@
     };
 
     const getCompetitionsBaseCandidates = () => {
-        const configured = normalizeCompetitionsServiceBaseUrl(resolveServiceUrl('competitions'));
-        if (!configured) return [null];
+        // Use Nibras-Backend (admin service) as primary
+        const adminBase = normalizeCompetitionsServiceBaseUrl(resolveServiceUrl('admin'));
+        const candidates = [adminBase];
 
-        const candidates = [configured];
-        if (/\/api$/i.test(configured)) {
-            candidates.push(configured.replace(/\/api$/i, ''));
-        } else {
-            candidates.push(`${configured}/api`);
+        // Fallback to separate competitions service if configured
+        const configured = normalizeCompetitionsServiceBaseUrl(resolveServiceUrl('competitions'));
+        if (configured && configured !== adminBase) {
+            candidates.push(configured);
+            if (/\/api$/i.test(configured)) {
+                candidates.push(configured.replace(/\/api$/i, ''));
+            } else {
+                candidates.push(`${configured}/api`);
+            }
         }
 
         return Array.from(new Set(candidates.filter(Boolean)));
@@ -1772,11 +1777,15 @@
 
         for (let b = 0; b < baseCandidates.length; b += 1) {
             const baseUrl = baseCandidates[b];
+            // Determine service: use 'admin' for Nibras-Backend URLs, 'competitions' for others
+            const isAdminUrl = baseUrl && baseUrl.includes('railway.app');
+            const service = isAdminUrl ? 'admin' : 'competitions';
+
             for (let p = 0; p < paths.length; p += 1) {
                 const path = paths[p];
                 try {
                     return await apiFetch(path, Object.assign({}, options, {
-                        service: 'competitions',
+                        service,
                         baseUrl: baseUrl || null,
                     }));
                 } catch (error) {
@@ -2486,6 +2495,81 @@
     };
 
     // ============================================================
+    // Backend Courses Service (Nibras-Backend GitHub repo: Railway)
+    // ============================================================
+    const backendCoursesService = {
+        /**
+         * List all courses from Nibras-Backend
+         * @param {object} filters - { page, limit, search }
+         * @returns {Promise<{data: Array}>}
+         */
+        async list(filters = {}) {
+            return apiFetch(`/courses${toQueryString(filters)}`, {
+                service: 'admin',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        /**
+         * Get a course by ID from Nibras-Backend
+         * @param {string} courseId
+         * @returns {Promise<{data: object}>}
+         */
+        async getById(courseId) {
+            return apiFetch(`/courses/${encodeURIComponent(String(courseId))}`, {
+                service: 'admin',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        /**
+         * Get assignments for a course from Nibras-Backend
+         * @param {string} courseId
+         * @returns {Promise<{data: Array}>}
+         */
+        async getAssignments(courseId) {
+            return apiFetch(`/assignments/course/${encodeURIComponent(String(courseId))}`, {
+                service: 'admin',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        /**
+         * Get a specific assignment by ID from Nibras-Backend
+         * @param {string} assignmentId
+         * @returns {Promise<{data: object}>}
+         */
+        async getAssignmentById(assignmentId) {
+            return apiFetch(`/assignments/${encodeURIComponent(String(assignmentId))}`, {
+                service: 'admin',
+                method: 'GET',
+                auth: true,
+            });
+        },
+    };
+
+    // ============================================================
+    // Backend Analytics Service (Nibras-Backend GitHub repo: Railway)
+    // ============================================================
+    const backendAnalyticsService = {
+        /**
+         * Get student dashboard data from Nibras-Backend
+         * @param {string} studentId - The student ID
+         * @returns {Promise<{data: object}>}
+         */
+        async getDashboard(studentId) {
+            return apiFetch(`/analytics/dashboard/${encodeURIComponent(String(studentId))}`, {
+                service: 'admin',
+                method: 'GET',
+                auth: true,
+            });
+        },
+    };
+
+    // ============================================================
     // Expose on window
     // ============================================================
     window.NibrasServices = Object.freeze({
@@ -2511,6 +2595,8 @@
         githubService,
         submissionService,
         coursesService,
+        backendCoursesService,
+        backendAnalyticsService,
     });
 
     console.log('[NibrasServices] Initialized. Available as window.NibrasServices');

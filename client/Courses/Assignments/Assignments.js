@@ -65,29 +65,19 @@ window.NibrasReact.run(() => {
     });
 
     // --- 2. TOGGLE THEME LOGIC ---
+    // Ensure theme is set on page load
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    }
+
     const themeBtn = document.getElementById('themeBtn');
-    const themeIcon = themeBtn.querySelector('i');
-    const themeText = themeBtn.querySelector('span');
+    const themeIcon = themeBtn ? themeBtn.querySelector('i') : null;
+    const themeText = themeBtn ? themeBtn.querySelector('span') : null;
+    const appLogo = document.getElementById('app-logo');
     
-    // Check initial theme logic
-    updateThemeBtn(document.documentElement.getAttribute('data-theme'));
-
-    themeBtn.addEventListener('click', () => {
-        const html = document.documentElement;
-        const current = html.getAttribute('data-theme');
-        
-        if (current === 'light') {
-            html.setAttribute('data-theme', 'dark');
-            localStorage.setItem('theme', 'dark'); // Save preference
-            updateThemeBtn('dark');
-        } else {
-            html.setAttribute('data-theme', 'light');
-            localStorage.setItem('theme', 'light'); // Save preference
-            updateThemeBtn('light');
-        }
-    });
-
     function updateThemeBtn(theme) {
+        if (!themeIcon || !themeText) return;
         if (theme === 'dark') {
             themeIcon.className = 'fa-solid fa-sun';
             themeText.textContent = 'Light Mode';
@@ -95,6 +85,29 @@ window.NibrasReact.run(() => {
             themeIcon.className = 'fa-solid fa-moon';
             themeText.textContent = 'Dark Mode';
         }
+    }
+
+    function updateLogo(theme) {
+        if (!appLogo) return;
+        appLogo.src = theme === 'dark' ? '../Assets/images/logo-dark.png' : '../Assets/images/logo-light.png';
+    }
+
+    // Check initial theme logic
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    updateThemeBtn(currentTheme);
+    updateLogo(currentTheme);
+
+    if (themeBtn) {
+        themeBtn.addEventListener('click', () => {
+            const html = document.documentElement;
+            const current = html.getAttribute('data-theme');
+            const newTheme = current === 'light' ? 'dark' : 'light';
+            
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeBtn(newTheme);
+            updateLogo(newTheme);
+        });
     }
 
     // Update data-nav-link elements

@@ -5,9 +5,16 @@ window.NibrasReact.run(() => {
     const courseId = selectedCourse.id;
     const courseData = selectedCourse.overview;
 
+    // Ensure theme is set on page load
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    }
+
     const themeBtn = document.getElementById("themeBtn");
     const themeIcon = themeBtn?.querySelector("i");
     const themeText = themeBtn?.querySelector("span");
+    const appLogo = document.getElementById("app-logo");
 
     function updateThemeBtn(theme) {
         if (!themeIcon || !themeText) return;
@@ -22,7 +29,14 @@ window.NibrasReact.run(() => {
         }
     }
 
-    updateThemeBtn(document.documentElement.getAttribute("data-theme"));
+    function updateLogo(theme) {
+        if (!appLogo) return;
+        appLogo.src = theme === "dark" ? "../../Assets/images/logo-dark.png" : "../../Assets/images/logo-light.png";
+    }
+
+    const currentTheme = document.documentElement.getAttribute("data-theme") || "light";
+    updateThemeBtn(currentTheme);
+    updateLogo(currentTheme);
 
     themeBtn?.addEventListener("click", () => {
         const htmlEl = document.documentElement;
@@ -31,6 +45,7 @@ window.NibrasReact.run(() => {
         htmlEl.setAttribute("data-theme", newTheme);
         localStorage.setItem("theme", newTheme);
         updateThemeBtn(newTheme);
+        updateLogo(newTheme);
     });
 
     function setCourseLinks() {

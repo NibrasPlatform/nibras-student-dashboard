@@ -502,19 +502,38 @@ function initDashboard() {
     }
 
     // --- 5. THEME TOGGLE ---
+    console.log('[DASHBOARD.JS] Theme toggle section starting...');
+    
+    // Ensure theme is set on page load
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    }
+    console.log('[DASHBOARD.JS] Theme after load:', document.documentElement.getAttribute('data-theme'));
+
     const themeBtn = document.getElementById('themeBtn');
+    console.log('[DASHBOARD.JS] themeBtn found:', !!themeBtn);
+    
     const themeIcon = themeBtn?.querySelector('i');
     const appLogo = document.getElementById('app-logo');
 
-    if(document.documentElement.getAttribute('data-theme') === 'dark') {
-        if(themeIcon) themeIcon.className = 'fa-regular fa-sun';
-        if(appLogo) appLogo.src = '../assets/images/logo-dark.png';
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    if (currentTheme === 'dark') {
+        if (themeIcon) themeIcon.className = 'fa-solid fa-sun';
+        if (appLogo) appLogo.src = '../Assets/images/logo-dark.png';
     } else {
-        if(appLogo) appLogo.src = '../assets/images/logo-light.png';
+        if (themeIcon) themeIcon.className = 'fa-solid fa-moon';
+        if (appLogo) appLogo.src = '../Assets/images/logo-light.png';
     }
 
-    if(themeBtn) {
+    if (themeBtn) {
+        console.log('[DASHBOARD.JS] Attaching click listener to themeBtn');
         themeBtn.addEventListener('click', () => {
+            console.log('[DASHBOARD.JS] Theme button clicked!');
+            // Visual feedback - flash the button
+            themeBtn.style.transform = 'scale(1.2)';
+            setTimeout(() => { themeBtn.style.transform = 'scale(1)'; }, 200);
+            
             const html = document.documentElement;
             const current = html.getAttribute('data-theme');
             const newTheme = current === 'light' ? 'dark' : 'light';
@@ -523,11 +542,11 @@ function initDashboard() {
             localStorage.setItem('theme', newTheme);
 
             if (newTheme === 'dark') {
-                if(themeIcon) themeIcon.className = 'fa-regular fa-sun';
-                if(appLogo) appLogo.src = '../assets/images/logo-dark.png';
+                if (themeIcon) themeIcon.className = 'fa-solid fa-sun';
+                if (appLogo) appLogo.src = '../Assets/images/logo-dark.png';
             } else {
-                if(themeIcon) themeIcon.className = 'fa-regular fa-moon';
-                if(appLogo) appLogo.src = '../assets/images/logo-light.png';
+                if (themeIcon) themeIcon.className = 'fa-solid fa-moon';
+                if (appLogo) appLogo.src = '../Assets/images/logo-light.png';
             }
         });
     }

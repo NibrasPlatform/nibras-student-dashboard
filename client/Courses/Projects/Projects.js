@@ -560,8 +560,16 @@ function setupNavigationLinks(courseId) {
 }
 
 function setupThemeToggle() {
+    // Ensure theme is set on page load
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    }
+
     const button = document.getElementById('themeBtn');
     if (!button) return;
+
+    const appLogo = document.getElementById('app-logo');
 
     function updateThemeButton() {
         const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -569,6 +577,11 @@ function setupThemeToggle() {
         const text = button.querySelector('span');
         if (icon) icon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
         if (text) text.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+        
+        // Update logo
+        if (appLogo) {
+            appLogo.src = isDark ? '../Assets/images/logo-dark.png' : '../Assets/images/logo-light.png';
+        }
     }
 
     updateThemeButton();

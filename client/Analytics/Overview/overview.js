@@ -109,31 +109,41 @@ window.NibrasReact.run(() => {
 
     // --- 4. THEME TOGGLE & LOGO SWAP ---
     const themeBtn = document.getElementById('themeBtn');
-    const themeIcon = themeBtn.querySelector('i');
+    const themeIcon = themeBtn ? themeBtn.querySelector('i') : null;
     const appLogo = document.getElementById('app-logo');
 
-    if(document.documentElement.getAttribute('data-theme') === 'dark') {
-        themeIcon.className = 'fa-regular fa-sun';
-        if(appLogo) appLogo.src = '../../assets/images/logo-dark.png';
-    } else {
-        if(appLogo) appLogo.src = '../../assets/images/logo-light.png';
+    // Ensure theme is set on page load
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
     }
 
-    themeBtn.addEventListener('click', () => {
-        const html = document.documentElement;
-        const current = html.getAttribute('data-theme');
-        if (current === 'light') {
-            html.setAttribute('data-theme', 'dark');
-            localStorage.setItem('theme', 'dark');
-            themeIcon.className = 'fa-regular fa-sun';
-            if(appLogo) appLogo.src = '../../assets/images/logo-dark.png';
-        } else {
-            html.setAttribute('data-theme', 'light');
-            localStorage.setItem('theme', 'light');
-            themeIcon.className = 'fa-regular fa-moon';
-            if(appLogo) appLogo.src = '../../assets/images/logo-light.png';
-        }
-    });
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    if (currentTheme === 'dark') {
+        if (themeIcon) themeIcon.className = 'fa-solid fa-sun';
+        if (appLogo) appLogo.src = '../../Assets/images/logo-dark.png';
+    } else {
+        if (themeIcon) themeIcon.className = 'fa-solid fa-moon';
+        if (appLogo) appLogo.src = '../../Assets/images/logo-light.png';
+    }
+
+    if (themeBtn) {
+        themeBtn.addEventListener('click', () => {
+            const html = document.documentElement;
+            const current = html.getAttribute('data-theme');
+            const newTheme = current === 'light' ? 'dark' : 'light';
+            
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            if (themeIcon) {
+                themeIcon.className = newTheme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            }
+            if (appLogo) {
+                appLogo.src = newTheme === 'dark' ? '../../Assets/images/logo-dark.png' : '../../Assets/images/logo-light.png';
+            }
+        });
+    }
 
     // --- 5. TABS LOGIC ---
     const anaTabs = document.querySelectorAll('.ana-tab');

@@ -2060,6 +2060,13 @@
         return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
     }
 
+    function unwrapApiData(payload) {
+        if (payload == null) return null;
+        if (typeof payload !== 'object') return payload;
+        if (Object.prototype.hasOwnProperty.call(payload, 'data')) return payload.data;
+        return payload;
+    }
+
     function getAdminBaseUrl() {
         return (
             window.NibrasShared?.resolveServiceUrl?.("admin") ||
@@ -2143,67 +2150,90 @@
         if (remoteCourseState.byLocalId) return remoteCourseState.byLocalId;
         if (remoteCourseState.loadingPromise) return remoteCourseState.loadingPromise;
 
-        remoteCourseState.loadingPromise = trackApiFetch("/v1/tracking/courses?page=1&limit=100")
-            .then((payload) => {
-                const remoteList = parseArrayPayload(payload);
-                const lookupIndex = buildLocalCourseLookupIndex();
-                const byLocalId = {};
-                const unresolved = [];
+        const processCourses = (remoteList) => {
+            const lookupIndex = buildLocalCourseLookupIndex();
+            const byLocalId = {};
+            const unresolved = [];
 
-                remoteList.forEach((remoteCourse) => {
-                    const mapping = resolveLocalCourseIdFromRemote(remoteCourse, lookupIndex);
-                    const localId = mapping.localId;
-                    if (!localId) {
-                        unresolved.push({
-                            title: remoteCourse?.title || "",
-                            remoteId: remoteCourse?._id || remoteCourse?.id || "",
-                        });
-                        return;
-                    }
-                    if (byLocalId[localId]) {
-                        emitCourseMappingWarning(
-                            `duplicate-remote-course:${localId}`,
-                            `Multiple remote courses mapped to "${localId}". Keeping first deterministic match and ignoring duplicates.`
-                        );
-                        return;
-                    }
-
-                    byLocalId[localId] = {
-                        remoteId: remoteCourse?._id || null,
-                        adminCourseId: remoteCourse?._id || null,
-                        backendCourseId: remoteCourse?.backendCourseId || null,
-                        trackingCourseId: resolveRemoteTrackingCourseId(remoteCourse) || "",
+            remoteList.forEach((remoteCourse) => {
+                const mapping = resolveLocalCourseIdFromRemote(remoteCourse, lookupIndex);
+                const localId = mapping.localId;
+                if (!localId) {
+                    unresolved.push({
                         title: remoteCourse?.title || "",
-                        description: remoteCourse?.description || "",
-                        instructorName: remoteCourse?.instructor?.name || "",
-                        sections: Array.isArray(remoteCourse?.sections) ? remoteCourse.sections : [],
-                        mappingSource: mapping.source,
-                    };
-                });
-
-                remoteCourseState.byLocalId = byLocalId;
-                remoteCourseState.unresolved = unresolved;
-                if (unresolved.length) {
-                    const preview = unresolved
-                        .slice(0, 3)
-                        .map((item) => item.title || item.remoteId || "unknown-course")
-                        .join(", ");
-                    emitCourseMappingWarning(
-                        "unresolved-admin-courses",
-                        `Could not map ${unresolved.length} admin course(s) to local IDs. Configure window.NIBRAS_COURSE_ID_MAP to map them explicitly. Examples: ${preview}.`
-                    );
+                        remoteId: remoteCourse?._id || remoteCourse?.id || "",
+                    });
+                    return;
                 }
-                return byLocalId;
-            })
-            .catch((error) => {
-                console.warn("[NibrasCourses] Failed to load remote courses:", error?.message || error);
-                remoteCourseState.byLocalId = {};
-                remoteCourseState.unresolved = [];
-                return remoteCourseState.byLocalId;
-            })
-            .finally(() => {
-                remoteCourseState.loadingPromise = null;
+                if (byLocalId[localId]) {
+                    emitCourseMappingWarning(
+                        `duplicate-remote-course:${localId}`,
+                        `Multiple remote courses mapped to "${localId}". Keeping first deterministic match and ignoring duplicates.`
+                    );
+                    return;
+                }
+
+                byLocalId[localId] = {
+                    remoteId: remoteCourse?._id || null,
+                    adminCourseId: remoteCourse?._id || null,
+                    backendCourseId: remoteCourse?.backendCourseId || null,
+                    trackingCourseId: resolveRemoteTrackingCourseId(remoteCourse) || "",
+                    title: remoteCourse?.title || "",
+                    description: remoteCourse?.description || "",
+                    instructorName: remoteCourse?.instructor?.name || "",
+                    sections: Array.isArray(remoteCourse?.sections) ? remoteCourse.sections : [],
+                    mappingSource: mapping.source,
+                };
             });
+
+            remoteCourseState.byLocalId = byLocalId;
+            remoteCourseState.unresolved = unresolved;
+            if (unresolved.length) {
+                const preview = unresolved
+                    .slice(0, 3)
+                    .map((item) => item.title || item.remoteId || "unknown-course")
+                    .join(", ");
+                emitCourseMappingWarning(
+                    "unresolved-admin-courses",
+                    `Could not map ${unresolved.length} admin course(s) to local IDs. Configure window.NIBRAS_COURSE_ID_MAP to map them explicitly. Examples: ${preview}.`
+                );
+            }
+            return byLocalId;
+        };
+
+        // Use Nibras-Backend (Railway) instead of tracking service
+        const backendCoursesService = window.NibrasServices?.backendCoursesService;
+
+        if (backendCoursesService && typeof backendCoursesService.list === 'function') {
+            console.log('[NibrasCourses] Loading courses from Nibras-Backend (Railway)');
+            remoteCourseState.loadingPromise = backendCoursesService.list({ page: 1, limit: 100 })
+                .then((payload) => {
+                    const data = unwrapApiData(payload);
+                    const remoteList = Array.isArray(data) ? data : (Array.isArray(data?.courses) ? data.courses : []);
+                    return processCourses(remoteList);
+                })
+                .catch((error) => {
+                    console.warn("[NibrasCourses] Failed to load from Nibras-Backend, falling back to tracking:", error?.message || error);
+                    return trackApiFetch("/v1/tracking/courses?page=1&limit=100")
+                        .then((payload) => processCourses(parseArrayPayload(payload)));
+                })
+                .finally(() => {
+                    remoteCourseState.loadingPromise = null;
+                });
+        } else {
+            console.warn('[NibrasCourses] backendCoursesService not available, using tracking service');
+            remoteCourseState.loadingPromise = trackApiFetch("/v1/tracking/courses?page=1&limit=100")
+                .then((payload) => processCourses(parseArrayPayload(payload)))
+                .catch((error) => {
+                    console.warn("[NibrasCourses] Failed to load remote courses:", error?.message || error);
+                    remoteCourseState.byLocalId = {};
+                    remoteCourseState.unresolved = [];
+                    return remoteCourseState.byLocalId;
+                })
+                .finally(() => {
+                    remoteCourseState.loadingPromise = null;
+                });
+        }
 
         return remoteCourseState.loadingPromise;
     }

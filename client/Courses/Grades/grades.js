@@ -13,22 +13,19 @@ window.NibrasReact.run(() => {
     });
 
     // --- 2. THEME TOGGLE ---
+    // Ensure theme is set on page load
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    }
+
     const themeBtn = document.getElementById('themeBtn');
-    const themeIcon = themeBtn.querySelector('i');
-    const themeText = themeBtn.querySelector('span');
-
-    updateThemeBtn(document.documentElement.getAttribute('data-theme'));
-
-    themeBtn.addEventListener('click', () => {
-        const html = document.documentElement;
-        const current = html.getAttribute('data-theme');
-        const newTheme = current === 'light' ? 'dark' : 'light';
-        html.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-        updateThemeBtn(newTheme);
-    });
+    const themeIcon = themeBtn ? themeBtn.querySelector('i') : null;
+    const themeText = themeBtn ? themeBtn.querySelector('span') : null;
+    const appLogo = document.getElementById('app-logo');
 
     function updateThemeBtn(theme) {
+        if (!themeIcon || !themeText) return;
         if (theme === 'dark') {
             themeIcon.className = 'fa-solid fa-sun';
             themeText.textContent = 'Light Mode';
@@ -36,6 +33,27 @@ window.NibrasReact.run(() => {
             themeIcon.className = 'fa-solid fa-moon';
             themeText.textContent = 'Dark Mode';
         }
+    }
+
+    function updateLogo(theme) {
+        if (!appLogo) return;
+        appLogo.src = theme === 'dark' ? '../Assets/images/logo-dark.png' : '../Assets/images/logo-light.png';
+    }
+
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    updateThemeBtn(currentTheme);
+    updateLogo(currentTheme);
+
+    if (themeBtn) {
+        themeBtn.addEventListener('click', () => {
+            const html = document.documentElement;
+            const current = html.getAttribute('data-theme');
+            const newTheme = current === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeBtn(newTheme);
+            updateLogo(newTheme);
+        });
     }
 
     const gradesData = selectedCourse.grades;
