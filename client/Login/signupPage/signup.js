@@ -1,45 +1,55 @@
 window.NibrasReact.run(() => {
-    // Handle Google OAuth redirect callback
-    (function handleGoogleCallback() {
-        const params = new URLSearchParams(window.location.search);
-        const googleAuth = params.get('google_auth');
-        if (googleAuth === 'success') {
-            const accessToken = sessionStorage.getItem('google_access_token');
-            if (accessToken) {
-                sessionStorage.removeItem('google_access_token');
-                (async () => {
-                    try {
-                        const response = await fetch(`${window.NibrasApiConfig?.getServiceUrl?.('admin') || ''}/auth/google`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ access_token: accessToken }),
-                        });
-                        const payload = await response.json();
-                        if (payload.tokens?.access?.token) {
-                            localStorage.setItem('nibras_access_token', payload.tokens.access.token);
-                            if (payload.tokens.refresh?.token) {
-                                localStorage.setItem('nibras_refresh_token', payload.tokens.refresh.token);
-                            }
-                            localStorage.setItem('nibras_user', JSON.stringify(payload.data));
-                            window.location.href = '../../Dashboard/dashboard.html';
-                            return;
-                        }
-                    } catch (e) {
-                        console.error('Google auth failed:', e);
-                    }
-                    window.location.href = 'signup.html?error=google_auth_failed';
-                    return;
-                })();
-            } else {
-                window.location.href = 'signup.html?error=google_auth_failed';
-            }
-            return;
-        } else if (googleAuth === 'error') {
-            const message = params.get('message') || 'Google sign-in failed';
-            sessionStorage.setItem('google_auth_error', message);
+    (function handleGoogleRedirectCallback() {
+        const hash = window.location.hash;
+        if (!hash || !hash.includes('access_token=')) return;
+
+        const params = new URLSearchParams(hash.replace('#', ''));
+        const accessToken = params.get('access_token');
+        const state = params.get('state');
+        const error = params.get('error');
+
+        if (error) {
+            const desc = params.get('error_description') || 'Google sign-in was denied or failed.';
+            sessionStorage.setItem('google_auth_error', desc);
+            window.location.hash = '';
             window.location.href = 'signup.html';
             return;
         }
+
+        const savedState = sessionStorage.getItem('google_oauth_state');
+        if (!accessToken || !state || state !== savedState) {
+            sessionStorage.setItem('google_auth_error', 'Invalid OAuth state. Please try again.');
+            window.location.hash = '';
+            window.location.href = 'signup.html';
+            return;
+        }
+
+        sessionStorage.removeItem('google_oauth_state');
+        sessionStorage.setItem('google_access_token', accessToken);
+        window.location.hash = '';
+
+        (async () => {
+            try {
+                const response = await fetch(`${window.NibrasApiConfig?.getServiceUrl?.('admin') || ''}/auth/google`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ access_token: accessToken }),
+                });
+                const payload = await response.json();
+                if (payload.tokens?.access?.token) {
+                    localStorage.setItem('nibras_access_token', payload.tokens.access.token);
+                    if (payload.tokens.refresh?.token) {
+                        localStorage.setItem('nibras_refresh_token', payload.tokens.refresh.token);
+                    }
+                    localStorage.setItem('nibras_user', JSON.stringify(payload.data));
+                    window.location.href = '../../Dashboard/dashboard.html';
+                    return;
+                }
+            } catch (e) {
+                console.error('Google auth failed:', e);
+            }
+            window.location.href = 'signup.html?error=google_auth_failed';
+        })();
     })();
 
     const shared = window.NibrasShared || {};
@@ -268,14 +278,13 @@ window.NibrasReact.run(() => {
             }
 
             try {
-                // Use the centralized authService
-                const payload = await window.NibrasServices.authService.register({ 
-                    name, 
-                    email, 
+                const payload = await window.NibrasServices.authService.register({
+                    name,
+                    email,
                     password,
-                    role 
+                    role
                 });
-                
+
                 setOtpMode(true, email);
                 setNotice(
                     (payload?.message || 'Registration successful. Enter the OTP sent to your email.')
@@ -307,9 +316,8 @@ window.NibrasReact.run(() => {
             }
 
             try {
-                // Use the centralized authService
                 const payload = await window.NibrasServices.authService.verifyOtp(email, otp);
-                
+
                 applyAuthenticatedSession(payload);
                 localStorage.removeItem('pendingVerificationEmail');
                 setNotice('OTP verified successfully. Redirecting...', 'success');
@@ -334,77 +342,7 @@ window.NibrasReact.run(() => {
         setNotice('Complete OTP verification to activate your account.', 'info');
     }
 
-    let googleScriptPromise = null;
-    const ensureGoogleScriptLoaded = () => {
-        if (window.google?.accounts?.id || window.google?.accounts?.oauth2) return Promise.resolve();
-        if (googleScriptPromise) return googleScriptPromise;
-        googleScriptPromise = new Promise((resolve, reject) => {
-            const existingScript = document.querySelector('script[data-google-gsi="true"]');
-            if (existingScript) {
-                existingScript.addEventListener('load', resolve, { once: true });
-                existingScript.addEventListener('error', () => reject(new Error('Failed to load Google Identity script.')), { once: true });
-                return;
-            }
-            const script = document.createElement('script');
-            script.src = 'https://accounts.google.com/gsi/client';
-            script.async = true;
-            script.defer = true;
-            script.dataset.googleGsi = 'true';
-            script.addEventListener('load', resolve, { once: true });
-            script.addEventListener('error', () => reject(new Error('Failed to load Google Identity script.')), { once: true });
-            document.head.appendChild(script);
-        });
-        return googleScriptPromise;
-    };
-
-    const handleGoogleCredentialResponse = async (response) => {
-        console.log('Google credential response:', response);
-
-        if (response.access_token) {
-            try {
-                const payload = await requestJson('/auth/google', {
-                    method: 'POST',
-                    service: 'admin',
-                    auth: false,
-                    retryAuth: false,
-                    body: JSON.stringify({ access_token: response.access_token }),
-                });
-                applyAuthenticatedSession(payload);
-                setNotice('Google sign-in successful. Redirecting...', 'success');
-                window.location.href = '../../Dashboard/dashboard.html';
-            } catch (error) {
-                const message = error?.payload?.message || error?.message || 'Google sign-in failed.';
-                setNotice(message, 'error');
-            }
-        } else if (response.error) {
-            console.error('Google sign-in error:', response.error);
-            setNotice('Google sign-in failed: ' + (response.error_description || response.error), 'error');
-        }
-    };
-
-    const handleGoogleCredential = async (credentialResponse) => {
-        // Legacy handler - not used with new library
-    };
-
-    const handleGoogleAccessToken = async (accessToken) => {
-        try {
-            const payload = await requestJson('/auth/google', {
-                method: 'POST',
-                service: 'admin',
-                auth: false,
-                retryAuth: false,
-                body: JSON.stringify({ access_token: accessToken }),
-            });
-            applyAuthenticatedSession(payload);
-            setNotice('Google sign-in successful. Redirecting...', 'success');
-            window.location.href = '../../Dashboard/dashboard.html';
-        } catch (error) {
-            const message = error?.payload?.message || error?.message || 'Google sign-in failed.';
-            setNotice(message, 'error');
-        }
-    };
-
-    const initializeGoogleAuth = async () => {
+    const initializeGoogleAuth = () => {
         if (!googleSignInContainer) return;
         const googleClientId = resolveGoogleClientId();
         if (!googleClientId) {
@@ -412,45 +350,6 @@ window.NibrasReact.run(() => {
             setGoogleStatus('Google sign-in is unavailable: missing Google Client ID runtime configuration.', 'error');
             return;
         }
-
-        if (!window.google?.accounts?.oauth2) {
-            setGoogleStatus('Loading Google sign-in...', 'info');
-            await ensureGoogleScriptLoaded();
-        }
-
-        if (!window.google?.accounts?.oauth2) {
-            googleSignInContainer.hidden = true;
-            setGoogleStatus('Google sign-in is unavailable: failed to load Google Identity script.', 'error');
-            return;
-        }
-
-        const tokenClient = window.google.accounts.oauth2.initTokenClient({
-            client_id: googleClientId,
-            scope: 'email profile openid',
-            callback: async (tokenResponse) => {
-                if (tokenResponse.error) {
-                    console.error('Google token error:', tokenResponse.error);
-                    setNotice('Google sign-in failed: ' + (tokenResponse.error_description || tokenResponse.error), 'error');
-                    return;
-                }
-
-                try {
-                    const payload = await requestJson('/auth/google', {
-                        method: 'POST',
-                        service: 'admin',
-                        auth: false,
-                        retryAuth: false,
-                        body: JSON.stringify({ access_token: tokenResponse.access_token }),
-                    });
-                    applyAuthenticatedSession(payload);
-                    setNotice('Google sign-in successful. Redirecting...', 'success');
-                    window.location.href = '../../Dashboard/dashboard.html';
-                } catch (error) {
-                    const message = error?.payload?.message || error?.message || 'Google sign-in failed.';
-                    setNotice(message, 'error');
-                }
-            },
-        });
 
         const buttonContainer = document.createElement('div');
         buttonContainer.style.marginTop = '20px';
@@ -464,23 +363,32 @@ window.NibrasReact.run(() => {
         btn.onmouseenter = () => btn.style.boxShadow = '0 1px 3px rgba(0,0,0,0.12)';
         btn.onmouseleave = () => btn.style.boxShadow = 'none';
         btn.onclick = () => {
-            const anchor = document.createElement('a');
-            anchor.href = '#';
-            anchor.style.display = 'none';
-            document.body.appendChild(anchor);
-            try {
-                tokenClient.requestAccessToken();
-            } catch (e) {
-                setNotice('Google sign-in failed. Please allow popups for this site.', 'error');
-            } finally {
-                requestAnimationFrame(() => document.body.removeChild(anchor));
-            }
+            const state = Math.random().toString(36).substring(2) + Date.now().toString(36);
+            sessionStorage.setItem('google_oauth_state', state);
+
+            const redirectUri = `${window.location.origin}${window.location.pathname}`;
+            const params = new URLSearchParams({
+                client_id: googleClientId,
+                redirect_uri: redirectUri,
+                response_type: 'token',
+                scope: 'email profile openid',
+                include_granted_scopes: 'true',
+                state: state,
+            });
+
+            window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
         };
         buttonContainer.appendChild(btn);
+
+        if (sessionStorage.getItem('google_auth_error')) {
+            const err = sessionStorage.getItem('google_auth_error');
+            sessionStorage.removeItem('google_auth_error');
+            setNotice(err, 'error');
+        }
 
         console.log('Google button rendered successfully');
         setGoogleStatus('');
     };
 
-    void initializeGoogleAuth();
+    initializeGoogleAuth();
 });
