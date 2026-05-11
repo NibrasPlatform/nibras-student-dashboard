@@ -428,7 +428,13 @@
                 
                 console.log('Final targetUrl:', targetUrl);
                 if (targetUrl) {
-                    window.open(targetUrl, '_blank', 'noopener,noreferrer');
+                    const link = document.createElement('a');
+                    link.href = targetUrl;
+                    link.target = '_blank';
+                    link.rel = 'noopener noreferrer';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
                 } else {
                     await competitionsService.joinContest(contestId);
                     showFeedback('Contest joined successfully.', 'info');
