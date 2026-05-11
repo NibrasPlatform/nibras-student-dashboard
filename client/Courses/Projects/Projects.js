@@ -580,7 +580,7 @@ function setupThemeToggle() {
         
         // Update logo
         if (appLogo) {
-            appLogo.src = isDark ? '../Assets/images/logo-dark.png' : '../Assets/images/logo-light.png';
+            appLogo.src = isDark ? '/Assets/images/logo-dark.png' : '/Assets/images/logo-light.png';
         }
     }
 

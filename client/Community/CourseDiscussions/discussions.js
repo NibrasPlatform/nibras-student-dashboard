@@ -212,7 +212,7 @@ window.NibrasReact.run(() => {
             icon.className = theme === "dark" ? "fa-regular fa-sun" : "fa-regular fa-moon";
         }
         if (elements.logo) {
-            elements.logo.src = theme === "dark" ? "../../Assets/images/logo-dark.png" : "../../Assets/images/logo-light.png";
+            elements.logo.src = theme === "dark" ? "/Assets/images/logo-dark.png" : "/Assets/images/logo-light.png";
         }
         elements.themeButton?.addEventListener("click", () => {
             const currentTheme = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
@@ -223,7 +223,7 @@ window.NibrasReact.run(() => {
                 icon.className = nextTheme === "dark" ? "fa-regular fa-sun" : "fa-regular fa-moon";
             }
             if (elements.logo) {
-                elements.logo.src = nextTheme === "dark" ? "../../Assets/images/logo-dark.png" : "../../Assets/images/logo-light.png";
+                elements.logo.src = nextTheme === "dark" ? "/Assets/images/logo-dark.png" : "/Assets/images/logo-light.png";
             }
         });
     }

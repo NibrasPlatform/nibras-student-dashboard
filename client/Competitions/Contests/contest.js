@@ -572,7 +572,7 @@
     const applyThemeAssets = () => {
         const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
         if (themeIcon) themeIcon.className = isDark ? 'fa-regular fa-sun' : 'fa-regular fa-moon';
-        if (appLogo) appLogo.src = isDark ? '../../Assets/images/logo-dark.png' : '../../Assets/images/logo-light.png';
+        if (appLogo) appLogo.src = isDark ? '/Assets/images/logo-dark.png' : '/Assets/images/logo-light.png';
     };
     applyThemeAssets();
     themeBtn?.addEventListener('click', () => {

@@ -197,7 +197,7 @@ window.NibrasReact.run(() => {
             icon.className = theme === "dark" ? "fa-regular fa-sun" : "fa-regular fa-moon";
         }
         if (elements.logo) {
-            elements.logo.src = theme === "dark" ? "../../Assets/images/logo-dark.png" : "../../Assets/images/logo-light.png";
+            elements.logo.src = theme === "dark" ? "/Assets/images/logo-dark.png" : "/Assets/images/logo-light.png";
         }
 
         elements.themeButton?.addEventListener("click", () => {
@@ -207,7 +207,7 @@ window.NibrasReact.run(() => {
             localStorage.setItem("theme", next);
             if (icon) icon.className = next === "dark" ? "fa-regular fa-sun" : "fa-regular fa-moon";
             if (elements.logo) {
-                elements.logo.src = next === "dark" ? "../../Assets/images/logo-dark.png" : "../../Assets/images/logo-light.png";
+                elements.logo.src = next === "dark" ? "/Assets/images/logo-dark.png" : "/Assets/images/logo-light.png";
             }
         });
     }

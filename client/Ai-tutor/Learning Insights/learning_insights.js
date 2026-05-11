@@ -69,10 +69,10 @@ window.NibrasReact.run(() => {
     const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
     if (currentTheme === 'dark') {
         if (themeIcon) themeIcon.className = 'fa-solid fa-sun';
-        if (appLogo) appLogo.src = '../../Assets/images/logo-dark.png';
+        if (appLogo) appLogo.src = '/Assets/images/logo-dark.png';
     } else {
         if (themeIcon) themeIcon.className = 'fa-solid fa-moon';
-        if (appLogo) appLogo.src = '../../Assets/images/logo-light.png';
+        if (appLogo) appLogo.src = '/Assets/images/logo-light.png';
     }
 
     if (themeBtn) {
@@ -88,7 +88,7 @@ window.NibrasReact.run(() => {
                 themeIcon.className = newTheme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
             }
             if (appLogo) {
-                appLogo.src = newTheme === 'dark' ? '../../Assets/images/logo-dark.png' : '../../Assets/images/logo-light.png';
+                appLogo.src = newTheme === 'dark' ? '/Assets/images/logo-dark.png' : '/Assets/images/logo-light.png';
             }
         });
     }

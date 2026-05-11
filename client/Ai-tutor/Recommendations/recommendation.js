@@ -234,11 +234,11 @@
         const appLogo = document.getElementById('app-logo');
         if (document.documentElement.getAttribute('data-theme') === 'dark') {
             if (themeIcon) themeIcon.className = 'fa-regular fa-sun';
-            if (appLogo) appLogo.src = '../../Assets/images/logo-dark.png';
+            if (appLogo) appLogo.src = '/Assets/images/logo-dark.png';
             return;
         }
         if (themeIcon) themeIcon.className = 'fa-regular fa-moon';
-        if (appLogo) appLogo.src = '../../Assets/images/logo-light.png';
+        if (appLogo) appLogo.src = '/Assets/images/logo-light.png';
     };
 
     const setLoadingState = (message) => {

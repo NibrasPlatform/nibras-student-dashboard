@@ -270,11 +270,11 @@
         const icon = themeBtn?.querySelector('i');
         if (document.documentElement.getAttribute('data-theme') === 'dark') {
             if (icon) icon.className = 'fa-regular fa-sun';
-            if (appLogo) appLogo.src = '../Assets/images/logo-dark.png';
+            if (appLogo) appLogo.src = '/Assets/images/logo-dark.png';
             return;
         }
         if (icon) icon.className = 'fa-regular fa-moon';
-        if (appLogo) appLogo.src = '../Assets/images/logo-light.png';
+        if (appLogo) appLogo.src = '/Assets/images/logo-light.png';
     };
 
     const setState = (state, message) => {

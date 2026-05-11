@@ -110,9 +110,9 @@ window.NibrasReact.run(() => {
 
     if(document.documentElement.getAttribute('data-theme') === 'dark') {
         themeIcon.className = 'fa-regular fa-sun';
-        if(appLogo) appLogo.src = '../../assets/images/logo-dark.png';
+        if(appLogo) appLogo.src = '/Assets/images/logo-dark.png';
     } else {
-        if(appLogo) appLogo.src = '../../assets/images/logo-light.png';
+        if(appLogo) appLogo.src = '/Assets/images/logo-light.png';
     }
 
     themeBtn.addEventListener('click', () => {
@@ -122,12 +122,12 @@ window.NibrasReact.run(() => {
             html.setAttribute('data-theme', 'dark');
             localStorage.setItem('theme', 'dark');
             themeIcon.className = 'fa-regular fa-sun';
-            if(appLogo) appLogo.src = '../../assets/images/logo-dark.png';
+            if(appLogo) appLogo.src = '/Assets/images/logo-dark.png';
         } else {
             html.setAttribute('data-theme', 'light');
             localStorage.setItem('theme', 'light');
             themeIcon.className = 'fa-regular fa-moon';
-            if(appLogo) appLogo.src = '../../assets/images/logo-light.png';
+            if(appLogo) appLogo.src = '/Assets/images/logo-light.png';
         }
     });
 

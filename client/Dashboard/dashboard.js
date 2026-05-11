@@ -520,10 +520,10 @@ function initDashboard() {
     const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
     if (currentTheme === 'dark') {
         if (themeIcon) themeIcon.className = 'fa-solid fa-sun';
-        if (appLogo) appLogo.src = '../Assets/images/logo-dark.png';
+        if (appLogo) appLogo.src = '/Assets/images/logo-dark.png';
     } else {
         if (themeIcon) themeIcon.className = 'fa-solid fa-moon';
-        if (appLogo) appLogo.src = '../Assets/images/logo-light.png';
+        if (appLogo) appLogo.src = '/Assets/images/logo-light.png';
     }
 
     if (themeBtn) {
@@ -543,10 +543,10 @@ function initDashboard() {
 
             if (newTheme === 'dark') {
                 if (themeIcon) themeIcon.className = 'fa-solid fa-sun';
-                if (appLogo) appLogo.src = '../Assets/images/logo-dark.png';
+                if (appLogo) appLogo.src = '/Assets/images/logo-dark.png';
             } else {
                 if (themeIcon) themeIcon.className = 'fa-solid fa-moon';
-                if (appLogo) appLogo.src = '../Assets/images/logo-light.png';
+                if (appLogo) appLogo.src = '/Assets/images/logo-light.png';
             }
         });
     }

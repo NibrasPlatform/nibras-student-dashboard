@@ -31,7 +31,7 @@ window.NibrasReact.run(() => {
 
     function updateLogo(theme) {
         if (!appLogo) return;
-        appLogo.src = theme === "dark" ? "../../Assets/images/logo-dark.png" : "../../Assets/images/logo-light.png";
+        appLogo.src = theme === "dark" ? "/Assets/images/logo-dark.png" : "/Assets/images/logo-light.png";
     }
 
     const currentTheme = document.documentElement.getAttribute("data-theme") || "light";

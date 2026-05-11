@@ -465,7 +465,7 @@ window.NibrasReact.run(() => {
 
     function updateThemeUI(theme) {
         if (appLogo) {
-            appLogo.src = theme === 'dark' ? '../assets/images/logo-dark.png' : '../assets/images/logo-light.png';
+            appLogo.src = theme === 'dark' ? '/Assets/images/logo-dark.png' : '/Assets/images/logo-light.png';
         }
         if (themeSelector) {
             themeSelector.value = theme;
