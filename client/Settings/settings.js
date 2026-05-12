@@ -328,6 +328,28 @@ window.NibrasReact.run(() => {
         else if (idInput && user._id) idInput.value = user._id;
         else if (idInput && user.id) idInput.value = user.id;
 
+        const displayName = user?.name || user?.username || '';
+        if (displayName) {
+            const initials = displayName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            const avatarLarge = document.querySelector('.avatar-large');
+            if (avatarLarge && avatarLarge.textContent.trim() === 'ZA') {
+                avatarLarge.textContent = initials;
+            }
+            const sidebarUserNames = document.querySelectorAll('.user-profile h4');
+            sidebarUserNames.forEach(el => {
+                if (el.textContent.trim() === 'Ziad Alaa' || el.textContent.trim() === '') {
+                    el.textContent = displayName;
+                }
+            });
+            const sidebarUserRoles = document.querySelectorAll('.user-profile span');
+            const displayRole = user?.role?.name || user?.role || 'student';
+            sidebarUserRoles.forEach(el => {
+                if (el.textContent.trim() === 'student' || el.textContent.trim() === '') {
+                    el.textContent = displayRole;
+                }
+            });
+        }
+
         const btnConnect = document.getElementById('btn-connect-github');
         const btnInstall = document.getElementById('btn-install-github-app');
         const profileInfo = document.getElementById('github-profile-info');
