@@ -178,7 +178,6 @@
             state.progress = progress || {};
             renderStats();
             renderRankings();
-            renderProgress('');
         } catch (error) {
             renderProgress('Could not load data');
         }
