@@ -2007,7 +2007,7 @@
 
         async startVerification(platform) {
             const payload = await requestCompetitionsWithCompatibility([
-                '/contest/accounts/verify/start',
+                '/contests/accounts/verify/start',
             ], {
                 method: 'POST',
                 auth: true,
@@ -2022,7 +2022,7 @@
 
         async checkVerification(platform) {
             const payload = await requestCompetitionsWithCompatibility([
-                '/contest/accounts/verify/check',
+                '/contests/accounts/verify/check',
             ], {
                 method: 'POST',
                 auth: true,
