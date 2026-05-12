@@ -553,6 +553,33 @@
         { title: "Course Wrap-up and Advanced Topics", videos: [{ title: "Lecture 20", youtubeId: "y5xvYX0m61E" }] },
     ];
 
+    const cs294MultiVideoLectures = [
+        { title: "August 23, 2017", videos: [{ title: "Lecture 1", youtubeId: "Q4kF8sfggoI" }] },
+        { title: "August 28, 2017", videos: [{ title: "Lecture 2", youtubeId: "C_LGsoe36I8" }] },
+        { title: "August 30, 2017", videos: [{ title: "Lecture 3", youtubeId: "PTbxa6GsTWc" }] },
+        { title: "September 6, 2017", videos: [{ title: "Lecture 4", youtubeId: "tWNpiNzWuO8" }] },
+        { title: "September 11, 2017", videos: [{ title: "Lecture 5", youtubeId: "PpVhtJn-iZI" }] },
+        { title: "September 13, 2017", videos: [{ title: "Lecture 6", youtubeId: "k1vNh4rNYec" }] },
+        { title: "September 18, 2017", videos: [{ title: "Lecture 7", youtubeId: "nZXC5OdDfs4" }] },
+        { title: "September 20, 2017", videos: [{ title: "Lecture 8", youtubeId: "EfgC7v5V608" }] },
+        { title: "September 25, 2017", videos: [{ title: "Lecture 9", youtubeId: "yap_g0d7iBQ" }] },
+        { title: "September 27, 2017", videos: [{ title: "Lecture 10", youtubeId: "AwdauFLan7M" }] },
+        { title: "October 2, 2017", videos: [{ title: "Lecture 11", youtubeId: "vRkIwM4GktE" }] },
+        { title: "October 4, 2017", videos: [{ title: "Lecture 12", youtubeId: "iOYiPhu5GEk" }] },
+        { title: "October 9, 2017", videos: [{ title: "Lecture 13", youtubeId: "-3BcZwgmZLk" }] },
+        { title: "October 11, 2017", videos: [{ title: "Lecture 14", youtubeId: "ycCtmp4hcUs" }] },
+        { title: "October 16, 2017", videos: [{ title: "Lecture 15", youtubeId: "npi6B4VQ-7s" }] },
+        { title: "October 18, 2017", videos: [{ title: "Lecture 16", youtubeId: "0WbVUvKJpg4" }] },
+        { title: "October 23, 2017", videos: [{ title: "Lecture 17", youtubeId: "UqSx23W9RYE" }] },
+        { title: "October 25, 2017", videos: [{ title: "Lecture 18", youtubeId: "Xe9bktyYB34" }] },
+        { title: "October 30, 2017", videos: [{ title: "Lecture 19", youtubeId: "mc-DtbhhiKA" }] },
+        { title: "November 1, 2017", videos: [{ title: "Lecture 20", youtubeId: "j9QI21xtqV4" }] },
+        { title: "November 6, 2017", videos: [{ title: "Lecture 21", youtubeId: "QJpc_T65QRY" }] },
+        { title: "November 8, 2017", videos: [{ title: "Lecture 22", youtubeId: "CHKSBEx_k54" }] },
+        { title: "November 15, 2017", videos: [{ title: "Lecture 23", youtubeId: "ixtEeS6aCKU" }] },
+        { title: "November 20, 2017", videos: [{ title: "Lecture 24", youtubeId: "gqX8J38tESw" }] },
+    ];
+
     const cs161PlaylistA_BlackboardLectures = [
         {
             title: "Introduction & Asymptotic Analysis",
@@ -1348,6 +1375,38 @@
         });
     }
 
+    function buildCS294Lessons(meta, completedLessons) {
+        return cs294MultiVideoLectures.map((lecture, lectureIndex) => {
+            const lectureNumber = lectureIndex + 1;
+            const lessonId = `${meta.id}-lecture-${lectureNumber}`;
+            const isCompleted = lectureNumber <= completedLessons;
+            const isOpen = lectureNumber <= completedLessons + 1;
+
+            const videoItems = lecture.videos.map((video, videoIndex) => ({
+                id: `${lessonId}-video-${videoIndex + 1}`,
+                title: video.title,
+                duration: `${50 + ((lectureIndex + videoIndex) % 15)}:00`,
+                sourceType: "youtube",
+                youtube: `https://www.youtube.com/embed/${video.youtubeId}`,
+            }));
+
+            return {
+                id: lessonId,
+                title: `Lecture ${lectureNumber}: ${lecture.title}`,
+                duration: `${videoItems.length} video`,
+                completed: isCompleted,
+                locked: !isOpen,
+                videoItems,
+                activeVideoItemId: videoItems[0]?.id || "",
+                videoSources: {
+                    youtube: videoItems[0]?.youtube || "",
+                    html5: "",
+                },
+                captions: { en: null },
+            };
+        });
+    }
+
     function buildCS161LessonsPlaylistA(meta, completedLessons) {
         return cs161PlaylistA_BlackboardLectures.map((topic, topicIndex) => {
             const lessonNumber = topicIndex + 1;
@@ -1647,6 +1706,7 @@
             "cs-107-computer-organization-systems": cs107MultiVideoLectures.length,
             "cs-110-principles-of-computer-systems-operating-systems-principles": cs110MultiVideoLectures.length,
             "cs-161-design-analysis-of-algorithms": cs161PlaylistA_BlackboardLectures.length,
+            "cs-294-research-project-in-computer-science": cs294MultiVideoLectures.length,
             "cs-109-probability-for-computer-scientists-theory-of-probability": cs109MultiVideoLectures.length,
             "phys-41-introductory-mechanics-course-classical-mechanics": phys41MultiVideoLectures.length,
             "phys-43-electricity-and-magnetism": phys43MultiVideoLectures.length,
@@ -1686,6 +1746,8 @@
                                                         ? buildCS107Lessons(meta, completedLectures)
                                                         : meta.id === "cs-110-principles-of-computer-systems-operating-systems-principles"
                                                             ? buildCS110Lessons(meta, completedLectures)
+                                                            : meta.id === "cs-294-research-project-in-computer-science"
+                                                                ? buildCS294Lessons(meta, completedLectures)
                                                             : meta.id === "cs-161-design-analysis-of-algorithms"
                                                                 ? buildCS161LessonsPlaylistA(meta, completedLectures)
                                                                 : meta.id === "cs-109-probability-for-computer-scientists-theory-of-probability"
