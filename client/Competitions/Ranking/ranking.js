@@ -246,8 +246,6 @@
             
             if (data?.token) {
                 renderVerificationStarted(platform, platformName, data);
-                renderProgress('Verification started! Reloading profile...');
-                await loadRankingData();
                 return data;
             } else if (data?.verified) {
                 renderVerificationResult(platform, platformName, data);
