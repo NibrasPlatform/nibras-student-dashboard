@@ -48,17 +48,25 @@ function createTrackingRequestJson() {
         };
 }
 
-// Resolve user name: try API first, fall back to cached user, then hardcoded default
+// Resolve user name: competitions user.name first, then tracking session, then hardcoded default
 async function resolveUserName() {
-    // Check cached/nibras user first
+    // Check competitions user object first (has .name field from competitions login)
     try {
-        const cachedUser = JSON.parse(localStorage.getItem('nibras_user') || localStorage.getItem('user') || 'null');
-        if (cachedUser && cachedUser.login) {
-            return cachedUser.login; // New API uses 'login' (GitHub username)
+        const competitionsUser = JSON.parse(localStorage.getItem('user') || 'null');
+        if (competitionsUser && competitionsUser.name) {
+            return competitionsUser.name.split(' ')[0];
         }
     } catch (_) {}
 
-    // Try fetching from new tracking session service
+    // Check nibras/tracking cached user
+    try {
+        const cachedUser = JSON.parse(localStorage.getItem('nibras_user') || 'null');
+        if (cachedUser && cachedUser.login) {
+            return cachedUser.login;
+        }
+    } catch (_) {}
+
+    // Try fetching from tracking session service
     try {
         const requestJson = createTrackingRequestJson();
         const sessionData = await requestJson('/v1/web/session', { method: 'GET' });
