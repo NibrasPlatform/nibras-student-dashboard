@@ -363,16 +363,35 @@ window.NibrasReact.run(() => {
                 renderFeedState('loading', 'Loading questions from server...');
             }
 
-            const data = await requestLegacyApi('/questions', { auth: false });
-            console.log('[DEBUG] Questions response:', data);
-            
-            const questionsArray = data?.data?.questions || data?.questions || (Array.isArray(data?.data) ? data.data : []);
+            const allQuestions = [];
+            let page = 1;
+            const limit = 100;
+            let total = Infinity;
 
-            if (Array.isArray(questionsArray)) {
-                communityData.questions = questionsArray;
-            } else {
-                communityData.questions =[];
+            while (allQuestions.length < total) {
+                const data = await requestLegacyApi(`/questions?page=${page}&limit=${limit}`, { auth: false });
+                console.log('[DEBUG] Questions response page', page, ':', data);
+
+                const questionsArray = data?.data?.questions || data?.questions || (Array.isArray(data?.data) ? data.data : []);
+                const pagination = data?.data?.pagination || data?.pagination || {};
+
+                if (pagination.total !== undefined) {
+                    total = pagination.total;
+                }
+
+                if (Array.isArray(questionsArray) && questionsArray.length > 0) {
+                    allQuestions.push(...questionsArray);
+                }
+
+                if (!Array.isArray(questionsArray) || questionsArray.length === 0 || allQuestions.length >= total) {
+                    break;
+                }
+
+                page++;
             }
+
+            communityData.questions = allQuestions;
+            console.log('[DEBUG] Total questions loaded:', communityData.questions.length);
 
             await filterAndRender('Recent', { resetPage: true });
             renderWidgets();
