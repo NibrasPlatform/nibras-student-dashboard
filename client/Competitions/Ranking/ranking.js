@@ -286,8 +286,9 @@
             
             if (data?.verified) {
                 renderVerificationResult(platform, platformName, data);
-                renderProgress('Account verified! Reloading profile...');
                 await loadRankingData();
+                renderStats();
+                renderRankings();
             } else if (data?.status === 'pending' || data?.token) {
                 renderVerificationPending(platform, platformName, data);
             } else {
