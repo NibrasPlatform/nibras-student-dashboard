@@ -152,7 +152,7 @@ function initCourses() {
                 level: course?.level || 'Beginner',
                 deadline: 'No deadline set',
                 isPopular: false,
-                category: course?.category || 'core',
+                category: (course?.category || 'core').toLowerCase(),
                 type: course?.type || 'standard',
             }));
 
