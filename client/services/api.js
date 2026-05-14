@@ -2549,7 +2549,7 @@
          * @returns {Promise<{success: boolean, enoughData: boolean, data: {grades: object}}>}
          */
         async getGrades() {
-            return apiFetch('/ai/grades', {
+            return apiFetch('/courses/grades', {
                 service: 'courses',
                 method: 'GET',
                 auth: true,
