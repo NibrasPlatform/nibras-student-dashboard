@@ -607,9 +607,176 @@ function initDashboard() {
     console.log('[DASHBOARD.JS] Initialization complete');
 }
 
-// Run when DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initDashboard);
-} else {
+// Run when DOM is ready - wrapped in bootstrapReactPage to ensure services are loaded
+const runDashboardInit = () => {
+    // Run the async IIFE that fetches dashboard data
+    (async () => {
+        try {
+            const userName = await resolveUserName();
+            const shared = window.NibrasShared || {};
+            const trackingApiBase =
+                (typeof shared.resolveServiceUrl === 'function' ? shared.resolveServiceUrl('tracking') : null) ||
+                window.NibrasApi?.resolveServiceUrl?.('tracking') ||
+                window.NibrasApiConfig?.getServiceUrl?.('tracking') ||
+                window.NIBRAS_TRACKING_API_URL ||
+                window.NIBRAS_API_URL ||
+                (/^https?:/i.test(window.location?.origin || '') ? window.location.origin.replace(/\/+$/, '') : '');
+
+            const requestJson = shared.apiFetch
+                ? shared.apiFetch.bind(shared)
+                : async (path, options = {}) => {
+                    const headers = Object.assign({ 'Content-Type': 'application/json' }, options.headers || {});
+                    const token = shared?.auth?.getToken?.() ||
+                      window.NibrasApi?.getToken?.() ||
+                      null;
+                    if (token) {
+                      headers.Authorization = `Bearer ${token}`;
+                    }
+                    const response = await fetch(`${trackingApiBase}${path}`, {
+                      method: options.method || 'GET',
+                      headers,
+                      body: options.body,
+                    });
+                    const payload = await response.json();
+                    if (!response.ok) {
+                      const error = new Error(payload?.message || `Request failed (${response.status})`);
+                      error.status = response.status;
+                      error.payload = payload;
+                      throw error;
+                    }
+                    return payload;
+                };
+
+            // Load courses for switcher
+            await loadCourseSwitcher();
+
+            // Try new courses backend first, fall back to tracking if it fails
+            let dashboardPayload;
+            let dashboardSource = 'tracking';
+            try {
+                const coursesResponse = await fetchDashboardFromCoursesBackend();
+                dashboardPayload = transformCoursesDashboardToDashboard(coursesResponse);
+                dashboardSource = 'courses';
+                console.log('[DASHBOARD.JS] Using new courses backend');
+            } catch (coursesError) {
+                console.warn('[DASHBOARD.JS] Courses backend unavailable, falling back to tracking:', coursesError.message);
+                // Fall back to tracking backend
+                const courseId = selectedCourseId;
+                let path = '/v1/tracking/dashboard/student';
+                if (courseId) {
+                    path += `?courseId=${encodeURIComponent(courseId)}`;
+                }
+                dashboardPayload = await requestJson(path, { method: 'GET' });
+            }
+
+            // Process the dashboardPayload to build dashboardData
+            let courseCount = 0;
+            let totalMilestones = 0;
+            let approvedMilestones = 0;
+
+            const projects = dashboardPayload.projects || [];
+
+            courseCount = projects.length;
+
+            projects.forEach(project => {
+                const stats = project.stats || {};
+                totalMilestones += stats.total || 0;
+                approvedMilestones += stats.approved || 0;
+            });
+
+            const statsArray = [
+                { label: "Courses Enrolled", value: courseCount, icon: "fa-solid fa-book-bookmark", color: "pink" },
+                { label: "Milestones Completed", value: approvedMilestones, icon: "fa-solid fa-bullseye", color: "orange" },
+                { label: "Total Milestones", value: totalMilestones, icon: "fa-solid fa-heart", color: "green" },
+                { label: "Study Streak", value: "12 days", icon: "fa-regular fa-clock", color: "blue" },
+                {
+                    label: dashboardSource === 'courses' ? "Overall Progress" : "Total GPA",
+                    value: dashboardSource === 'courses' ? `${dashboardPayload.stats?.overallProgress || 0}%` : (savedGPA ? `${savedGPA}/4.0` : "Calculate"),
+                    icon: "fa-solid fa-graduation-cap",
+                    color: "purple",
+                    id: dashboardSource !== 'courses' ? "gpa-box" : undefined,
+                    isClickable: dashboardSource !== 'courses'
+                }
+            ];
+
+            // Flatten milestones from all projects and take first 3
+            const allMilestones = [];
+            projects.forEach(project => {
+                (project.milestones || []).forEach(milestone => {
+                    allMilestones.push(milestone);
+                });
+            });
+
+            const dashboardMilestones = allMilestones.slice(0, 3).map(milestone => {
+                let statusLabel = milestone.status || 'pending';
+                let statusColor = '#6b7280';
+                let completedPercent = 0;
+
+                switch (statusLabel) {
+                    case 'approved':
+                    case 'complete':
+                        statusLabel = 'Complete';
+                        statusColor = '#10b981';
+                        completedPercent = 100;
+                        break;
+                    case 'in_review':
+                        statusLabel = 'In Review';
+                        statusColor = '#10b981';
+                        completedPercent = 0;
+                        break;
+                    case 'needs_changes':
+                        statusLabel = 'Needs Changes';
+                        statusColor = '#f97316';
+                        completedPercent = 0;
+                        break;
+                    case 'pending':
+                    default:
+                        statusLabel = 'Pending';
+                        statusColor = '#6b7280';
+                        completedPercent = 0;
+                        break;
+                }
+
+                return {
+                    title: milestone.title || 'Milestone',
+                    completed: completedPercent,
+                    status: statusLabel,
+                    color: statusColor,
+                    due: milestone.dueLabel || 'TBD'
+                };
+            });
+
+            dashboardData = {
+                user: userName,
+                stats: statsArray,
+                milestones: dashboardMilestones,
+                activities: [],
+                progress: [],
+                deadlines: [],
+                achievements: []
+            };
+
+            renderDashboard(dashboardData);
+        } catch (error) {
+            console.warn('[DASHBOARD.JS] Failed to fetch dashboard data, using hardcoded data:', error);
+            // Fallback to hardcoded dashboardData
+            const userName = await resolveUserName();
+            dashboardData.user = userName;
+            renderDashboard(dashboardData);
+        }
+    })();
+
+    // Also run initDashboard for the UI initialization
     initDashboard();
+};
+
+if (typeof window.bootstrapReactPage === 'function') {
+    window.bootstrapReactPage(runDashboardInit);
+} else {
+    // Fallback if bootstrapReactPage not available
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', runDashboardInit);
+    } else {
+        runDashboardInit();
+    }
 }
