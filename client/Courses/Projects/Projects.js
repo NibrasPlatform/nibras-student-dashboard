@@ -393,6 +393,17 @@ window.loadCliGuide = function () {
     if (statusIcon) statusIcon.style.background = '#6b7280';
     if (statusText) statusText.textContent = 'Checking connection...';
 
+    var actionsRow = document.getElementById('cli-actions-row');
+    if (actionsRow) {
+        actionsRow.querySelectorAll('[data-cli-action]').forEach(function (btn) {
+            btn.onclick = null;
+            var action = btn.getAttribute('data-cli-action');
+            if (action === 'link-github' && typeof window.linkCliGitHub === 'function') btn.onclick = window.linkCliGitHub;
+            else if (action === 'check-github' && typeof window.checkCliGitHubStatus === 'function') btn.onclick = window.checkCliGitHubStatus;
+            else if (action === 'ping-api' && typeof window.checkCliApiPing === 'function') btn.onclick = window.checkCliApiPing;
+        });
+    }
+
     var services = window.NibrasServices;
     if (!services || !services.authService) {
         if (statusText) statusText.textContent = 'Services not loaded. Please refresh.';
@@ -463,6 +474,7 @@ window.checkCliApiPing = function () {
 window.linkCliGitHub = function () {
     var result = document.getElementById('cli-verify-result');
     if (result) result.textContent = 'Opening GitHub...';
+    var returnTo = encodeURIComponent(window.location.href);
     var cliBase = resolveCliBaseUrl();
     var raw = String(window.NibrasShared?.resolveServiceUrl?.('tracking') || window.NIBRAS_TRACKING_API_URL || '').trim();
     var candidates = [];
@@ -473,13 +485,13 @@ window.linkCliGitHub = function () {
 
     function tryConnect(idx) {
         if (idx >= candidates.length) {
-            window.location.href = candidates[0] + '/v1/github/oauth/start';
+            window.location.href = candidates[0] + '/v1/github/oauth/start?return_to=' + returnTo;
             return;
         }
         var base = candidates[idx];
-        fetch(base + '/v1/github/config', { method: 'GET' }).then(function (r) {
+        fetch(base + '/v1/github/config', { method: 'GET', headers: { Accept: 'application/json' } }).then(function (r) {
             if (r.status !== 404) {
-                window.location.href = base + '/v1/github/oauth/start';
+                window.location.href = base + '/v1/github/oauth/start?return_to=' + returnTo;
             } else {
                 tryConnect(idx + 1);
             }
