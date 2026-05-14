@@ -86,51 +86,59 @@ function initCourses() {
     }
 
     async function hydrateCoursesFromAdmin() {
-        // Fetch all courses directly from backend API
-        const coursesService = window.NibrasServices?.coursesService;
-        if (coursesService && typeof coursesService.list === 'function') {
-            try {
-                const response = await coursesService.list({ page: 1, limit: 100 });
-                const rawList = Array.isArray(response?.data)
-                    ? response.data
-                    : (Array.isArray(response?.data?.courses)
-                        ? response.data.courses
-                        : (Array.isArray(response?.courses) ? response.courses : []));
-                if (rawList.length > 0) {
-                    coursesData = rawList.map((course, index) => ({
-                        id: course?._id || course?.id || `remote-course-${index + 1}`,
-                        title: course?.title || `Course ${index + 1}`,
-                        instructor: course?.instructor?.name || course?.instructorName || 'Instructor',
-                        progress: Number.isFinite(Number(course?.progressPercentage))
-                            ? Math.max(0, Math.min(100, Number(course.progressPercentage)))
-                            : 0,
-                        rating: Number.isFinite(Number(course?.rating)) ? Number(course.rating) : 0,
-                        level: course?.level || 'Beginner',
-                        deadline: course?.deadline || 'No deadline set',
-                        isPopular: Boolean(course?.isPopular),
-                        category: course?.category || 'core',
-                        type: course?.type || 'standard',
-                    }));
-                    filterAndRender(activeCategory);
-                    return;
-                }
-            } catch (error) {
-                console.warn('[COURSES.JS] Failed to hydrate from backend API:', error?.message || error);
-            }
-        }
-
-        // Fallback: admin merged courses (local + mapped backend)
+        // Step 1: Get admin merged courses (preserves local IDs for navigation)
         const loadAdminCourses = window.NibrasCourses?.getAdminCoursesList;
-        if (typeof loadAdminCourses === 'function') {
-            try {
-                const remoteCourses = await loadAdminCourses();
-                if (Array.isArray(remoteCourses) && remoteCourses.length > 0) {
-                    coursesData = remoteCourses.filter((course) => course.type === "practice_lab" || course.level === "Beginner");
-                    filterAndRender(activeCategory);
-                }
-            } catch (error) {
-                console.warn('[COURSES.JS] Failed to hydrate from mapped courses backend:', error?.message || error);
+        if (typeof loadAdminCourses !== 'function') return;
+
+        try {
+            const adminCourses = await loadAdminCourses();
+            if (!Array.isArray(adminCourses) || !adminCourses.length) return;
+
+            // Keep only courses with a backend mapping (id, level, category from backend)
+            const mappedCourses = adminCourses.filter(c => c.adminCourseId || c.backendCourseId || c.remoteCourseId);
+
+            // Step 2: Fetch all backend courses to add any unmapped ones
+            const coursesService = window.NibrasServices?.coursesService;
+            const backendCourses = {};
+            if (coursesService && typeof coursesService.list === 'function') {
+                try {
+                    const response = await coursesService.list({ page: 1, limit: 100 });
+                    const rawList = Array.isArray(response?.data)
+                        ? response.data
+                        : (Array.isArray(response?.data?.courses)
+                            ? response.data.courses
+                            : (Array.isArray(response?.courses) ? response.courses : []));
+                    rawList.forEach(c => {
+                        const bid = c?._id || c?.id;
+                        if (bid) backendCourses[bid] = c;
+                    });
+                } catch (_) {}
             }
+
+            // Remove backend IDs already covered by mapped courses
+            mappedCourses.forEach(c => {
+                const bid = c.adminCourseId || c.backendCourseId || c.remoteCourseId;
+                if (bid && backendCourses[bid]) delete backendCourses[bid];
+            });
+
+            // Add unmapped backend courses (with level/type from backend)
+            const extraCourses = Object.values(backendCourses).map(course => ({
+                id: course?._id || course?.id,
+                title: course?.title || 'Untitled',
+                instructor: course?.instructor?.name || course?.instructorName || 'Instructor',
+                progress: 0,
+                rating: 0,
+                level: course?.level || 'Beginner',
+                deadline: 'No deadline set',
+                isPopular: false,
+                category: course?.category || 'core',
+                type: course?.type || 'standard',
+            }));
+
+            coursesData = [...mappedCourses, ...extraCourses];
+            filterAndRender(activeCategory);
+        } catch (error) {
+            console.warn('[COURSES.JS] Failed to hydrate:', error?.message || error);
         }
     }
 
