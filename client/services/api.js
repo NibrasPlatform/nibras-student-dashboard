@@ -2518,7 +2518,7 @@
          * @returns {Promise<{success: boolean, data: object}>}
          */
         async createSubmission(data) {
-            return apiFetch('/submissions', {
+            return apiFetch('/courses/submissions', {
                 service: 'courses',
                 method: 'POST',
                 auth: true,
@@ -2535,7 +2535,7 @@
          */
         async updateSubmissionStatus(submissionId, data) {
             const body = typeof data === 'string' ? { status: data } : data;
-            return apiFetch(`/submissions/${encodeURIComponent(String(submissionId))}/status`, {
+            return apiFetch(`/courses/submissions/${encodeURIComponent(String(submissionId))}/status`, {
                 service: 'courses',
                 method: 'PATCH',
                 auth: true,

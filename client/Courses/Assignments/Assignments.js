@@ -330,31 +330,91 @@ window.NibrasReact.run(() => {
 
     async function hydrateAssignmentsFromAdmin() {
         const loadAssignments = window.NibrasCourses?.getAdminAssignmentsByCourseId;
-        if (typeof loadAssignments !== 'function') return;
-        
-        // Don't show loading notice if we already have local data
+        if (typeof loadAssignments === 'function') {
+            if (!assignmentData.items || assignmentData.items.length === 0) {
+                setAssignmentsNotice('Loading assignments from the backend...', 'loading');
+            }
+            try {
+                const remoteAssignments = await loadAssignments(courseId);
+                if (remoteAssignments && Array.isArray(remoteAssignments.items) && remoteAssignments.items.length > 0) {
+                    assignmentData = JSON.parse(JSON.stringify(remoteAssignments));
+                    assignmentData.items = assignmentData.items.map((item) => ({
+                        ...item,
+                        page: item.page || "./Assignments Content/AssignmentContent.html",
+                        milestoneId: item.milestoneId || item.id || `ms-${item.title}`
+                    }));
+                    syncStats();
+                    renderAssignments(activeFilter);
+                    setAssignmentsNotice('');
+                    return;
+                }
+            } catch (error) {
+                console.warn('[ASSIGNMENTS.JS] Admin hydrate failed:', error?.message || error);
+            }
+        }
+
+        // Fallback: fetch from backend assignments API
+        const assignmentsService = window.NibrasServices?.backendCoursesService;
+        if (!assignmentsService || typeof assignmentsService.getAssignments !== 'function') {
+            setAssignmentsNotice('');
+            return;
+        }
+
         if (!assignmentData.items || assignmentData.items.length === 0) {
             setAssignmentsNotice('Loading assignments from the backend...', 'loading');
         }
-        
+
         try {
-            const remoteAssignments = await loadAssignments(courseId);
-            if (!remoteAssignments || !Array.isArray(remoteAssignments.items) || remoteAssignments.items.length === 0) {
-                console.log('[ASSIGNMENTS.JS] No remote items found, staying with local data');
+            const response = await assignmentsService.getAssignments(courseId);
+            let items = Array.isArray(response?.data) ? response.data : [];
+            if (!items.length) {
+                console.log('[ASSIGNMENTS.JS] No backend assignments found');
+                setAssignmentsNotice('');
                 return;
             }
-            assignmentData = JSON.parse(JSON.stringify(remoteAssignments));
-            assignmentData.items = assignmentData.items.map((item) => ({
-                ...item,
-                page: item.page || "./Assignments Content/AssignmentContent.html",
-                milestoneId: item.milestoneId || item.id || `ms-${item.title}` // Ensure milestoneId exists
-            }));
+
+            const mapped = items.map((item) => {
+                const due = item.dueDate ? new Date(item.dueDate) : null;
+                const dueDateStr = due ? due.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'TBD';
+                const dueTimeStr = due ? due.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '';
+
+                return {
+                    id: item._id || item.id,
+                    backendAssignmentId: item._id || item.id,
+                    title: item.title || 'Untitled Assignment',
+                    description: item.description || '',
+                    dueDate: dueDateStr,
+                    dueTime: dueTimeStr,
+                    status: 'pending',
+                    statusLabel: 'Pending',
+                    points: item.maxScore || item.points || 100,
+                    score: null,
+                    type: 'File Upload',
+                    action: 'Start Assignment',
+                    page: "./Assignments Content/AssignmentContent.html",
+                    milestoneId: item._id || `ms-${item.title}`,
+                };
+            });
+
+            const total = mapped.length;
+            const totalPoints = mapped.reduce((sum, a) => sum + a.points, 0);
+
+            assignmentData = {
+                items: mapped,
+                stats: {
+                    total,
+                    completed: 0,
+                    pointsEarned: 0,
+                    pointsTotal: totalPoints,
+                    progressPercent: 0,
+                },
+            };
+
             syncStats();
             renderAssignments(activeFilter);
             setAssignmentsNotice('');
         } catch (error) {
-            console.warn('[ASSIGNMENTS.JS] Failed to hydrate assignments:', error?.message || error);
-            // On error, just clear the loading notice and keep the local data
+            console.warn('[ASSIGNMENTS.JS] Failed to fetch from backend:', error?.message || error);
             setAssignmentsNotice('');
         }
     }
