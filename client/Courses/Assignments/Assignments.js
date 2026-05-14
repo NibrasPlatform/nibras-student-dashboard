@@ -49,13 +49,13 @@ window.NibrasReact.run(() => {
     }
 
     // --- 1. SIDEBAR NAVIGATION LOGIC (New Addition) ---
-    const navLinks = document.querySelectorAll('.nav-link');
+    const sidebarNavLinks = document.querySelectorAll('.nav-link');
     
-    navLinks.forEach(link => {
+    sidebarNavLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             
             // Remove 'active' class from all links
-            navLinks.forEach(nav => nav.classList.remove('active'));
+            sidebarNavLinks.forEach(nav => nav.classList.remove('active'));
             
             // Add 'active' class to the clicked link
             link.classList.add('active');
@@ -293,6 +293,9 @@ window.NibrasReact.run(() => {
 
     function buildAssignmentDetail(item) {
         return {
+            assignmentId: item.id || null,
+            backendAssignmentId: item.backendAssignmentId || null,
+            backendCourseId: selectedCourse.adminCourseId || selectedCourse.backendCourseId || null,
             title: item.title,
             points: item.points,
             scoreEarned: item.score ?? 0,
@@ -300,6 +303,7 @@ window.NibrasReact.run(() => {
             dueDate: item.dueDate,
             dueTime: item.dueTime,
             submissionType: item.type,
+            status: item.status || 'not_started',
             milestoneId: item.milestoneId || item.id || `ms-${item.title}`,
             projectKey: item.projectKey || `${courseId}-project-1`,
             instructions: {

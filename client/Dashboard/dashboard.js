@@ -118,14 +118,59 @@ async function fetchDashboardData(courseId) {
 // Fetch from new courses backend (GitHub backend: Dummy-Nibras)
 async function fetchDashboardFromCoursesBackend() {
     const coursesService = window.NibrasServices?.coursesService;
-    if (!coursesService || typeof coursesService.getDashboard !== 'function') {
+    if (!coursesService) {
         throw new Error('Courses service unavailable');
     }
-    const response = await coursesService.getDashboard();
-    if (!response?.success) {
-        throw new Error(response?.message || 'Courses backend returned unsuccessful response');
+
+    if (typeof coursesService.getDashboard === 'function') {
+        try {
+            const response = await coursesService.getDashboard();
+            if (response?.success && response?.data) {
+                return response.data;
+            }
+        } catch (error) {
+            console.warn('[DASHBOARD.JS] /courses/my-dashboard unavailable, falling back to list/global progress:', error?.message || error);
+        }
     }
-    return response.data;
+
+    if (typeof coursesService.list !== 'function') {
+        throw new Error('Courses list endpoint unavailable');
+    }
+
+    const coursesResponse = await coursesService.list({ page: 1, limit: 100 });
+    const courses = Array.isArray(coursesResponse?.data)
+        ? coursesResponse.data
+        : (Array.isArray(coursesResponse?.data?.courses)
+            ? coursesResponse.data.courses
+            : (Array.isArray(coursesResponse?.courses) ? coursesResponse.courses : []));
+
+    let overallProgress = 0;
+    if (typeof coursesService.getGlobalProgress === 'function') {
+        try {
+            const globalProgressResponse = await coursesService.getGlobalProgress();
+            const progressPayload = globalProgressResponse?.data || globalProgressResponse || {};
+            const value = Number(progressPayload.overallPercentage);
+            if (Number.isFinite(value)) {
+                overallProgress = Math.max(0, Math.min(100, Math.round(value)));
+            }
+        } catch (error) {
+            console.warn('[DASHBOARD.JS] /courses/progress/global unavailable:', error?.message || error);
+        }
+    }
+
+    return {
+        stats: {
+            coursesEnrolled: courses.length,
+            overallProgress,
+        },
+        courses: courses.map((course) => ({
+            _id: course?._id || course?.id || '',
+            title: course?.title || course?.name || 'Untitled Course',
+            assignmentsCount: Array.isArray(course?.assignments)
+                ? course.assignments.length
+                : (Number.isFinite(Number(course?.assignmentsCount)) ? Number(course.assignmentsCount) : 0),
+        })),
+    };
 }
 
 // Transform courses backend response to match dashboard format

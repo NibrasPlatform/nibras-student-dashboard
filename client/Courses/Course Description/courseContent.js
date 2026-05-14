@@ -74,6 +74,7 @@ window.NibrasReact.run(() => {
     setCourseLinks();
     populateDashboard(courseData, selectedCourse);
     hydrateOverviewFromAdmin();
+    hydrateProgressFromCoursesBackend();
 
     function populateDashboard(data, selected) {
         setText("header-code", data.code);
@@ -206,6 +207,47 @@ window.NibrasReact.run(() => {
             }
         } catch (error) {
             console.warn("[COURSE-CONTENT] Failed to hydrate overview from admin backend:", error?.message || error);
+        }
+    }
+
+    async function hydrateProgressFromCoursesBackend() {
+        const coursesService = window.NibrasServices?.coursesService;
+        const backendCourseId = selectedCourse?.adminCourseId || selectedCourse?.backendCourseId || null;
+
+        if (!coursesService || typeof coursesService.getProgress !== "function" || !backendCourseId) {
+            return;
+        }
+
+        try {
+            const payload = await coursesService.getProgress(backendCourseId);
+            const progress = payload?.data || payload;
+            if (!progress || typeof progress !== "object") return;
+
+            const percentage = Number(progress.percentage);
+            if (Number.isFinite(percentage)) {
+                const clamped = Math.max(0, Math.min(100, percentage));
+                setText("progress-percent-text", `${clamped}%`);
+                const progressFillMain = document.getElementById("progress-fill-main");
+                if (progressFillMain) {
+                    progressFillMain.style.width = `${clamped}%`;
+                }
+            }
+
+            const sectionItems = Array.isArray(progress.items)
+                ? progress.items.filter((item) => item?.itemType === "section")
+                : [];
+            const completedSections = Array.isArray(progress.completedSections)
+                ? progress.completedSections.length
+                : 0;
+            if (sectionItems.length > 0) {
+                setText("sidebar-progress-text", `${completedSections} of ${sectionItems.length} lectures completed`);
+            }
+        } catch (error) {
+            if (Number(error?.status) === 404) {
+                console.warn("[COURSE-CONTENT] Progress routes are not mounted on this deployment yet.");
+                return;
+            }
+            console.warn("[COURSE-CONTENT] Failed to hydrate progress from courses backend:", error?.message || error);
         }
     }
 });

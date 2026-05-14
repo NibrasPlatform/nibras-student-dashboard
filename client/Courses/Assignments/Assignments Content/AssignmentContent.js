@@ -46,10 +46,10 @@ window.NibrasReact.run(() => {
     let pollingInterval = null;
 
     // --- 1. SIDEBAR NAVIGATION LOGIC ---
-    const navLinks = document.querySelectorAll('.nav-link');
-    navLinks.forEach(link => {
+    const sidebarNavLinks = document.querySelectorAll('.nav-link');
+    sidebarNavLinks.forEach(link => {
         link.addEventListener('click', (e) => {
-            navLinks.forEach(nav => nav.classList.remove('active'));
+            sidebarNavLinks.forEach(nav => nav.classList.remove('active'));
             link.classList.add('active');
         });
     });
@@ -61,6 +61,37 @@ window.NibrasReact.run(() => {
     const commitShaInput = document.getElementById('submission-commit-sha');
     const pulseCard = document.getElementById('submission-pulse');
     const submitSection = document.getElementById('submit-section');
+
+    async function submitToCoursesBackend(repoUrl) {
+        const coursesService = window.NibrasServices?.coursesService;
+        const backendCourseId = selectedCourse?.adminCourseId || selectedCourse?.backendCourseId || data?.backendCourseId || null;
+        const backendAssignmentId = data?.backendAssignmentId || null;
+
+        if (
+            !coursesService ||
+            typeof coursesService.createSubmission !== 'function' ||
+            !backendCourseId ||
+            !backendAssignmentId
+        ) {
+            return { submitted: false, submissionId: null };
+        }
+
+        try {
+            const payload = await coursesService.createSubmission({
+                courseId: String(backendCourseId),
+                assignmentId: String(backendAssignmentId),
+                githubLink: repoUrl,
+            });
+            const submission = payload?.data || payload || {};
+            const submissionId = submission?._id || submission?.id || null;
+            return { submitted: true, submissionId };
+        } catch (error) {
+            if (Number(error?.status) === 404) {
+                return { submitted: false, submissionId: null };
+            }
+            throw error;
+        }
+    }
 
     if (btnSubmit) {
         btnSubmit.addEventListener('click', async () => {
@@ -74,26 +105,53 @@ window.NibrasReact.run(() => {
                 btnSubmit.disabled = true;
                 btnSubmit.textContent = 'Submitting...';
 
-                // Submit to backend
-                const result = await projectsClient.submitMilestone({
-                    milestoneId: data.milestoneId || 'default-milestone', // Fallback if data doesn't have it
-                    courseId: courseId,
-                    projectKey: String(data.projectKey || ''),
-                    submissionType: 'github',
-                    resourceLink: repoUrl,
-                    branch: String(branchInput?.value || 'main').trim() || 'main',
-                    commitSha: String(commitShaInput?.value || '').trim()
-                });
+                const coursesSubmission = await submitToCoursesBackend(repoUrl);
 
-                if (result.ok) {
-                    if (result.data?.submissionId && data?.milestoneId) {
-                        localStorage.setItem(`last_sub_${data.milestoneId}`, String(result.data.submissionId));
+                let trackingSubmissionResult = null;
+                if (projectsClient && typeof projectsClient.submitMilestone === 'function') {
+                    try {
+                        trackingSubmissionResult = await projectsClient.submitMilestone({
+                            milestoneId: data.milestoneId || 'default-milestone',
+                            courseId: courseId,
+                            projectKey: String(data.projectKey || ''),
+                            submissionType: 'github',
+                            resourceLink: repoUrl,
+                            branch: String(branchInput?.value || 'main').trim() || 'main',
+                            commitSha: String(commitShaInput?.value || '').trim()
+                        });
+                    } catch (trackingError) {
+                        if (!coursesSubmission.submitted) {
+                            throw trackingError;
+                        }
                     }
-                    // Switch UI to Pulse mode
+                }
+
+                if (trackingSubmissionResult?.ok) {
+                    if (trackingSubmissionResult.data?.submissionId && data?.milestoneId) {
+                        localStorage.setItem(`last_sub_${data.milestoneId}`, String(trackingSubmissionResult.data.submissionId));
+                    }
                     submitSection.style.display = 'none';
                     pulseCard.classList.add('active');
-                    startPolling(result.data.submissionId);
+                    if (trackingSubmissionResult.data?.submissionId) {
+                        startPolling(trackingSubmissionResult.data.submissionId);
+                    } else {
+                        updatePulseUI('queued');
+                    }
+                    return;
                 }
+
+                if (coursesSubmission.submitted) {
+                    if (coursesSubmission.submissionId && data?.milestoneId) {
+                        localStorage.setItem(`last_sub_${data.milestoneId}`, String(coursesSubmission.submissionId));
+                    }
+                    submitSection.style.display = 'none';
+                    pulseCard.classList.add('active');
+                    updatePulseUI('queued');
+                    btnSubmit.textContent = 'Submitted';
+                    return;
+                }
+
+                throw new Error('Submission endpoint is currently unavailable.');
             } catch (err) {
                 console.error('Submission failed:', err);
                 alert(`Submission failed: ${err.message}`);

@@ -2344,25 +2344,15 @@
     };
 
     // ============================================================
-    // Courses Service (GitHub backend: Dummy-Nibras)
+    // Courses Service (Nibras-Backend GitHub: Railway)
+    // Base: https://nibras-backend.up.railway.app/api/courses
     // ============================================================
     const coursesService = {
         /**
-         * Get student dashboard with stats and enrolled courses
-         * @returns {Promise<{success: boolean, data: {stats: object, courses: Array}}>}
-         */
-        async getDashboard() {
-            return apiFetch('/courses/my-dashboard', {
-                service: 'courses',
-                method: 'GET',
-                auth: true,
-            });
-        },
-
-        /**
-         * List all courses with optional filters
-         * @param {object} filters - { level, category, search, page, limit, sortBy, sortOrder }
-         * @returns {Promise<{success: boolean, data: {courses: Array}}>}
+         * List all courses with pagination and search
+         * Backend: GET /courses
+         * @param {object} filters - { page, limit, search, sortBy, sortOrder, instructorId }
+         * @returns {Promise<{success: boolean, data: {items: Array}, meta: object}>}
          */
         async list(filters = {}) {
             return apiFetch(`/courses${toQueryString(filters)}`, {
@@ -2373,9 +2363,10 @@
         },
 
         /**
-         * Get a course by ID
+         * Get a course by ID with sections and instructor
+         * Backend: GET /courses/:courseId
          * @param {string} courseId
-         * @returns {Promise<{success: boolean, data: {course: object}>}
+         * @returns {Promise<{success: boolean, data: object}>}
          */
         async getById(courseId) {
             return apiFetch(`/courses/${encodeURIComponent(String(courseId))}`, {
@@ -2386,9 +2377,10 @@
         },
 
         /**
-         * Get a course by course code
-         * @param {string} code - Course code (e.g., 'CS106A')
-         * @returns {Promise<{success: boolean, data: {course: object}>}
+         * Get a course by course code.
+         * Backend (if mounted): GET /courses/code/:code
+         * @param {string} code
+         * @returns {Promise<{success: boolean, data: object}>}
          */
         async getByCode(code) {
             return apiFetch(`/courses/code/${encodeURIComponent(String(code).toLowerCase())}`, {
@@ -2399,9 +2391,10 @@
         },
 
         /**
-         * Get courses filtered by academic level
-         * @param {string} level - 'Beginner', 'Intermediate', or 'Advanced'
-         * @returns {Promise<{success: boolean, data: {courses: Array}>}
+         * Get courses by level.
+         * Backend (if mounted): GET /courses/level/:level
+         * @param {string} level
+         * @returns {Promise<{success: boolean, data: object}>}
          */
         async getByLevel(level) {
             return apiFetch(`/courses/level/${encodeURIComponent(String(level))}`, {
@@ -2412,9 +2405,72 @@
         },
 
         /**
+         * Get student dashboard summary - workaround using list + global progress.
+         * Since /courses/my-dashboard doesn't exist in backend, we fetch courses
+         * and global progress separately and combine them.
+         * @returns {Promise<{success: boolean, data: object}>}
+         */
+        async getDashboard() {
+            try {
+                const [coursesResponse, globalProgressResponse] = await Promise.all([
+                    this.list({ page: 1, limit: 100 }),
+                    this.getGlobalProgress(),
+                ]);
+
+                const courses = Array.isArray(coursesResponse?.data)
+                    ? coursesResponse.data
+                    : (Array.isArray(coursesResponse?.data?.courses)
+                        ? coursesResponse.data.courses
+                        : (Array.isArray(coursesResponse?.courses) ? coursesResponse.courses : []));
+
+                let overallProgress = 0;
+                const progressData = globalProgressResponse?.data || globalProgressResponse || {};
+                const value = Number(progressData.overallPercentage);
+                if (Number.isFinite(value)) {
+                    overallProgress = Math.max(0, Math.min(100, Math.round(value)));
+                }
+
+                const dashboardData = {
+                    stats: {
+                        coursesEnrolled: courses.length,
+                        overallProgress,
+                    },
+                    courses: courses.map((course) => ({
+                        _id: course?._id || course?.id || '',
+                        title: course?.title || course?.name || 'Untitled Course',
+                        instructorName: course?.instructor?.name || course?.instructorName || 'Instructor',
+                        level: course?.level || 'Beginner',
+                        category: course?.category || 'Core',
+                        progressPercentage: Number.isFinite(Number(course?.progressPercentage))
+                            ? Math.max(0, Math.min(100, Number(course.progressPercentage)))
+                            : 0,
+                        status: course?.status || 'not_started',
+                        assignmentsCount: Array.isArray(course?.assignments)
+                            ? course.assignments.length
+                            : (Number.isFinite(Number(course?.assignmentsCount)) ? Number(course.assignmentsCount) : 0),
+                        hasStarted: course?.status === 'in_progress' || course?.status === 'completed',
+                    })),
+                };
+
+                return {
+                    success: true,
+                    data: dashboardData,
+                };
+            } catch (error) {
+                console.warn('[coursesService.getDashboard] Workaround failed:', error?.message || error);
+                return {
+                    success: false,
+                    data: null,
+                    error: error?.message || 'Failed to load dashboard',
+                };
+            }
+        },
+
+        /**
          * Get current student progress for a course
+         * Backend: GET /courses/:courseId/progress
          * @param {string} courseId
-         * @returns {Promise<{success: boolean, data: {items: Array, percentage: number, status: string}}>}
+         * @returns {Promise<{success: boolean, data: object}>}
          */
         async getProgress(courseId) {
             return apiFetch(`/courses/${encodeURIComponent(String(courseId))}/progress`, {
@@ -2426,23 +2482,26 @@
 
         /**
          * Toggle section completion status
+         * Backend: POST /courses/:courseId/sections/:sectionId/toggle
          * @param {string} courseId
          * @param {string} sectionId
          * @param {boolean} isCompleted
-         * @returns {Promise<{success: boolean, data: {message: string}>}
+         * @param {boolean} watchedAll
+         * @returns {Promise<{success: boolean, data: object}>}
          */
-        async toggleSection(courseId, sectionId, isCompleted) {
+        async toggleSection(courseId, sectionId, isCompleted, watchedAll = false) {
             return apiFetch(`/courses/${encodeURIComponent(String(courseId))}/sections/${encodeURIComponent(String(sectionId))}/toggle`, {
                 service: 'courses',
                 method: 'POST',
                 auth: true,
-                body: { isCompleted },
+                body: { isCompleted, watchedAll },
             });
         },
 
         /**
-         * Get global progress across all courses
-         * @returns {Promise<{success: boolean, data: {averageProgress: number, coursesCount: number}}>}
+         * Get global progress across all enrolled courses
+         * Backend: GET /courses/progress/global
+         * @returns {Promise<{success: boolean, data: object}>}
          */
         async getGlobalProgress() {
             return apiFetch('/courses/progress/global', {
@@ -2453,9 +2512,10 @@
         },
 
         /**
-         * Create or update a student assignment submission
+         * Submit an assignment
+         * Backend: POST /submissions
          * @param {object} data - { courseId, assignmentId, githubLink }
-         * @returns {Promise<{success: boolean, data: {submission: object}}>}
+         * @returns {Promise<{success: boolean, data: object}>}
          */
         async createSubmission(data) {
             return apiFetch('/submissions', {
@@ -2468,21 +2528,24 @@
 
         /**
          * Update submission status (admin/instructor only)
+         * Backend: PATCH /submissions/:submissionId/status
          * @param {string} submissionId
-         * @param {string} status - 'pending', 'approved', or 'needs_changes'
-         * @returns {Promise<{success: boolean, data: {submission: object}}>}
+         * @param {object} data - { status, grade }
+         * @returns {Promise<{success: boolean, data: object}>}
          */
-        async updateSubmissionStatus(submissionId, status) {
+        async updateSubmissionStatus(submissionId, data) {
+            const body = typeof data === 'string' ? { status: data } : data;
             return apiFetch(`/submissions/${encodeURIComponent(String(submissionId))}/status`, {
                 service: 'courses',
                 method: 'PATCH',
                 auth: true,
-                body: { status },
+                body,
             });
         },
 
         /**
-         * Get AI grades for recommendations (only approved submissions)
+         * Get approved grades map used by AI recommendations.
+         * Backend (if mounted): GET /ai/grades
          * @returns {Promise<{success: boolean, enoughData: boolean, data: {grades: object}}>}
          */
         async getGrades() {
@@ -2505,7 +2568,7 @@
          */
         async list(filters = {}) {
             return apiFetch(`/courses${toQueryString(filters)}`, {
-                service: 'admin',
+                service: 'courses',
                 method: 'GET',
                 auth: true,
             });
@@ -2518,7 +2581,7 @@
          */
         async getById(courseId) {
             return apiFetch(`/courses/${encodeURIComponent(String(courseId))}`, {
-                service: 'admin',
+                service: 'courses',
                 method: 'GET',
                 auth: true,
             });
@@ -2531,7 +2594,7 @@
          */
         async getAssignments(courseId) {
             return apiFetch(`/assignments/course/${encodeURIComponent(String(courseId))}`, {
-                service: 'admin',
+                service: 'courses',
                 method: 'GET',
                 auth: true,
             });
@@ -2544,7 +2607,7 @@
          */
         async getAssignmentById(assignmentId) {
             return apiFetch(`/assignments/${encodeURIComponent(String(assignmentId))}`, {
-                service: 'admin',
+                service: 'courses',
                 method: 'GET',
                 auth: true,
             });

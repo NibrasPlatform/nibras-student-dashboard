@@ -86,33 +86,51 @@ function initCourses() {
     }
 
     async function hydrateCoursesFromAdmin() {
-        // Try new courses backend first (GitHub backend: Dummy-Nibras)
-        const coursesService = window.NibrasServices?.coursesService;
-        if (coursesService && typeof coursesService.list === 'function') {
+        const loadAdminCourses = window.NibrasCourses?.getAdminCoursesList;
+        if (typeof loadAdminCourses === 'function') {
             try {
-                const response = await coursesService.list({ page: 1, limit: 100 });
-                if (response?.success && Array.isArray(response.data?.courses)) {
-                    const remoteCourses = response.data.courses;
-                    console.log('[COURSES.JS] Hydrated from courses backend:', remoteCourses.length, 'courses');
+                const remoteCourses = await loadAdminCourses();
+                if (Array.isArray(remoteCourses) && remoteCourses.length > 0) {
                     coursesData = remoteCourses.filter((course) => course.type === "practice_lab" || course.level === "Beginner");
                     filterAndRender(activeCategory);
                     return;
                 }
             } catch (error) {
-                console.warn('[COURSES.JS] Courses backend failed, trying admin:', error?.message || error);
+                console.warn('[COURSES.JS] Failed to hydrate from mapped courses backend:', error?.message || error);
             }
         }
 
-        // Fall back to old admin courses
-        const loadAdminCourses = window.NibrasCourses?.getAdminCoursesList;
-        if (typeof loadAdminCourses !== 'function') return;
+        const coursesService = window.NibrasServices?.coursesService;
+        if (!coursesService || typeof coursesService.list !== 'function') return;
+
         try {
-            const remoteCourses = await loadAdminCourses();
-            if (!Array.isArray(remoteCourses) || remoteCourses.length === 0) return;
-            coursesData = remoteCourses.filter((course) => course.type === "practice_lab" || course.level === "Beginner");
+            const response = await coursesService.list({ page: 1, limit: 100 });
+            const rawList = Array.isArray(response?.data)
+                ? response.data
+                : (Array.isArray(response?.data?.courses)
+                    ? response.data.courses
+                    : (Array.isArray(response?.courses) ? response.courses : []));
+            if (!rawList.length) return;
+
+            const normalized = rawList.map((course, index) => ({
+                id: course?._id || course?.id || `remote-course-${index + 1}`,
+                title: course?.title || `Course ${index + 1}`,
+                instructor: course?.instructor?.name || course?.instructorName || 'Instructor',
+                progress: Number.isFinite(Number(course?.progressPercentage))
+                    ? Math.max(0, Math.min(100, Number(course.progressPercentage)))
+                    : 0,
+                rating: Number.isFinite(Number(course?.rating)) ? Number(course.rating) : 0,
+                level: course?.level || 'Beginner',
+                deadline: course?.deadline || 'No deadline set',
+                isPopular: Boolean(course?.isPopular),
+                category: course?.category || 'core',
+                type: course?.type || 'standard',
+            }));
+
+            coursesData = normalized.filter((course) => course.type === "practice_lab" || course.level === "Beginner");
             filterAndRender(activeCategory);
         } catch (error) {
-            console.warn('[COURSES.JS] Failed to hydrate from admin backend:', error?.message || error);
+            console.warn('[COURSES.JS] Failed to hydrate from courses service list:', error?.message || error);
         }
     }
 

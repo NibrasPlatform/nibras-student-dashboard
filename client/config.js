@@ -38,7 +38,7 @@
   const DEFAULT_TRACKING_API = 'https://nibras-api.fly.dev';
   const DEFAULT_COMPETITIONS_API = 'https://nibras-backend.up.railway.app';
   const DEFAULT_RECOMMENDATION_API = 'https://recommendationmodel-production-0f8e.up.railway.app/api/recommend';
-  const DEFAULT_COURSES_API = 'http://localhost:3000/api';
+  const DEFAULT_COURSES_API = 'https://nibras-backend.up.railway.app/api';
   const DEFAULT_GOOGLE_CLIENT_ID = 'your_google_oauth_client_id';
 
   const params = new URLSearchParams(window.location.search);

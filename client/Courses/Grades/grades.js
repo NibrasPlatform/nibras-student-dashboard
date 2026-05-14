@@ -4,10 +4,10 @@ window.NibrasReact.run(() => {
     const courseId = selectedCourse.id;
 
     // --- 1. SIDEBAR LOGIC ---
-    const navLinks = document.querySelectorAll('.nav-link');
-    navLinks.forEach(link => {
+    const sidebarNavLinks = document.querySelectorAll('.nav-link');
+    sidebarNavLinks.forEach(link => {
         link.addEventListener('click', (e) => {
-            navLinks.forEach(n => n.classList.remove('active'));
+            sidebarNavLinks.forEach(n => n.classList.remove('active'));
             link.classList.add('active');
         });
     });
