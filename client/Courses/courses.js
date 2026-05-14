@@ -95,7 +95,7 @@ function initCourses() {
             if (!Array.isArray(adminCourses) || !adminCourses.length) return;
 
             // Keep only courses with a backend mapping (id, level, category from backend)
-            const mappedCourses = adminCourses.filter(c => c.adminCourseId || c.backendCourseId || c.remoteCourseId);
+            const mappedCourses = adminCourses.filter(c => (c.adminCourseId || c.backendCourseId || c.remoteCourseId) && c.level === 'Beginner');
 
             // Fetch real progress from backend for each mapped course
             const coursesService = window.NibrasServices?.coursesService;
@@ -143,7 +143,9 @@ function initCourses() {
             });
 
             // Add unmapped backend courses (with level/type from backend)
-            const extraCourses = Object.values(backendCourses).map(course => ({
+            const extraCourses = Object.values(backendCourses)
+                .filter(course => course?.level?.toLowerCase() === 'beginner')
+                .map(course => ({
                 id: course?._id || course?.id,
                 title: course?.title || 'Untitled',
                 instructor: course?.instructor?.name || course?.instructorName || 'Instructor',
