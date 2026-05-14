@@ -91,15 +91,81 @@ const initCoursesLogic = () => {
     }
 
     async function hydrateCoursesFromAdmin() {
+        // Step 1: Get admin merged courses (preserves local IDs for navigation)
         const loadAdminCourses = window.NibrasCourses?.getAdminCoursesList;
         if (typeof loadAdminCourses !== 'function') return;
+
         try {
-            const remoteCourses = await loadAdminCourses();
-            if (!Array.isArray(remoteCourses)) return;
-            coursesData = remoteCourses.filter((course) => course.level === 'Intermediate');
+            const adminCourses = await loadAdminCourses();
+            if (!Array.isArray(adminCourses) || !adminCourses.length) return;
+
+            const mappedCourses = adminCourses.filter(
+                c => (c.adminCourseId || c.backendCourseId || c.remoteCourseId) && c.level === 'Intermediate'
+            );
+
+            // Fetch real progress for each mapped course
+            const coursesService = window.NibrasServices?.coursesService;
+            if (coursesService && typeof coursesService.getProgress === 'function') {
+                const progressResults = await Promise.allSettled(
+                    mappedCourses.map(c => {
+                        const bid = c.adminCourseId || c.backendCourseId || c.remoteCourseId;
+                        return bid ? coursesService.getProgress(bid) : Promise.resolve(null);
+                    })
+                );
+                mappedCourses.forEach((c, i) => {
+                    const result = progressResults[i];
+                    if (result.status === 'fulfilled' && result.value) {
+                        const pct = result.value?.data?.percentage
+                            ?? result.value?.percentage
+                            ?? result.value?.data?.overallPercentage;
+                        if (Number.isFinite(Number(pct))) {
+                            c.progress = Math.max(0, Math.min(100, Math.round(Number(pct))));
+                        }
+                    }
+                });
+            }
+
+            // Step 2: Add unmapped backend courses with Intermediate level
+            const backendCourses = {};
+            if (coursesService && typeof coursesService.list === 'function') {
+                try {
+                    const response = await coursesService.list({ page: 1, limit: 100 });
+                    const rawList = Array.isArray(response?.data)
+                        ? response.data
+                        : (Array.isArray(response?.data?.courses)
+                            ? response.data.courses
+                            : (Array.isArray(response?.courses) ? response.courses : []));
+                    rawList.forEach(c => {
+                        const bid = c?._id || c?.id;
+                        if (bid) backendCourses[bid] = c;
+                    });
+                } catch (_) {}
+            }
+
+            mappedCourses.forEach(c => {
+                const bid = c.adminCourseId || c.backendCourseId || c.remoteCourseId;
+                if (bid && backendCourses[bid]) delete backendCourses[bid];
+            });
+
+            const extraCourses = Object.values(backendCourses)
+                .filter(course => course?.level?.toLowerCase() === 'intermediate')
+                .map(course => ({
+                    id: course?._id || course?.id,
+                    title: course?.title || 'Untitled',
+                    instructor: course?.instructor?.name || course?.instructorName || 'Instructor',
+                    progress: 0,
+                    rating: 0,
+                    level: course?.level || 'Intermediate',
+                    deadline: 'No deadline set',
+                    isPopular: false,
+                    category: (course?.category || 'core').toLowerCase(),
+                    type: course?.type || 'standard',
+                }));
+
+            coursesData = [...mappedCourses, ...extraCourses];
             filterAndRender(activeCategory);
         } catch (error) {
-            console.warn('[INTERMEDIATE-COURSES.JS] Failed to hydrate from admin backend:', error?.message || error);
+            console.warn('[INTERMEDIATE-COURSES.JS] Failed to hydrate:', error?.message || error);
         }
     }
 };
