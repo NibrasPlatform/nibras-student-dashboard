@@ -655,12 +655,15 @@
                 </div>
             </div>
 
-            <!-- Verify Buttons -->
+            <!-- Link GitHub & Verify -->
             <div style="margin-bottom:15px;display:flex;gap:10px;flex-wrap:wrap;">
-                <button id="cli-btn-check-github" class="btn btn-outline btn-sm" type="button" onclick="window.checkCliGitHubStatus()" style="padding:8px 16px;font-size:13px;">
-                    <i class="fa-brands fa-github"></i> Check GitHub
+                <button class="btn btn-primary btn-sm" type="button" onclick="window.linkCliGitHub()" style="padding:8px 16px;font-size:13px;">
+                    <i class="fa-brands fa-github"></i> Link GitHub
                 </button>
-                <button id="cli-btn-ping" class="btn btn-outline btn-sm" type="button" onclick="window.checkCliApiPing()" style="padding:8px 16px;font-size:13px;">
+                <button class="btn btn-outline btn-sm" type="button" onclick="window.checkCliGitHubStatus()" style="padding:8px 16px;font-size:13px;">
+                    <i class="fa-solid fa-circle-check"></i> Verify
+                </button>
+                <button class="btn btn-outline btn-sm" type="button" onclick="window.checkCliApiPing()" style="padding:8px 16px;font-size:13px;">
                     <i class="fa-solid fa-plug"></i> Ping API
                 </button>
                 <span id="cli-verify-result" style="color:var(--text-secondary);font-size:13px;align-self:center;"></span>

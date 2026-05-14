@@ -460,6 +460,36 @@ window.checkCliApiPing = function () {
     });
 };
 
+window.linkCliGitHub = function () {
+    var result = document.getElementById('cli-verify-result');
+    if (result) result.textContent = 'Opening GitHub...';
+    var cliBase = resolveCliBaseUrl();
+    var raw = String(window.NibrasShared?.resolveServiceUrl?.('tracking') || window.NIBRAS_TRACKING_API_URL || '').trim();
+    var candidates = [];
+    if (raw) candidates.push(raw.replace(/\/+$/, ''));
+    var adminUrl = String(window.NIBRAS_API_URL || '').replace(/\/+$/, '').replace(/\/api$/, '');
+    if (adminUrl && adminUrl !== raw.replace(/\/+$/, '')) candidates.push(adminUrl);
+    candidates.push(cliBase);
+
+    function tryConnect(idx) {
+        if (idx >= candidates.length) {
+            window.location.href = candidates[0] + '/v1/github/oauth/start';
+            return;
+        }
+        var base = candidates[idx];
+        fetch(base + '/v1/github/config', { method: 'GET' }).then(function (r) {
+            if (r.status !== 404) {
+                window.location.href = base + '/v1/github/oauth/start';
+            } else {
+                tryConnect(idx + 1);
+            }
+        }).catch(function () {
+            tryConnect(idx + 1);
+        });
+    }
+    tryConnect(0);
+};
+
 async function handleMilestoneSubmit(event) {
     event.preventDefault();
     if (!projectsApiClient) return;
