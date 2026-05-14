@@ -230,180 +230,6 @@ function initDashboard() {
 
     // NOTE: renderDashboard is called by the async data fetcher, not here
     // This initDashboard function only handles UI setup (sidebar, theme, etc.)
-}
-
-function renderDashboard(data) {
-    if (!data || !data.stats) {
-        console.warn('[DASHBOARD.JS] renderDashboard called with invalid data:', data);
-        return;
-    }
-
-    const welcomeMsg = document.getElementById('welcome-msg');
-    if (!welcomeMsg) {
-        console.error('[DASHBOARD.JS] ERROR: welcome-msg not found!');
-        return;
-    }
-
-    welcomeMsg.textContent = `Welcome back, ${data.user}!`;
-
-    // Render Stats
-    const statsContainer = document.getElementById('stats-container');
-    statsContainer.innerHTML = '';
-
-    data.stats.forEach(stat => {
-        let bgVar, textVar;
-        if(stat.color === 'pink') { bgVar = 'var(--stat-icon-bg-pink)'; textVar = 'var(--stat-icon-text-pink)'; }
-        if(stat.color === 'orange') { bgVar = 'var(--stat-icon-bg-orange)'; textVar = 'var(--stat-icon-text-orange)'; }
-        if(stat.color === 'green') { bgVar = 'var(--stat-icon-bg-green)'; textVar = 'var(--stat-icon-text-green)'; }
-        if(stat.color === 'blue') { bgVar = 'var(--stat-icon-bg-blue)'; textVar = 'var(--stat-icon-text-blue)'; }
-        if(stat.color === 'purple') { bgVar = 'var(--stat-icon-bg-purple)'; textVar = 'var(--stat-icon-text-purple)'; }
-
-        const pointerClass = stat.isClickable ? 'cursor-pointer' : '';
-        const idAttr = stat.id ? `id="${stat.id}"` : '';
-        const valueId = stat.id ? `id="${stat.id}-value"` : '';
-
-        statsContainer.innerHTML += `
-            <div class="stat-card ${pointerClass}" ${idAttr}>
-                <div class="stat-info">
-                    <span>${stat.label}</span>
-                    <h2 ${valueId}>${stat.value}</h2>
-                </div>
-                <div class="stat-icon" style="background-color: ${bgVar}; color: ${textVar}">
-                    <i class="${stat.icon}"></i>
-                </div>
-            </div>
-        `;
-    });
-
-    console.log('[DASHBOARD.JS] Rendered stats and dashboard');
-    initGPAModal();
-    renderLists(data);
-    renderMilestones(data.milestones);
-}
-
-function renderLists(data) {
-        // Activities
-        const actContainer = document.getElementById('activities-container');
-        actContainer.innerHTML = '';
-        data.activities.forEach(act => {
-            actContainer.innerHTML += `<div class="activity-item" style="border-left-color: ${act.borderColor}"><div class="act-info"><h4>${act.title}</h4><span>${act.sub}</span></div><div class="act-badge" style="background-color: ${act.tagColor}">${act.tag}</div></div>`;
-        });
-
-        // Progress
-        const progContainer = document.getElementById('progress-container');
-        progContainer.innerHTML = '';
-        data.progress.forEach(prog => {
-            progContainer.innerHTML += `<div class="prog-item"><div class="prog-header"><span>${prog.subject}</span><span class="prog-percent">${prog.percent}%</span></div><div class="prog-track"><div class="prog-fill" style="width: ${prog.percent}%"></div></div></div>`;
-        });
-
-        // Deadlines
-        const deadContainer = document.getElementById('deadlines-container');
-        deadContainer.innerHTML = '';
-        data.deadlines.forEach(item => {
-            deadContainer.innerHTML += `<div class="deadline-item"><i class="fa-solid fa-circle bullet"></i><div class="deadline-details"><h4>${item.title}</h4><span class="course-code">${item.code}</span><span class="due-date">${item.date}</span></div></div>`;
-        });
-
-        // Achievements
-        const achieveContainer = document.getElementById('achievements-container');
-        achieveContainer.innerHTML = '';
-        data.achievements.forEach(item => {
-            achieveContainer.innerHTML += `<div class="achieve-item"><i class="${item.icon} achieve-icon"></i><span class="achieve-text">${item.title}</span></div>`;
-        });
-    }
-
-    // Render Milestones
-    function renderMilestones(milestones) {
-        const container = document.getElementById('milestone-container');
-        container.innerHTML = '';
-
-        milestones.forEach(ms => {
-            let statusClass = 'status-track';
-            if(ms.status === 'Reviewing' || ms.completed > 90) statusClass = 'status-completed';
-            if(ms.status === 'At Risk') statusClass = 'status-atrisk';
-
-            container.innerHTML += `
-                <div class="milestone-item">
-                    <div class="ms-header">
-                        <span class="ms-title">${ms.title}</span>
-                        <span class="ms-percentage">${ms.completed}%</span>
-                    </div>
-                    <div class="ms-bar-track">
-                        <div class="ms-bar-fill" style="width: ${ms.completed}%; background-color: ${ms.color}"></div>
-                    </div>
-                    <div class="ms-meta">
-                        <span class="ms-status ${statusClass}">${ms.status}</span>
-                        <span>Due: ${ms.due}</span>
-                    </div>
-                </div>
-            `;
-        });
-    }
-
-    // --- 4. GPA CALCULATOR LOGIC ---
-    function initGPAModal() {
-        const gpaBox = document.getElementById('gpa-box');
-        const gpaModal = document.getElementById('gpaModal');
-        const closeBtn = document.getElementById('closeGpaModal');
-        const addCourseBtn = document.getElementById('addCourseBtn');
-        const calculateBtn = document.getElementById('calculateGpaBtn');
-        const courseInputs = document.getElementById('courseInputs');
-        const gpaResult = document.getElementById('gpaResult');
-        const gpaResultValue = document.getElementById('gpaResultValue');
-        const gpaResultDetails = document.getElementById('gpaResultDetails');
-
-        if (!gpaBox) return;
-
-        gpaBox.addEventListener('click', () => { gpaModal.style.display = 'flex'; });
-        closeBtn.addEventListener('click', () => { gpaModal.style.display = 'none'; });
-        window.addEventListener('click', (e) => { if (e.target === gpaModal) gpaModal.style.display = 'none'; });
-
-        addCourseBtn.addEventListener('click', () => {
-            const row = document.createElement('div');
-            row.className = 'course-input-row';
-            row.innerHTML = `
-                <input type="text" placeholder="Course Name" class="course-name">
-                <select class="course-grade">
-                    <option value="" disabled selected>Grade</option>
-                    <option value="4.0">A</option>
-                    <option value="3.7">A-</option>
-                    <option value="3.3">B+</option>
-                    <option value="3.0">B</option>
-                    <option value="2.7">B-</option>
-                    <option value="2.3">C+</option>
-                    <option value="2.0">C</option>
-                    <option value="1.7">C-</option>
-                    <option value="1.0">D</option>
-                    <option value="0.0">F</option>
-                </select>
-                <input type="number" placeholder="Credits" class="course-credits" min="1" max="6">
-            `;
-            courseInputs.appendChild(row);
-        });
-
-        calculateBtn.addEventListener('click', () => {
-            const rows = document.querySelectorAll('.course-input-row');
-            let totalPoints = 0, totalCredits = 0, count = 0;
-
-            rows.forEach(row => {
-                const grade = parseFloat(row.querySelector('.course-grade').value);
-                const credits = parseInt(row.querySelector('.course-credits').value);
-                if (!isNaN(grade) && !isNaN(credits) && credits > 0) {
-                    totalPoints += (grade * credits);
-                    totalCredits += credits;
-                    count++;
-                }
-            });
-
-            if (count === 0 || totalCredits === 0) { alert("Please enter valid data."); return; }
-
-            const finalGPA = (totalPoints / totalCredits).toFixed(2);
-            gpaResultValue.textContent = finalGPA;
-            gpaResultDetails.innerHTML = `<span>${count} Courses</span> <span>${totalCredits} Credits</span>`;
-            gpaResult.style.display = 'block';
-            document.getElementById('gpa-box-value').textContent = `${finalGPA}/4.0`;
-            localStorage.setItem('calculatedGPA', finalGPA);
-        });
-    }
 
     // --- 5. THEME TOGGLE ---
     console.log('[DASHBOARD.JS] Theme toggle section starting...');
@@ -456,6 +282,179 @@ function renderLists(data) {
     }
 
     console.log('[DASHBOARD.JS] Initialization complete');
+}
+
+function renderDashboard(data) {
+    if (!data || !data.stats) {
+        console.warn('[DASHBOARD.JS] renderDashboard called with invalid data:', data);
+        return;
+    }
+
+    const welcomeMsg = document.getElementById('welcome-msg');
+    if (!welcomeMsg) {
+        console.error('[DASHBOARD.JS] ERROR: welcome-msg not found!');
+        return;
+    }
+
+    welcomeMsg.textContent = `Welcome back, ${data.user}!`;
+
+    // Render Stats
+    const statsContainer = document.getElementById('stats-container');
+    statsContainer.innerHTML = '';
+
+    data.stats.forEach(stat => {
+        let bgVar, textVar;
+        if(stat.color === 'pink') { bgVar = 'var(--stat-icon-bg-pink)'; textVar = 'var(--stat-icon-text-pink)'; }
+        if(stat.color === 'orange') { bgVar = 'var(--stat-icon-bg-orange)'; textVar = 'var(--stat-icon-text-orange)'; }
+        if(stat.color === 'green') { bgVar = 'var(--stat-icon-bg-green)'; textVar = 'var(--stat-icon-text-green)'; }
+        if(stat.color === 'blue') { bgVar = 'var(--stat-icon-bg-blue)'; textVar = 'var(--stat-icon-text-blue)'; }
+        if(stat.color === 'purple') { bgVar = 'var(--stat-icon-bg-purple)'; textVar = 'var(--stat-icon-text-purple)'; }
+
+        const pointerClass = stat.isClickable ? 'cursor-pointer' : '';
+        const idAttr = stat.id ? `id="${stat.id}"` : '';
+        const valueId = stat.id ? `id="${stat.id}-value"` : '';
+
+        statsContainer.innerHTML += `
+            <div class="stat-card ${pointerClass}" ${idAttr}>
+                <div class="stat-info">
+                    <span>${stat.label}</span>
+                    <h2 ${valueId}>${stat.value}</h2>
+                </div>
+                <div class="stat-icon" style="background-color: ${bgVar}; color: ${textVar}">
+                    <i class="${stat.icon}"></i>
+                </div>
+            </div>
+        `;
+    });
+
+    console.log('[DASHBOARD.JS] Rendered stats and dashboard');
+    initGPAModal();
+    renderLists(data);
+    renderMilestones(data.milestones);
+}
+
+function renderLists(data) {
+    // Activities
+    const actContainer = document.getElementById('activities-container');
+    actContainer.innerHTML = '';
+    data.activities.forEach(act => {
+        actContainer.innerHTML += `<div class="activity-item" style="border-left-color: ${act.borderColor}"><div class="act-info"><h4>${act.title}</h4><span>${act.sub}</span></div><div class="act-badge" style="background-color: ${act.tagColor}">${act.tag}</div></div>`;
+    });
+
+    // Progress
+    const progContainer = document.getElementById('progress-container');
+    progContainer.innerHTML = '';
+    data.progress.forEach(prog => {
+        progContainer.innerHTML += `<div class="prog-item"><div class="prog-header"><span>${prog.subject}</span><span class="prog-percent">${prog.percent}%</span></div><div class="prog-track"><div class="prog-fill" style="width: ${prog.percent}%"></div></div></div>`;
+    });
+
+    // Deadlines
+    const deadContainer = document.getElementById('deadlines-container');
+    deadContainer.innerHTML = '';
+    data.deadlines.forEach(item => {
+        deadContainer.innerHTML += `<div class="deadline-item"><i class="fa-solid fa-circle bullet"></i><div class="deadline-details"><h4>${item.title}</h4><span class="course-code">${item.code}</span><span class="due-date">${item.date}</span></div></div>`;
+    });
+
+    // Achievements
+    const achieveContainer = document.getElementById('achievements-container');
+    achieveContainer.innerHTML = '';
+    data.achievements.forEach(item => {
+        achieveContainer.innerHTML += `<div class="achieve-item"><i class="${item.icon} achieve-icon"></i><span class="achieve-text">${item.title}</span></div>`;
+    });
+}
+
+// Render Milestones
+function renderMilestones(milestones) {
+    const container = document.getElementById('milestone-container');
+    container.innerHTML = '';
+
+    milestones.forEach(ms => {
+        let statusClass = 'status-track';
+        if(ms.status === 'Reviewing' || ms.completed > 90) statusClass = 'status-completed';
+        if(ms.status === 'At Risk') statusClass = 'status-atrisk';
+
+        container.innerHTML += `
+            <div class="milestone-item">
+                <div class="ms-header">
+                    <span class="ms-title">${ms.title}</span>
+                    <span class="ms-percentage">${ms.completed}%</span>
+                </div>
+                <div class="ms-bar-track">
+                    <div class="ms-bar-fill" style="width: ${ms.completed}%; background-color: ${ms.color}"></div>
+                </div>
+                <div class="ms-meta">
+                    <span class="ms-status ${statusClass}">${ms.status}</span>
+                    <span>Due: ${ms.due}</span>
+                </div>
+            </div>
+        `;
+    });
+}
+
+// --- 4. GPA CALCULATOR LOGIC ---
+function initGPAModal() {
+    const gpaBox = document.getElementById('gpa-box');
+    const gpaModal = document.getElementById('gpaModal');
+    const closeBtn = document.getElementById('closeGpaModal');
+    const addCourseBtn = document.getElementById('addCourseBtn');
+    const calculateBtn = document.getElementById('calculateGpaBtn');
+    const courseInputs = document.getElementById('courseInputs');
+    const gpaResult = document.getElementById('gpaResult');
+    const gpaResultValue = document.getElementById('gpaResultValue');
+    const gpaResultDetails = document.getElementById('gpaResultDetails');
+
+    if (!gpaBox) return;
+
+    gpaBox.addEventListener('click', () => { gpaModal.style.display = 'flex'; });
+    closeBtn.addEventListener('click', () => { gpaModal.style.display = 'none'; });
+    window.addEventListener('click', (e) => { if (e.target === gpaModal) gpaModal.style.display = 'none'; });
+
+    addCourseBtn.addEventListener('click', () => {
+        const row = document.createElement('div');
+        row.className = 'course-input-row';
+        row.innerHTML = `
+            <input type="text" placeholder="Course Name" class="course-name">
+            <select class="course-grade">
+                <option value="" disabled selected>Grade</option>
+                <option value="4.0">A</option>
+                <option value="3.7">A-</option>
+                <option value="3.3">B+</option>
+                <option value="3.0">B</option>
+                <option value="2.7">B-</option>
+                <option value="2.3">C+</option>
+                <option value="2.0">C</option>
+                <option value="1.7">C-</option>
+                <option value="1.0">D</option>
+                <option value="0.0">F</option>
+            </select>
+            <input type="number" placeholder="Credits" class="course-credits" min="1" max="6">
+        `;
+        courseInputs.appendChild(row);
+    });
+
+    calculateBtn.addEventListener('click', () => {
+        const rows = document.querySelectorAll('.course-input-row');
+        let totalPoints = 0, totalCredits = 0, count = 0;
+
+        rows.forEach(row => {
+            const grade = parseFloat(row.querySelector('.course-grade').value);
+            const credits = parseInt(row.querySelector('.course-credits').value);
+            if (!isNaN(grade) && !isNaN(credits) && credits > 0) {
+                totalPoints += (grade * credits);
+                totalCredits += credits;
+                count++;
+            }
+        });
+
+        if (count === 0 || totalCredits === 0) { alert("Please enter valid data."); return; }
+
+        const finalGPA = (totalPoints / totalCredits).toFixed(2);
+        gpaResultValue.textContent = finalGPA;
+        gpaResultDetails.innerHTML = `<span>${count} Courses</span> <span>${totalCredits} Credits</span>`;
+        gpaResult.style.display = 'block';
+        document.getElementById('gpa-box-value').textContent = `${finalGPA}/4.0`;
+        localStorage.setItem('calculatedGPA', finalGPA);
+    });
 }
 
 // Run when DOM is ready - wrapped in bootstrapReactPage to ensure services are loaded
