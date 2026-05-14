@@ -8,11 +8,16 @@ window.NibrasReact.run(function () {
         });
     });
 
-    var currentState = { period: 'weekly', scope: 'global', page: 1 };
+    var currentState = { period: 'all-time', scope: 'global', page: 1 };
     var userContainer = document.getElementById('user-rank-container');
     var listContainer = document.getElementById('leaderboard-container');
 
     var services = window.NibrasServices;
+
+    function getReputationScore(item) {
+        if (item && item.reputation && item.reputation.total != null) return item.reputation.total;
+        return item.score || 0;
+    }
 
     function loadLeaderboard() {
         var period = currentState.period;
@@ -22,9 +27,11 @@ window.NibrasReact.run(function () {
         Promise.all([
             services.gamificationService.getLeaderboard({ period: period, scope: scope, page: page, limit: 20 }).catch(function () { return null; }),
             services.gamificationService.getMyLeaderboardRank({ period: period, scope: scope }).catch(function () { return null; }),
+            services.reputationService.getMyReputation().catch(function () { return null; }),
         ]).then(function (results) {
             var lbRes = results[0];
             var myRes = results[1];
+            var repRes = results[2];
 
             var lbData = (lbRes && (lbRes.data || lbRes)) || null;
             var myData = (myRes && (myRes.data || myRes)) || null;
@@ -32,6 +39,11 @@ window.NibrasReact.run(function () {
             var entries = (lbData && lbData.entries) || [];
             var currentUser = myData || null;
             var pagination = (lbData && lbData.pagination) || null;
+
+            var totalReputation = 0;
+            if (repRes && repRes.data) totalReputation = repRes.data.total || 0;
+            else if (repRes && repRes.total) totalReputation = repRes.total;
+            if (!totalReputation && currentUser && currentUser.reputation) totalReputation = currentUser.reputation.total || 0;
 
             var storedUser = null;
             try {
@@ -44,11 +56,6 @@ window.NibrasReact.run(function () {
 
             if (userContainer) {
                 var uRank = currentUser && currentUser.rank != null ? currentUser.rank : '-';
-                var uScore = currentUser && currentUser.score != null ? currentUser.score : 0;
-                var uChange = currentUser && currentUser.scoreChange != null ? currentUser.scoreChange : 0;
-                var uChangeType = uChange >= 0 ? 'pos' : 'neg';
-                var uChangeIcon = uChange >= 0 ? '^' : 'v';
-                var uChangeText = (uChange >= 0 ? '^' : 'v') + Math.abs(uChange);
 
                 userContainer.innerHTML = [
                     '<div class="ur-left">',
@@ -57,7 +64,7 @@ window.NibrasReact.run(function () {
                     '<div class="ur-info"><h3>' + escapeHtml(userName) + ' <span class="ur-badge">student</span></h3></div>',
                     '</div>',
                     '<div class="ur-right">',
-                    '<div class="ur-points">' + uScore + ' <span class="change-val ' + uChangeType + '">' + uChangeText + '</span></div>',
+                    '<div class="ur-points">' + totalReputation + '</div>',
                     '<span class="ur-sub">reputation points</span>',
                     '</div>',
                 ].join('');
@@ -74,15 +81,18 @@ window.NibrasReact.run(function () {
                     var rank = item.rank || 0;
                     var entryName = (item.userId && item.userId.name) || item.name || 'User';
                     var initials = entryName.split(' ').map(function (w) { return w.charAt(0); }).join('').toUpperCase().slice(0, 2);
-                    var score = item.score || 0;
-                    var change = item.scoreChange || 0;
-                    var changeType = change >= 0 ? 'pos' : 'neg';
-                    var changeText = (change >= 0 ? '^' : 'v') + Math.abs(change);
+                    var repScore = getReputationScore(item);
                     var role = 'student';
-                    var meta = (item.activeDays ? item.activeDays + ' active days' : '');
-                    if (item.breakdown) {
-                        var achCount = Object.keys(item.breakdown).filter(function (k) { return item.breakdown[k] > 0; }).length;
-                        if (achCount) meta = (meta ? meta + ' &bull; ' : '') + achCount + ' categories';
+                    var meta = '';
+                    if (item.activeDays) meta += item.activeDays + ' active days';
+                    if (item.reputation && item.reputation.breakdown) {
+                        var brk = item.reputation.breakdown;
+                        var parts = [];
+                        if (brk.course) parts.push('Course: ' + brk.course);
+                        if (brk.community) parts.push('Community: ' + brk.community);
+                        if (brk.problem) parts.push('Problems: ' + brk.problem);
+                        if (brk.contest) parts.push('Contests: ' + brk.contest);
+                        if (parts.length) meta = (meta ? meta + ' &bull; ' : '') + parts.join(' | ');
                     }
 
                     var rankHtml = '<div class="rank-box">#' + rank + '</div>';
@@ -103,7 +113,7 @@ window.NibrasReact.run(function () {
                         '</div>',
                         '</div>',
                         '<div class="lb-right">',
-                        '<div class="lb-points">' + score + ' <span class="lb-change ' + changeType + '">' + changeText + '</span></div>',
+                        '<div class="lb-points">' + repScore + '</div>',
                         '<span class="lb-meta">reputation points</span>',
                         '</div>',
                         '</div>',
@@ -138,8 +148,6 @@ window.NibrasReact.run(function () {
     var pills = document.querySelectorAll('.pill-btn');
     pills.forEach(function (p) {
         p.addEventListener('click', function () {
-            var periodMap = { 'overall-btn': null, 'week-btn': 'weekly', 'month-btn': 'monthly' };
-            var scopeMap = { 'global-btn': 'global', 'course-btn': 'course' };
             var text = this.textContent.trim().toLowerCase();
             if (text === 'overall' || text === 'all time' || this.id === 'overall-btn') { currentState.period = 'all-time'; }
             else if (text === 'this week' || text === 'weekly' || this.id === 'week-btn') { currentState.period = 'weekly'; }
