@@ -86,20 +86,28 @@ function initCourses() {
     }
 
     async function hydrateCoursesFromAdmin() {
+        // Build a lookup from backend course IDs already in our list
+        const seenBackendIds = {};
+
+        // Step 1: Try admin merged courses (preserves local IDs)
         const loadAdminCourses = window.NibrasCourses?.getAdminCoursesList;
         if (typeof loadAdminCourses === 'function') {
             try {
                 const remoteCourses = await loadAdminCourses();
                 if (Array.isArray(remoteCourses) && remoteCourses.length > 0) {
+                    remoteCourses.forEach(c => {
+                        const bid = c.adminCourseId || c.backendCourseId || c.remoteCourseId;
+                        if (bid) seenBackendIds[bid] = true;
+                    });
                     coursesData = remoteCourses.filter((course) => course.type === "practice_lab" || course.level === "Beginner");
                     filterAndRender(activeCategory);
-                    return;
                 }
             } catch (error) {
                 console.warn('[COURSES.JS] Failed to hydrate from mapped courses backend:', error?.message || error);
             }
         }
 
+        // Step 2: Supplement with any unmapped backend courses
         const coursesService = window.NibrasServices?.coursesService;
         if (!coursesService || typeof coursesService.list !== 'function') return;
 
@@ -112,25 +120,30 @@ function initCourses() {
                     : (Array.isArray(response?.courses) ? response.courses : []));
             if (!rawList.length) return;
 
-            const normalized = rawList.map((course, index) => ({
-                id: course?._id || course?.id || `remote-course-${index + 1}`,
-                title: course?.title || `Course ${index + 1}`,
-                instructor: course?.instructor?.name || course?.instructorName || 'Instructor',
-                progress: Number.isFinite(Number(course?.progressPercentage))
-                    ? Math.max(0, Math.min(100, Number(course.progressPercentage)))
-                    : 0,
-                rating: Number.isFinite(Number(course?.rating)) ? Number(course.rating) : 0,
-                level: course?.level || 'Beginner',
-                deadline: course?.deadline || 'No deadline set',
-                isPopular: Boolean(course?.isPopular),
-                category: course?.category || 'core',
-                type: course?.type || 'standard',
-            }));
+            const newCourses = [];
+            rawList.forEach((course) => {
+                const backendId = course?._id || course?.id;
+                if (!backendId || seenBackendIds[backendId]) return;
+                newCourses.push({
+                    id: backendId,
+                    title: course?.title || 'Untitled',
+                    instructor: course?.instructor?.name || course?.instructorName || 'Instructor',
+                    progress: 0,
+                    rating: 0,
+                    level: course?.level || 'Beginner',
+                    deadline: 'No deadline set',
+                    isPopular: false,
+                    category: course?.category || 'core',
+                    type: course?.type || 'standard',
+                });
+            });
 
-            coursesData = normalized.filter((course) => course.type === "practice_lab" || course.level === "Beginner");
-            filterAndRender(activeCategory);
+            if (newCourses.length > 0) {
+                coursesData = [...coursesData, ...newCourses];
+                filterAndRender(activeCategory);
+            }
         } catch (error) {
-            console.warn('[COURSES.JS] Failed to hydrate from courses service list:', error?.message || error);
+            console.warn('[COURSES.JS] Failed to supplement from courses service:', error?.message || error);
         }
     }
 
