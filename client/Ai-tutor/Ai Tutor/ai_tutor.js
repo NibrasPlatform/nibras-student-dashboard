@@ -441,6 +441,7 @@ window.NibrasReact.run(() => {
         const body = document.createElement('div');
         body.style.whiteSpace = 'pre-wrap';
         body.style.marginBottom = '10px';
+        body.dir = 'auto';
         body.textContent = sessionFinalAnswer || '(No answer text.)';
         fullAnswerContainer.appendChild(head);
         fullAnswerContainer.appendChild(body);
@@ -461,8 +462,10 @@ window.NibrasReact.run(() => {
         if (titleEl) {
             titleEl.textContent = sessionMatchedQuestion.title || 'Untitled Question';
             titleEl.href = questionUrl;
+            titleEl.dir = 'auto';
         }
         if (metaEl) {
+            metaEl.dir = 'auto';
             metaEl.innerHTML = `<span><i class="fa-solid fa-user"></i> ${escapeHtml(authorName)}</span>` +
                 `<span><i class="fa-solid fa-caret-up"></i> ${votesCount} votes</span>` +
                 `<span><i class="fa-regular fa-comment-dots"></i> ${answersCount} answers</span>`;
@@ -584,6 +587,7 @@ window.NibrasReact.run(() => {
             hintEl.style.borderRadius = '8px';
             hintEl.style.borderLeft = '4px solid #ca8a04';
             hintEl.style.fontSize = '0.95rem';
+            hintEl.dir = 'auto';
             const strong = document.createElement('strong');
             strong.innerHTML = '<i class="fa-regular fa-lightbulb"></i> ';
             const span = document.createElement('span');
