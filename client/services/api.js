@@ -2630,6 +2630,37 @@
                 auth: true,
             });
         },
+
+        /**
+         * Get comprehensive student performance dashboard
+         * Backend: GET /analytics/student-performance/:studentId
+         * @param {string} studentId
+         * @returns {Promise<{success: boolean, data: object}>}
+         */
+        async getStudentPerformance(studentId) {
+            return apiFetch(`/analytics/student-performance/${encodeURIComponent(String(studentId))}`, {
+                service: 'admin',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        /**
+         * Get course performance dashboard (instructor/admin)
+         * Backend: GET /analytics/courses/:courseId/performance?topN=N
+         * @param {string} courseId
+         * @param {number} topN - Number of leaderboard entries (1-50, default 10)
+         * @returns {Promise<{success: boolean, data: object}>}
+         */
+        async getCoursePerformance(courseId, topN) {
+            var params = {};
+            if (topN != null) params.topN = topN;
+            return apiFetch(`/analytics/courses/${encodeURIComponent(String(courseId))}/performance${toQueryString(params)}`, {
+                service: 'admin',
+                method: 'GET',
+                auth: true,
+            });
+        },
     };
 
     // ============================================================
