@@ -35,8 +35,8 @@ window.NibrasReact.run(function () {
 
             var problemsSolved = studentStats.problemsSolved || 0;
             var totalProblems = 0;
-            var difficultyLabels = { beginner: 'Beginner', newbie: 'Newbie', intermediate: 'Intermediate', advanced: 'Advanced' };
-            var difficultyColors = { beginner: 'var(--grade-a)', newbie: 'var(--grade-b)', intermediate: 'var(--grade-c)', advanced: 'var(--grade-f)' };
+            var difficultyLabels = { beginner: 'Beginner', intermediate: 'Intermediate', advanced: 'Advanced' };
+            var difficultyColors = { beginner: 'var(--grade-a)', intermediate: 'var(--grade-c)', advanced: 'var(--grade-f)' };
 
             Object.keys(problemProg).forEach(function (key) {
                 totalProblems += (problemProg[key].total || 0);
