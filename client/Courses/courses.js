@@ -97,8 +97,29 @@ function initCourses() {
             // Keep only courses with a backend mapping (id, level, category from backend)
             const mappedCourses = adminCourses.filter(c => c.adminCourseId || c.backendCourseId || c.remoteCourseId);
 
-            // Step 2: Fetch all backend courses to add any unmapped ones
+            // Fetch real progress from backend for each mapped course
             const coursesService = window.NibrasServices?.coursesService;
+            if (coursesService && typeof coursesService.getProgress === 'function') {
+                const progressResults = await Promise.allSettled(
+                    mappedCourses.map(c => {
+                        const bid = c.adminCourseId || c.backendCourseId || c.remoteCourseId;
+                        return bid ? coursesService.getProgress(bid) : Promise.resolve(null);
+                    })
+                );
+                mappedCourses.forEach((c, i) => {
+                    const result = progressResults[i];
+                    if (result.status === 'fulfilled' && result.value) {
+                        const pct = result.value?.data?.percentage
+                            ?? result.value?.percentage
+                            ?? result.value?.data?.overallPercentage;
+                        if (Number.isFinite(Number(pct))) {
+                            c.progress = Math.max(0, Math.min(100, Math.round(Number(pct))));
+                        }
+                    }
+                });
+            }
+
+            // Step 2: Fetch all backend courses to add any unmapped ones
             const backendCourses = {};
             if (coursesService && typeof coursesService.list === 'function') {
                 try {
