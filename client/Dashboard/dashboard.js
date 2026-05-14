@@ -629,6 +629,38 @@ const runDashboardInit = () => {
             renderDashboard(fallbackData);
         }
 
+        // Fetch analytics data to update study streak & milestones
+        try {
+            var analyticsUser = null;
+            try { var raw2 = localStorage.getItem('user'); if (raw2) analyticsUser = JSON.parse(raw2); } catch (_) {}
+            if (analyticsUser && analyticsUser._id && window.NibrasServices?.backendAnalyticsService) {
+                var anaRes = await window.NibrasServices.backendAnalyticsService.getStudentPerformance(analyticsUser._id);
+                var anaData = anaRes && (anaRes.data || anaRes);
+                if (anaData) {
+                    var studyStreak = (anaData.studentStats && anaData.studentStats.studyStreak) || 0;
+                    var approvedSubs = (anaData.submissionSummary && anaData.submissionSummary.approved) || 0;
+
+                    var statsContainer2 = document.getElementById('stats-container');
+                    if (statsContainer2) {
+                        var cards = statsContainer2.querySelectorAll('.stat-card');
+                        cards.forEach(function (card) {
+                            var labelEl = card.querySelector('.stat-info span');
+                            if (!labelEl) return;
+                            var label = labelEl.textContent.trim();
+                            var valueEl = card.querySelector('.stat-info h2');
+                            if (!valueEl) return;
+
+                            if (label === 'Study Streak') {
+                                valueEl.textContent = studyStreak + ' days';
+                            } else if (label === 'Milestones Completed') {
+                                valueEl.textContent = approvedSubs;
+                            }
+                        });
+                    }
+                }
+            }
+        } catch (_e) { /* non-critical */ }
+
         // Fetch gamification data for achievements section
         try {
             if (window.NibrasServices?.gamificationService) {
