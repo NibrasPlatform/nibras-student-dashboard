@@ -383,54 +383,60 @@ function initDashboard() {
         // Silent fail — default name already set
     });
 
-    // --- 3. RENDER UI ---
-    renderDashboard(dashboardData);
+    // NOTE: renderDashboard is called by the async data fetcher, not here
+    // This initDashboard function only handles UI setup (sidebar, theme, etc.)
+}
 
-    function renderDashboard(data) {
-        const welcomeMsg = document.getElementById('welcome-msg');
-        if (!welcomeMsg) {
-            console.error('[DASHBOARD.JS] ERROR: welcome-msg not found!');
-            return;
-        }
-
-        welcomeMsg.textContent = `Welcome back, ${data.user}!`;
-
-        // Render Stats
-        const statsContainer = document.getElementById('stats-container');
-        statsContainer.innerHTML = '';
-
-        data.stats.forEach(stat => {
-            let bgVar, textVar;
-            if(stat.color === 'pink') { bgVar = 'var(--stat-icon-bg-pink)'; textVar = 'var(--stat-icon-text-pink)'; }
-            if(stat.color === 'orange') { bgVar = 'var(--stat-icon-bg-orange)'; textVar = 'var(--stat-icon-text-orange)'; }
-            if(stat.color === 'green') { bgVar = 'var(--stat-icon-bg-green)'; textVar = 'var(--stat-icon-text-green)'; }
-            if(stat.color === 'blue') { bgVar = 'var(--stat-icon-bg-blue)'; textVar = 'var(--stat-icon-text-blue)'; }
-            if(stat.color === 'purple') { bgVar = 'var(--stat-icon-bg-purple)'; textVar = 'var(--stat-icon-text-purple)'; }
-
-            const pointerClass = stat.isClickable ? 'cursor-pointer' : '';
-            const idAttr = stat.id ? `id="${stat.id}"` : '';
-            const valueId = stat.id ? `id="${stat.id}-value"` : '';
-
-            statsContainer.innerHTML += `
-                <div class="stat-card ${pointerClass}" ${idAttr}>
-                    <div class="stat-info">
-                        <span>${stat.label}</span>
-                        <h2 ${valueId}>${stat.value}</h2>
-                    </div>
-                    <div class="stat-icon" style="background-color: ${bgVar}; color: ${textVar}">
-                        <i class="${stat.icon}"></i>
-                    </div>
-                </div>
-            `;
-        });
-
-        console.log('[DASHBOARD.JS] Rendered stats and dashboard');
-        initGPAModal();
-        renderLists(data);
-        renderMilestones(data.milestones);
+function renderDashboard(data) {
+    if (!data || !data.stats) {
+        console.warn('[DASHBOARD.JS] renderDashboard called with invalid data:', data);
+        return;
     }
 
-    function renderLists(data) {
+    const welcomeMsg = document.getElementById('welcome-msg');
+    if (!welcomeMsg) {
+        console.error('[DASHBOARD.JS] ERROR: welcome-msg not found!');
+        return;
+    }
+
+    welcomeMsg.textContent = `Welcome back, ${data.user}!`;
+
+    // Render Stats
+    const statsContainer = document.getElementById('stats-container');
+    statsContainer.innerHTML = '';
+
+    data.stats.forEach(stat => {
+        let bgVar, textVar;
+        if(stat.color === 'pink') { bgVar = 'var(--stat-icon-bg-pink)'; textVar = 'var(--stat-icon-text-pink)'; }
+        if(stat.color === 'orange') { bgVar = 'var(--stat-icon-bg-orange)'; textVar = 'var(--stat-icon-text-orange)'; }
+        if(stat.color === 'green') { bgVar = 'var(--stat-icon-bg-green)'; textVar = 'var(--stat-icon-text-green)'; }
+        if(stat.color === 'blue') { bgVar = 'var(--stat-icon-bg-blue)'; textVar = 'var(--stat-icon-text-blue)'; }
+        if(stat.color === 'purple') { bgVar = 'var(--stat-icon-bg-purple)'; textVar = 'var(--stat-icon-text-purple)'; }
+
+        const pointerClass = stat.isClickable ? 'cursor-pointer' : '';
+        const idAttr = stat.id ? `id="${stat.id}"` : '';
+        const valueId = stat.id ? `id="${stat.id}-value"` : '';
+
+        statsContainer.innerHTML += `
+            <div class="stat-card ${pointerClass}" ${idAttr}>
+                <div class="stat-info">
+                    <span>${stat.label}</span>
+                    <h2 ${valueId}>${stat.value}</h2>
+                </div>
+                <div class="stat-icon" style="background-color: ${bgVar}; color: ${textVar}">
+                    <i class="${stat.icon}"></i>
+                </div>
+            </div>
+        `;
+    });
+
+    console.log('[DASHBOARD.JS] Rendered stats and dashboard');
+    initGPAModal();
+    renderLists(data);
+    renderMilestones(data.milestones);
+}
+
+function renderLists(data) {
         // Activities
         const actContainer = document.getElementById('activities-container');
         actContainer.innerHTML = '';
@@ -759,10 +765,24 @@ const runDashboardInit = () => {
             renderDashboard(dashboardData);
         } catch (error) {
             console.warn('[DASHBOARD.JS] Failed to fetch dashboard data, using hardcoded data:', error);
-            // Fallback to hardcoded dashboardData
+            // Fallback to hardcoded data when both backends fail
             const userName = await resolveUserName();
-            dashboardData.user = userName;
-            renderDashboard(dashboardData);
+            const fallbackData = {
+                user: userName,
+                stats: [
+                    { label: "Courses Enrolled", value: "0", icon: "fa-solid fa-book-bookmark", color: "pink" },
+                    { label: "Milestones Completed", value: "0", icon: "fa-solid fa-bullseye", color: "orange" },
+                    { label: "Total Milestones", value: "0", icon: "fa-solid fa-heart", color: "green" },
+                    { label: "Study Streak", value: "0 days", icon: "fa-regular fa-clock", color: "blue" },
+                    { label: "Overall Progress", value: "0%", icon: "fa-solid fa-graduation-cap", color: "purple" }
+                ],
+                milestones: [],
+                activities: [],
+                progress: [],
+                deadlines: [],
+                achievements: []
+            };
+            renderDashboard(fallbackData);
         }
     })();
 
