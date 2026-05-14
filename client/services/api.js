@@ -2633,6 +2633,48 @@
     };
 
     // ============================================================
+    // Gamification Service (admin service → /api/gamification/*)
+    // ============================================================
+    const gamificationService = {
+        async getAllBadges() {
+            return apiFetch('/gamification/all-badges', { service: 'admin', method: 'GET', auth: true });
+        },
+        async checkAwardBadges(studentId) {
+            return apiFetch('/gamification/check-award', { service: 'admin', method: 'POST', auth: true, body: studentId ? { studentId } : {} });
+        },
+        async getLeaderboard(filters = {}) {
+            const { period, scope, courseId, page, limit } = filters;
+            const params = {};
+            if (period) params.period = period;
+            if (scope) params.scope = scope;
+            if (courseId) params.courseId = courseId;
+            if (page) params.page = page;
+            if (limit) params.limit = limit;
+            return apiFetch(`/gamification/leaderboards${toQueryString(params)}`, { service: 'admin', method: 'GET', auth: true });
+        },
+        async getMyLeaderboardRank(filters = {}) {
+            const { period, scope, courseId } = filters;
+            const params = {};
+            if (period) params.period = period;
+            if (scope) params.scope = scope;
+            if (courseId) params.courseId = courseId;
+            return apiFetch(`/gamification/leaderboards/me${toQueryString(params)}`, { service: 'admin', method: 'GET', auth: true });
+        },
+        async getLeaderboardConfig() {
+            return apiFetch('/gamification/leaderboards/config', { service: 'admin', method: 'GET', auth: true });
+        },
+    };
+
+    // ============================================================
+    // Reputation Service (admin service → /api/reputation/*)
+    // ============================================================
+    const reputationService = {
+        async getMyReputation() {
+            return apiFetch('/reputation/me', { service: 'admin', method: 'GET', auth: true });
+        },
+    };
+
+    // ============================================================
     // Expose on window
     // ============================================================
     window.NibrasServices = Object.freeze({
@@ -2660,6 +2702,8 @@
         coursesService,
         backendCoursesService,
         backendAnalyticsService,
+        gamificationService,
+        reputationService,
     });
 
     console.log('[NibrasServices] Initialized. Available as window.NibrasServices');

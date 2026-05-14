@@ -1,153 +1,161 @@
-window.NibrasReact.run(() => {
+window.NibrasReact.run(function () {
 
-    // --- 1. SIDEBAR LOGIC ---
-    const navLinks = document.querySelectorAll('.nav-link');
-    navLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            navLinks.forEach(n => n.classList.remove('active'));
+    var navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(function (link) {
+        link.addEventListener('click', function (e) {
+            navLinks.forEach(function (n) { n.classList.remove('active'); });
             link.classList.add('active');
         });
     });
 
-    // --- 2. BACKEND DATA ---
-    const reputationData = {
-        current: 1250,
-        nextLevel: 2500,
-        breakdown: [
-            { label: "Academic Performance", score: 458, total: 500, color: "blue", icon: "fa-solid fa-book" },
-            { label: "Community Contribution", score: 389, total: 500, color: "green", icon: "fa-solid fa-users" },
-            { label: "Challenge Solutions", score: 234, total: 300, color: "purple", icon: "fa-regular fa-lightbulb" },
-            { label: "Competition Results", score: 171, total: 300, color: "orange", icon: "fa-solid fa-trophy" }
-        ],
-        levels: [
-            { name: "Novice", range: "0 - 100 points", desc: "Ask questions • Submit assignments", status: "passed", dotColor: "#10b981" },
-            { name: "Learner", range: "100 - 500 points", desc: "Vote on answers • Comment on posts", status: "passed", dotColor: "#3b82f6" },
-            { name: "Contributor", range: "500 - 1000 points", desc: "Edit community posts • Flag irrelevant content", status: "passed", dotColor: "#9333ea" },
-            { name: "Expert", range: "1000 - 2000 points", desc: "Contest • Moderate Discussions • Create Study Groups", status: "passed", dotColor: "#ec4899" }, // Pink
-            { name: "Master", range: "2500 - 5000 points", desc: "Edit community posts • Pay irrelevant context", status: "active", isLive: true, dotColor: "#f59e0b" },
-            { name: "Legend", range: "5000+ points", desc: "All privileges • Mentor credential", status: "locked", dotColor: "#ef4444" }
-        ],
-        rules: {
-            positive: [
-                { action: "Answer accepted by question author", points: "+15" },
-                { action: "Assignment completed with 90%", points: "+10" },
-                { action: "Help peer with code review", points: "+5" },
-                { action: "Question upvoted", points: "+3" },
-                { action: "Contest participation", points: "+5" },
-                { action: "Contest Top 10 finish", points: "+25" }
-            ],
-            negative: [
-                { action: "Answer downvoted", points: "-2" },
-                { action: "Question downvoted", points: "-1" },
-                { action: "Late assignment submission", points: "-5" },
-                { action: "Inappropriate Content flagged", points: "-10" },
-                { action: "Academic Integrity violation", points: "-50" }
-            ]
-        },
-        activity: [
-            { points: "+15", title: "Answer accepted in CS 201", type: "ACADEMY", time: "2 hrs ago", isPositive: true },
-            { points: "+8", title: "Assignment completed with 95%", type: "ACADEMY", time: "5 hrs ago", isPositive: true },
-            { points: "+6", title: "Helped classmate with debugging", type: "COMMUNITY", time: "1 day ago", isPositive: true },
-            { points: "+25", title: "Won weekly programming contest", type: "COMPETITION", time: "2 days ago", isPositive: true },
-            { points: "-5", title: "Late assignment submission", type: "ACADEMY", time: "3 days ago", isPositive: false },
-            { points: "+10", title: "Posted helpful tutorial", type: "COMMUNITY", time: "5 days ago", isPositive: true }
-        ]
-    };
+    var bdContainer = document.getElementById('breakdown-container');
+    var lvContainer = document.getElementById('levels-container');
+    var posContainer = document.getElementById('rules-pos-container');
+    var negContainer = document.getElementById('rules-neg-container');
+    var actContainer = document.getElementById('activity-container');
 
-    // --- 3. RENDER UI ---
-    
-    // Breakdown
-    const bdContainer = document.getElementById('breakdown-container');
-    bdContainer.innerHTML = '';
-    reputationData.breakdown.forEach(item => {
-        let colorVar = `var(--bar-${item.color})`;
-        let pct = (item.score / item.total) * 100;
-        
-        bdContainer.innerHTML += `
-            <div class="bd-item">
-                <div class="bd-head">
-                    <span><i class="${item.icon}" style="color:${colorVar}"></i> ${item.label}</span>
-                    <span class="bd-val">${item.score} <span class="bd-sub">/ ${item.total}</span></span>
-                </div>
-                <div class="bd-track">
-                    <div class="bd-fill" style="width:${pct}%; background-color:${colorVar}"></div>
-                </div>
-            </div>
-        `;
-    });
+    var levels = [
+        { name: 'Novice', range: '0 - 100 points', desc: 'Ask questions &bull; Submit assignments', dotColor: '#10b981' },
+        { name: 'Learner', range: '100 - 500 points', desc: 'Vote on answers &bull; Comment on posts', dotColor: '#3b82f6' },
+        { name: 'Contributor', range: '500 - 1000 points', desc: 'Edit community posts &bull; Flag irrelevant content', dotColor: '#9333ea' },
+        { name: 'Expert', range: '1000 - 2000 points', desc: 'Contest &bull; Moderate Discussions &bull; Create Study Groups', dotColor: '#ec4899' },
+        { name: 'Master', range: '2500 - 5000 points', desc: 'Edit community posts &bull; Moderate content', dotColor: '#f59e0b' },
+        { name: 'Legend', range: '5000+ points', desc: 'All privileges &bull; Mentor credential', dotColor: '#ef4444' },
+    ];
 
-    // Levels
-    const lvContainer = document.getElementById('levels-container');
-    lvContainer.innerHTML = '';
-    reputationData.levels.forEach(lvl => {
-        const activeClass = lvl.status === 'active' ? 'active' : '';
-        const liveBadge = lvl.isLive ? `<span class="live-badge">LIVE</span>` : '';
-        
-        lvContainer.innerHTML += `
-            <div class="lvl-card ${activeClass}">
-                <div class="lvl-header">
-                    <div class="lvl-title">
-                        <div class="status-dot" style="background-color: ${lvl.dotColor}"></div>
-                        ${lvl.name} ${liveBadge}
-                    </div>
-                    <span class="lvl-points">${lvl.range}</span>
-                </div>
-                <div class="lvl-desc">${lvl.desc}</div>
-            </div>
-        `;
-    });
+    var rulesPos = [
+        { action: 'Answer accepted by question author', points: '+15' },
+        { action: 'Assignment completed with 90%', points: '+10' },
+        { action: 'Help peer with code review', points: '+5' },
+        { action: 'Question upvoted', points: '+3' },
+        { action: 'Contest participation', points: '+5' },
+        { action: 'Contest Top 10 finish', points: '+25' },
+    ];
 
-    // Rules
-    const posContainer = document.getElementById('rules-pos-container');
-    reputationData.rules.positive.forEach(r => {
-        posContainer.innerHTML += `<div class="rule-row"><span>${r.action}</span><span class="rule-pts pos">${r.points}</span></div>`;
-    });
+    var rulesNeg = [
+        { action: 'Answer downvoted', points: '-2' },
+        { action: 'Question downvoted', points: '-1' },
+        { action: 'Late assignment submission', points: '-5' },
+        { action: 'Inappropriate Content flagged', points: '-10' },
+        { action: 'Academic Integrity violation', points: '-50' },
+    ];
 
-    const negContainer = document.getElementById('rules-neg-container');
-    reputationData.rules.negative.forEach(r => {
-        negContainer.innerHTML += `<div class="rule-row"><span>${r.action}</span><span class="rule-pts neg">${r.points}</span></div>`;
-    });
+    var levelThresholds = [0, 100, 500, 1000, 2000, 2500, 5000];
 
-    // Activity Feed
-    const actContainer = document.getElementById('activity-container');
-    actContainer.innerHTML = '';
-    reputationData.activity.forEach(act => {
-        const iconClass = act.isPositive ? 'pos' : 'neg';
-        const icon = act.isPositive ? 'fa-solid fa-arrow-trend-up' : 'fa-solid fa-arrow-trend-down';
-        const ptsClass = act.isPositive ? 'pos' : 'neg';
-        
-        // Tag Color logic
-        let tagClass = 'tag-academy';
-        if(act.type === 'COMMUNITY') tagClass = 'tag-community';
-        if(act.type === 'COMPETITION') tagClass = 'tag-comp';
-
-        actContainer.innerHTML += `
-            <div class="act-item">
-                <div class="act-icon ${iconClass}"><i class="${icon}"></i></div>
-                <div class="act-content">
-                    <h4><span class="act-pts ${ptsClass}">${act.points}</span></h4>
-                    <span class="act-sub">${act.title}</span>
-                    <div class="act-meta">
-                        <span class="act-tag ${tagClass}">${act.type}</span>
-                        <span>${act.time}</span>
-                    </div>
-                </div>
-            </div>
-        `;
-    });
-
-    // --- 4. THEME TOGGLE ---
-    const themeBtn = document.getElementById('themeBtn');
-    const themeIcon = themeBtn ? themeBtn.querySelector('i') : null;
-    const appLogo = document.getElementById('app-logo');
-
-    // Ensure theme is set on page load
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-        document.documentElement.setAttribute('data-theme', savedTheme);
+    function getLevelIndex(score) {
+        for (var i = levelThresholds.length - 1; i >= 0; i--) {
+            if (score >= levelThresholds[i]) return i;
+        }
+        return 0;
     }
 
-    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    function renderLevels(score) {
+        if (!lvContainer) return;
+        lvContainer.innerHTML = '';
+        levels.forEach(function (lvl, i) {
+            var status = 'locked';
+            if (i < getLevelIndex(score)) status = 'passed';
+            else if (i === getLevelIndex(score)) status = 'active';
+            var activeClass = status === 'active' ? 'active' : '';
+            var liveBadge = status === 'active' ? '<span class="live-badge">LIVE</span>' : '';
+
+            lvContainer.innerHTML += [
+                '<div class="lvl-card ' + activeClass + '">',
+                '<div class="lvl-header">',
+                '<div class="lvl-title"><div class="status-dot" style="background-color:' + lvl.dotColor + '"></div>' + lvl.name + ' ' + liveBadge + '</div>',
+                '<span class="lvl-points">' + lvl.range + '</span>',
+                '</div>',
+                '<div class="lvl-desc">' + lvl.desc + '</div>',
+                '</div>',
+            ].join('');
+        });
+    }
+
+    function renderRules() {
+        if (posContainer) {
+            posContainer.innerHTML = '';
+            rulesPos.forEach(function (r) {
+                posContainer.innerHTML += '<div class="rule-row"><span>' + r.action + '</span><span class="rule-pts pos">' + r.points + '</span></div>';
+            });
+        }
+        if (negContainer) {
+            negContainer.innerHTML = '';
+            rulesNeg.forEach(function (r) {
+                negContainer.innerHTML += '<div class="rule-row"><span>' + r.action + '</span><span class="rule-pts neg">' + r.points + '</span></div>';
+            });
+        }
+    }
+
+    function renderActivity() {
+        if (!actContainer) return;
+        actContainer.innerHTML = '<div class="act-item" style="justify-content:center;padding:2rem;"><p style="color:var(--text-secondary);">Activity feed will appear here once backend endpoints are connected.</p></div>';
+    }
+
+    function renderBreakdown(breakdown) {
+        if (!bdContainer) return;
+        bdContainer.innerHTML = '';
+        var categories = [
+            { label: 'Academic Performance', score: breakdown.course || 0, color: 'blue', icon: 'fa-solid fa-book' },
+            { label: 'Community Contribution', score: breakdown.community || 0, color: 'green', icon: 'fa-solid fa-users' },
+            { label: 'Challenge Solutions', score: breakdown.problem || 0, color: 'purple', icon: 'fa-regular fa-lightbulb' },
+            { label: 'Competition Results', score: breakdown.contest || 0, color: 'orange', icon: 'fa-solid fa-trophy' },
+        ];
+        categories.forEach(function (cat) {
+            var max = Math.max(cat.score * 2, 500);
+            var pct = Math.min((cat.score / max) * 100, 100);
+            var colorVar = 'var(--bar-' + cat.color + ')';
+
+            bdContainer.innerHTML += [
+                '<div class="bd-item">',
+                '<div class="bd-head">',
+                '<span><i class="' + cat.icon + '" style="color:' + colorVar + '"></i> ' + cat.label + '</span>',
+                '<span class="bd-val">' + cat.score + ' <span class="bd-sub">/ ' + max + '</span></span>',
+                '</div>',
+                '<div class="bd-track"><div class="bd-fill" style="width:' + pct + '%;background-color:' + colorVar + '"></div></div>',
+                '</div>',
+            ].join('');
+        });
+    }
+
+    var services = window.NibrasServices;
+    services.reputationService.getMyReputation().then(function (res) {
+        var data = res && (res.data || res);
+        var total = (data && data.total) || 0;
+        var breakdown = (data && data.breakdown) || { problem: 0, community: 0, contest: 0, course: 0 };
+
+        var nextLevelIdx = getLevelIndex(total) + 1;
+        var nextThreshold = nextLevelIdx < levelThresholds.length ? levelThresholds[nextLevelIdx] : total;
+        var prevThreshold = levelThresholds[getLevelIndex(total)] || 0;
+        var progressToNext = nextThreshold > prevThreshold ? Math.round(((total - prevThreshold) / (nextThreshold - prevThreshold)) * 100) : 100;
+
+        var currentRepCard = document.querySelector('.current-rep-card');
+        if (currentRepCard) {
+            var fill = currentRepCard.querySelector('.cr-fill');
+            var info = currentRepCard.querySelector('.cr-info');
+            if (fill) fill.style.width = Math.min(progressToNext, 100) + '%';
+            if (info) info.innerHTML = '<strong>' + total + '</strong> / ' + nextThreshold + ' points to ' + (levels[nextLevelIdx] ? levels[nextLevelIdx].name : 'Max');
+            var val = currentRepCard.querySelector('.cr-val');
+            if (val) val.textContent = total;
+        }
+
+        renderBreakdown(breakdown);
+        renderLevels(total);
+        renderRules();
+        renderActivity();
+    }).catch(function () {
+        renderLevels(0);
+        renderRules();
+        renderActivity();
+    });
+
+    var themeBtn = document.getElementById('themeBtn');
+    var themeIcon = themeBtn ? themeBtn.querySelector('i') : null;
+    var appLogo = document.getElementById('app-logo');
+
+    var savedTheme = localStorage.getItem('theme');
+    if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
+
+    var currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
     if (currentTheme === 'dark') {
         if (themeIcon) themeIcon.className = 'fa-solid fa-sun';
         if (appLogo) appLogo.src = '/Assets/images/logo-dark.png';
@@ -157,28 +165,21 @@ window.NibrasReact.run(() => {
     }
 
     if (themeBtn) {
-        themeBtn.addEventListener('click', () => {
-            const html = document.documentElement;
-            const current = html.getAttribute('data-theme');
-            const newTheme = current === 'light' ? 'dark' : 'light';
-            
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            
-            if (themeIcon) {
-                themeIcon.className = newTheme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
-            }
-            if (appLogo) {
-                appLogo.src = newTheme === 'dark' ? '/Assets/images/logo-dark.png' : '/Assets/images/logo-light.png';
-            }
+        themeBtn.addEventListener('click', function () {
+            var html = document.documentElement;
+            var cur = html.getAttribute('data-theme');
+            var next = cur === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            if (themeIcon) themeIcon.className = next === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            if (appLogo) appLogo.src = next === 'dark' ? '/Assets/images/logo-dark.png' : '/Assets/images/logo-light.png';
         });
     }
 
-    // --- 5. TAB LOGIC ---
-    const segTabs = document.querySelectorAll('.seg-btn');
-    segTabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            segTabs.forEach(t => t.classList.remove('active'));
+    var segTabs = document.querySelectorAll('.seg-btn');
+    segTabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+            segTabs.forEach(function (t) { t.classList.remove('active'); });
             tab.classList.add('active');
         });
     });

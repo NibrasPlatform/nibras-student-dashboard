@@ -1,154 +1,132 @@
-window.NibrasReact.run(() => {
+window.NibrasReact.run(function () {
 
-    // --- 1. SIDEBAR LOGIC ---
-    const navLinks = document.querySelectorAll('.nav-link');
-    navLinks.forEach(link => {
-        link.addEventListener('click', (e) => { 
-            navLinks.forEach(n => n.classList.remove('active'));
+    var navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(function (link) {
+        link.addEventListener('click', function (e) {
+            navLinks.forEach(function (n) { n.classList.remove('active'); });
             link.classList.add('active');
         });
     });
 
-    // --- 2. BACKEND DATA ---
-    const achievementsData = {
-        stats: [
-            { icon: "fa-solid fa-trophy", color: "#d97706", val: "3", label: "Achievements" }, // Gold
-            { icon: "fa-solid fa-star", color: "#eab308", val: "300", label: "Total Points" }, // Yellow
-            { icon: "fa-solid fa-chart-line", color: "#dc2626", val: "1250", label: "Reputation" }, // Red
-            { icon: "fa-solid fa-bullseye", color: "#dc2626", val: "38%", label: "Completion" } // Red
-        ],
-        recent: [
-            { 
-                id: 1, title: "First Steps", desc: "Complete your first assignment", 
-                status: "complete", points: 50, icon: "fa-regular fa-circle-check", iconColor: "green"
-            },
-            { 
-                id: 2, title: "Problem Solver", desc: "Solve 10 coding problems", 
-                status: "current", points: 100, progress: 70, icon: "fa-solid fa-bullseye", iconColor: "blue"
-            },
-            { 
-                id: 3, title: "Team Player", desc: "Help 5 classmates with their questions", 
-                status: "current", points: 150, progress: 40, icon: "fa-solid fa-people-group", iconColor: "purple"
+    var statsEl = document.getElementById('stats-container');
+    var recentEl = document.getElementById('recent-container');
+    var allEl = document.getElementById('all-container');
+
+    var services = window.NibrasServices;
+
+    Promise.all([
+        services.gamificationService.getAllBadges().catch(function () { return null; }),
+        services.gamificationService.checkAwardBadges().catch(function () { return null; }),
+        services.reputationService.getMyReputation().catch(function () { return null; }),
+    ]).then(function (results) {
+        var badgesRes = results[0];
+        var awardRes = results[1];
+        var repRes = results[2];
+
+        var badges = (badgesRes && (badgesRes.data || badgesRes)) || [];
+        if (!Array.isArray(badges)) badges = [];
+        var awardedIds = new Set();
+        if (awardRes) {
+            var awarded = awardRes.data || awardRes;
+            if (Array.isArray(awarded)) {
+                awarded.forEach(function (b) { if (b && b._id) awardedIds.add(b._id.toString()); });
             }
-        ],
-        all: [
-            { 
-                title: "First Steps", desc: "Complete your first assignment", 
-                status: "complete", points: 50, icon: "fa-regular fa-circle-check"
-            },
-            { 
-                title: "Problem Solver", desc: "Solve 10 coding problems", 
-                status: "current", points: 100, progress: 70, icon: "fa-solid fa-bullseye"
-            },
-            { 
-                title: "Team Player", desc: "Help 5 classmates with their questions", 
-                status: "current", points: 150, progress: 40, icon: "fa-solid fa-people-group"
-            },
-            { 
-                title: "Speed Demon", desc: "Complete 10 problems in 30 minutes", 
-                status: "locked", points: 70, icon: "fa-solid fa-bolt"
-            },
-            { 
-                title: "Knowledge Seeker", desc: "Complete 5 courses with 80%+ grade", 
-                status: "locked", points: 200, icon: "fa-solid fa-graduation-cap"
-            },
-            { 
-                title: "Mentor", desc: "Provide 50 helpful answers in Community", 
-                status: "locked", points: 120, icon: "fa-solid fa-brain"
-            },
-            { 
-                title: "Consistency King", desc: "Maintain a 30-day learning streak", 
-                status: "locked", points: 90, icon: "fa-solid fa-chart-line"
-            }
-        ]
-    };
+        }
+        var repTotal = 0;
+        if (repRes && repRes.data) repTotal = repRes.data.total || repRes.data.reputationScore || 0;
+        else if (repRes && repRes.total) repTotal = repRes.total;
 
-    // --- 3. RENDER UI ---
-    
-    // Stats
-    const statsContainer = document.getElementById('stats-container');
-    statsContainer.innerHTML = '';
-    achievementsData.stats.forEach(stat => {
-        statsContainer.innerHTML += `
-            <div class="a-stat-card">
-                <div class="a-stat-icon" style="color: ${stat.color}"><i class="${stat.icon}"></i></div>
-                <div class="a-stat-val">${stat.val}</div>
-                <div class="a-stat-label">${stat.label}</div>
-            </div>
-        `;
+        var earnedCount = 0;
+        var totalPoints = 0;
+        badges.forEach(function (b) {
+            totalPoints += (b.points || 0);
+            if (awardedIds.has(b._id.toString())) earnedCount++;
+        });
+
+        var completion = badges.length > 0 ? Math.round((earnedCount / badges.length) * 100) : 0;
+
+        var stats = [
+            { icon: 'fa-solid fa-trophy', color: '#d97706', val: String(badges.length), label: 'Achievements' },
+            { icon: 'fa-solid fa-star', color: '#eab308', val: String(repTotal), label: 'Total Points' },
+            { icon: 'fa-solid fa-chart-line', color: '#dc2626', val: String(repTotal), label: 'Reputation' },
+            { icon: 'fa-solid fa-bullseye', color: '#2563eb', val: completion + '%', label: 'Completion' },
+        ];
+
+        statsEl.innerHTML = '';
+        stats.forEach(function (s) {
+            statsEl.innerHTML += [
+                '<div class="a-stat-card">',
+                '<div class="a-stat-icon" style="color:' + s.color + '"><i class="' + s.icon + '"></i></div>',
+                '<div class="a-stat-val">' + s.val + '</div>',
+                '<div class="a-stat-label">' + s.label + '</div>',
+                '</div>',
+            ].join('');
+        });
+
+        var recentBadges = badges.filter(function (b) { return awardedIds.has(b._id.toString()); });
+        recentBadges.sort(function (a, b) { return (b.earnedAt || '').localeCompare(a.earnedAt || ''); });
+        recentBadges = recentBadges.slice(0, 3);
+
+        recentEl.innerHTML = '';
+        recentBadges.forEach(function (b) {
+            renderCard(b, 'complete', recentEl);
+        });
+        if (recentBadges.length === 0) {
+            recentEl.innerHTML = '<p style="color:var(--text-secondary);padding:1rem;">Complete achievements to see them here.</p>';
+        }
+
+        allEl.innerHTML = '';
+        badges.forEach(function (b) {
+            var status = awardedIds.has(b._id.toString()) ? 'complete' : 'locked';
+            renderCard(b, status, allEl);
+        });
+        if (badges.length === 0) {
+            allEl.innerHTML = '<p style="color:var(--text-secondary);padding:1rem;">No achievements available yet.</p>';
+        }
     });
 
-    // Recent List
-    const recentContainer = document.getElementById('recent-container');
-    recentContainer.innerHTML = '';
-    achievementsData.recent.forEach(item => {
-        renderAchievementCard(item, recentContainer);
-    });
+    function renderCard(item, status, container) {
+        var icon = item.badgeIcon || 'fa-solid fa-medal';
+        var desc = item.description || item.desc || '';
+        var title = item.name || item.title || '';
+        var points = item.points || 0;
 
-    // All Grid
-    const allContainer = document.getElementById('all-container');
-    allContainer.innerHTML = '';
-    achievementsData.all.forEach(item => {
-        renderAchievementCard(item, allContainer);
-    });
-
-    function renderAchievementCard(item, container) {
-        let statusHtml = '';
-        let iconColor = 'var(--text-primary)';
-        
-        if (item.status === 'complete') {
-            statusHtml = `<span class="ach-status status-complete">complete</span>`;
+        var statusHtml = '';
+        var iconColor = 'var(--text-primary)';
+        if (status === 'complete') {
+            statusHtml = '<span class="ach-status status-complete">complete</span>';
             iconColor = 'var(--green)';
-        } else if (item.status === 'current') {
-            statusHtml = `<span class="ach-status" style="color:var(--text-primary)">current</span>`;
-            iconColor = 'var(--accent-blue)';
-            if(item.iconColor === 'purple') iconColor = '#9333ea';
         } else {
-            statusHtml = `<span class="ach-status status-locked">locked</span>`;
-            iconColor = 'var(--text-primary)'; // Locked icon color
+            statusHtml = '<span class="ach-status status-locked">locked</span>';
         }
 
-        let progressHtml = '';
-        if (item.progress !== undefined) {
-            progressHtml = `
-                <div class="ach-progress-wrap">
-                    <span style="font-size:0.75rem; color:var(--text-secondary)">Progress: ${item.progress}%</span>
-                    <div class="ach-p-track"><div class="ach-p-fill" style="width: ${item.progress}%"></div></div>
-                </div>
-            `;
-        }
-
-        const html = `
-            <div class="achieve-card">
-                <div class="ach-icon-box">
-                    <i class="${item.icon}" style="color: ${iconColor};"></i>
-                </div>
-                <div class="ach-content">
-                    <div class="ach-title">${item.title}</div>
-                    <div class="ach-desc">${item.desc}</div>
-                    <div class="ach-meta">
-                        ${statusHtml}
-                        <span>Points: ${item.points}</span>
-                        ${progressHtml}
-                    </div>
-                </div>
-            </div>
-        `;
-        container.innerHTML += html;
+        container.innerHTML += [
+            '<div class="achieve-card">',
+            '<div class="ach-icon-box"><i class="' + icon + '" style="color:' + iconColor + ';"></i></div>',
+            '<div class="ach-content">',
+            '<div class="ach-title">' + escapeHtml(title) + '</div>',
+            '<div class="ach-desc">' + escapeHtml(desc) + '</div>',
+            '<div class="ach-meta">' + statusHtml + '<span>Points: ' + points + '</span></div>',
+            '</div>',
+            '</div>',
+        ].join('');
     }
 
-    // --- 4. THEME TOGGLE & LOGO SWAP ---
-    const themeBtn = document.getElementById('themeBtn');
-    const themeIcon = themeBtn ? themeBtn.querySelector('i') : null;
-    const appLogo = document.getElementById('app-logo');
-
-    // Ensure theme is set on page load
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-        document.documentElement.setAttribute('data-theme', savedTheme);
+    function escapeHtml(str) {
+        if (!str) return '';
+        var d = document.createElement('div');
+        d.appendChild(document.createTextNode(str));
+        return d.innerHTML;
     }
 
-    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    var themeBtn = document.getElementById('themeBtn');
+    var themeIcon = themeBtn ? themeBtn.querySelector('i') : null;
+    var appLogo = document.getElementById('app-logo');
+
+    var savedTheme = localStorage.getItem('theme');
+    if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
+
+    var currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
     if (currentTheme === 'dark') {
         if (themeIcon) themeIcon.className = 'fa-solid fa-sun';
         if (appLogo) appLogo.src = '/Assets/images/logo-dark.png';
@@ -158,28 +136,21 @@ window.NibrasReact.run(() => {
     }
 
     if (themeBtn) {
-        themeBtn.addEventListener('click', () => {
-            const html = document.documentElement;
-            const current = html.getAttribute('data-theme');
-            const newTheme = current === 'light' ? 'dark' : 'light';
-            
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            
-            if (themeIcon) {
-                themeIcon.className = newTheme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
-            }
-            if (appLogo) {
-                appLogo.src = newTheme === 'dark' ? '/Assets/images/logo-dark.png' : '/Assets/images/logo-light.png';
-            }
+        themeBtn.addEventListener('click', function () {
+            var html = document.documentElement;
+            var cur = html.getAttribute('data-theme');
+            var next = cur === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            if (themeIcon) themeIcon.className = next === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            if (appLogo) appLogo.src = next === 'dark' ? '/Assets/images/logo-dark.png' : '/Assets/images/logo-light.png';
         });
     }
 
-    // --- 5. TAB LOGIC ---
-    const segTabs = document.querySelectorAll('.seg-btn');
-    segTabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            segTabs.forEach(t => t.classList.remove('active'));
+    var segTabs = document.querySelectorAll('.seg-btn');
+    segTabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+            segTabs.forEach(function (t) { t.classList.remove('active'); });
             tab.classList.add('active');
         });
     });

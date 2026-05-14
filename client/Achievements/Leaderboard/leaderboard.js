@@ -1,110 +1,172 @@
-window.NibrasReact.run(() => {
+window.NibrasReact.run(function () {
 
-    // --- 1. SIDEBAR LOGIC ---
-    const navLinks = document.querySelectorAll('.nav-link');
-    navLinks.forEach(link => {
-        link.addEventListener('click', (e) => { 
-            navLinks.forEach(n => n.classList.remove('active'));
+    var navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(function (link) {
+        link.addEventListener('click', function (e) {
+            navLinks.forEach(function (n) { n.classList.remove('active'); });
             link.classList.add('active');
         });
     });
 
-    // --- 2. BACKEND DATA ---
-    const leaderboardData = {
-        currentUser: {
-            rank: 6,
-            name: "Ziad Alaa",
-            initials: "ZA",
-            role: "student",
-            points: 1250,
-            change: 890,
-            changeType: "pos" // pos or neg
-        },
-        list: [
-            { rank: 1, name: "Alice Johnson", initials: "AJ", role: "student", meta: "24 achievements • 45 day streak", points: 2847, change: 1250, changeType: "pos" },
-            { rank: 2, name: "Michael Chen", initials: "MC", role: "student", meta: "22 achievements • 32 day streak", points: 2456, change: 1180, changeType: "pos" },
-            { rank: 3, name: "Sarah Wilson", initials: "SW", role: "student", meta: "20 achievements • 28 day streak", points: 2234, change: 1120, changeType: "pos" },
-            { rank: 4, name: "David Kumar", initials: "DK", role: "student", meta: "19 achievements • 15 day streak", points: 2166, change: -1080, changeType: "neg" },
-            { rank: 5, name: "Emily Rodriguez", initials: "ER", role: "student", meta: "18 achievements • 27 day streak", points: 1867, change: 1045, changeType: "pos" },
-            { rank: 6, name: "Ziad Alaa", initials: "ZA", role: "student", meta: "16 achievements • 22 day streak", points: 1250, change: -890, changeType: "neg" },
-            { rank: 7, name: "Lisa Hong", initials: "LH", role: "student", meta: "14 achievements • 18 day streak", points: 1180, change: 846, changeType: "pos" },
-            { rank: 8, name: "Robert Brown", initials: "RB", role: "student", meta: "13 achievements • 9 day streak", points: 1134, change: 823, changeType: "pos" }
-        ]
-    };
+    var currentState = { period: 'weekly', scope: 'global', page: 1 };
+    var userContainer = document.getElementById('user-rank-container');
+    var listContainer = document.getElementById('leaderboard-container');
 
-    // --- 3. RENDER UI ---
-    
-    // Render Current User Card
-    const user = leaderboardData.currentUser;
-    const userContainer = document.getElementById('user-rank-container');
-    
-    const uChangeClass = user.changeType === 'pos' ? 'pos' : 'neg';
-    const uChangeIcon = user.changeType === 'pos' ? '^' : 'v'; 
-    // Image uses simple ^ numbers, let's use arrows or simple text
-    const uChangeText = user.changeType === 'pos' ? `^${user.change}` : `v${Math.abs(user.change)}`;
+    var services = window.NibrasServices;
 
-    userContainer.innerHTML = `
-        <div class="ur-left">
-            <div class="ur-avatar">${user.initials}</div>
-            <div class="ur-rank">#${user.rank}</div>
-            <div class="ur-info">
-                <h3>${user.name} <span class="ur-badge">${user.role}</span></h3>
-            </div>
-        </div>
-        <div class="ur-right">
-            <div class="ur-points">${user.points} <span class="change-val ${uChangeClass}">${uChangeText}</span></div>
-            <span class="ur-sub">reputation points</span>
-        </div>
-    `;
+    function loadLeaderboard() {
+        var period = currentState.period;
+        var scope = currentState.scope;
+        var page = currentState.page;
 
-    // Render List
-    const listContainer = document.getElementById('leaderboard-container');
-    listContainer.innerHTML = '';
+        Promise.all([
+            services.gamificationService.getLeaderboard({ period: period, scope: scope, page: page, limit: 20 }).catch(function () { return null; }),
+            services.gamificationService.getMyLeaderboardRank({ period: period, scope: scope }).catch(function () { return null; }),
+        ]).then(function (results) {
+            var lbRes = results[0];
+            var myRes = results[1];
 
-    leaderboardData.list.forEach(item => {
-        // Rank Icon Logic
-        let rankHtml = `<div class="rank-box">#${item.rank}</div>`;
-        if (item.rank === 1) rankHtml = `<div class="rank-box"><i class="fa-solid fa-crown rank-icon gold"></i></div>`;
-        if (item.rank === 2) rankHtml = `<div class="rank-box"><i class="fa-solid fa-shield rank-icon silver"></i></div>`;
-        if (item.rank === 3) rankHtml = `<div class="rank-box"><i class="fa-solid fa-gem rank-icon bronze"></i></div>`;
+            var lbData = (lbRes && (lbRes.data || lbRes)) || null;
+            var myData = (myRes && (myRes.data || myRes)) || null;
 
-        // Change Logic
-        const cClass = item.changeType === 'pos' ? 'pos' : 'neg';
-        const cText = item.changeType === 'pos' ? `^${item.change}` : `v${Math.abs(item.change)}`;
+            var entries = (lbData && lbData.entries) || [];
+            var currentUser = myData || null;
+            var pagination = (lbData && lbData.pagination) || null;
 
-        // Highlight Current User in List
-        const isMe = item.name === user.name ? 'style="border: 2px solid var(--accent-blue);"' : '';
+            var storedUser = null;
+            try {
+                var raw = localStorage.getItem('user');
+                if (raw) storedUser = JSON.parse(raw);
+            } catch (_) {}
 
-        listContainer.innerHTML += `
-            <div class="lb-row" ${isMe}>
-                <div class="lb-left">
-                    ${rankHtml}
-                    <div class="lb-avatar">${item.initials}</div>
-                    <div class="lb-user-info">
-                        <h4>${item.name} <span class="ur-badge" style="font-size:0.7rem">${item.role}</span></h4>
-                        <span class="lb-meta">${item.meta}</span>
-                    </div>
-                </div>
-                <div class="lb-right">
-                    <div class="lb-points">${item.points} <span class="lb-change ${cClass}">${cText}</span></div>
-                    <span class="lb-meta">reputation points</span>
-                </div>
-            </div>
-        `;
-    });
+            var userName = (storedUser && storedUser.name) || (currentUser && currentUser.name) || 'You';
+            var userInitials = userName.split(' ').map(function (w) { return w.charAt(0); }).join('').toUpperCase().slice(0, 2);
 
-    // --- 4. THEME TOGGLE & LOGO SWAP ---
-    const themeBtn = document.getElementById('themeBtn');
-    const themeIcon = themeBtn ? themeBtn.querySelector('i') : null;
-    const appLogo = document.getElementById('app-logo');
+            if (userContainer) {
+                var uRank = currentUser && currentUser.rank != null ? currentUser.rank : '-';
+                var uScore = currentUser && currentUser.score != null ? currentUser.score : 0;
+                var uChange = currentUser && currentUser.scoreChange != null ? currentUser.scoreChange : 0;
+                var uChangeType = uChange >= 0 ? 'pos' : 'neg';
+                var uChangeIcon = uChange >= 0 ? '^' : 'v';
+                var uChangeText = (uChange >= 0 ? '^' : 'v') + Math.abs(uChange);
 
-    // Ensure theme is set on page load
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-        document.documentElement.setAttribute('data-theme', savedTheme);
+                userContainer.innerHTML = [
+                    '<div class="ur-left">',
+                    '<div class="ur-avatar">' + escapeHtml(userInitials) + '</div>',
+                    '<div class="ur-rank">#' + uRank + '</div>',
+                    '<div class="ur-info"><h3>' + escapeHtml(userName) + ' <span class="ur-badge">student</span></h3></div>',
+                    '</div>',
+                    '<div class="ur-right">',
+                    '<div class="ur-points">' + uScore + ' <span class="change-val ' + uChangeType + '">' + uChangeText + '</span></div>',
+                    '<span class="ur-sub">reputation points</span>',
+                    '</div>',
+                ].join('');
+            }
+
+            if (listContainer) {
+                listContainer.innerHTML = '';
+                if (!entries || entries.length === 0) {
+                    listContainer.innerHTML = '<p style="color:var(--text-secondary);padding:1rem;text-align:center;">No leaderboard entries yet. Start earning points!</p>';
+                    return;
+                }
+
+                entries.forEach(function (item) {
+                    var rank = item.rank || 0;
+                    var entryName = (item.userId && item.userId.name) || item.name || 'User';
+                    var initials = entryName.split(' ').map(function (w) { return w.charAt(0); }).join('').toUpperCase().slice(0, 2);
+                    var score = item.score || 0;
+                    var change = item.scoreChange || 0;
+                    var changeType = change >= 0 ? 'pos' : 'neg';
+                    var changeText = (change >= 0 ? '^' : 'v') + Math.abs(change);
+                    var role = 'student';
+                    var meta = (item.activeDays ? item.activeDays + ' active days' : '');
+                    if (item.breakdown) {
+                        var achCount = Object.keys(item.breakdown).filter(function (k) { return item.breakdown[k] > 0; }).length;
+                        if (achCount) meta = (meta ? meta + ' &bull; ' : '') + achCount + ' categories';
+                    }
+
+                    var rankHtml = '<div class="rank-box">#' + rank + '</div>';
+                    if (rank === 1) rankHtml = '<div class="rank-box"><i class="fa-solid fa-crown rank-icon gold"></i></div>';
+                    else if (rank === 2) rankHtml = '<div class="rank-box"><i class="fa-solid fa-shield rank-icon silver"></i></div>';
+                    else if (rank === 3) rankHtml = '<div class="rank-box"><i class="fa-solid fa-gem rank-icon bronze"></i></div>';
+
+                    var isMe = (userName === entryName) ? 'style="border: 2px solid var(--accent-blue);"' : '';
+
+                    listContainer.innerHTML += [
+                        '<div class="lb-row" ' + isMe + '>',
+                        '<div class="lb-left">',
+                        rankHtml,
+                        '<div class="lb-avatar">' + escapeHtml(initials) + '</div>',
+                        '<div class="lb-user-info">',
+                        '<h4>' + escapeHtml(entryName) + ' <span class="ur-badge" style="font-size:0.7rem">' + role + '</span></h4>',
+                        '<span class="lb-meta">' + escapeHtml(meta) + '</span>',
+                        '</div>',
+                        '</div>',
+                        '<div class="lb-right">',
+                        '<div class="lb-points">' + score + ' <span class="lb-change ' + changeType + '">' + changeText + '</span></div>',
+                        '<span class="lb-meta">reputation points</span>',
+                        '</div>',
+                        '</div>',
+                    ].join('');
+                });
+
+                if (pagination && pagination.totalPages > 1) {
+                    var pagHtml = '<div class="pagination" style="display:flex;justify-content:center;gap:0.5rem;padding:1rem;">';
+                    if (pagination.page > 1) {
+                        pagHtml += '<button class="pill-btn active" data-page="' + (pagination.page - 1) + '">Prev</button>';
+                    }
+                    pagHtml += '<span style="padding:0.5rem;color:var(--text-secondary)">Page ' + pagination.page + ' of ' + pagination.totalPages + '</span>';
+                    if (pagination.page < pagination.totalPages) {
+                        pagHtml += '<button class="pill-btn active" data-page="' + (pagination.page + 1) + '">Next</button>';
+                    }
+                    pagHtml += '</div>';
+                    listContainer.innerHTML += pagHtml;
+
+                    listContainer.querySelectorAll('[data-page]').forEach(function (btn) {
+                        btn.addEventListener('click', function () {
+                            currentState.page = parseInt(this.getAttribute('data-page'));
+                            loadLeaderboard();
+                        });
+                    });
+                }
+            }
+        });
     }
 
-    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    loadLeaderboard();
+
+    var pills = document.querySelectorAll('.pill-btn');
+    pills.forEach(function (p) {
+        p.addEventListener('click', function () {
+            var periodMap = { 'overall-btn': null, 'week-btn': 'weekly', 'month-btn': 'monthly' };
+            var scopeMap = { 'global-btn': 'global', 'course-btn': 'course' };
+            var text = this.textContent.trim().toLowerCase();
+            if (text === 'overall' || text === 'all time' || this.id === 'overall-btn') { currentState.period = 'all-time'; }
+            else if (text === 'this week' || text === 'weekly' || this.id === 'week-btn') { currentState.period = 'weekly'; }
+            else if (text === 'this month' || text === 'monthly' || this.id === 'month-btn') { currentState.period = 'monthly'; }
+
+            pills.forEach(function (btn) { btn.classList.remove('active'); });
+            this.classList.add('active');
+            currentState.page = 1;
+            loadLeaderboard();
+        });
+    });
+
+    function escapeHtml(str) {
+        if (!str && str !== 0) return '';
+        var d = document.createElement('div');
+        d.appendChild(document.createTextNode(String(str)));
+        return d.innerHTML;
+    }
+
+    var themeBtn = document.getElementById('themeBtn');
+    var themeIcon = themeBtn ? themeBtn.querySelector('i') : null;
+    var appLogo = document.getElementById('app-logo');
+
+    var savedTheme = localStorage.getItem('theme');
+    if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
+
+    var currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
     if (currentTheme === 'dark') {
         if (themeIcon) themeIcon.className = 'fa-solid fa-sun';
         if (appLogo) appLogo.src = '/Assets/images/logo-dark.png';
@@ -114,37 +176,22 @@ window.NibrasReact.run(() => {
     }
 
     if (themeBtn) {
-        themeBtn.addEventListener('click', () => {
-            const html = document.documentElement;
-            const current = html.getAttribute('data-theme');
-            const newTheme = current === 'light' ? 'dark' : 'light';
-            
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            
-            if (themeIcon) {
-                themeIcon.className = newTheme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
-            }
-            if (appLogo) {
-                appLogo.src = newTheme === 'dark' ? '/Assets/images/logo-dark.png' : '/Assets/images/logo-light.png';
-            }
+        themeBtn.addEventListener('click', function () {
+            var html = document.documentElement;
+            var cur = html.getAttribute('data-theme');
+            var next = cur === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            if (themeIcon) themeIcon.className = next === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            if (appLogo) appLogo.src = next === 'dark' ? '/Assets/images/logo-dark.png' : '/Assets/images/logo-light.png';
         });
     }
 
-    // --- 5. TABS LOGIC ---
-    const segTabs = document.querySelectorAll('.seg-btn');
-    segTabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            segTabs.forEach(t => t.classList.remove('active'));
+    var segTabs = document.querySelectorAll('.seg-btn');
+    segTabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+            segTabs.forEach(function (t) { t.classList.remove('active'); });
             tab.classList.add('active');
-        });
-    });
-
-    const pills = document.querySelectorAll('.pill-btn');
-    pills.forEach(p => {
-        p.addEventListener('click', () => {
-            pills.forEach(btn => btn.classList.remove('active'));
-            p.classList.add('active');
         });
     });
 });
