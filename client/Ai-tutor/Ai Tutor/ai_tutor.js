@@ -439,10 +439,9 @@ window.NibrasReact.run(() => {
         head.innerHTML =
             '<i class="fa-solid fa-robot" style="color:#2563eb;"></i> AI Explanation:';
         const body = document.createElement('div');
-        body.style.whiteSpace = 'pre-wrap';
-        body.style.marginBottom = '10px';
+        body.className = 'markdown-body';
         body.dir = 'auto';
-        body.textContent = sessionFinalAnswer || '(No answer text.)';
+        body.innerHTML = marked.parse(sessionFinalAnswer || '*No answer text.*');
         fullAnswerContainer.appendChild(head);
         fullAnswerContainer.appendChild(body);
     };
@@ -591,7 +590,7 @@ window.NibrasReact.run(() => {
             const strong = document.createElement('strong');
             strong.innerHTML = '<i class="fa-regular fa-lightbulb"></i> ';
             const span = document.createElement('span');
-            span.textContent = sessionHints[currentHintIndex];
+            span.innerHTML = marked.parseInline(sessionHints[currentHintIndex]);
             hintEl.appendChild(strong);
             hintEl.appendChild(span);
             hintsContainer.appendChild(hintEl);
@@ -621,7 +620,8 @@ window.NibrasReact.run(() => {
                 return;
             }
             modalQuestionDisplay.textContent = sessionQuestion;
-            modalAnswerDisplay.textContent = sessionFinalAnswer;
+            modalAnswerDisplay.className = 'modal-text-box markdown-body';
+            modalAnswerDisplay.innerHTML = marked.parse(sessionFinalAnswer);
             modalTitleInput.value = '';
                         if (modalTagsDisplay) {
                 modalTagsDisplay.innerHTML = '';
