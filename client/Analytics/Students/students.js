@@ -66,9 +66,9 @@ window.NibrasReact.run(function () {
             if (!hasProblems) {
                 perfContainer.innerHTML = '<p style="color:var(--text-secondary);padding:1rem;">No problem data available.</p>';
             } else {
-                Object.keys(problemProg).forEach(function (key) {
+                Object.keys(problemProg).filter(function (k) { return difficultyLabels[k]; }).forEach(function (key) {
                     var p = problemProg[key];
-                    var label = difficultyLabels[key] || key;
+                    var label = difficultyLabels[key];
                     var color = difficultyColors[key] || 'var(--grade-c)';
                     var pct = p.percentage || 0;
                     var solved = p.solved || 0;
