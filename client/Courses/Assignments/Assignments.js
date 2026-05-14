@@ -2,6 +2,7 @@ window.NibrasReact.run(() => {
     const selectedCourse = window.NibrasCourses?.getSelectedCourse?.();
     if (!selectedCourse) return;
     const courseId = selectedCourse.id;
+    const backendCourseId = selectedCourse?.adminCourseId || selectedCourse?.backendCourseId || null;
     let assignmentData = JSON.parse(JSON.stringify(selectedCourse.assignments));
     let activeFilter = "all";
     const assignmentsNotice = document.getElementById("assignments-api-notice");
@@ -364,8 +365,23 @@ window.NibrasReact.run(() => {
             setAssignmentsNotice('Loading assignments from the backend...', 'loading');
         }
 
+        // Resolve the backend course ID (MongoDB ObjectId) from the local slug
+        let backendId = backendCourseId;
+        if (!backendId) {
+            const resolveAsync = window.NibrasCourses?.resolveCourseIdentifiersAsync;
+            const identifiers = typeof resolveAsync === 'function'
+                ? await resolveAsync(courseId, { loadRemote: true })
+                : null;
+            backendId = identifiers?.adminCourseId || identifiers?.backendCourseId || null;
+        }
+        if (!backendId) {
+            console.log('[ASSIGNMENTS.JS] No backend course ID mapping available');
+            setAssignmentsNotice('');
+            return;
+        }
+
         try {
-            const response = await assignmentsService.getAssignments(courseId);
+            const response = await assignmentsService.getAssignments(backendId);
             let items = Array.isArray(response?.data) ? response.data : [];
             if (!items.length) {
                 console.log('[ASSIGNMENTS.JS] No backend assignments found');
