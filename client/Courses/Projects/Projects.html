@@ -590,84 +590,80 @@
 
     <!-- CLI Help Modal -->
     <div id="cliHelpModal" class="modal" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
-        <div class="modal-content" style="background-color: var(--bg-primary); margin: 5% auto; padding: 25px; border-radius: 12px; max-width: 700px; max-height: 85vh; overflow-y: auto;">
+        <div class="modal-content" style="background-color: var(--bg-primary); margin: 5% auto; padding: 25px; border-radius: 12px; max-width: 750px; max-height: 85vh; overflow-y: auto;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h2 style="margin: 0; display: flex; align-items: center; gap: 10px; color: var(--text-primary);">
                     <i class="fa-solid fa-terminal" style="color: var(--accent-blue);"></i>
-                    Nibras CLI Help
+                    Nibras CLI Guide
                 </h2>
                 <button onclick="closeCliHelpModal()" style="background: none; border: none; font-size: 28px; cursor: pointer; color: var(--text-secondary);">&times;</button>
             </div>
-            
-            <div style="margin-bottom: 20px; padding: 15px; background: var(--bg-secondary); border-radius: 8px; border-left: 4px solid var(--accent-blue);">
-                <p style="margin: 0; color: var(--text-primary);">
-                    <strong>Why use the CLI?</strong> The CLI provides a better workflow for submitting projects - you can run tests locally before submitting and get instant feedback.
-                </p>
-            </div>
 
-            <div style="margin-bottom: 25px;">
-                <h3 style="margin-bottom: 15px; color: var(--text-primary);">1. Install the CLI</h3>
-                <div style="background: #1e1e1e; padding: 15px; border-radius: 8px; font-family: monospace; position: relative;">
-                    <button onclick="copyToClipboard('npm-install-cli')" style="position: absolute; top: 10px; right: 10px; padding: 5px 10px; font-size: 12px; background: #333; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Copy</button>
-                    <code id="npm-install-cli" style="color: #4fc3f7; font-size: 14px;">npm install -g git+https://github.com/NibrasPlatform/nibras-cli.git#v1.0.2</code>
+            <!-- Connection Status -->
+            <div id="cli-status-container" style="margin-bottom: 20px; padding: 15px; background: var(--bg-secondary); border-radius: 8px; border-left: 4px solid var(--accent-blue);">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <div id="cli-status-icon" style="width:12px;height:12px;border-radius:50%;background:#6b7280;"></div>
+                    <span id="cli-status-text" style="color:var(--text-secondary);font-size:14px;">Checking connection...</span>
                 </div>
             </div>
 
-            <div style="margin-bottom: 25px;">
-                <h3 style="margin-bottom: 15px; color: var(--text-primary);">2. Login with GitHub</h3>
-                <div style="background: #1e1e1e; padding: 15px; border-radius: 8px; font-family: monospace; position: relative;">
-                    <button onclick="copyToClipboard('nibras-login')" style="position: absolute; top: 10px; right: 10px; padding: 5px 10px; font-size: 12px; background: #333; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Copy</button>
-                    <code id="nibras-login" style="color: #4fc3f7; font-size: 14px;">nibras login --api-base-url https://nibras-web.fly.dev</code>
+            <!-- Course & Project Selector -->
+            <div style="margin-bottom: 20px; display: flex; gap: 15px; flex-wrap: wrap;">
+                <div style="flex:1;min-width:200px;">
+                    <label style="display:block;margin-bottom:5px;color:var(--text-primary);font-weight:500;font-size:14px;">Course</label>
+                    <select id="cli-course-select" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-card);color:var(--text-primary);font-size:14px;">
+                        <option value="">Loading courses...</option>
+                    </select>
                 </div>
-                <p style="margin-top: 10px; color: var(--text-secondary); font-size: 14px;">
-                    This opens a GitHub OAuth device flow. You'll get a code to enter on GitHub.
-                </p>
+                <div style="flex:1;min-width:200px;">
+                    <label style="display:block;margin-bottom:5px;color:var(--text-primary);font-weight:500;font-size:14px;">Project</label>
+                    <select id="cli-project-select" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-card);color:var(--text-primary);font-size:14px;">
+                        <option value="">Select a project...</option>
+                    </select>
+                </div>
             </div>
 
-            <div style="margin-bottom: 25px;">
-                <h3 style="margin-bottom: 15px; color: var(--text-primary);">3. Setup Your Project</h3>
-                <div style="background: #1e1e1e; padding: 15px; border-radius: 8px; font-family: monospace; position: relative;">
-                    <button onclick="copyToClipboard('nibras-setup')" style="position: absolute; top: 10px; right: 10px; padding: 5px 10px; font-size: 12px; background: #333; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Copy</button>
-                    <code id="nibras-setup" style="color: #4fc3f7; font-size: 14px;">nibras setup --project your-course/project-key</code>
+            <!-- Commands -->
+            <div id="cli-commands-container">
+                <div style="margin-bottom:15px;">
+                    <h3 style="margin-bottom:10px;color:var(--text-primary);font-size:15px;">1. Install the CLI</h3>
+                    <div id="cli-install-box" style="background:#1e1e1e;padding:12px 15px;border-radius:8px;font-family:monospace;position:relative;">
+                        <button onclick="copyTextContent('npm install -g @nibras/cli')" style="position:absolute;top:8px;right:10px;padding:4px 10px;font-size:11px;background:#333;color:#fff;border:none;border-radius:4px;cursor:pointer;">Copy</button>
+                        <code style="color:#4fc3f7;font-size:14px;">npm install -g @nibras/cli</code>
+                    </div>
                 </div>
-                <p style="margin-top: 10px; color: var(--text-secondary); font-size: 14px;">
-                    Replace <code id="nibras-setup-project-key" style="background: var(--bg-secondary); padding: 2px 6px; border-radius: 4px;">your-course/project-key</code> with your actual course/project ID.
-                </p>
+                <div style="margin-bottom:15px;">
+                    <h3 style="margin-bottom:10px;color:var(--text-primary);font-size:15px;">2. Login</h3>
+                    <div style="background:#1e1e1e;padding:12px 15px;border-radius:8px;font-family:monospace;position:relative;">
+                        <button onclick="copyTextContent(document.getElementById('cli-login-command')?.textContent || '')" style="position:absolute;top:8px;right:10px;padding:4px 10px;font-size:11px;background:#333;color:#fff;border:none;border-radius:4px;cursor:pointer;">Copy</button>
+                        <code id="cli-login-command" style="color:#4fc3f7;font-size:14px;">nibras login --api-base-url {url}</code>
+                    </div>
+                </div>
+                <div style="margin-bottom:15px;">
+                    <h3 style="margin-bottom:10px;color:var(--text-primary);font-size:15px;">3. Setup Project</h3>
+                    <div style="background:#1e1e1e;padding:12px 15px;border-radius:8px;font-family:monospace;position:relative;">
+                        <button onclick="copyTextContent(document.getElementById('cli-setup-command')?.textContent || '')" style="position:absolute;top:8px;right:10px;padding:4px 10px;font-size:11px;background:#333;color:#fff;border:none;border-radius:4px;cursor:pointer;">Copy</button>
+                        <code id="cli-setup-command" style="color:#4fc3f7;font-size:14px;">nibras setup --project ...</code>
+                    </div>
+                </div>
+                <div style="margin-bottom:15px;">
+                    <h3 style="margin-bottom:10px;color:var(--text-primary);font-size:15px;">4. Test &amp; Submit</h3>
+                    <div style="background:#1e1e1e;padding:12px 15px;border-radius:8px;font-family:monospace;position:relative;">
+                        <button onclick="copyTextContent('nibras test && nibras submit')" style="position:absolute;top:8px;right:10px;padding:4px 10px;font-size:11px;background:#333;color:#fff;border:none;border-radius:4px;cursor:pointer;">Copy</button>
+                        <code style="color:#4fc3f7;font-size:14px;">nibras test && nibras submit</code>
+                    </div>
+                </div>
             </div>
 
-            <div style="margin-bottom: 25px;">
-                <h3 style="margin-bottom: 15px; color: var(--text-primary);">4. Run Tests Locally</h3>
-                <div style="background: #1e1e1e; padding: 15px; border-radius: 8px; font-family: monospace; position: relative;">
-                    <button onclick="copyToClipboard('nibras-test')" style="position: absolute; top: 10px; right: 10px; padding: 5px 10px; font-size: 12px; background: #333; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Copy</button>
-                    <code id="nibras-test" style="color: #4fc3f7; font-size: 14px;">nibras test</code>
-                </div>
-                <p style="margin-top: 10px; color: var(--text-secondary); font-size: 14px;">
-                    Runs tests defined in your project's manifest before submitting.
-                </p>
-            </div>
-
-            <div style="margin-bottom: 25px;">
-                <h3 style="margin-bottom: 15px; color: var(--text-primary);">5. Submit Your Work</h3>
-                <div style="background: #1e1e1e; padding: 15px; border-radius: 8px; font-family: monospace; position: relative;">
-                    <button onclick="copyToClipboard('nibras-submit')" style="position: absolute; top: 10px; right: 10px; padding: 5px 10px; font-size: 12px; background: #333; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Copy</button>
-                    <code id="nibras-submit" style="color: #4fc3f7; font-size: 14px;">nibras submit</code>
-                </div>
-                <p style="margin-top: 10px; color: var(--text-secondary); font-size: 14px;">
-                    This stages allowed files, commits, pushes, and registers with the API for grading.
-                </p>
-            </div>
-
-            <div style="margin-bottom: 20px; padding: 15px; background: #1e1e1e; border-radius: 8px;">
-                <h4 style="margin: 0 0 10px 0; color: #4fc3f7;">Check Installation</h4>
-                <div style="background: #2d2d2d; padding: 10px; border-radius: 6px; font-family: monospace;">
-                    <code style="color: #4fc3f7; font-size: 13px;">nibras --version</code>
-                </div>
-                <div style="background: #2d2d2d; padding: 10px; border-radius: 6px; font-family: monospace; margin-top: 8px;">
-                    <code style="color: #4fc3f7; font-size: 13px;">nibras ping</code>
-                </div>
-                <p style="margin-top: 10px; color: var(--text-secondary); font-size: 13px;">
-                    Use <code style="background: var(--bg-secondary); padding: 2px 6px; border-radius: 4px;">nibras ping</code> to verify your setup and connectivity.
-                </p>
+            <!-- Verify Buttons -->
+            <div style="margin-bottom:15px;display:flex;gap:10px;flex-wrap:wrap;">
+                <button id="cli-btn-check-github" class="btn btn-outline btn-sm" type="button" onclick="window.checkCliGitHubStatus()" style="padding:8px 16px;font-size:13px;">
+                    <i class="fa-brands fa-github"></i> Check GitHub
+                </button>
+                <button id="cli-btn-ping" class="btn btn-outline btn-sm" type="button" onclick="window.checkCliApiPing()" style="padding:8px 16px;font-size:13px;">
+                    <i class="fa-solid fa-plug"></i> Ping API
+                </button>
+                <span id="cli-verify-result" style="color:var(--text-secondary);font-size:13px;align-self:center;"></span>
             </div>
 
             <div style="text-align: center; margin-top: 20px;">
@@ -679,20 +675,21 @@
     <script>
         function openCliHelpModal() {
             document.getElementById('cliHelpModal').style.display = 'block';
+            if (typeof window.loadCliGuide === 'function') window.loadCliGuide();
         }
         function closeCliHelpModal() {
             document.getElementById('cliHelpModal').style.display = 'none';
         }
-        function copyToClipboard(elementId) {
-            const text = document.getElementById(elementId).textContent;
+        function copyTextContent(text) {
             navigator.clipboard.writeText(text).then(function() {
-                alert('Copied to clipboard!');
+                var r = document.getElementById('cli-verify-result');
+                if (r) { r.textContent = 'Copied!'; setTimeout(function() { r.textContent = ''; }, 1500); }
             }, function(err) {
                 console.error('Could not copy text: ', err);
             });
         }
         window.onclick = function(event) {
-            const modal = document.getElementById('cliHelpModal');
+            var modal = document.getElementById('cliHelpModal');
             if (event.target === modal) {
                 modal.style.display = 'none';
             }

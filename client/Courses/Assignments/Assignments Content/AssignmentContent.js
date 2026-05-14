@@ -62,37 +62,6 @@ window.NibrasReact.run(() => {
     const pulseCard = document.getElementById('submission-pulse');
     const submitSection = document.getElementById('submit-section');
 
-    async function submitToCoursesBackend(repoUrl) {
-        const coursesService = window.NibrasServices?.coursesService;
-        const backendCourseId = selectedCourse?.adminCourseId || selectedCourse?.backendCourseId || data?.backendCourseId || null;
-        const backendAssignmentId = data?.backendAssignmentId || null;
-
-        if (
-            !coursesService ||
-            typeof coursesService.createSubmission !== 'function' ||
-            !backendCourseId ||
-            !backendAssignmentId
-        ) {
-            return { submitted: false, submissionId: null };
-        }
-
-        try {
-            const payload = await coursesService.createSubmission({
-                courseId: String(backendCourseId),
-                assignmentId: String(backendAssignmentId),
-                githubLink: repoUrl,
-            });
-            const submission = payload?.data || payload || {};
-            const submissionId = submission?._id || submission?.id || null;
-            return { submitted: true, submissionId };
-        } catch (error) {
-            if (Number(error?.status) === 404) {
-                return { submitted: false, submissionId: null };
-            }
-            throw error;
-        }
-    }
-
     if (btnSubmit) {
         btnSubmit.addEventListener('click', async () => {
             const repoUrl = githubUrlInput.value.trim();
@@ -105,49 +74,32 @@ window.NibrasReact.run(() => {
                 btnSubmit.disabled = true;
                 btnSubmit.textContent = 'Submitting...';
 
-                const coursesSubmission = await submitToCoursesBackend(repoUrl);
-
-                let trackingSubmissionResult = null;
+                let submissionResult = null;
                 if (projectsClient && typeof projectsClient.submitMilestone === 'function') {
-                    try {
-                        trackingSubmissionResult = await projectsClient.submitMilestone({
-                            milestoneId: data.milestoneId || 'default-milestone',
-                            courseId: courseId,
-                            projectKey: String(data.projectKey || ''),
-                            submissionType: 'github',
-                            resourceLink: repoUrl,
-                            branch: String(branchInput?.value || 'main').trim() || 'main',
-                            commitSha: String(commitShaInput?.value || '').trim()
-                        });
-                    } catch (trackingError) {
-                        if (!coursesSubmission.submitted) {
-                            throw trackingError;
-                        }
-                    }
+                    submissionResult = await projectsClient.submitMilestone({
+                        milestoneId: data.milestoneId || 'default-milestone',
+                        courseId: courseId,
+                        projectKey: String(data.projectKey || ''),
+                        submissionType: 'github',
+                        resourceLink: repoUrl,
+                        branch: String(branchInput?.value || 'main').trim() || 'main',
+                        commitSha: String(commitShaInput?.value || '').trim()
+                    });
+                } else {
+                    throw new Error('Submission service unavailable.');
                 }
 
-                if (trackingSubmissionResult?.ok) {
-                    if (trackingSubmissionResult.data?.submissionId && data?.milestoneId) {
-                        localStorage.setItem(`last_sub_${data.milestoneId}`, String(trackingSubmissionResult.data.submissionId));
+                if (submissionResult?.ok) {
+                    if (submissionResult.data?.submissionId && data?.milestoneId) {
+                        localStorage.setItem(`last_sub_${data.milestoneId}`, String(submissionResult.data.submissionId));
                     }
                     submitSection.style.display = 'none';
                     pulseCard.classList.add('active');
-                    if (trackingSubmissionResult.data?.submissionId) {
-                        startPolling(trackingSubmissionResult.data.submissionId);
+                    if (submissionResult.data?.submissionId) {
+                        startPolling(submissionResult.data.submissionId);
                     } else {
                         updatePulseUI('queued');
                     }
-                    return;
-                }
-
-                if (coursesSubmission.submitted) {
-                    if (coursesSubmission.submissionId && data?.milestoneId) {
-                        localStorage.setItem(`last_sub_${data.milestoneId}`, String(coursesSubmission.submissionId));
-                    }
-                    submitSection.style.display = 'none';
-                    pulseCard.classList.add('active');
-                    updatePulseUI('queued');
-                    btnSubmit.textContent = 'Submitted';
                     return;
                 }
 

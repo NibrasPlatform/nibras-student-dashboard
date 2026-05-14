@@ -5,7 +5,7 @@
         SUBMISSIONS_BY_MILESTONE: '/v1/tracking/milestones/{milestoneId}/submissions',
         SUBMISSION_DETAIL: '/v1/tracking/submissions/{submissionId}',
         SUBMISSION_REVIEW: '/v1/tracking/submissions/{submissionId}/review',
-        LEGACY_SUBMISSIONS: '/v1/submissions',
+
     });
 
     const RUNTIME_ORIGIN = /^https?:/i.test(global.location?.origin || '')
@@ -61,7 +61,6 @@
 
         const response = await requestJsonWithCompatibility([
             { path: PATHS.SUBMISSIONS_BY_MILESTONE.replace('{milestoneId}', encodeURIComponent(milestoneId)) },
-            { path: `${PATHS.LEGACY_SUBMISSIONS}?projectId=${encodeURIComponent(projectId)}&milestoneId=${encodeURIComponent(milestoneId)}` },
         ], { method: 'GET' }, settings);
 
         const submissions = normalizeSubmissions(Array.isArray(response) ? response : (response?.submissions || []));
@@ -96,7 +95,6 @@
 
         const response = await requestJsonWithCompatibility([
             { path: PATHS.SUBMISSIONS_BY_MILESTONE.replace('{milestoneId}', encodeURIComponent(milestoneId)) },
-            { path: PATHS.LEGACY_SUBMISSIONS },
         ], { method: 'POST', body }, settings);
 
         return {
@@ -117,7 +115,6 @@
 
         const response = await requestJsonWithCompatibility([
             { path: PATHS.SUBMISSION_DETAIL.replace('{submissionId}', encodeURIComponent(submissionKey)) },
-            { path: `${PATHS.LEGACY_SUBMISSIONS}/${encodeURIComponent(submissionKey)}` },
         ], { method: 'GET' }, settings);
 
         return {
@@ -133,7 +130,6 @@
 
         return await requestJsonWithCompatibility([
             { path: PATHS.SUBMISSION_REVIEW.replace('{submissionId}', encodeURIComponent(submissionKey)) },
-            { path: `${PATHS.LEGACY_SUBMISSIONS}/${encodeURIComponent(submissionKey)}/review` },
         ], { method: 'GET' }, settings, { allowNotFound: true });
     }
 

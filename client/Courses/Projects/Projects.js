@@ -184,7 +184,6 @@ function renderProjects() {
         tabsRoot.innerHTML = '<div class="project-card-tab active"><h3>No Projects Found</h3></div>';
         const host = document.getElementById('projectDetailsHost');
         if (host) host.innerHTML = '<div class="card"><p>No project details available yet.</p></div>';
-        updateCliHelpContent(null);
         return;
     }
 
@@ -213,7 +212,6 @@ function renderProjectDetails() {
     const project = projectsPageState.ui.projects.find((entry) => entry.domId === projectsPageState.activeProjectId);
     if (!project) {
         host.innerHTML = '<div class="card"><p>Select a project to view details.</p></div>';
-        updateCliHelpContent(null);
         return;
     }
 
@@ -247,8 +245,6 @@ function renderProjectDetails() {
             </div>
         </div>
     `;
-
-    updateCliHelpContent(project);
 }
 
 function createMilestoneRow(project, milestone) {
@@ -316,20 +312,153 @@ function updateHeaderStats() {
     if (completionLabel) completionLabel.textContent = `${averageCompletion}% Complete`;
 }
 
-function updateCliHelpContent(project) {
-    const cliBase = projectsApiClient?.getCliBaseUrl?.() || resolveCliApiBase();
-    const projectKey = project?.projectKey || 'your-course/project-key';
-    const setupCommand = `nibras setup --project ${projectKey}`;
-    const loginCommand = `nibras login --api-base-url ${cliBase || 'https://nibras-web.fly.dev'}`;
-
-    const loginCode = document.getElementById('nibras-login');
-    const setupCode = document.getElementById('nibras-setup');
-    const setupHint = document.getElementById('nibras-setup-project-key');
-
-    if (loginCode) loginCode.textContent = loginCommand;
-    if (setupCode) setupCode.textContent = setupCommand;
-    if (setupHint) setupHint.textContent = projectKey;
+function resolveCliBaseUrl() {
+    return projectsApiClient?.getCliBaseUrl?.() || resolveCliApiBase() || '{your-api-url}';
 }
+
+function getCliProjectKey() {
+    var project = projectsPageState.ui.projects.find(function (e) { return e.domId === projectsPageState.activeProjectId; });
+    return project?.projectKey || project?.details?.projectKey || '';
+}
+
+function updateCliCommands(courseSlug, projectKey) {
+    var cliBase = resolveCliBaseUrl();
+    var loginCmd = 'nibras login --api-base-url ' + cliBase;
+    var setupCmd = 'nibras setup --project ' + ((projectKey || courseSlug) ? (courseSlug + '/' + (projectKey || 'project')) : 'your-course/project-key');
+    var loginEl = document.getElementById('cli-login-command');
+    var setupEl = document.getElementById('cli-setup-command');
+    if (loginEl) loginEl.textContent = loginCmd;
+    if (setupEl) setupEl.textContent = setupCmd;
+}
+
+function populateCourseDropdown(courses, selectedCourseId) {
+    var select = document.getElementById('cli-course-select');
+    if (!select) return;
+    select.innerHTML = '<option value="">Select a course...</option>';
+    var hasSelected = false;
+    (courses || []).forEach(function (c) {
+        var id = c.id || c._id || '';
+        var name = c.name || c.title || c.courseCode || id;
+        var selected = (id === selectedCourseId) ? 'selected' : '';
+        if (selected) hasSelected = true;
+        select.innerHTML += '<option value="' + escapeHtml(id) + '" ' + selected + '>' + escapeHtml(name) + '</option>';
+    });
+    select.onchange = function () {
+        var courseId = this.value;
+        if (courseId) loadProjectsForCourse(courseId);
+        else document.getElementById('cli-project-select').innerHTML = '<option value="">Select a project...</option>';
+    };
+    if (!hasSelected && courses && courses.length === 1) {
+        select.value = courses[0].id || courses[0]._id || '';
+        loadProjectsForCourse(select.value);
+    }
+}
+
+function loadProjectsForCourse(courseId) {
+    var select = document.getElementById('cli-project-select');
+    if (!select) return;
+    select.innerHTML = '<option value="">Loading projects...</option>';
+    var services = window.NibrasServices;
+    if (!services || !services.trackingProjectService) {
+        select.innerHTML = '<option value="">Service unavailable</option>';
+        return;
+    }
+    services.trackingProjectService.listByCourse(courseId).then(function (res) {
+        var projects = Array.isArray(res) ? res : (res?.data || res?.projects || []);
+        select.innerHTML = '<option value="">Select a project...</option>';
+        var activeProjectKey = getCliProjectKey();
+        (projects || []).forEach(function (p) {
+            var key = p.projectKey || p.slug || p.id || p._id || '';
+            var title = p.title || p.name || key;
+            var selected = key && activeProjectKey && (key === activeProjectKey || title === activeProjectKey) ? 'selected' : '';
+            select.innerHTML += '<option value="' + escapeHtml(key) + '" data-title="' + escapeHtml(title) + '" ' + selected + '>' + escapeHtml(title) + '</option>';
+        });
+        select.onchange = function () {
+            var opt = this.options[this.selectedIndex];
+            var key = this.value;
+            var slug = document.getElementById('cli-course-select')?.value || '';
+            updateCliCommands(slug, key);
+        };
+        var firstVal = select.value;
+        var slug = document.getElementById('cli-course-select')?.value || '';
+        updateCliCommands(slug, firstVal);
+    }).catch(function () {
+        select.innerHTML = '<option value="">Failed to load projects</option>';
+    });
+}
+
+window.loadCliGuide = function () {
+    var statusIcon = document.getElementById('cli-status-icon');
+    var statusText = document.getElementById('cli-status-text');
+    if (statusIcon) statusIcon.style.background = '#6b7280';
+    if (statusText) statusText.textContent = 'Checking connection...';
+
+    var services = window.NibrasServices;
+    if (!services || !services.authService) {
+        if (statusText) statusText.textContent = 'Services not loaded. Please refresh.';
+        return;
+    }
+
+    var activeProjectKey = getCliProjectKey();
+    var cliBase = resolveCliBaseUrl();
+    updateCliCommands('', activeProjectKey);
+
+    services.authService.getMe().then(function (res) {
+        var user = res?.user || res?.data?.user || res?.data || {};
+        var name = user.name || user.username || user.email || 'User';
+        var githubUser = user.githubUsername || user.githubLogin || '';
+        var hasGithub = Boolean(user.githubId || githubUser || user.githubAppInstalled);
+        if (statusIcon) statusIcon.style.background = hasGithub ? '#10b981' : '#f59e0b';
+        if (statusText) {
+            statusText.textContent = hasGithub
+                ? 'Connected as ' + escapeHtml(name) + (githubUser ? ' (GitHub: @' + escapeHtml(githubUser) + ')' : '')
+                : 'Logged in as ' + escapeHtml(name) + ' — Link GitHub to submit projects.';
+        }
+    }).catch(function () {
+        if (statusIcon) statusIcon.style.background = '#ef4444';
+        if (statusText) statusText.textContent = 'Not connected. Run nibras login from your terminal.';
+    });
+
+    services.trackingCourseService.list().then(function (res) {
+        var courses = Array.isArray(res) ? res : (res?.data || res?.courses || []);
+        var selectedCourseId = '';
+        var currentProject = projectsPageState.ui.projects.find(function (e) { return e.domId === projectsPageState.activeProjectId; });
+        if (currentProject && currentProject.trackingCourseId) selectedCourseId = currentProject.trackingCourseId;
+        populateCourseDropdown(courses, selectedCourseId);
+    }).catch(function () {
+        var select = document.getElementById('cli-course-select');
+        if (select) select.innerHTML = '<option value="">Failed to load courses</option>';
+    });
+};
+
+window.checkCliGitHubStatus = function () {
+    var result = document.getElementById('cli-verify-result');
+    if (result) result.textContent = 'Checking GitHub...';
+    var services = window.NibrasServices;
+    if (!services || !services.githubService) {
+        if (result) result.textContent = 'Service unavailable';
+        return;
+    }
+    services.githubService.getConfig().then(function (res) {
+        var configured = res?.configured ?? res?.data?.configured ?? false;
+        var appName = res?.appName || res?.data?.appName || '';
+        if (result) result.textContent = configured ? 'GitHub App connected' + (appName ? ' (' + appName + ')' : '') + ' ✓' : 'GitHub App not installed — click Install App in Settings.';
+    }).catch(function () {
+        if (result) result.textContent = 'GitHub check failed (API unavailable)';
+    });
+};
+
+window.checkCliApiPing = function () {
+    var result = document.getElementById('cli-verify-result');
+    if (result) result.textContent = 'Pinging...';
+    var cliBase = resolveCliBaseUrl();
+    var pingUrl = cliBase.replace(/\/+$/, '') + '/v1/health';
+    fetch(pingUrl, { method: 'GET' }).then(function (r) {
+        if (result) result.textContent = r.ok ? 'API reachable ✓' : 'API returned status ' + r.status;
+    }).catch(function () {
+        if (result) result.textContent = 'API unreachable — check the URL';
+    });
+};
 
 async function handleMilestoneSubmit(event) {
     event.preventDefault();
@@ -602,7 +731,7 @@ function resolveProjectsCourseContext(course) {
 
 function resolveCliApiBase() {
     const raw = String(window.NibrasShared?.resolveServiceUrl?.('tracking') || window.NIBRAS_TRACKING_API_URL || '').trim();
-    if (!raw) return 'https://nibras-web.fly.dev';
+    if (!raw) return '{your-api-url}';
     return raw.replace(/\/+$/, '').replace(/\/v1$/i, '');
 }
 
