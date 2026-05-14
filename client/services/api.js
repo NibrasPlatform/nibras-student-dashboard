@@ -1611,6 +1611,33 @@
                 body: {},
             });
         },
+
+        /**
+         * Get notification preferences
+         * @returns {Promise<Array>}
+         */
+        async getPreferences() {
+            return apiFetch('/v1/notifications/preferences', {
+                service: 'tracking',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        /**
+         * Update a notification preference
+         * @param {string} type - preference type slug (e.g. 'achievement', 'grade_posted')
+         * @param {boolean} enabled
+         * @returns {Promise<object>}
+         */
+        async updatePreference(type, enabled) {
+            return apiFetch(`/v1/notifications/preferences/${encodeURIComponent(String(type))}`, {
+                service: 'tracking',
+                method: 'PATCH',
+                auth: true,
+                body: { enabled: !!enabled },
+            });
+        },
     };
 
     // ============================================================
@@ -2160,7 +2187,7 @@
          */
         async getGradesCsv(courseId) {
             const response = await fetch(
-                `${resolveServiceUrl('tracking')}/v1/tracking/courses/${encodeURIComponent(String(courseId))}/grades.csv`,
+                `${resolveServiceUrl('tracking')}/v1/tracking/courses/${encodeURIComponent(String(courseId))}/export.csv`,
                 {
                     method: 'GET',
                     credentials: 'include',

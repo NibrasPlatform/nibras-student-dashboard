@@ -388,6 +388,90 @@ window.NibrasReact.run(() => {
         void loadUserProfile();
     });
 
+    var notifTypeMap = {
+        'notif-assign': 'assignment_deadline',
+        'notif-grade': 'grade_posted',
+        'notif-course': 'course_announcement',
+        'notif-achieve': 'achievement',
+        'notif-email': 'email_digest',
+    };
+    var notifLabels = [
+        { id: 'notif-assign', title: 'Assignment Deadlines', desc: 'Get notified about upcoming assignment due dates' },
+        { id: 'notif-grade', title: 'Grade Updates', desc: 'Receive notifications when new grades are posted' },
+        { id: 'notif-course', title: 'Course Announcements', desc: 'Stay updated with course announcements from instructors' },
+        { id: 'notif-achieve', title: 'Achievement Unlocked', desc: 'Get notified when you earn new badges and achievements' },
+        { id: 'notif-email', title: 'Email Notifications', desc: 'Send notifications to your email address' },
+    ];
+
+    var notifDefaults = {
+        'notif-assign': true, 'notif-grade': true, 'notif-course': true,
+        'notif-achieve': true, 'notif-email': false,
+    };
+
+    function renderNotificationToggles(prefMap) {
+        var container = document.getElementById('notification-container');
+        if (!container) return;
+        container.innerHTML = '';
+        notifLabels.forEach(function (n) {
+            var checked = prefMap && prefMap[n.id] !== undefined ? prefMap[n.id] : notifDefaults[n.id];
+            var isChecked = checked ? 'checked' : '';
+            container.innerHTML += [
+                '<div class="toggle-row">',
+                '<div class="toggle-info"><h4>' + n.title + '</h4><p>' + n.desc + '</p></div>',
+                '<label class="switch">',
+                '<input type="checkbox" id="' + n.id + '" ' + isChecked + '>',
+                '<span class="slider round"></span>',
+                '</label>',
+                '</div>',
+            ].join('');
+        });
+    }
+
+    function attachNotificationListeners() {
+        notifLabels.forEach(function (n) {
+            var checkbox = document.getElementById(n.id);
+            if (!checkbox) return;
+            checkbox.addEventListener('change', function () {
+                var type = notifTypeMap[n.id];
+                var enabled = this.checked;
+                if (window.NibrasServices && window.NibrasServices.notificationService) {
+                    window.NibrasServices.notificationService.updatePreference(type, enabled)
+                        .catch(function () { /* silent — keep UI state */ });
+                }
+            });
+        });
+    }
+
+    function loadNotificationPreferences() {
+        if (!window.NibrasServices || !window.NibrasServices.notificationService) {
+            renderNotificationToggles(null);
+            attachNotificationListeners();
+            return;
+        }
+        window.NibrasServices.notificationService.getPreferences().then(function (res) {
+            var prefs = Array.isArray(res) ? res : (res && (res.preferences || res.data)) || [];
+            var prefMap = {};
+            notifLabels.forEach(function (n) {
+                var type = notifTypeMap[n.id];
+                var match = null;
+                if (Array.isArray(prefs)) {
+                    for (var i = 0; i < prefs.length; i++) {
+                        if (prefs[i].type === type || prefs[i].id === type) {
+                            match = prefs[i];
+                            break;
+                        }
+                    }
+                }
+                prefMap[n.id] = match ? match.enabled : notifDefaults[n.id];
+            });
+            renderNotificationToggles(prefMap);
+            attachNotificationListeners();
+        }).catch(function () {
+            renderNotificationToggles(null);
+            attachNotificationListeners();
+        });
+    }
+
     // --- 3. BACKEND DATA (fallback defaults) ---
     const settingsData = {
         profile: {
@@ -396,13 +480,6 @@ window.NibrasReact.run(() => {
             studentId: "",
             avatar: ""
         },
-        notifications: [
-            { id: "notif-assign", title: "Assignment Deadlines", desc: "Get notified about upcoming assignment due dates", checked: true },
-            { id: "notif-grade", title: "Grade Updates", desc: "Receive notifications when new grades are posted", checked: true },
-            { id: "notif-course", title: "Course Announcements", desc: "Stay updated with course announcements from instructors", checked: true },
-            { id: "notif-achieve", title: "Achievement Unlocked", desc: "Get notified when you earn new badges and achievements", checked: true },
-            { id: "notif-email", title: "Email Notifications", desc: "Send notifications to your email address", checked: false }
-        ],
         preferences: {
             language: "English",
             timezone: "Cairo",
@@ -421,23 +498,7 @@ window.NibrasReact.run(() => {
     document.getElementById('input-email').value = settingsData.profile.email;
     document.getElementById('input-id').value = settingsData.profile.studentId;
 
-    const notifContainer = document.getElementById('notification-container');
-    notifContainer.innerHTML = '';
-    settingsData.notifications.forEach(n => {
-        const isChecked = n.checked ? 'checked' : '';
-        notifContainer.innerHTML += `
-            <div class="toggle-row">
-                <div class="toggle-info">
-                    <h4>${n.title}</h4>
-                    <p>${n.desc}</p>
-                </div>
-                <label class="switch">
-                    <input type="checkbox" id="${n.id}" ${isChecked}>
-                    <span class="slider round"></span>
-                </label>
-            </div>
-        `;
-    });
+    loadNotificationPreferences();
 
     const prefs = loadPreferences();
     document.getElementById('pref-lang').value = prefs.language;
