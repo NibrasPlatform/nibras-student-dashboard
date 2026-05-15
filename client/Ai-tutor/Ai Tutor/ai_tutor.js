@@ -640,6 +640,77 @@ window.NibrasReact.run(() => {
         });
     }
 
+    // EX Ai button handler
+    var explainAiBtn = document.getElementById('explain-ai-btn');
+    var explainModal = document.getElementById('explain-modal');
+    var explainLoading = document.getElementById('explain-loading');
+    var explainContent = document.getElementById('explain-content');
+    var explainError = document.getElementById('explain-error');
+
+    if (explainAiBtn) {
+        explainAiBtn.addEventListener('click', async function () {
+            if (!sessionQuestion || !sessionFinalAnswer) {
+                setTutorNotice('empty', 'Ask the AI Tutor and view the full answer first.');
+                return;
+            }
+
+            explainModal.style.display = 'flex';
+            explainModal.setAttribute('aria-hidden', 'false');
+            explainLoading.style.display = '';
+            explainContent.style.display = 'none';
+            explainError.style.display = 'none';
+            explainContent.innerHTML = '';
+
+            try {
+                var token = null;
+                try { token = localStorage.getItem('token'); } catch (_) {}
+                var apiBase = window.NibrasShared?.resolveServiceUrl?.('admin') || window.NIBRAS_API_URL || 'https://nibras-backend.up.railway.app/api';
+
+                var response = await fetch(apiBase.replace(/\/+$/, '') + '/chatbot/explain', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': token ? 'Bearer ' + token : '',
+                    },
+                    body: JSON.stringify({
+                        question: sessionQuestion,
+                        answer: sessionFinalAnswer,
+                        hints: sessionHints,
+                    }),
+                });
+
+                if (!response.ok) throw new Error('Failed to generate explanation');
+
+                var data = await response.json();
+                var explanation = data?.data?.explanation || 'No explanation available.';
+
+                explainLoading.style.display = 'none';
+                explainContent.style.display = '';
+                explainContent.innerHTML = marked.parse(explanation);
+            } catch (err) {
+                explainLoading.style.display = 'none';
+                explainError.style.display = '';
+                explainError.textContent = err.message || 'Could not generate explanation.';
+            }
+        });
+    }
+
+    var closeExplainBtn = document.getElementById('close-explain-btn');
+    var closeExplainModalBtn = document.getElementById('close-explain-modal-btn');
+
+    function closeExplainModal() {
+        explainModal.style.display = 'none';
+        explainModal.setAttribute('aria-hidden', 'true');
+    }
+
+    if (closeExplainBtn) closeExplainBtn.addEventListener('click', closeExplainModal);
+    if (closeExplainModalBtn) closeExplainModalBtn.addEventListener('click', closeExplainModal);
+
+    // Click outside to close
+    explainModal.addEventListener('click', function (e) {
+        if (e.target === explainModal) closeExplainModal();
+    });
+
     const closeModal = () => {
         communityModal.style.display = 'none';
         communityModal.setAttribute('aria-hidden', 'true');

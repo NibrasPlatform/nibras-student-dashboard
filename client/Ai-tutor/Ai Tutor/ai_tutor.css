@@ -320,3 +320,12 @@ html[data-theme="dark"] .community-match-banner .btn-match-view {
 html[data-theme="dark"] .community-match-banner .btn-match-view:hover {
     background-color: #2563eb;
 }
+
+/* EX Ai Spinner */
+@keyframes nibras-spin { to { transform: rotate(360deg); } }
+
+/* EX Ai button hover */
+#explain-ai-btn:hover {
+    opacity: 0.9;
+    box-shadow: 0 0 12px rgba(168, 85, 247, 0.4);
+}
