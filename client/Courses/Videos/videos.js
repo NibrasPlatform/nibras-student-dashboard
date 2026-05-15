@@ -3,6 +3,8 @@ console.log("[VIDEOS.JS] Script started (direct execution)");
 const selectedCourse = window.NibrasCourses?.getSelectedCourse?.();
 let courseData = selectedCourse ? JSON.parse(JSON.stringify(selectedCourse.videos)) : null;
 const courseId = selectedCourse?.id;
+const adminCourseId = selectedCourse?.adminCourseId || selectedCourse?.remoteCourseId || null;
+var sectionIdMap = {};
 let currentVideoElement = null;
 let currentIframeElement = null;
 
@@ -89,45 +91,46 @@ function handleVideoComplete(lesson, videoItem) {
 
 function saveProgressToBackend(lessonId) {
     var svc = window.NibrasServices?.coursesService;
-    if (!svc || !courseId) return;
-    svc.toggleSection(courseId, lessonId, true).catch(function () {});
+    var sectionId = sectionIdMap[lessonId];
+    if (!svc || !adminCourseId || !sectionId) return;
+    svc.toggleSection(adminCourseId, sectionId, true).catch(function () {});
 }
 
 async function syncProgressFromBackend() {
     var svc = window.NibrasServices?.coursesService;
-    if (!svc || !courseId) return;
+    if (!svc || !adminCourseId) return;
     try {
-        var res = await svc.getProgress(courseId);
+        var res = await svc.getProgress(adminCourseId);
         var progress = res?.data || res || {};
         var items = progress.items || [];
-        if (items.length > 0) {
-            var completedIds = [];
-            items.forEach(function (item) {
-                if (item.state === 'completed' && item.sectionId) {
-                    completedIds.push(item.sectionId);
+        var completedSections = progress.completedSections || [];
+
+        var completedSectionIds = new Set();
+        items.forEach(function (item) {
+            if (item.state === 'completed' && item.sectionId) completedSectionIds.add(item.sectionId);
+        });
+        completedSections.forEach(function (id) { if (id) completedSectionIds.add(String(id)); });
+
+        if (completedSectionIds.size > 0) {
+            var reverseMap = {};
+            Object.keys(sectionIdMap).forEach(function (key) { reverseMap[sectionIdMap[key]] = key; });
+            var stored = getCompletedLectures();
+            var changed = false;
+
+            completedSectionIds.forEach(function (sid) {
+                var lectureId = reverseMap[sid];
+                if (lectureId && !stored.includes(lectureId)) {
+                    stored.push(lectureId);
+                    changed = true;
                 }
             });
-            if (completedIds.length > 0) {
-                var stored = getCompletedLectures();
-                var changed = false;
-                (courseData?.lessons || []).forEach(function (lesson) {
-                    var found = completedIds.some(function (sid) {
-                        return lesson.id === sid || lesson.id.endsWith(sid);
-                    });
-                    if (found && !stored.includes(lesson.id)) {
-                        stored.push(lesson.id);
-                        changed = true;
-                    }
-                });
-                if (changed) {
-                    saveCompletedLectures(stored);
-                    console.log('[VIDEOS.JS] Synced completed lectures from backend:', stored);
-                }
+
+            if (changed) {
+                saveCompletedLectures(stored);
+                console.log('[VIDEOS.JS] Synced', stored.length, 'completed lectures from backend');
             }
         }
-    } catch (_) {
-        // Backend unavailable — localStorage fallback is fine
-    }
+    } catch (_) {}
     applyCompletionState();
 }
 
@@ -153,6 +156,21 @@ function applyCompletionState() {
         });
         courseData.progress.completed = completedCount;
     }
+}
+
+async function initSectionMapping() {
+    if (!adminCourseId) return;
+    var svc = window.NibrasServices?.coursesService;
+    if (!svc) return;
+    try {
+        var res = await svc.getById(adminCourseId);
+        var sections = res?.data?.sections || res?.sections || [];
+        var lessons = courseData?.lessons || [];
+        sections.forEach(function (sec, i) {
+            if (lessons[i]) sectionIdMap[lessons[i].id] = sec._id;
+        });
+        if (Object.keys(sectionIdMap).length) console.log('[VIDEOS.JS] Section map built:', Object.keys(sectionIdMap).length, 'mappings');
+    } catch (_) {}
 }
 
 function setCourseLinks() {
@@ -208,10 +226,11 @@ function initThemeToggle() {
     }
 }
 
-function initVideos() {
+async function initVideos() {
     if (!courseData || !selectedCourse) return;
     initThemeToggle();
     setCourseLinks();
+    await initSectionMapping();
     populateUI(courseData);
     setupVideoPlayer();
     setupLectureListHandler();
