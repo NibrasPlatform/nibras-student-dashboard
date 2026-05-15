@@ -35,7 +35,10 @@
   const DEFAULT_ADMIN_API = DEFAULT_MONOLITH_API;
   const DEFAULT_LEGACY_API = DEFAULT_MONOLITH_API;
   const DEFAULT_COMMUNITY_API = DEFAULT_MONOLITH_API;
-  const DEFAULT_TRACKING_API = 'https://nibras-api.fly.dev';
+  var DEFAULT_TRACKING_API = 'https://nibras-api.fly.dev';
+  try {
+    if (window.location.hostname.includes('vercel.app')) DEFAULT_TRACKING_API = '/v1';
+  } catch (_) {}
   const DEFAULT_COMPETITIONS_API = 'https://nibras-backend.up.railway.app';
   const DEFAULT_RECOMMENDATION_API = 'https://recommendationmodel-production-0f8e.up.railway.app/api/recommend';
   const DEFAULT_COURSES_API = 'https://nibras-backend.up.railway.app/api';

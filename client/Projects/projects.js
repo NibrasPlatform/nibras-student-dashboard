@@ -28,6 +28,8 @@ window.NibrasReact.run(function () {
     }
     function updateIcon(el, theme) {
         el.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        var logo = document.getElementById('app-logo');
+        if (logo) logo.src = theme === 'dark' ? '/Assets/images/logo-dark.png' : '/Assets/images/logo-light.png';
     }
 
     var courseSelect = document.getElementById('course-selector');
