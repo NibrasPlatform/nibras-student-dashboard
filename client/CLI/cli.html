@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NiBras - CLI Guide</title>
+    <script>
+    (function () {
+        var t = localStorage.getItem('theme');
+        if (t) document.documentElement.setAttribute('data-theme', t);
+    })();
+    </script>
+    <link rel="stylesheet" href="cli.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="logo-area">
+            <img src="../Assets/images/logo-light.png" alt="Nibras Logo" class="sidebar-logo">
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item"><a href="../Dashboard/dashboard.html" class="nav-link"><i class="fa-solid fa-house"></i> Dashboard</a></li>
+            <li class="nav-item"><a href="../Levels/level.html" class="nav-link"><i class="fa-solid fa-book-open"></i> Courses</a></li>
+            <li class="nav-item"><a href="../Projects/projects.html" class="nav-link"><i class="fa-solid fa-diagram-project"></i> Projects</a></li>
+            
+            <li class="nav-item"><a href="../CLI/cli.html" class="nav-link"><i class="fa-solid fa-terminal"></i> CLI</a></li><li class="nav-item"><a href="./cli.html" class="nav-link active"><i class="fa-solid fa-terminal"></i> CLI</a></li>
+            <li class="nav-item"><a href="../Competitions/Contests/contest.html" class="nav-link"><i class="fa-solid fa-trophy"></i> Competitions</a></li>
+            <li class="nav-item"><a href="../Community/community.html" class="nav-link"><i class="fa-solid fa-users"></i> Community</a></li>
+            <li class="nav-item"><a href="../Achievements/Achievements/achievements.html" class="nav-link"><i class="fa-solid fa-medal"></i> Achievements</a></li>
+            <li class="nav-item"><a href="../Ai-tutor/Ai%20Tutor/ai_tutor.html" class="nav-link"><i class="fa-solid fa-robot"></i> AI Tutor</a></li>
+            <li class="nav-item"><a href="../Analytics/Overview/overview.html" class="nav-link"><i class="fa-solid fa-chart-simple"></i> Analytics</a></li>
+            <li class="nav-item"><a href="../Settings/settings.html" class="nav-link"><i class="fa-solid fa-gear"></i> Settings</a></li>
+        </ul>
+        <div class="user-profile">
+            <div class="avatar-circle">U</div>
+            <div class="user-info"><h4>User</h4><span>Student</span></div>
+        </div>
+        <div class="reputation-box">Reputation <span class="rep-badge">0</span></div>
+        <a href="../Login/loginPage/login.html" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-header">
+            <div class="search-bar-global">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" placeholder="Search CLI commands...">
+            </div>
+            <div class="header-actions">
+                <button id="theme-toggle" class="icon-btn"><i class="fa-regular fa-moon"></i></button>
+                <button class="icon-btn"><i class="fa-regular fa-bell"></i></button>
+                <div class="profile-circle-small">U</div>
+            </div>
+        </header>
+
+        <div class="content-wrapper">
+            <div class="cli-header">
+                <h1><i class="fa-solid fa-terminal" style="color:var(--accent-blue);margin-right:10px;"></i> CLI Setup Guide</h1>
+                <p>Install the Nibras CLI, authenticate with GitHub, and submit your first project — step by step.</p>
+                <div class="cli-progress"><span id="cli-step-count">0</span> / 10 done</div>
+            </div>
+
+            <div class="cli-steps" id="cli-steps">
+
+                <!-- Step 01 -->
+                <div class="cli-step" data-step="1">
+                    <div class="step-head" onclick="toggleStep(1)">
+                        <span class="step-num">01</span>
+                        <div class="step-info"><h3>Prerequisites</h3><p>Node.js ≥ 18, npm ≥ 9, and git</p></div>
+                        <span class="step-check" id="check-1"><i class="fa-regular fa-circle"></i></span>
+                    </div>
+                    <div class="step-body" id="body-1">
+                        <p>You need <strong>Node.js ≥ 18</strong>, <strong>npm ≥ 9</strong>, and <strong>git</strong> before installing the CLI.</p>
+                        <div class="os-tabs"><button class="os-tab active" onclick="switchOs('macos', this)">macOS</button><button class="os-tab" onclick="switchOs('linux', this)">Linux</button><button class="os-tab" onclick="switchOs('windows', this)">Windows</button></div>
+                        <div class="code-block os-content macos"><pre><code>curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+source ~/.zshrc
+nvm install --lts
+nvm use --lts</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                        <div class="code-block os-content linux" style="display:none;"><pre><code>curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+source ~/.bashrc
+nvm install --lts
+nvm use --lts</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                        <div class="code-block os-content windows" style="display:none;"><pre><code># Download and run the nvm-windows installer:
+# https://github.com/coreybutler/nvm-windows/releases
+nvm install lts
+nvm use lts</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                        <p style="margin-top:10px;">Verify: <code>node --version</code> should return v18 or higher, <code>npm --version</code> should return 9 or higher, <code>git --version</code> should return a version.</p>
+                        <button class="btn-mark-done" onclick="markStep(1)">Mark as complete</button>
+                    </div>
+                </div>
+
+                <!-- Step 02 -->
+                <div class="cli-step" data-step="2">
+                    <div class="step-head" onclick="toggleStep(2)">
+                        <span class="step-num">02</span>
+                        <div class="step-info"><h3>Install the CLI</h3><p>Install the current CLI release globally</p></div>
+                        <span class="step-check" id="check-2"><i class="fa-regular fa-circle"></i></span>
+                    </div>
+                    <div class="step-body" id="body-2">
+                        <p>Install the CLI directly from the GitHub release.</p>
+                        <div class="code-block"><pre><code>npm install -g https://github.com/NibrasPlatform/nibras-cli/releases/download/v1.0.2/nibras-cli-1.0.2.tgz</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                        <p>Verify: <code>nibras --version</code> should start with <code>v1.0.2</code>.</p>
+                        <button class="btn-mark-done" onclick="markStep(2)">Mark as complete</button>
+                    </div>
+                </div>
+
+                <!-- Step 03 -->
+                <div class="cli-step" data-step="3">
+                    <div class="step-head" onclick="toggleStep(3)">
+                        <span class="step-num">03</span>
+                        <div class="step-info"><h3>Authenticate with GitHub</h3><p>Log in with your GitHub account</p></div>
+                        <span class="step-check" id="check-3"><i class="fa-regular fa-circle"></i></span>
+                    </div>
+                    <div class="step-body" id="body-3">
+                        <p>Run the login command. It will open a browser for GitHub OAuth.</p>
+                        <div class="code-block"><pre><code>nibras login --api-base-url https://nibras-api.fly.dev</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                        <p>After login, verify with <code>nibras whoami</code> to confirm your session.</p>
+                        <button class="btn-mark-done" onclick="markStep(3)">Mark as complete</button>
+                    </div>
+                </div>
+
+                <!-- Step 04 -->
+                <div class="cli-step" data-step="4">
+                    <div class="step-head" onclick="toggleStep(4)">
+                        <span class="step-num">04</span>
+                        <div class="step-info"><h3>Set Up a Project</h3><p>Bootstrap a local project from a project key</p></div>
+                        <span class="step-check" id="check-4"><i class="fa-regular fa-circle"></i></span>
+                    </div>
+                    <div class="step-body" id="body-4">
+                        <p>Run <code>nibras setup</code> with your project key. This creates the project manifest and starter files.</p>
+                        <div class="code-block"><pre><code>nibras setup --project your-course/project-key</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                        <p>View the task instructions: <code>nibras task</code></p>
+                        <button class="btn-mark-done" onclick="markStep(4)">Mark as complete</button>
+                    </div>
+                </div>
+
+                <!-- Step 05 -->
+                <div class="cli-step" data-step="5">
+                    <div class="step-head" onclick="toggleStep(5)">
+                        <span class="step-num">05</span>
+                        <div class="step-info"><h3>Run Tests Locally</h3><p>Run the project test suite</p></div>
+                        <span class="step-check" id="check-5"><i class="fa-regular fa-circle"></i></span>
+                    </div>
+                    <div class="step-body" id="body-5">
+                        <p>Run the configured test command for your project.</p>
+                        <div class="code-block"><pre><code>nibras test</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                        <button class="btn-mark-done" onclick="markStep(5)">Mark as complete</button>
+                    </div>
+                </div>
+
+                <!-- Step 06 -->
+                <div class="cli-step" data-step="6">
+                    <div class="step-head" onclick="toggleStep(6)">
+                        <span class="step-num">06</span>
+                        <div class="step-info"><h3>Submit Your Work</h3><p>Stage, commit, push, and verify</p></div>
+                        <span class="step-check" id="check-6"><i class="fa-regular fa-circle"></i></span>
+                    </div>
+                    <div class="step-body" id="body-6">
+                        <p><code>nibras submit</code> runs tests, stages allowed files, creates a commit, pushes to GitHub, and waits for verification.</p>
+                        <div class="code-block"><pre><code>nibras submit</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                        <button class="btn-mark-done" onclick="markStep(6)">Mark as complete</button>
+                    </div>
+                </div>
+
+                <!-- Step 07 -->
+                <div class="cli-step" data-step="7">
+                    <div class="step-head" onclick="toggleStep(7)">
+                        <span class="step-num">07</span>
+                        <div class="step-info"><h3>Check Status</h3><p>Diagnostic commands</p></div>
+                        <span class="step-check" id="check-7"><i class="fa-regular fa-circle"></i></span>
+                    </div>
+                    <div class="step-body" id="body-7">
+                        <p>Use these commands to check your setup and authentication status at any time.</p>
+                        <div class="code-block"><pre><code>nibras ping    # check API, auth, GitHub, and project status
+nibras whoami  # show signed-in user and linked GitHub account
+nibras status  # show recent submission statuses</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                        <button class="btn-mark-done" onclick="markStep(7)">Mark as complete</button>
+                    </div>
+                </div>
+
+                <!-- Step 08 -->
+                <div class="cli-step" data-step="8">
+                    <div class="step-head" onclick="toggleStep(8)">
+                        <span class="step-num">08</span>
+                        <div class="step-info"><h3>List Courses & Projects</h3><p>Discover available courses and projects</p></div>
+                        <span class="step-check" id="check-8"><i class="fa-regular fa-circle"></i></span>
+                    </div>
+                    <div class="step-body" id="body-8">
+                        <p>List your enrolled courses and available projects.</p>
+                        <div class="code-block"><pre><code>nibras list               # basic listing
+nibras list --verbose     # detailed view with milestones</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                        <button class="btn-mark-done" onclick="markStep(8)">Mark as complete</button>
+                    </div>
+                </div>
+
+                <!-- Step 09 -->
+                <div class="cli-step" data-step="9">
+                    <div class="step-head" onclick="toggleStep(9)">
+                        <span class="step-num">09</span>
+                        <div class="step-info"><h3>Update & Manage CLI</h3><p>Update, uninstall, or check version</p></div>
+                        <span class="step-check" id="check-9"><i class="fa-regular fa-circle"></i></span>
+                    </div>
+                    <div class="step-body" id="body-9">
+                        <p>Manage your CLI installation.</p>
+                        <div class="code-block"><pre><code>nibras update --check                  # check for updates
+nibras update --version v1.0.2         # install a specific version
+nibras uninstall                        # remove the CLI</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                        <button class="btn-mark-done" onclick="markStep(9)">Mark as complete</button>
+                    </div>
+                </div>
+
+                <!-- Step 10 -->
+                <div class="cli-step" data-step="10">
+                    <div class="step-head" onclick="toggleStep(10)">
+                        <span class="step-num">10</span>
+                        <div class="step-info"><h3>Troubleshooting</h3><p>Common issues and fixes</p></div>
+                        <span class="step-check" id="check-10"><i class="fa-regular fa-circle"></i></span>
+                    </div>
+                    <div class="step-body" id="body-10">
+                        <p>Start with <code>nibras ping</code> — it checks API, auth, GitHub, and project status in one command.</p>
+                        <div class="troubleshoot-item"><strong>Command not found</strong><p>Run <code>npm install -g</code> again. If persistent, clear the global link: <code>npm uninstall -g nibras @nibras/cli</code> then reinstall.</p></div>
+                        <div class="troubleshoot-item"><strong>EACCES permission denied</strong><p>Use nvm to manage Node versions. Never use <code>sudo npm install -g</code>.</p></div>
+                        <div class="troubleshoot-item"><strong>AUTH_REQUIRED error</strong><p>Run <code>nibras login --api-base-url</code> again. Your session may have expired.</p></div>
+                        <div class="troubleshoot-item"><strong>Repository not found</strong><p>Ensure your GitHub App is installed. Run <code>nibras ping</code> to check.</p></div>
+                        <button class="btn-mark-done" onclick="markStep(10)">Mark as complete</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Command Reference -->
+            <div class="cli-ref">
+                <h2>CLI Command Reference</h2>
+                <div class="ref-table">
+                    <div class="ref-row"><span class="ref-cmd">nibras login --api-base-url &lt;url&gt;</span><span class="ref-desc">Start hosted device login</span></div>
+                    <div class="ref-row"><span class="ref-cmd">nibras setup --project &lt;key&gt;</span><span class="ref-desc">Bootstrap a local project</span></div>
+                    <div class="ref-row"><span class="ref-cmd">nibras task</span><span class="ref-desc">View task instructions</span></div>
+                    <div class="ref-row"><span class="ref-cmd">nibras test</span><span class="ref-desc">Run local tests</span></div>
+                    <div class="ref-row"><span class="ref-cmd">nibras submit</span><span class="ref-desc">Submit your solution</span></div>
+                    <div class="ref-row"><span class="ref-cmd">nibras list</span><span class="ref-desc">List courses and projects</span></div>
+                    <div class="ref-row"><span class="ref-cmd">nibras status</span><span class="ref-desc">Show submission status</span></div>
+                    <div class="ref-row"><span class="ref-cmd">nibras ping</span><span class="ref-desc">Diagnostics check</span></div>
+                    <div class="ref-row"><span class="ref-cmd">nibras whoami</span><span class="ref-desc">Show current user</span></div>
+                    <div class="ref-row"><span class="ref-cmd">nibras update</span><span class="ref-desc">Update the CLI</span></div>
+                    <div class="ref-row"><span class="ref-cmd">nibras uninstall</span><span class="ref-desc">Remove the CLI</span></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../react-page-utils.js"></script>
+    <script>if (window.NibrasShared?.session?.updateUserInfoDisplay) window.NibrasShared.session.updateUserInfoDisplay();</script>
+    <script src="../config.js"></script>
+    <script src="../services/api.js"></script>
+    <script src="../react-bootstrap.js"></script>
+    <script src="./cli.js"></script>
+    <script src="../services/gamification-ui.js"></script>
+</body>
+</html>
