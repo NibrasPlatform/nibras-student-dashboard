@@ -63,6 +63,15 @@ function saveProgress(num) {
     } catch (_) {}
 }
 
+function switchStep2Shell(shell, btn) {
+    var parent = btn.closest('.step-body');
+    if (!parent) return;
+    parent.querySelectorAll('#step-02-os-tabs .os-tab').forEach(function (t) { t.classList.remove('active'); });
+    btn.classList.add('active');
+    parent.querySelectorAll('.step2-shell').forEach(function (c) { c.style.display = 'none'; });
+    parent.querySelectorAll('.step2-shell.' + shell).forEach(function (c) { c.style.display = ''; });
+}
+
 function switchWinShell(shell, btn) {
     document.querySelectorAll('.win-tabs .os-tab').forEach(function (t) { t.classList.remove('active'); });
     btn.classList.add('active');

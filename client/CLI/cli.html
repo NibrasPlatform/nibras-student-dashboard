@@ -167,9 +167,35 @@ git --version</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy<
                         <span class="step-check" id="check-2"><i class="fa-regular fa-circle"></i></span>
                     </div>
                     <div class="step-body" id="body-2">
-                        <p>Install the CLI directly from the GitHub release.</p>
+                        <p>Install the CLI directly from the GitHub release. This makes the <code>nibras</code> command available everywhere in your terminal.</p>
                         <div class="code-block"><pre><code>npm install -g https://github.com/NibrasPlatform/nibras-cli/releases/download/v1.0.2/nibras-cli-1.0.2.tgz</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
                         <p>Verify: <code>nibras --version</code> should start with <code>v1.0.2</code>.</p>
+
+                        <p style="margin-top:12px;font-size:0.85rem;color:var(--text-secondary);">
+                            To reinstall later: <code>nibras update --version v1.0.2</code>. To remove the CLI: <code>nibras uninstall</code>.<br>
+                            Use <code>nibras update --check</code> to compare your installed version against the latest GitHub release before updating.
+                        </p>
+
+                        <p style="margin-top:12px;font-size:0.85rem;font-weight:600;">If the install fails with <code>EEXIST</code> or <code>ENOTDIR</code>, you have a stale global link. Remove it and reinstall:</p>
+
+                        <div id="step-02-os-tabs" class="os-tabs" style="margin-top:10px;">
+                            <button class="os-tab active" onclick="switchStep2Shell('powershell', this)">PowerShell</button>
+                            <button class="os-tab" onclick="switchStep2Shell('gitbash', this)">Git Bash</button>
+                        </div>
+
+                        <div class="code-block step2-shell powershell"><pre><code>npm uninstall -g nibras @nibras/cli
+Remove-Item "$((npm config get prefix).Trim())\nibras.cmd" -Force -ErrorAction SilentlyContinue
+Remove-Item "$((npm config get prefix).Trim())\nibras" -Force -ErrorAction SilentlyContinue
+Remove-Item "$((npm root -g).Trim())\nibras" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item "$((npm root -g).Trim())\@nibras\cli" -Recurse -Force -ErrorAction SilentlyContinue
+npm install -g https://github.com/NibrasPlatform/nibras-cli/releases/download/v1.0.2/nibras-cli-1.0.2.tgz</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+
+                        <div class="code-block step2-shell gitbash" style="display:none;"><pre><code>npm uninstall -g nibras @nibras/cli || true
+prefix="$(npm config get prefix)"
+rm -f "$prefix/nibras" "$prefix/nibras.cmd"
+rm -rf "$(npm root -g)/nibras" "$(npm root -g)/@nibras/cli"
+npm install -g https://github.com/NibrasPlatform/nibras-cli/releases/download/v1.0.2/nibras-cli-1.0.2.tgz</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+
                         <button class="btn-mark-done" onclick="markStep(2)">Mark as complete</button>
                     </div>
                 </div>
