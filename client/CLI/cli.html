@@ -437,21 +437,35 @@ Good luck!</pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></
 
                 <!-- Step 09 -->
                 <div class="cli-step" data-step="9">
-                    <div class="step-head" onclick="toggleStep(9)"><span class="step-num">09</span><div class="step-info"><h3>CLI Command Reference</h3><p>Quick reference for all CLI commands</p></div><span class="step-check" id="check-9"><i class="fa-regular fa-circle"></i></span></div>
+                    <div class="step-head" onclick="toggleStep(9)"><span class="step-num">09</span><div class="step-info"><h3>CLI Command Reference</h3><p>Full CLI surface at a glance</p></div><span class="step-check" id="check-9"><i class="fa-regular fa-circle"></i></span></div>
                     <div class="step-body" id="body-9">
-                        <div class="ref-table">
-                            <div class="ref-row"><span class="ref-cmd">nibras login --api-base-url &lt;url&gt;</span><span class="ref-desc">Start hosted device login</span></div>
-                            <div class="ref-row"><span class="ref-cmd">nibras setup --project &lt;key&gt;</span><span class="ref-desc">Bootstrap a local project</span></div>
-                            <div class="ref-row"><span class="ref-cmd">nibras task</span><span class="ref-desc">View task instructions</span></div>
-                            <div class="ref-row"><span class="ref-cmd">nibras test</span><span class="ref-desc">Run local tests</span></div>
-                            <div class="ref-row"><span class="ref-cmd">nibras submit</span><span class="ref-desc">Submit your solution</span></div>
-                            <div class="ref-row"><span class="ref-cmd">nibras list</span><span class="ref-desc">List courses and projects</span></div>
-                            <div class="ref-row"><span class="ref-cmd">nibras status</span><span class="ref-desc">Show submission status</span></div>
-                            <div class="ref-row"><span class="ref-cmd">nibras ping</span><span class="ref-desc">Diagnostics check</span></div>
-                            <div class="ref-row"><span class="ref-cmd">nibras whoami</span><span class="ref-desc">Show current user</span></div>
-                            <div class="ref-row"><span class="ref-cmd">nibras update</span><span class="ref-desc">Update the CLI</span></div>
-                            <div class="ref-row"><span class="ref-cmd">nibras uninstall</span><span class="ref-desc">Remove the CLI</span></div>
-                        </div>
+                        <p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:1.5rem;">Use this appendix for commands outside the main onboarding path or when you need the full CLI surface at a glance.</p>
+
+                        <h4 style="margin-bottom:12px;font-size:1rem;">Core workflow</h4>
+                        <div class="ref-item"><div class="ref-cmd">nibras login --api-base-url &lt;api-url&gt;</div><div class="ref-desc">Start hosted device login against a specific Nibras deployment. Use the explicit API URL for hosted onboarding. The CLI default remains the local dev API.</div></div>
+                        <div class="ref-item"><div class="ref-cmd">nibras setup --project &lt;key&gt;</div><div class="ref-desc">Bootstrap or refresh a local project.</div></div>
+                        <div class="ref-item"><div class="ref-cmd">nibras task</div><div class="ref-desc">Print cached task text or fetch it if missing.</div></div>
+                        <div class="ref-item"><div class="ref-cmd">nibras test</div><div class="ref-desc">Run the manifest test command.</div></div>
+                        <div class="ref-item"><div class="ref-cmd">nibras submit</div><div class="ref-desc">Test, stage allowed files, commit, push, and wait for verification.</div></div>
+
+                        <h4 style="margin:1.5rem 0 12px;font-size:1rem;">Discovery</h4>
+                        <div class="ref-item"><div class="ref-cmd">nibras list</div><div class="ref-desc">List all enrolled courses and their projects.</div></div>
+                        <div class="ref-item"><div class="ref-cmd">nibras status</div><div class="ref-desc">Show recent submissions with live status badges.</div></div>
+
+                        <h4 style="margin:1.5rem 0 12px;font-size:1rem;">Session and diagnostics</h4>
+                        <div class="ref-item"><div class="ref-cmd">nibras whoami</div><div class="ref-desc">Show the signed-in user and linked GitHub account.</div></div>
+                        <div class="ref-item"><div class="ref-cmd">nibras ping</div><div class="ref-desc">Show API, auth, GitHub, GitHub App, and project status. Inside a project, it also reports the project key and origin remote.</div></div>
+                        <div class="ref-item"><div class="ref-cmd">nibras logout</div><div class="ref-desc">Clear the local session.</div></div>
+
+                        <h4 style="margin:1.5rem 0 12px;font-size:1rem;">Install lifecycle</h4>
+                        <div class="ref-item"><div class="ref-cmd">nibras update --version &lt;tag&gt;</div><div class="ref-desc">Reinstall a pinned published CLI release. Use <code>nibras update --check</code> to compare the installed CLI against the latest GitHub release.</div></div>
+                        <div class="ref-item"><div class="ref-cmd">nibras update --force --version &lt;tag&gt;</div><div class="ref-desc">Force reinstall the same pinned tag.</div></div>
+                        <div class="ref-item"><div class="ref-cmd">nibras uninstall</div><div class="ref-desc">Remove the global CLI install and keep local config.</div></div>
+
+                        <h4 style="margin:1.5rem 0 12px;font-size:1rem;">Advanced / compatibility</h4>
+                        <div class="ref-item"><div class="ref-cmd">nibras update-buildpack --node &lt;version&gt;</div><div class="ref-desc">Edit the Node buildpack version in <code>.nibras/project.json</code>. Advanced manifest maintenance only; standard students usually do not need this.</div></div>
+                        <div class="ref-item"><div class="ref-cmd">nibras legacy ...</div><div class="ref-desc">Run the older CLI entrypoint for compatibility. Compatibility-only. It is not part of the hosted default workflow.</div></div>
+
                         <button class="btn-mark-done" onclick="markStep(9)">Mark as complete</button>
                     </div>
                 </div>

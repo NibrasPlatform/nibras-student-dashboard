@@ -98,5 +98,9 @@ a { text-decoration: none; }
 .ref-row:last-child { border-bottom: none; }
 .ref-cmd { font-family: 'Geist Mono', monospace; font-size: 0.85rem; color: var(--accent-blue); flex-shrink: 0; }
 .ref-desc { font-size: 0.85rem; color: var(--text-secondary); text-align: right; }
+.ref-item { padding: 0.6rem 0; border-bottom: 1px solid var(--border-color); }
+.ref-item:last-child { border-bottom: none; }
+.ref-item .ref-cmd { font-family: 'Geist Mono', monospace; font-size: 0.85rem; color: var(--accent-blue); margin-bottom: 4px; display: block; }
+.ref-item .ref-desc { font-size: 0.85rem; color: var(--text-secondary); }
 
 @media (max-width: 1024px) { .sidebar { display: none; } .main-content { margin-left: 0; } }
