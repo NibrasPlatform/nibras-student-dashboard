@@ -500,10 +500,32 @@ window.NibrasReact.run(() => {
 
     loadNotificationPreferences();
 
-    const prefs = loadPreferences();
-    document.getElementById('pref-lang').value = prefs.language;
-    document.getElementById('pref-timezone').value = prefs.timezone;
-    document.getElementById('pref-level').value = prefs.level;
+    var prefs = loadPreferences();
+
+    function applyPreferences(p) {
+        document.getElementById('pref-lang').value = p.language;
+        document.getElementById('pref-timezone').value = p.timezone;
+        document.getElementById('pref-level').value = p.level;
+    }
+
+    if (window.NibrasServices?.usersService) {
+        window.NibrasServices.usersService.getMe().then(function (res) {
+            var user = res?.user || res?.data || res;
+            if (user?.preferences) {
+                prefs = {
+                    language: user.preferences.language || prefs.language,
+                    timezone: user.preferences.timezone || prefs.timezone,
+                    level: user.preferences.level || prefs.level,
+                };
+                savePreferences(prefs);
+            }
+            applyPreferences(prefs);
+        }).catch(function () {
+            applyPreferences(prefs);
+        });
+    } else {
+        applyPreferences(prefs);
+    }
 
     // Update course context banner
     const banner = document.getElementById('course-context-banner');
@@ -556,29 +578,38 @@ window.NibrasReact.run(() => {
     }
 
     // --- 6. SAVE PREFERENCES ---
-    document.querySelector('.btn-save').addEventListener('click', () => {
-        const btn = document.querySelector('.btn-save');
-        const originalText = btn.textContent;
+    document.querySelector('.btn-save').addEventListener('click', function () {
+        var btn = document.querySelector('.btn-save');
+        var originalText = btn.textContent;
         btn.textContent = "Saving...";
         btn.disabled = true;
 
-        // Get current values from form
-        const prefs = {
+        var prefs = {
             language: document.getElementById('pref-lang').value,
             timezone: document.getElementById('pref-timezone').value,
             level: document.getElementById('pref-level').value
         };
 
-        // Save preferences
+        function done(ok) {
+            btn.textContent = ok ? "Settings saved!" : "Save failed";
+            btn.style.backgroundColor = ok ? "var(--accent-blue, #2563eb)" : "var(--danger-color, #dc2626)";
+            setTimeout(function () {
+                btn.textContent = originalText;
+                btn.style.backgroundColor = "";
+                btn.disabled = false;
+            }, 1500);
+        }
+
         savePreferences(prefs);
 
-        // Show success message
-        btn.textContent = "Settings saved!";
-        btn.style.backgroundColor = "var(--accent-blue, #2563eb)";
-        setTimeout(() => {
-            btn.textContent = originalText;
-            btn.style.backgroundColor = "";
-            btn.disabled = false;
-        }, 1500);
+        if (window.NibrasServices?.usersService) {
+            window.NibrasServices.usersService.updateMe({ preferences: prefs }).then(function () {
+                done(true);
+            }).catch(function () {
+                done(false);
+            });
+        } else {
+            done(true);
+        }
     });
 });

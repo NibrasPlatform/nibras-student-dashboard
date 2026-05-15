@@ -3,7 +3,7 @@ console.log("[VIDEOS.JS] Script started (direct execution)");
 const selectedCourse = window.NibrasCourses?.getSelectedCourse?.();
 let courseData = selectedCourse ? JSON.parse(JSON.stringify(selectedCourse.videos)) : null;
 const courseId = selectedCourse?.id;
-const adminCourseId = selectedCourse?.adminCourseId || selectedCourse?.remoteCourseId || null;
+let adminCourseId = selectedCourse?.adminCourseId || selectedCourse?.remoteCourseId || null;
 var sectionIdMap = {};
 let currentVideoElement = null;
 let currentIframeElement = null;
@@ -216,9 +216,35 @@ function applyCompletionState() {
 }
 
 async function initSectionMapping() {
-    if (!adminCourseId) return;
     var svc = window.NibrasServices?.coursesService;
     if (!svc) return;
+
+    if (!adminCourseId) {
+        try {
+            var res = await svc.list({ page: 1, limit: 100 });
+            var coursesList = Array.isArray(res) ? res : (res?.data?.courses || res?.data || res?.courses || []);
+            if (!Array.isArray(coursesList)) coursesList = [];
+
+            var match = coursesList.find(function (c) {
+                return (selectedCourse?.code && c.code === selectedCourse.code) ||
+                       (selectedCourse?.title && (c.title === selectedCourse.title || c.name === selectedCourse.title));
+            });
+
+            if (match?._id) {
+                adminCourseId = match._id;
+                var sections = match.sections || [];
+                var lessons = courseData?.lessons || [];
+                sections.forEach(function (sec, i) {
+                    if (lessons[i]) sectionIdMap[lessons[i].id] = sec._id;
+                });
+                if (Object.keys(sectionIdMap).length) {
+                    console.log('[VIDEOS.JS] Section map built via fallback:', Object.keys(sectionIdMap).length, 'mappings');
+                }
+            }
+        } catch (_) {}
+        return;
+    }
+
     try {
         var res = await svc.getById(adminCourseId);
         var sections = res?.data?.sections || res?.sections || [];

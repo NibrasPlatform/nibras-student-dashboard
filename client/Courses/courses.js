@@ -3,15 +3,40 @@ console.log('[COURSES.JS] Script started (direct execution)');
 // --- 1. DATA ---
 let coursesData = [];
 
-function initCourses() {
+async function initCourses() {
     console.log('[COURSES.JS] Initializing courses page');
 
     // Check if user has selected a level (first-time onboarding)
     var storedUser = null;
     try { storedUser = JSON.parse(localStorage.getItem('user')); } catch (_) {}
     if (!storedUser || !storedUser.selectedLevel) {
-        window.location.replace('../Levels/level.html');
-        return;
+        // Try backend before redirecting — user may have set level on another device
+        var levelFetched = false;
+        try {
+            var token2 = localStorage.getItem('token');
+            if (!token2) { window.location.replace('../Login/loginPage/login.html'); return; }
+            var apiBase = window.NibrasShared?.resolveServiceUrl?.('admin') || window.NIBRAS_API_URL || 'https://nibras-backend.up.railway.app/api';
+            var resp = await fetch(apiBase.replace(/\/+$/, '') + '/auth/me', {
+                headers: { 'Authorization': 'Bearer ' + token2 }
+            });
+            if (resp.ok) {
+                var data = await resp.json();
+                var userData = data?.user || data?.data?.user || data?.data || {};
+                if (userData.selectedLevel) {
+                    var merged = storedUser || {};
+                    merged.selectedLevel = userData.selectedLevel;
+                    if (userData.name) merged.name = userData.name;
+                    if (userData.email) merged.email = userData.email;
+                    if (userData.role) merged.role = userData.role;
+                    localStorage.setItem('user', JSON.stringify(merged));
+                    levelFetched = true;
+                }
+            }
+        } catch (_) {}
+        if (!levelFetched) {
+            window.location.replace('../Levels/level.html');
+            return;
+        }
     }
 
     // --- 2. SIDEBAR ACTIVE LOGIC ---

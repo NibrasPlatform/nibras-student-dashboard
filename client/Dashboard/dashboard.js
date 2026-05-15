@@ -1,7 +1,7 @@
 console.log('[DASHBOARD.JS] Script started (direct execution)');
 
 // --- 2. BACKEND DATA ---
-const savedGPA = localStorage.getItem('calculatedGPA');
+let savedGPA = localStorage.getItem('calculatedGPA');
 let selectedCourseId = localStorage.getItem('selectedCourseId') || '';
 let dashboardData = {};
 
@@ -481,7 +481,30 @@ function initGPAModal() {
         gpaResult.style.display = 'block';
         document.getElementById('gpa-box-value').textContent = `${finalGPA}/4.0`;
         localStorage.setItem('calculatedGPA', finalGPA);
+        savedGPA = finalGPA;
     });
+}
+
+async function fetchGPAFromBackend() {
+    try {
+        var user = JSON.parse(localStorage.getItem('user'));
+        var userId = user?._id || user?.id || user?.userId;
+        if (!userId) return;
+        var svc = window.NibrasServices?.backendAnalyticsService;
+        if (!svc || typeof svc.getStudentPerformance !== 'function') return;
+        var res = await svc.getStudentPerformance(userId);
+        var data = res?.data || res || {};
+        var gradeSummary = data.coursesGradeSummary || [];
+        var grades = gradeSummary.map(function (c) { return c.weightedGrade; }).filter(function (g) { return g > 0; });
+        if (grades.length > 0) {
+            var avg = grades.reduce(function (a, b) { return a + b; }, 0) / grades.length;
+            var gpa = (avg / 25).toFixed(2);
+            savedGPA = gpa;
+            localStorage.setItem('calculatedGPA', gpa);
+            var gpaBox = document.getElementById('gpa-box-value');
+            if (gpaBox) gpaBox.textContent = gpa + '/4.0';
+        }
+    } catch (_) {}
 }
 
 // Run when DOM is ready - wrapped in bootstrapReactPage to ensure services are loaded
@@ -634,6 +657,7 @@ const runDashboardInit = () => {
             };
 
             renderDashboard(dashboardData);
+            fetchGPAFromBackend();
         } catch (error) {
             console.warn('[DASHBOARD.JS] Failed to fetch dashboard data, using hardcoded data:', error);
             // Fallback to hardcoded data when both backends fail

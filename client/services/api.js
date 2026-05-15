@@ -2716,6 +2716,38 @@
     };
 
     // ============================================================
+    // Users Service (admin service → /auth/*, /users/*)
+    // ============================================================
+    const usersService = {
+        /**
+         * Get current user profile (alias for authService.getMe)
+         * @returns {Promise<{user: object}>}
+         */
+        async getMe() {
+            return apiFetch('/auth/me', {
+                service: 'admin',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        /**
+         * Update current user profile/preferences
+         * Backend: PATCH /users/me or PATCH /auth/me
+         * @param {object} updates - Fields to update (e.g., { preferences: { language, timezone, level } })
+         * @returns {Promise<{success: boolean, data: object}>}
+         */
+        async updateMe(updates) {
+            return apiFetch('/users/me', {
+                service: 'admin',
+                method: 'PATCH',
+                auth: true,
+                body: updates,
+            });
+        },
+    };
+
+    // ============================================================
     // Gamification Service (admin service → /api/gamification/*)
     // ============================================================
     const gamificationService = {
@@ -2829,6 +2861,7 @@
         coursesService,
         backendCoursesService,
         backendAnalyticsService,
+        usersService,
         gamificationService,
         reputationService,
         aiService,
