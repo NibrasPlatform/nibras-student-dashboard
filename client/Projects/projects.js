@@ -196,7 +196,7 @@ function renderPage(course, progress, performance) {
             var label = state.charAt(0).toUpperCase() + state.slice(1).replace(/_/g, ' ');
 
             milestoneList.innerHTML += [
-                '<div class="milestone-item">',
+                '<div class="milestone-item" data-section-id="' + esc(secId) + '" data-section-title="' + esc(secTitle) + '">',
                 '<div class="milestone-left">',
                 '<div class="milestone-circle" style="' + iconColor + '"><i class="' + icon + '"></i></div>',
                 '<div>',
@@ -207,6 +207,19 @@ function renderPage(course, progress, performance) {
                 '<i class="fas fa-chevron-right arrow"></i>',
                 '</div>',
             ].join('');
+        });
+
+        milestoneList.querySelectorAll('.milestone-item').forEach(function (item) {
+            item.addEventListener('click', function () {
+                var existing = this.querySelector('.milestone-submit-area');
+                if (existing) { existing.remove(); return; }
+                var title = this.getAttribute('data-section-title') || 'Section';
+                var btn = document.createElement('div');
+                btn.className = 'milestone-submit-area';
+                btn.style.cssText = 'padding:0.75rem 1rem 0.5rem 3.5rem;';
+                btn.innerHTML = '<button class="btn-submit-gradient" style="padding:0.6rem 1.2rem;font-size:0.85rem;width:auto;display:inline-flex;align-items:center;gap:0.5rem;" onclick="event.stopPropagation();openMilestoneSubmit(\'' + esc(this.getAttribute('data-section-id')) + '\',\'' + esc(title) + '\')"><i class="fas fa-upload"></i> Submit ' + esc(title) + '</button>';
+                this.appendChild(btn);
+            });
         });
     }
 
@@ -235,6 +248,28 @@ function esc(str) {
     return d.innerHTML;
 }
 
+function openMilestoneSubmit(sectionId, sectionTitle) {
+    var modal = document.getElementById('submissionModal');
+    if (!modal) return;
+    var titleEl = modal.querySelector('.modal-header h2');
+    if (titleEl) titleEl.textContent = 'Submit: ' + (sectionTitle || 'Milestone');
+    var milestoneInput = document.getElementById('milestone-id-input');
+    if (!milestoneInput) {
+        milestoneInput = document.createElement('input');
+        milestoneInput.type = 'hidden';
+        milestoneInput.id = 'milestone-id-input';
+        milestoneInput.name = 'milestone_id';
+        document.getElementById('milestone-form-content').appendChild(milestoneInput);
+    }
+    milestoneInput.value = sectionId || 'final';
+    modal.classList.add('active');
+    modal.setAttribute('aria-hidden', 'false');
+    document.getElementById('finalSubmitForm').onsubmit = handleSubmit;
+    document.getElementById('submission-status-message').textContent = '';
+    document.getElementById('milestone-form-content').style.display = '';
+    document.getElementById('submit-final-btn').style.display = '';
+}
+
 function openSubmissionModal() {
     var modal = document.getElementById('submissionModal');
     if (!modal) return;
@@ -244,7 +279,6 @@ function openSubmissionModal() {
     document.getElementById('submission-status-message').textContent = '';
     document.getElementById('milestone-form-content').style.display = '';
     document.getElementById('submit-final-btn').style.display = '';
-    document.getElementById('btn-close-pulse').style.display = 'none';
 }
 
 function closeSubmissionModal() {
