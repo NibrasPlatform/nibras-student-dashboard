@@ -105,6 +105,22 @@ a { text-decoration: none; }
 .btn-apply:hover { background: #16a34a; }
 .btn-disabled { margin-top: auto; width: 100%; padding: 0.8rem; background: var(--tag-bg); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 8px; font-weight: 600; cursor: not-allowed; }
 
+/* --- ROLE APPLICATION MODAL --- */
+.step-indicator { display: flex; align-items: center; justify-content: center; gap: 0; margin-bottom: 2rem; }
+.step-dot { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.step-num { width: 32px; height: 32px; border-radius: 50%; background: var(--tag-bg); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; border: 2px solid var(--border-color); transition: 0.2s; }
+.step-dot.active .step-num { background: var(--accent-blue); color: white; border-color: var(--accent-blue); }
+.step-dot.done .step-num { background: #22c55e; color: white; border-color: #22c55e; }
+.step-label { font-size: 0.7rem; color: var(--text-secondary); white-space: nowrap; }
+.step-dot.active .step-label { color: var(--text-primary); font-weight: 600; }
+.step-line { width: 60px; height: 2px; background: var(--border-color); margin: 0 8px; margin-bottom: 26px; }
+.step-line.done { background: #22c55e; }
+.role-select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-body); color: var(--text-primary); font-family: inherit; font-size: 0.9rem; }
+.char-counter { font-size: 0.75rem; color: var(--text-secondary); text-align: right; margin-top: 4px; }
+#role-review-list .review-row { display: flex; align-items: center; gap: 10px; padding: 0.75rem; background: var(--bg-body); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 8px; }
+#role-review-list .review-rank { width: 28px; height: 28px; border-radius: 50%; background: var(--tag-bg); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; color: var(--text-secondary); flex-shrink: 0; }
+#role-review-list .review-name { font-size: 0.9rem; }
+
 @media (max-width: 1024px) {
     .sidebar { display: none; }
     .main-content { margin-left: 0; }
