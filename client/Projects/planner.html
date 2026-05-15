@@ -77,21 +77,114 @@
             </div>
 
             <!-- TAB CONTENT: OVERVIEW -->
-            <div id="tab-overview" class="planner-tab-content active">
-                <div class="section-header-row">
-                    <h3>Enroll in a program</h3>
-                    <span class="count-text">1 available</span>
+            <!-- TAB CONTENT: OVERVIEW -->
+<div id="tab-overview" class="planner-tab-content active">
+    
+    <!-- SUB-STATE 1: ENROLLMENT VIEW -->
+    <div id="enroll-section">
+        <div class="section-header-row">
+            <h3>Enroll in a program</h3>
+            <span class="count-text">1 available</span>
+        </div>
+        <div class="enroll-grid">
+            <div class="program-card">
+                <span class="prog-tag">CS</span>
+                <h2>Computer Science Program</h2>
+                <p class="prog-year">2026-2027</p>
+                <p class="prog-units">120 total units</p>
+                <!-- Added ID to this button for the JS trigger -->
+                <button class="btn-planner-primary" id="btn-enroll-now">Enroll</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUB-STATE 2: DEGREE PLAN VIEW (Hidden by default) -->
+    <div id="degree-plan-section" style="display: none;">
+        <div class="plan-header">
+            <div>
+                <h2>4-Year Degree Plan</h2>
+                <p class="plan-subtitle">CS · Computer Science Program</p>
+            </div>
+            <button class="btn-planner-primary">Save plan</button>
+        </div>
+
+        <div class="degree-planner-container">
+            <!-- Left Side: Course Palette -->
+            <aside class="course-palette">
+                <div class="palette-header">
+                    <span>COURSE PALETTE</span>
+                    <span class="palette-count">40</span>
                 </div>
-                <div class="enroll-grid">
-                    <div class="program-card">
-                        <span class="prog-tag">CS</span>
-                        <h2>Computer Science Program</h2>
-                        <p class="prog-year">2026-2027</p>
-                        <p class="prog-units">120 total units</p>
-                        <button class="btn-planner-primary">Enroll</button>
+                <div class="palette-list">
+                    <div class="palette-item">Programming Fundamentals</div>
+                    <div class="palette-item">Data Structures</div>
+                    <div class="palette-item">Discrete Mathematics</div>
+                    <div class="palette-item">Computer Organization</div>
+                    <div class="palette-item">Algorithms</div>
+                    <div class="palette-item">Databases</div>
+                    <div class="palette-item">Operating Systems</div>
+                    <div class="palette-item">Software Engineering Studio</div>
+                    <div class="palette-item">Networks and Security</div>
+                    <div class="palette-item">Research Methods in Computing</div>
+                    <div class="palette-item">Capstone Planning</div>
+                    <div class="palette-item">Senior Capstone</div>
+                    <div class="palette-item">Machine Learning</div>
+                    <div class="palette-item">Natural Language Processing</div>
+                    <div class="palette-item">Computer Vision</div>
+                    <div class="palette-item">Information Retrieval</div>
+                    <div class="palette-item">Knowledge Graphs</div>
+                    <div class="palette-item">Information Visualization</div>
+                    <div class="palette-item">Theory of Computation</div>
+                    <div class="palette-item">Advanced Algorithms</div>
+                    <div class="palette-item">Cryptography Theory</div>
+                    <div class="palette-item">Graphics Programming</div>
+                    <div class="palette-item">3D Interaction</div>
+                    <div class="palette-item">Rendering Systems</div>
+                    <div class="palette-item">Computational Genomics</div>
+                    <div class="palette-item">Bioinformatics Alqorithms</div>
+                </div>
+            </aside>
+
+            <!-- Right Side: Planning Grid -->
+            <div class="planning-grid-wrapper">
+                <div class="grid-labels-top">
+                    <div class="label-spacer"></div>
+                    <div class="year-label">YEAR 1</div>
+                    <div class="year-label">YEAR 2</div>
+                    <div class="year-label">YEAR 3</div>
+                    <div class="year-label">YEAR 4</div>
+                </div>
+
+                <div class="grid-body">
+                    <!-- Fall Row -->
+                    <div class="grid-row">
+                        <div class="row-label">FALL</div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                    </div>
+                    <!-- Spring Row -->
+                    <div class="grid-row">
+                        <div class="row-label">SPRING</div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
                     </div>
                 </div>
+
+                <div class="grid-labels-bottom">
+                    <div class="label-spacer">UNITS</div>
+                    <div class="unit-count">0 / 0</div>
+                    <div class="unit-count">0 / 0</div>
+                    <div class="unit-count">0 / 0</div>
+                    <div class="unit-count">0 / 0</div>
+                </div>
             </div>
+        </div>
+    </div>
+</div>
 
             <!-- TAB CONTENT: TRACK -->
             <div id="tab-track" class="planner-tab-content">

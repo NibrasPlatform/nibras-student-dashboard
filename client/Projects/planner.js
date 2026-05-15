@@ -62,3 +62,21 @@ function switchPlannerTab(tabId) {
         heroActions.innerHTML = `<button class="btn-outline">Print</button><button class="btn-planner-primary">Generate snapshot</button>`;
     }
 }
+
+// Logic for the "Enroll" button transition
+const btnEnrollNow = document.getElementById('btn-enroll-now');
+const enrollSection = document.getElementById('enroll-section');
+const degreePlanSection = document.getElementById('degree-plan-section');
+
+if (btnEnrollNow) {
+    btnEnrollNow.addEventListener('click', () => {
+        // Hide the enrollment cards
+        enrollSection.style.display = 'none';
+        
+        // Show the 4-year planning grid
+        degreePlanSection.style.display = 'block';
+        
+        // Optional: Smooth scroll to the top of the plan
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+}
