@@ -1,29 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NiBras - Catalog</title>
-    <script>
-    (function () {
-        var t = localStorage.getItem('theme');
-        if (t) document.documentElement.setAttribute('data-theme', t);
-    })();
-    </script>
+    <title>NiBras - Project Catalog</title>
     <link rel="stylesheet" href="catalog.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
+    <!-- SIDEBAR (Consistent with previous pages) -->
     <aside class="sidebar">
         <div class="logo-area">
-            <img src="../Assets/images/logo-light.png" alt="Nibras Logo" class="sidebar-logo">
+            <img src="https://via.placeholder.com/140x40?text=NiBRAS" alt="NiBras Logo" class="sidebar-logo">
         </div>
+        
         <ul class="nav-menu">
             <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-th-large"></i> Dashboard</a></li>
             <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-book"></i> Courses</a></li>
-            <li class="nav-item"><a href="./projects.html" class="nav-link"><i class="fas fa-folder-open"></i> Projects</a></li>
+            <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-folder-open"></i> Projects</a></li>
+            <li class="nav-item"><a href="#" class="nav-link active"><i class="fas fa-list"></i> Catalog</a></li>
             <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-trophy"></i> Competitions</a></li>
             <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-users"></i> Community</a></li>
             <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-medal"></i> Achievements</a></li>
@@ -31,20 +28,28 @@
             <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-chart-bar"></i> Analytics</a></li>
             <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-cog"></i> Settings</a></li>
         </ul>
+
         <div class="user-profile">
             <div class="avatar-circle">U</div>
-            <div class="user-info"><h4>User</h4><span>Student</span></div>
+            <div class="user-info">
+                <h4>usa</h4>
+                <span>Student</span>
+            </div>
         </div>
-        <div class="reputation-box">Reputation <span class="rep-badge">0</span></div>
+        <div class="reputation-box">
+            Reputation <span class="rep-badge">148</span>
+        </div>
         <button class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
     </aside>
 
+    <!-- MAIN CONTENT -->
     <main class="main-content">
+        <!-- TOP HEADER -->
         <header class="top-header">
             <nav class="top-nav">
-                <a href="./projects.html" class="nav-tab">Projects</a>
-                <a href="./catalog.html" class="nav-tab active">Catalog</a>
-                <a href="./planner.html" class="nav-tab">Planner</a>
+                <a href="#" class="nav-tab">Projects</a>
+                <a href="#" class="nav-tab active">Catalog</a>
+                <a href="#" class="nav-tab">Planner</a>
             </nav>
             <div class="header-actions">
                 <button id="theme-toggle" class="icon-btn"><i class="fas fa-moon"></i></button>
@@ -54,16 +59,206 @@
         </header>
 
         <div class="content-wrapper">
-            <!-- Add your catalog content here -->
+            <!-- CATALOG HERO BANNER -->
+            <section class="catalog-hero">
+                <div class="hero-content">
+                    <span class="hero-label">PROJECT CATALOG</span>
+                    <h1>Browse Projects</h1>
+                    <p>Discover project templates across all courses. Express interest or apply for team roles.</p>
+                </div>
+            </section>
+
+            <!-- MAIN LAYOUT: FILTERS + GRID -->
+            <div class="catalog-container">
+                
+                <!-- LEFT SIDE: FILTERS -->
+                <aside class="filter-sidebar">
+                    <h3>Filters</h3>
+                    
+                    <div class="filter-group">
+                        <label class="group-title">DELIVERY</label>
+                        <div class="filter-option">
+                            <input type="radio" name="delivery" id="all" checked>
+                            <label for="all">All</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="radio" name="delivery" id="team">
+                            <label for="team">Team</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="radio" name="delivery" id="individual">
+                            <label for="individual">Individual</label>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="group-title">DIFFICULTY</label>
+                        <div class="filter-option">
+                            <input type="checkbox" id="beginner">
+                            <label for="beginner">Beginner</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="intermediate">
+                            <label for="intermediate">Intermediate</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="advanced">
+                            <label for="advanced">Advanced</label>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="group-title">SEARCH TAGS</label>
+                        <div class="search-input-wrapper">
+                            <input type="text" placeholder="e.g. React">
+                        </div>
+                        <div class="tag-cloud">
+                            <span class="cloud-tag">C</span>
+                            <span class="cloud-tag">Linux</span>
+                            <span class="cloud-tag">Memory Management</span>
+                            <span class="cloud-tag">NodeJS</span>
+                            <span class="cloud-tag">Operating Systems</span>
+                            <span class="cloud-tag">Processes</span>
+                            <span class="cloud-tag">React</span>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- RIGHT SIDE: PROJECT GRID -->
+                <div class="catalog-main">
+                    <p class="results-count">4 templates found</p>
+                    
+                    <div class="projects-grid">
+                        <!-- Card 1: Available Roles -->
+                        <div class="catalog-card">
+                            <div class="card-top">
+                                <span class="course-pill">CS 107</span>
+                                <span class="team-pill"><i class="fas fa-users"></i> Team</span>
+                                <span class="diff-pill intermediate">intermediate</span>
+                            </div>
+                            <h3>Mini Unix Shell</h3>
+                            <p class="card-desc">Build a simplified Unix/Linux command-line shell that supports command execution, process management, pipes, redirection...</p>
+                            <p class="course-subtext">Computer Organization & Systems</p>
+                            
+                            <div class="card-meta">
+                                <span><i class="far fa-clock"></i> 5 weeks</span>
+                                <span><i class="fas fa-users"></i> 3 members</span>
+                                <span><i class="fas fa-layer-group"></i> 3 milestones</span>
+                            </div>
+
+                            <div class="open-roles">
+                                <label>OPEN ROLES</label>
+                                <div class="role-pills">
+                                    <span class="role-pill">Systems Programmer <span class="slot">1</span></span>
+                                    <span class="role-pill">Process & Memory Developer <span class="slot">1</span></span>
+                                    <span class="role-pill">Project Manager / Tester <span class="slot">1</span></span>
+                                </div>
+                            </div>
+
+                            <div class="tech-tags">
+                                <span class="tech-tag">C</span>
+                                <span class="tech-tag">Linux</span>
+                                <span class="tech-tag">Operating Systems</span>
+                                <span class="tech-tag">Processes</span>
+                                <span class="tech-tag">Memory Management</span>
+                            </div>
+
+                            <button class="btn-apply">Apply for Roles <i class="fas fa-arrow-right"></i></button>
+                        </div>
+
+                        <!-- Card 2: Roles Not Open -->
+                        <div class="catalog-card">
+                            <div class="card-top">
+                                <span class="course-pill">CS161</span>
+                                <span class="team-pill"><i class="fas fa-users"></i> Team</span>
+                                <span class="diff-pill beginner">beginner</span>
+                            </div>
+                            <h3>Full-Stack E-Commerce Platform</h3>
+                            <p class="card-desc">A comprehensive capstone project where students will build a fully functional, responsive e-commerce application. The...</p>
+                            <p class="course-subtext">CS 161: Foundations of Systems</p>
+                            
+                            <div class="card-meta">
+                                <span><i class="far fa-clock"></i> 8 Weeks</span>
+                                <span><i class="fas fa-users"></i> 4 members</span>
+                                <span><i class="fas fa-layer-group"></i> 4 milestones</span>
+                            </div>
+
+                            <div class="open-roles">
+                                <label>OPEN ROLES</label>
+                                <div class="role-pills">
+                                    <span class="role-pill">Backend <span class="slot">1</span></span>
+                                    <span class="role-pill">Frontend <span class="slot">1</span></span>
+                                    <span class="role-pill">Project Manager / QA Tester <span class="slot">1</span></span>
+                                    <span class="role-pill">Database Architect <span class="slot">1</span></span>
+                                </div>
+                            </div>
+
+                            <div class="tech-tags">
+                                <span class="tech-tag">React</span>
+                                <span class="tech-tag">NodeJS</span>
+                            </div>
+
+                            <button class="btn-disabled" disabled>Roles Not Open Yet</button>
+                        </div>
+
+                        <!-- Card 3 -->
+                        <div class="catalog-card">
+                            <div class="card-top">
+                                <span class="course-pill">CS106L</span>
+                                <span class="team-pill"><i class="fas fa-users"></i> Team</span>
+                            </div>
+                            <h3>Full-Stack E-Commerce Platform</h3>
+                            <p class="card-desc">A comprehensive capstone project where students will build a fully functional, responsive e-commerce application. The...</p>
+                            <p class="course-subtext">CS106L — Standard C++ Programming</p>
+                            
+                            <div class="card-meta">
+                                <span><i class="fas fa-users"></i> 4 members</span>
+                                <span><i class="fas fa-layer-group"></i> 4 milestones</span>
+                            </div>
+
+                            <div class="open-roles">
+                                <label>OPEN ROLES</label>
+                                <div class="role-pills">
+                                    <span class="role-pill">Backend <span class="slot">1</span></span>
+                                    <span class="role-pill">Frontend <span class="slot">1</span></span>
+                                    <span class="role-pill">Project Manager <span class="slot">1</span></span>
+                                    <span class="role-pill">Database Architect <span class="slot">1</span></span>
+                                </div>
+                            </div>
+                            <button class="btn-disabled" disabled>Roles Not Open Yet</button>
+                        </div>
+
+                        <!-- Card 4 -->
+                        <div class="catalog-card">
+                            <div class="card-top">
+                                <span class="course-pill">CS106L</span>
+                                <span class="team-pill"><i class="fas fa-users"></i> Team</span>
+                            </div>
+                            <h3>Full-Stack E-Commerce Platform</h3>
+                            <p class="card-desc">A comprehensive capstone project where students will build a fully functional, responsive e-commerce application. The...</p>
+                            <p class="course-subtext">CS106L — Standard C++ Programming</p>
+                            
+                            <div class="card-meta">
+                                <span><i class="fas fa-users"></i> 4 members</span>
+                                <span><i class="fas fa-layer-group"></i> 2 milestones</span>
+                            </div>
+
+                            <div class="open-roles">
+                                <label>OPEN ROLES</label>
+                                <div class="role-pills">
+                                    <span class="role-pill">Backend <span class="slot">1</span></span>
+                                    <span class="role-pill">Frontend <span class="slot">1</span></span>
+                                    <span class="role-pill">Project Manager <span class="slot">1</span></span>
+                                </div>
+                            </div>
+                            <button class="btn-disabled" disabled>Roles Not Open Yet</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 
-    <script src="../react-page-utils.js"></script>
-    <script>if (window.NibrasShared?.session?.updateUserInfoDisplay) window.NibrasShared.session.updateUserInfoDisplay();</script>
-    <script src="../config.js"></script>
-    <script src="../services/api.js"></script>
-    <script src="../react-bootstrap.js"></script>
-    <script src="./catalog.js"></script>
-    <script src="../services/gamification-ui.js"></script>
+    <script src="catalog.js"></script>
 </body>
 </html>

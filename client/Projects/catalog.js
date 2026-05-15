@@ -1,23 +1,27 @@
-window.NibrasReact.run(function () {
-    var themeToggle = document.getElementById('theme-toggle');
-    if (themeToggle) {
-        var htmlEl = document.documentElement;
-        var themeIcon = themeToggle.querySelector('i');
-        var saved = localStorage.getItem('theme') || 'light';
-        htmlEl.setAttribute('data-theme', saved);
-        updateUI(themeIcon, saved);
-        themeToggle.addEventListener('click', function () {
-            var cur = htmlEl.getAttribute('data-theme');
-            var next = cur === 'light' ? 'dark' : 'light';
-            htmlEl.setAttribute('data-theme', next);
-            localStorage.setItem('theme', next);
-            updateUI(themeIcon, next);
-        });
-    }
-    function updateUI(el, theme) {
-        if (!el) return;
-        el.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-        var logo = document.querySelector('.sidebar-logo');
-        if (logo) logo.src = theme === 'dark' ? '../Assets/images/logo-dark.png' : '../Assets/images/logo-light.png';
+document.addEventListener('DOMContentLoaded', () => {
+    const themeToggle = document.getElementById('theme-toggle');
+    const htmlElement = document.documentElement;
+    const themeIcon = themeToggle.querySelector('i');
+
+    // Check for saved preference
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    htmlElement.setAttribute('data-theme', savedTheme);
+    updateIcon(savedTheme);
+
+    themeToggle.addEventListener('click', () => {
+        const currentTheme = htmlElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        
+        htmlElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateIcon(newTheme);
+    });
+
+    function updateIcon(theme) {
+        if (theme === 'dark') {
+            themeIcon.classList.replace('fa-moon', 'fa-sun');
+        } else {
+            themeIcon.classList.replace('fa-sun', 'fa-moon');
+        }
     }
 });
