@@ -460,24 +460,173 @@ Good luck!</pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></
                 <div class="cli-step" data-step="10">
                     <div class="step-head" onclick="toggleStep(10)"><span class="step-num">10</span><div class="step-info"><h3>Troubleshooting</h3><p>Common issues and fixes</p></div><span class="step-check" id="check-10"><i class="fa-regular fa-circle"></i></span></div>
                     <div class="step-body" id="body-10">
-                        <p>Start with <code>nibras ping</code> — it checks API reachability, auth, GitHub linkage, and App install status in one command.</p>
+                        <p>Start with <code>nibras ping</code> — it checks API reachability, auth, GitHub linkage, and App install status in one command. Use the OS tab below to filter fixes for your platform.</p>
 
                         <div class="os-tabs"><button class="os-tab active" onclick="switchOs('macos', this)">macOS</button><button class="os-tab" onclick="switchOs('linux', this)">Linux</button><button class="os-tab" onclick="switchOs('windows', this)">Windows</button></div>
 
-                        <div class="troubleshoot-item"><strong>"nibras: command not found" after install</strong><p>Run <code>npm install -g</code> again. If persistent, clear the global link and reinstall (see step 02). On Windows, ensure Git Bash was reopened after install.</p></div>
-                        <div class="troubleshoot-item"><strong>"EACCES: permission denied" on global install</strong><p>Use nvm to manage Node versions (see step 01). Never use <code>sudo npm install -g</code> — it causes permission conflicts. If you already used sudo, reinstall Node via nvm and retry without sudo.</p></div>
-                        <div class="troubleshoot-item"><strong>"EEXIST" or "ENOTDIR" — stale global link</strong><p>Follow the cleanup instructions in step 02 for your shell (PowerShell or Git Bash).</p></div>
+                        <!-- macOS Troubleshooting -->
+                        <div class="os-content macos">
+                            <div class="troubleshoot-item">
+                                <strong>"nibras: command not found" after install</strong>
+                                <p>The npm global bin directory is not in PATH, or the terminal was not restarted after install.</p>
+                                <div class="code-block" style="margin-top:8px;"><pre><code>npm config get prefix
+# Add the bin folder to PATH:
+export PATH="$(npm config get prefix)/bin:$PATH"
+# Make it permanent — append to ~/.zshrc</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                                <p>With nvm, the global bin is always in PATH automatically — no manual steps.</p>
+                            </div>
+                            <div class="troubleshoot-item">
+                                <strong>"EACCES: permission denied" on global install</strong>
+                                <p>System Node.js requires root to write to the global npm directory. Never use <code>sudo npm install -g</code>.</p>
+                                <div class="code-block" style="margin-top:8px;"><pre><code># Recommended: switch to nvm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+source ~/.zshrc && nvm install --lts && nvm use --lts
+npm install -g https://github.com/NibrasPlatform/nibras-cli/releases/download/v1.0.2/nibras-cli-1.0.2.tgz
 
-                        <div class="os-content windows" style="display:block;">
-                            <div class="troubleshoot-item"><strong>"execution of scripts is disabled on this system"</strong><p>Run PowerShell as Administrator and execute: <code>Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser</code></p></div>
+# Alternative: fix the npm global prefix without sudo
+mkdir -p ~/.npm-global && npm config set prefix '~/.npm-global'
+export PATH="$HOME/.npm-global/bin:$PATH"</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                            </div>
+                            <div class="troubleshoot-item">
+                                <strong>"EEXIST" or "ENOTDIR" — stale global link</strong>
+                                <p>An older Nibras install left behind a broken symlink or directory.</p>
+                                <div class="code-block" style="margin-top:8px;"><pre><code>npm uninstall -g nibras @nibras/cli || true
+rm -f "$(npm config get prefix)/bin/nibras"
+rm -rf "$(npm root -g)/nibras" "$(npm root -g)/@nibras/cli"
+npm install -g https://github.com/NibrasPlatform/nibras-cli/releases/download/v1.0.2/nibras-cli-1.0.2.tgz</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                            </div>
+                            <div class="troubleshoot-item">
+                                <strong>"AUTH_REQUIRED" or "INVALID_SESSION"</strong>
+                                <p>Session token expired, revoked, or wrong API URL saved.</p>
+                                <div class="code-block" style="margin-top:8px;"><pre><code>nibras login --api-base-url https://nibras-api.fly.dev</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                            </div>
+                            <div class="troubleshoot-item">
+                                <strong>"remote: Repository not found" or push rejected</strong>
+                                <p>GitHub App not installed on the account, or the student repository was not created.</p>
+                                <div class="code-block" style="margin-top:8px;"><pre><code>nibras ping
+# Check the GitHub App install status in the output above.
+# Follow the install link if the App shows as "not installed".</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                            </div>
+                            <div class="troubleshoot-item">
+                                <strong>Browser did not open during login</strong>
+                                <p>The CLI could not launch the system browser automatically.</p>
+                                <div class="code-block" style="margin-top:8px;"><pre><code>nibras login --api-base-url https://nibras-api.fly.dev --no-open
+# Copy the printed URL and paste it into any browser manually.</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                            </div>
                         </div>
 
-                        <div class="troubleshoot-item"><strong>"AUTH_REQUIRED" or "INVALID_SESSION"</strong><p>Run <code>nibras login --api-base-url https://nibras-api.fly.dev</code> again. Your session may have expired.</p></div>
-                        <div class="troubleshoot-item"><strong>"remote: Repository not found" or push rejected</strong><p>Ensure your GitHub App is installed. Run <code>nibras ping</code> to check. Verify the repository URL with <code>git remote -v</code>.</p></div>
-                        <div class="troubleshoot-item"><strong>Browser did not open during login</strong><p>Rerun with <code>--no-open</code>: <code>nibras login --api-base-url https://nibras-api.fly.dev --no-open</code>, then paste the printed URL into any browser manually.</p></div>
+                        <!-- Linux Troubleshooting -->
+                        <div class="os-content linux" style="display:none;">
+                            <div class="troubleshoot-item">
+                                <strong>"nibras: command not found" after install</strong>
+                                <p>The npm global bin directory is not in PATH, or the terminal was not restarted after install.</p>
+                                <div class="code-block" style="margin-top:8px;"><pre><code>npm config get prefix
+export PATH="$(npm config get prefix)/bin:$PATH"
+# Make it permanent — append to ~/.bashrc or ~/.zshrc</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                                <p>With nvm, the global bin is always in PATH automatically — no manual steps.</p>
+                            </div>
+                            <div class="troubleshoot-item">
+                                <strong>"EACCES: permission denied" on global install</strong>
+                                <p>System Node.js requires root to write to the global npm directory. Never use <code>sudo npm install -g</code>.</p>
+                                <div class="code-block" style="margin-top:8px;"><pre><code># Recommended: switch to nvm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+source ~/.bashrc && nvm install --lts && nvm use --lts
+npm install -g https://github.com/NibrasPlatform/nibras-cli/releases/download/v1.0.2/nibras-cli-1.0.2.tgz
 
-                        <div class="os-content windows" style="display:block;">
-                            <div class="troubleshoot-item"><strong>"LF will be replaced by CRLF" warnings</strong><p>This is normal on Windows. Configure git to handle line endings: <code>git config --global core.autocrlf true</code></p></div>
+# Alternative: fix the npm global prefix without sudo
+mkdir -p ~/.npm-global && npm config set prefix '~/.npm-global'
+export PATH="$HOME/.npm-global/bin:$PATH"</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                            </div>
+                            <div class="troubleshoot-item">
+                                <strong>"EEXIST" or "ENOTDIR" — stale global link</strong>
+                                <p>An older Nibras install left behind a broken symlink or directory.</p>
+                                <div class="code-block" style="margin-top:8px;"><pre><code>npm uninstall -g nibras @nibras/cli || true
+rm -f "$(npm config get prefix)/bin/nibras"
+rm -rf "$(npm root -g)/nibras" "$(npm root -g)/@nibras/cli"
+npm install -g https://github.com/NibrasPlatform/nibras-cli/releases/download/v1.0.2/nibras-cli-1.0.2.tgz</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                            </div>
+                            <div class="troubleshoot-item">
+                                <strong>"AUTH_REQUIRED" or "INVALID_SESSION"</strong>
+                                <p>Session token expired, revoked, or wrong API URL saved.</p>
+                                <div class="code-block" style="margin-top:8px;"><pre><code>nibras login --api-base-url https://nibras-api.fly.dev</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                            </div>
+                            <div class="troubleshoot-item">
+                                <strong>"remote: Repository not found" or push rejected</strong>
+                                <p>GitHub App not installed on the account, or the student repository was not created.</p>
+                                <div class="code-block" style="margin-top:8px;"><pre><code>nibras ping
+# Check the GitHub App install status in the output above.
+# Follow the install link if the App shows as "not installed".</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                            </div>
+                            <div class="troubleshoot-item">
+                                <strong>Browser did not open during login</strong>
+                                <p>The CLI could not launch the system browser automatically.</p>
+                                <div class="code-block" style="margin-top:8px;"><pre><code>nibras login --api-base-url https://nibras-api.fly.dev --no-open
+# Copy the printed URL and paste it into any browser manually.</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                            </div>
+                        </div>
+
+                        <!-- Windows Troubleshooting -->
+                        <div class="os-content windows" style="display:none;">
+                            <div class="troubleshoot-item">
+                                <strong>"nibras: command not found" after install</strong>
+                                <p>The npm global bin directory is not in PATH, or the terminal was not restarted after install.</p>
+                                <div class="code-block" style="margin-top:8px;"><pre><code># Close and reopen PowerShell first, then:
+npm config get prefix
+# Add to user PATH permanently:
+$p = (npm config get prefix).Trim()
+[Environment]::SetEnvironmentVariable("Path","$([Environment]::GetEnvironmentVariable('Path','User'));$p","User")
+# Open a new terminal.</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                                <p>With nvm, the global bin is always in PATH automatically — no manual steps.</p>
+                            </div>
+                            <div class="troubleshoot-item">
+                                <strong>"EEXIST" or "ENOTDIR" — stale global link</strong>
+                                <p>An older Nibras install left behind a broken symlink or directory.</p>
+                                <div class="win-tabs" style="display:flex;gap:8px;margin-bottom:8px;">
+                                    <button class="os-tab active" onclick="var p=this.parentElement.parentElement;p.querySelectorAll('.win-tb-shell').forEach(function(c){c.style.display='none'});p.querySelector('.win-tb-shell.ps').style.display='';p.querySelectorAll('.win-tabs .os-tab').forEach(function(t){t.classList.remove('active')});this.classList.add('active')">PowerShell</button>
+                                    <button class="os-tab" onclick="var p=this.parentElement.parentElement;p.querySelectorAll('.win-tb-shell').forEach(function(c){c.style.display='none'});p.querySelector('.win-tb-shell.gb').style.display='';p.querySelectorAll('.win-tabs .os-tab').forEach(function(t){t.classList.remove('active')});this.classList.add('active')">Git Bash</button>
+                                </div>
+                                <div class="code-block win-tb-shell ps"><pre><code>npm uninstall -g nibras @nibras/cli
+Remove-Item "$((npm config get prefix).Trim())\nibras.cmd" -Force -ErrorAction SilentlyContinue
+Remove-Item "$((npm config get prefix).Trim())\nibras" -Force -ErrorAction SilentlyContinue
+Remove-Item "$((npm root -g).Trim())\nibras" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item "$((npm root -g).Trim())\@nibras\cli" -Recurse -Force -ErrorAction SilentlyContinue
+npm install -g https://github.com/NibrasPlatform/nibras-cli/releases/download/v1.0.2/nibras-cli-1.0.2.tgz</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                                <div class="code-block win-tb-shell gb" style="display:none;"><pre><code>npm uninstall -g nibras @nibras/cli || true
+rm -f "$(npm config get prefix)/bin/nibras"
+rm -rf "$(npm root -g)/nibras" "$(npm root -g)/@nibras/cli"
+npm install -g https://github.com/NibrasPlatform/nibras-cli/releases/download/v1.0.2/nibras-cli-1.0.2.tgz</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                            </div>
+                            <div class="troubleshoot-item">
+                                <strong>"execution of scripts is disabled on this system"</strong>
+                                <p>PowerShell execution policy is set to Restricted.</p>
+                                <div class="code-block" style="margin-top:8px;"><pre><code># Run once in PowerShell as Administrator:
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                                <p>Only needs to be done once per machine.</p>
+                            </div>
+                            <div class="troubleshoot-item">
+                                <strong>"AUTH_REQUIRED" or "INVALID_SESSION"</strong>
+                                <p>Session token expired, revoked, or wrong API URL saved.</p>
+                                <div class="code-block" style="margin-top:8px;"><pre><code>nibras login --api-base-url https://nibras-api.fly.dev</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                            </div>
+                            <div class="troubleshoot-item">
+                                <strong>"remote: Repository not found" or push rejected</strong>
+                                <p>GitHub App not installed on the account, or the student repository was not created.</p>
+                                <div class="code-block" style="margin-top:8px;"><pre><code>nibras ping
+# Check the GitHub App install status in the output above.
+# Follow the install link if the App shows as "not installed".</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                            </div>
+                            <div class="troubleshoot-item">
+                                <strong>Browser did not open during login</strong>
+                                <p>The CLI could not launch the system browser automatically.</p>
+                                <div class="code-block" style="margin-top:8px;"><pre><code>nibras login --api-base-url https://nibras-api.fly.dev --no-open
+# Copy the printed URL and paste it into any browser manually.</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                            </div>
+                            <div class="troubleshoot-item">
+                                <strong>"LF will be replaced by CRLF" warnings</strong>
+                                <p>Git is converting Unix line endings to Windows-style on checkout.</p>
+                                <div class="code-block" style="margin-top:8px;"><pre><code>git config --global core.autocrlf input</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                                <p>These warnings are cosmetic and do not affect submission results. Run the command above once to suppress them globally.</p>
+                            </div>
                         </div>
 
                         <div class="note-box" style="background:rgba(59,130,246,0.1);border-left:4px solid var(--accent-blue);padding:0.75rem 1rem;border-radius:8px;font-size:0.85rem;color:var(--text-secondary);margin-top:16px;">
