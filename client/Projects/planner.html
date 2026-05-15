@@ -19,8 +19,7 @@
             <li class="nav-item"><a href="../Dashboard/dashboard.html" class="nav-link"><i class="fas fa-th-large"></i> Dashboard</a></li>
             <li class="nav-item"><a href="../Levels/level.html" class="nav-link"><i class="fas fa-book"></i> Courses</a></li>
             <li class="nav-item"><a href="./projects.html" class="nav-link"><i class="fas fa-folder-open"></i> Projects</a></li>
-            <li class="nav-item"><a href="./catalog.html" class="nav-link"><i class="fas fa-list"></i> Catalog</a></li>
-            <li class="nav-item"><a href="./planner.html" class="nav-link active"><i class="fas fa-calendar-alt"></i> Planner</a></li>
+
             <li class="nav-item"><a href="../Competitions/Contests/contest.html" class="nav-link"><i class="fas fa-trophy"></i> Competitions</a></li>
             <li class="nav-item"><a href="../Community/community.html" class="nav-link"><i class="fas fa-users"></i> Community</a></li>
             <li class="nav-item"><a href="../Achievements/Achievements/achievements.html" class="nav-link"><i class="fas fa-medal"></i> Achievements</a></li>
@@ -197,7 +196,7 @@
                     <div class="status-card">
                         <span class="status-label">SELECTION STATUS</span>
                         <h3>Locked</h3>
-                        <p>Unlocks in Year 2.</p>
+                        <p>Unlocks in Year 3.</p>
                     </div>
                 </div>
                 <div class="tracks-grid">
@@ -206,63 +205,63 @@
                         <span class="track-id">ARTIFICIAL-INTELLIGENCE-AI</span>
                         <h4>Artificial Intelligence (AI)</h4>
                         <p>Focused depth path for Artificial Intelligence (AI).</p>
-                        <span class="track-unlock">Opens from Year 2</span>
+                        <span class="track-unlock">Opens from Year 3</span>
                         <button class="btn-track-locked">Track locked</button>
                     </div>
                     <div class="track-card">
                         <span class="track-id">COMPUTATIONAL-BIO-BIOCOMP</span>
                         <h4>Computational Bio (Biocomp)</h4>
                         <p>Focused depth path for Computational Bio (Biocomp).</p>
-                        <span class="track-unlock">Opens from Year 2</span>
+                        <span class="track-unlock">Opens from Year 3</span>
                         <button class="btn-track-locked">Track locked</button>
                     </div>
                     <div class="track-card">
                         <span class="track-id">HUMAN-COMPUTER-INTERACTION</span>
                         <h4>Human-Computer Interaction</h4>
                         <p>Focused depth path for Human-Computer Interaction.</p>
-                        <span class="track-unlock">Opens from Year 2</span>
+                        <span class="track-unlock">Opens from Year 3</span>
                         <button class="btn-track-locked">Track locked</button>
                     </div>
                     <div class="track-card">
                         <span class="track-id">INDIVIDUALLY-DESIGNED</span>
                         <h4>Individually Designed</h4>
                         <p>Focused depth path for Individually Designed.</p>
-                        <span class="track-unlock">Opens from Year 2</span>
+                        <span class="track-unlock">Opens from Year 3</span>
                         <button class="btn-track-locked">Track locked</button>
                     </div>
                     <div class="track-card">
                         <span class="track-id">INFORMATION</span>
                         <h4>Information</h4>
                         <p>Focused depth path for Information.</p>
-                        <span class="track-unlock">Opens from Year 2</span>
+                        <span class="track-unlock">Opens from Year 3</span>
                         <button class="btn-track-locked">Track locked</button>
                     </div>
                     <div class="track-card">
                         <span class="track-id">SYSTEMS</span>
                         <h4>Systems</h4>
                         <p>Focused depth path for Systems.</p>
-                        <span class="track-unlock">Opens from Year 2</span>
+                        <span class="track-unlock">Opens from Year 3</span>
                         <button class="btn-track-locked">Track locked</button>
                     </div>
                     <div class="track-card">
                         <span class="track-id">THEORY</span>
                         <h4>Theory</h4>
                         <p>Focused depth path for Theory.</p>
-                        <span class="track-unlock">Opens from Year 2</span>
+                        <span class="track-unlock">Opens from Year 3</span>
                         <button class="btn-track-locked">Track locked</button>
                     </div>
                     <div class="track-card">
                         <span class="track-id">UNSPECIALIZED</span>
                         <h4>Unspecialized</h4>
                         <p>Focused depth path for Unspecialized.</p>
-                        <span class="track-unlock">Opens from Year 2</span>
+                        <span class="track-unlock">Opens from Year 3</span>
                         <button class="btn-track-locked">Track locked</button>
                     </div>
                     <div class="track-card">
                         <span class="track-id">VISUAL-COMPUTING-GRAPHICS</span>
                         <h4>Visual Computing (Graphics)</h4>
                         <p>Focused depth path for Visual Computing (Graphics).</p>
-                        <span class="track-unlock">Opens from Year 2</span>
+                        <span class="track-unlock">Opens from Year 3</span>
                         <button class="btn-track-locked">Track locked</button>
                     </div>
                 </div>
@@ -287,19 +286,112 @@
                         <h3>Submit a petition</h3>
                         <div class="form-group">
                             <label>TYPE</label>
-                            <select><option>Transfer / AP credit</option></select>
+                            <select>
+                                <option>Transfer / AP credit</option>
+                                <option>Course substitution</option>
+                                <option>Requirement waiver</option>
+                            </select>
                         </div>
                         <div class="form-group">
                             <label>REQUIREMENT GROUP</label>
-                            <select><option>Optional target</option></select>
+                            <select>
+                                <option>Optional target</option>
+                                <option>Year 1 Foundation</option>
+                                <option>Shared CS Core</option>
+                                <option>Capstone and Professional Practice</option>
+                            </select>
                         </div>
                         <div class="form-group">
                             <label>ORIGINAL / SATISFIED COURSE</label>
-                            <select><option>Optional course</option></select>
+                            <select id="originalCatalogCourseId">
+                                <option value="">Optional course</option>
+                                <option value="cmo34a305001iu5hoo5twzezx">CS 101 · Programming Fundamentals</option>
+                                <option value="cmo34a30c001ku5hosawmq55j">CS 102 · Data Structures</option>
+                                <option value="cmo34a30k001mu5hoidekje5g">CS 103 · Discrete Mathematics</option>
+                                <option value="cmo34a315001wu5hogja0wiz7">CS 201 · Computer Organization</option>
+                                <option value="cmo34a319001yu5ho76aav6uv">CS 202 · Algorithms</option>
+                                <option value="cmo34a31c0020u5hob0hhz62e">CS 203 · Databases</option>
+                                <option value="cmo34a31g0022u5houhxkax8h">CS 204 · Operating Systems</option>
+                                <option value="cmo34a31j0024u5hooffeuxz0">CS 205 · Software Engineering Studio</option>
+                                <option value="cmo34a31m0026u5hokyyunefe">CS 206 · Networks and Security</option>
+                                <option value="cmo34a31q0028u5ho0zgqu5cv">CS 301 · Research Methods in Computing</option>
+                                <option value="cmo34a31u002au5ho661jz9es">CS 302 · Capstone Planning</option>
+                                <option value="cmo34a31x002cu5holqczvuho">CS 303 · Senior Capstone</option>
+                                <option value="cmo34a320002eu5hoycb5qj9z">CS 311 · Machine Learning</option>
+                                <option value="cmo34a324002gu5ho3dhwmekn">CS 312 · Natural Language Processing</option>
+                                <option value="cmo34a327002iu5ho5wzm6qo3">CS 313 · Computer Vision</option>
+                                <option value="cmo34a32b002ku5ho7bjvofk5">CS 321 · Information Retrieval</option>
+                                <option value="cmo34a32f002mu5horxeh86mv">CS 322 · Knowledge Graphs</option>
+                                <option value="cmo34a32j002ou5hoshdbm3ah">CS 323 · Information Visualization</option>
+                                <option value="cmo34a32n002qu5hoknz2c206">CS 331 · Theory of Computation</option>
+                                <option value="cmo34a32q002su5hoiahfby08">CS 332 · Advanced Algorithms</option>
+                                <option value="cmo34a32u002uu5ho3jf7s6hl">CS 333 · Cryptography Theory</option>
+                                <option value="cmo34a32y002wu5hoklw76vtz">CS 341 · Graphics Programming</option>
+                                <option value="cmo34a331002yu5hoi1auyvtj">CS 342 · 3D Interaction</option>
+                                <option value="cmo34a3350030u5hogt8l2jye">CS 343 · Rendering Systems</option>
+                                <option value="cmo34a3390032u5hot6jzlyr1">CS 351 · Computational Genomics</option>
+                                <option value="cmo34a33c0034u5ho47l6rx0o">CS 352 · Bioinformatics Algorithms</option>
+                                <option value="cmo34a33g0036u5ho75i2k4pz">CS 353 · Data-Driven Biology</option>
+                                <option value="cmo34a33j0038u5hok9ta6qej">CS 361 · Human-Centered Design</option>
+                                <option value="cmo34a33n003au5ho3v730eqh">CS 362 · Interaction Engineering</option>
+                                <option value="cmo34a33q003cu5honx1ivkk2">CS 363 · Usability Research</option>
+                                <option value="cmo34a33u003eu5ho19c0lavj">CS 371 · Distributed Systems</option>
+                                <option value="cmo34a33x003gu5holeby2mpl">CS 372 · Compilers</option>
+                                <option value="cmo34a340003iu5homzkovam5">CS 373 · Cloud Infrastructure</option>
+                                <option value="cmo34a344003ku5horzn68dxu">CS 381 · Open Track Seminar</option>
+                                <option value="cmo34a346003mu5ho0482q6go">CS 382 · Interdisciplinary Computing</option>
+                                <option value="cmo34a34b003ou5hogn2bvu7n">CS 383 · Independent Study Design</option>
+                                <option value="cmo34a30w001su5ho2girxccj">ENG 101 · Academic Writing</option>
+                                <option value="cmo34a30p001ou5ho3d2bplhx">MATH 111 · Calculus I</option>
+                                <option value="cmo34a30t001qu5hodvkmfug9">MATH 112 · Calculus II</option>
+                                <option value="cmo34a311001uu5hoxjgymdsa">PHY 101 · Physics for Computing</option>
+                            </select>
                         </div>
                         <div class="form-group">
                             <label>SUBSTITUTE COURSE</label>
-                            <select><option>Optional substitute</option></select>
+                            <select id="substituteCatalogCourseId">
+                                <option value="">Optional course</option>
+                                <option value="cmo34a305001iu5hoo5twzezx">CS 101 · Programming Fundamentals</option>
+                                <option value="cmo34a30c001ku5hosawmq55j">CS 102 · Data Structures</option>
+                                <option value="cmo34a30k001mu5hoidekje5g">CS 103 · Discrete Mathematics</option>
+                                <option value="cmo34a315001wu5hogja0wiz7">CS 201 · Computer Organization</option>
+                                <option value="cmo34a319001yu5ho76aav6uv">CS 202 · Algorithms</option>
+                                <option value="cmo34a31c0020u5hob0hhz62e">CS 203 · Databases</option>
+                                <option value="cmo34a31g0022u5houhxkax8h">CS 204 · Operating Systems</option>
+                                <option value="cmo34a31j0024u5hooffeuxz0">CS 205 · Software Engineering Studio</option>
+                                <option value="cmo34a31m0026u5hokyyunefe">CS 206 · Networks and Security</option>
+                                <option value="cmo34a31q0028u5ho0zgqu5cv">CS 301 · Research Methods in Computing</option>
+                                <option value="cmo34a31u002au5ho661jz9es">CS 302 · Capstone Planning</option>
+                                <option value="cmo34a31x002cu5holqczvuho">CS 303 · Senior Capstone</option>
+                                <option value="cmo34a320002eu5hoycb5qj9z">CS 311 · Machine Learning</option>
+                                <option value="cmo34a324002gu5ho3dhwmekn">CS 312 · Natural Language Processing</option>
+                                <option value="cmo34a327002iu5ho5wzm6qo3">CS 313 · Computer Vision</option>
+                                <option value="cmo34a32b002ku5ho7bjvofk5">CS 321 · Information Retrieval</option>
+                                <option value="cmo34a32f002mu5horxeh86mv">CS 322 · Knowledge Graphs</option>
+                                <option value="cmo34a32j002ou5hoshdbm3ah">CS 323 · Information Visualization</option>
+                                <option value="cmo34a32n002qu5hoknz2c206">CS 331 · Theory of Computation</option>
+                                <option value="cmo34a32q002su5hoiahfby08">CS 332 · Advanced Algorithms</option>
+                                <option value="cmo34a32u002uu5ho3jf7s6hl">CS 333 · Cryptography Theory</option>
+                                <option value="cmo34a32y002wu5hoklw76vtz">CS 341 · Graphics Programming</option>
+                                <option value="cmo34a331002yu5hoi1auyvtj">CS 342 · 3D Interaction</option>
+                                <option value="cmo34a3350030u5hogt8l2jye">CS 343 · Rendering Systems</option>
+                                <option value="cmo34a3390032u5hot6jzlyr1">CS 351 · Computational Genomics</option>
+                                <option value="cmo34a33c0034u5ho47l6rx0o">CS 352 · Bioinformatics Algorithms</option>
+                                <option value="cmo34a33g0036u5ho75i2k4pz">CS 353 · Data-Driven Biology</option>
+                                <option value="cmo34a33j0038u5hok9ta6qej">CS 361 · Human-Centered Design</option>
+                                <option value="cmo34a33n003au5ho3v730eqh">CS 362 · Interaction Engineering</option>
+                                <option value="cmo34a33q003cu5honx1ivkk2">CS 363 · Usability Research</option>
+                                <option value="cmo34a33u003eu5ho19c0lavj">CS 371 · Distributed Systems</option>
+                                <option value="cmo34a33x003gu5holeby2mpl">CS 372 · Compilers</option>
+                                <option value="cmo34a340003iu5homzkovam5">CS 373 · Cloud Infrastructure</option>
+                                <option value="cmo34a344003ku5horzn68dxu">CS 381 · Open Track Seminar</option>
+                                <option value="cmo34a346003mu5ho0482q6go">CS 382 · Interdisciplinary Computing</option>
+                                <option value="cmo34a34b003ou5hogn2bvu7n">CS 383 · Independent Study Design</option>
+                                <option value="cmo34a30w001su5ho2girxccj">ENG 101 · Academic Writing</option>
+                                <option value="cmo34a30p001ou5ho3d2bplhx">MATH 111 · Calculus I</option>
+                                <option value="cmo34a30t001qu5hodvkmfug9">MATH 112 · Calculus II</option>
+                                <option value="cmo34a311001uu5hoxjgymdsa">PHY 101 · Physics for Computing</option>
+                            </select>
                         </div>
                         <div class="form-group">
                             <label>JUSTIFICATION</label>
