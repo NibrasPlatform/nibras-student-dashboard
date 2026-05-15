@@ -7,6 +7,38 @@ const adminCourseId = selectedCourse?.adminCourseId || selectedCourse?.remoteCou
 var sectionIdMap = {};
 let currentVideoElement = null;
 let currentIframeElement = null;
+var currentYouTubePlayer = null;
+var youtubeApiLoaded = false;
+
+function loadYouTubeAPI() {
+    if (youtubeApiLoaded || document.getElementById('youtube-api-script')) return;
+    window.onYouTubeIframeAPIReady = function () { youtubeApiLoaded = true; };
+    var tag = document.createElement('script');
+    tag.id = 'youtube-api-script';
+    tag.src = 'https://www.youtube.com/iframe_api';
+    document.head.appendChild(tag);
+}
+
+function getYoutubeVideoId(url) {
+    var match = url.match(/(?:youtube\.com\/embed\/|youtu\.be\/|youtube\.com\/watch\?v=)([a-zA-Z0-9_-]+)/);
+    return match ? match[1] : null;
+}
+
+function checkBilibiliComplete(e) {
+    try {
+        var data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
+        if (data && (data.event === 'ended' || data.type === 'ended')) {
+            var currentLesson = courseData?.lessons?.find(function (l) { return l.id === courseData?.currentLessonId; });
+            if (currentLesson && !currentLesson.completed) {
+                handleVideoComplete(currentLesson, getActiveVideoItem(currentLesson));
+            }
+        }
+    } catch (_) {}
+}
+
+if (typeof window !== 'undefined') {
+    window.addEventListener('message', checkBilibiliComplete);
+}
 
 function stopCurrentMedia() {
     try {
@@ -42,10 +74,15 @@ function stopCurrentMedia() {
             v.pause();
             v.currentTime = 0;
         });
+        if (currentYouTubePlayer) {
+            try { currentYouTubePlayer.destroy(); } catch (_) {}
+            currentYouTubePlayer = null;
+        }
     } catch (e) {
         console.warn("[VIDEOS.JS] Error stopping media:", e);
         currentVideoElement = null;
         currentIframeElement = null;
+        currentYouTubePlayer = null;
     }
 }
 
@@ -396,20 +433,36 @@ function setupVideoPlayer() {
             `;
             currentIframeElement = document.getElementById("lesson-video-iframe");
         } else if (youtubeSource) {
-            const joiner = youtubeSource.includes("?") ? "&" : "?";
-            videoContainer.innerHTML = `
-                <iframe
-                    id="lesson-video-iframe"
-                    width="100%"
-                    height="100%"
-                    src="${youtubeSource}${joiner}autoplay=0&rel=0&modestbranding=1"
-                    frameborder="0"
-                    allow="autoplay; encrypted-media"
-                    allowfullscreen
-                    style="width: 100%; height: 100%;">
-                </iframe>
-            `;
-            currentIframeElement = document.getElementById("lesson-video-iframe");
+            var videoId = getYoutubeVideoId(youtubeSource);
+            if (videoId) {
+                loadYouTubeAPI();
+                videoContainer.innerHTML = '<div id="youtube-player-container" style="width:100%;height:100%;"></div>';
+                var tryCreatePlayer = function () {
+                    if (typeof YT !== 'undefined' && YT.Player) {
+                        if (currentYouTubePlayer) { try { currentYouTubePlayer.destroy(); } catch (_) {} }
+                        var lessonCopy = currentLesson;
+                        var itemCopy = activeVideoItem;
+                        currentYouTubePlayer = new YT.Player('youtube-player-container', {
+                            videoId: videoId,
+                            playerVars: { autoplay: 0, rel: 0, modestbranding: 1 },
+                            events: {
+                                onStateChange: function (event) {
+                                    if (event.data === YT.PlayerState.ENDED) {
+                                        handleVideoComplete(lessonCopy, itemCopy);
+                                    }
+                                }
+                            }
+                        });
+                    } else {
+                        setTimeout(tryCreatePlayer, 200);
+                    }
+                };
+                tryCreatePlayer();
+            } else {
+                var joiner = youtubeSource.includes("?") ? "&" : "?";
+                videoContainer.innerHTML = '<iframe id="lesson-video-iframe" width="100%" height="100%" src="' + youtubeSource + joiner + 'autoplay=0&rel=0&modestbranding=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen style="width:100%;height:100%;"></iframe>';
+                currentIframeElement = document.getElementById("lesson-video-iframe");
+            }
         }
     }
 }
