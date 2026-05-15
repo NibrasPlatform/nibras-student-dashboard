@@ -662,7 +662,8 @@ window.NibrasReact.run(() => {
             explainLoading.style.display = 'none';
             explainContent.style.display = '';
             explainError.style.display = 'none';
-            explainContent.innerHTML = marked.parse(sessionXai);
+            var xaiText = typeof sessionXai === 'string' ? sessionXai : JSON.stringify(sessionXai, null, 2);
+            explainContent.innerHTML = marked.parse(xaiText);
         });
     }
 
