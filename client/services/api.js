@@ -2750,6 +2750,22 @@
     };
 
     // ============================================================
+    // AI Service (Nibras-Backend AI module → /api/ai/*)
+    // ============================================================
+    const aiService = {
+        /**
+         * Get AI recommendation from Nibras-Backend AI module.
+         * Backend fetches approved submissions → builds grades map →
+         * forwards to ML model → returns grades + recommendations.
+         * GET /ai/grades
+         * @returns {Promise<{success: boolean, grades: object, data: {strengths: string[], recommendations: string[], explanation?: string}}>}
+         */
+        async getRecommendation() {
+            return apiFetch('/ai/grades', { service: 'admin', method: 'GET', auth: true });
+        },
+    };
+
+    // ============================================================
     // Expose on window
     // ============================================================
     window.NibrasServices = Object.freeze({
@@ -2779,6 +2795,7 @@
         backendAnalyticsService,
         gamificationService,
         reputationService,
+        aiService,
     });
 
     console.log('[NibrasServices] Initialized. Available as window.NibrasServices');

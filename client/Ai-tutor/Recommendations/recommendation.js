@@ -381,16 +381,42 @@
 
         setLoadingState('Loading personalized recommendations...');
         try {
-            const gradeSource = await loadBackendGrades();
-            const grades = gradeSource.grades;
-            const recommendationService = window.NibrasServices?.recommendationService;
-            if (!recommendationService || typeof recommendationService.recommend !== 'function') {
-                throw new Error('Recommendation API service is unavailable.');
+            var aiResult = null;
+            var gradesCount = 0;
+
+            var aiService = window.NibrasServices?.aiService;
+            if (aiService && typeof aiService.getRecommendation === 'function') {
+                try {
+                    var aiRes = await aiService.getRecommendation();
+                    if (aiRes && aiRes.success && aiRes.data && aiRes.data.recommendations && aiRes.data.recommendations.length > 0) {
+                        aiResult = {
+                            strengths: aiRes.data.strengths || [],
+                            recommendations: aiRes.data.recommendations || [],
+                            explanation: aiRes.data.explanation || '',
+                            source: 'ai-module',
+                        };
+                        gradesCount = aiRes.grades ? Object.keys(aiRes.grades).length : 0;
+                    }
+                } catch (_) {}
             }
-            const result = await recommendationService.recommend(grades);
-            renderRecommendations(result, Object.keys(grades).length);
+
+            if (!aiResult) {
+                var gradeSource = await loadBackendGrades();
+                var grades = gradeSource.grades;
+                gradesCount = Object.keys(grades).length;
+                var recommendationService = window.NibrasServices?.recommendationService;
+                if (!recommendationService || typeof recommendationService.recommend !== 'function') {
+                    throw new Error('Recommendation API service is unavailable.');
+                }
+                var result = await recommendationService.recommend(grades);
+                aiResult = result;
+            }
+
+            renderRecommendations(aiResult, gradesCount);
             if (sourceNote) {
-                sourceNote.textContent = `Using ${Object.keys(grades).length} graded course records from ${gradeSource.source}.`;
+                sourceNote.textContent = aiResult?.source === 'ai-module'
+                    ? `Using ${gradesCount} graded course records from Nibras-Backend AI module.`
+                    : `Using ${gradesCount} graded course records.`;
             }
         } catch (error) {
             const message = String(error?.message || 'Failed to load recommendations.');

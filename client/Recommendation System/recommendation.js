@@ -411,22 +411,46 @@
         setState('loading', 'Fetching your grades and generating recommendations...');
 
         try {
-            const gradeSource = await loadBackendGrades();
-            const grades = gradeSource.grades;
-            const recommendationService = window.NibrasServices?.recommendationService || null;
-            if (!recommendationService || typeof recommendationService.recommend !== 'function') {
-                throw new Error('Recommendation service is unavailable in frontend API services.');
+            var aiService = window.NibrasServices?.aiService;
+            var aiResult = null;
+            var gradesCount = 0;
+
+            if (aiService && typeof aiService.getRecommendation === 'function') {
+                try {
+                    var aiRes = await aiService.getRecommendation();
+                    if (aiRes && aiRes.success && aiRes.data && aiRes.data.recommendations && aiRes.data.recommendations.length > 0) {
+                        aiResult = {
+                            strengths: aiRes.data.strengths || [],
+                            recommendations: aiRes.data.recommendations || [],
+                            explanation: aiRes.data.explanation || '',
+                            source: 'ai-module',
+                        };
+                        gradesCount = aiRes.grades ? Object.keys(aiRes.grades).length : 0;
+                    }
+                } catch (_) {}
             }
 
-            const result = await recommendationService.recommend(grades);
-            buildTrackCards(result, Object.keys(grades).length);
-            updateExplanation(result.explanation);
+            if (!aiResult) {
+                var gradeSource = await loadBackendGrades();
+                var grades = gradeSource.grades;
+                gradesCount = Object.keys(grades).length;
+                var recommendationService = window.NibrasServices?.recommendationService || null;
+                if (!recommendationService || typeof recommendationService.recommend !== 'function') {
+                    throw new Error('Recommendation service is unavailable in frontend API services.');
+                }
+                var result = await recommendationService.recommend(grades);
+                aiResult = result;
+            }
+
+            buildTrackCards(aiResult, gradesCount);
+            updateExplanation(aiResult.explanation);
 
             if (recommendationMeta) {
-                const base = `Using ${Object.keys(grades).length} graded course records from ${gradeSource.source}.`;
-                recommendationMeta.textContent = result?.source === 'local-fallback'
-                    ? `${base} Recommendation API is currently blocked from browser (CORS), so local fallback logic was used.`
-                    : base;
+                recommendationMeta.textContent = aiResult?.source === 'ai-module'
+                    ? `Using ${gradesCount} graded course records from Nibras-Backend AI module.`
+                    : aiResult?.source === 'local-fallback'
+                        ? `Using ${gradesCount} graded course records. Recommendation API is currently blocked from browser (CORS), so local fallback logic was used.`
+                        : `Using ${gradesCount} graded course records.`;
             }
         } catch (error) {
             const message = String(error?.message || 'Failed to load recommendations.');
