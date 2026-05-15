@@ -41,12 +41,8 @@ window.NibrasReact.run(function () {
                 loadSelectedCourseProjects(val);
             } else {
                 showEmptyState();
-            }
-        });
     }
-
-    loadCoursesDropdown();
-});
+}
 
 function setNotice(message, type) {
     var el = document.getElementById('projects-api-notice');
