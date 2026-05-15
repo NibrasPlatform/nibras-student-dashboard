@@ -4,10 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NiBras - Projects</title>
+    <script>
+    (function () {
+        var t = localStorage.getItem('theme');
+        if (t) document.documentElement.setAttribute('data-theme', t);
+    })();
+    </script>
     <link rel="stylesheet" href="projects.css">
-    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -60,56 +64,57 @@
         </header>
 
         <div class="content-wrapper">
+            <div id="projects-api-notice" style="padding: 1rem; text-align: center; color: var(--text-secondary); display: none;"></div>
+
             <!-- PROJECT HERO SECTION -->
-            <section class="project-hero">
+            <section class="project-hero" id="projects-hero">
                 <div class="hero-text">
-                    <span class="course-code">CS 106A · YEAR 1 · FRESHMAN</span>
-                    <h1>Programming Methodology</h1>
-                    <p>Track milestones, submit work, and monitor your progress.</p>
+                    <span class="course-code" id="hero-course-code">CS 106A · YEAR 1 · FRESHMAN</span>
+                    <h1 id="hero-title">Programming Methodology</h1>
+                    <p id="hero-subtitle">Track milestones, submit work, and monitor your progress.</p>
                 </div>
                 <div class="hero-stats-card">
-                    <div class="course-selector">
+                    <div class="course-selector" id="course-selector-block">
                         <label>COURSE</label>
-                        <div class="select-box">
-                            <span>CS 106A Programming Methodology</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </div>
-                        <span class="available-count">4 available</span>
+                        <select id="course-select" class="select-box" style="width:100%;padding:0.8rem;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-input);color:var(--text-primary);font-size:0.85rem;font-weight:500;">
+                            <option value="">Select a course...</option>
+                        </select>
+                        <span class="available-count" id="available-count"></span>
                     </div>
                     <div class="quick-stats">
-                        <div class="stat-item"><strong>0</strong><span>APPROVED</span></div>
-                        <div class="stat-item"><strong>0</strong><span>IN REVIEW</span></div>
-                        <div class="stat-item accent"><strong>0%</strong><span>COMPLETE</span></div>
+                        <div class="stat-item"><strong id="stat-approved">0</strong><span>APPROVED</span></div>
+                        <div class="stat-item"><strong id="stat-review">0</strong><span>IN REVIEW</span></div>
+                        <div class="stat-item accent"><strong id="stat-complete">0%</strong><span>COMPLETE</span></div>
                     </div>
                 </div>
             </section>
 
             <!-- OVERALL PROGRESS BAR -->
-            <div class="overall-progress-container">
+            <div class="overall-progress-container" id="progress-container">
                 <div class="progress-header">
-                    <span>CS 106A — Programming Methodology</span>
+                    <span id="progress-title">CS 106A — Programming Methodology</span>
                     <div class="progress-tags">
-                        <span class="tag-gray">Freshman</span>
-                        <span class="tag-outline">Published</span>
-                        <span class="progress-pct">0%</span>
+                        <span class="tag-gray" id="progress-level">Freshman</span>
+                        <span class="tag-outline" id="progress-status">Published</span>
+                        <span class="progress-pct" id="progress-pct">0%</span>
                     </div>
                 </div>
                 <div class="progress-track-main">
-                    <div class="progress-fill-main" style="width: 0%;"></div>
+                    <div class="progress-fill-main" id="progress-fill" style="width: 0%;"></div>
                 </div>
             </div>
 
             <!-- MAIN GRID LAYOUT -->
-            <div class="project-grid">
+            <div class="project-grid" id="project-grid">
                 <!-- LEFT COLUMN -->
                 <div class="grid-left">
                     <!-- Intro Card -->
-                    <div class="project-card">
-                        <span class="badge-published">PUBLISHED</span>
-                        <p class="project-desc">Introduction to programming using Python. Covers variables, control flow, functions, and object-oriented programming. The entry point to the Stanford CS curriculum.</p>
-                        <div class="project-meta">
-                            <span class="meta-pill">WEIGHT <strong>100 pts rubric</strong></span>
-                            <span class="meta-pill">TYPE <strong>Individual</strong></span>
+                    <div class="project-card" id="intro-card">
+                        <span class="badge-published" id="project-badge">PUBLISHED</span>
+                        <p class="project-desc" id="project-desc">Introduction to programming using Python. Covers variables, control flow, functions, and object-oriented programming. The entry point to the Stanford CS curriculum.</p>
+                        <div class="project-meta" id="project-meta">
+                            <span class="meta-pill">WEIGHT <strong id="meta-weight">100 pts rubric</strong></span>
+                            <span class="meta-pill">TYPE <strong id="meta-type">Individual</strong></span>
                         </div>
                     </div>
 
@@ -117,45 +122,15 @@
                     <div class="milestones-section">
                         <div class="section-title">
                             <h3>Milestones</h3>
-                            <span class="count-text">0 / 4 complete</span>
+                            <span class="count-text" id="milestone-count">0 / 0 complete</span>
                         </div>
-                        <div class="milestone-list">
+                        <div class="milestone-list" id="milestone-list">
                             <div class="milestone-item">
                                 <div class="milestone-left">
                                     <div class="milestone-circle"><i class="far fa-circle"></i></div>
                                     <div>
-                                        <h4>Variables, Expressions & Control Flow <span class="status-open">Open</span></h4>
-                                        <p>Write Python programs using variables, arithmetic expressions, and control flow...</p>
-                                    </div>
-                                </div>
-                                <i class="fas fa-chevron-right arrow"></i>
-                            </div>
-                            <div class="milestone-item">
-                                <div class="milestone-left">
-                                    <div class="milestone-circle"><i class="far fa-circle"></i></div>
-                                    <div>
-                                        <h4>Functions & Decomposition <span class="status-open">Open</span></h4>
-                                        <p>Implement recursive and iterative functions. Apply top-down decomposition...</p>
-                                    </div>
-                                </div>
-                                <i class="fas fa-chevron-right arrow"></i>
-                            </div>
-                            <div class="milestone-item">
-                                <div class="milestone-left">
-                                    <div class="milestone-circle"><i class="far fa-circle"></i></div>
-                                    <div>
-                                        <h4>Object-Oriented Programming <span class="status-open">Open</span></h4>
-                                        <p>Define classes, constructors, and methods. Implement inheritance...</p>
-                                    </div>
-                                </div>
-                                <i class="fas fa-chevron-right arrow"></i>
-                            </div>
-                            <div class="milestone-item final">
-                                <div class="milestone-left">
-                                    <div class="milestone-circle"><i class="far fa-circle"></i></div>
-                                    <div>
-                                        <h4>Final: Karel the Robot <span class="badge-final">FINAL</span> <span class="status-open">Open</span></h4>
-                                        <p>Build a fully-functional Karel world using all OOP principles learned...</p>
+                                        <h4>Milestone <span class="status-open">Open</span></h4>
+                                        <p>Loading milestones...</p>
                                     </div>
                                 </div>
                                 <i class="fas fa-chevron-right arrow"></i>
@@ -167,10 +142,10 @@
                     <div class="project-card final-submission">
                         <div class="card-header-row">
                             <h3>Final Submission</h3>
-                            <span class="status-open">Open</span>
+                            <span class="status-open" id="final-status">Open</span>
                         </div>
-                        <p>Build a fully-functional Karel world using all OOP principles learned. Submit your GitHub repo and a short write-up explaining your design.</p>
-                        <button class="btn-submit-gradient">
+                        <p id="final-desc">Submit your final project for grading. Provide your GitHub repository link below.</p>
+                        <button class="btn-submit-gradient" onclick="openSubmissionModal()">
                             <i class="fas fa-upload"></i> Submit Final Project
                         </button>
                     </div>
@@ -182,44 +157,44 @@
                     <div class="project-card">
                         <div class="card-header-row">
                             <h3>Academic Standing</h3>
-                            <span class="tag-gray">Year 1 · Freshman</span>
+                            <span class="tag-gray" id="standing-label">Year 1 · Freshman</span>
                         </div>
-                        <div class="standing-tracker">
+                        <div class="standing-tracker" id="standing-tracker">
                             <div class="step active"><span>1</span><p>Yr 1 Freshman</p></div>
                             <div class="step"><span>2</span><p>Yr 2 Sophomore</p></div>
                             <div class="step"><span>3</span><p>Yr 3 Junior</p></div>
                             <div class="step"><span>4</span><p>Yr 4 Senior</p></div>
                         </div>
-                        <p class="standing-hint">Complete all Year 1 · Freshman projects to advance to Year 2 · Sophomore.</p>
+                        <p class="standing-hint" id="standing-hint">Complete all Year 1 · Freshman projects to advance to Year 2 · Sophomore.</p>
                     </div>
 
                     <!-- Detailed Progress -->
                     <div class="project-card">
                         <div class="card-header-row">
                             <h3>Progress</h3>
-                            <span class="progress-pct-large">0%</span>
+                            <span class="progress-pct-large" id="progress-pct-large">0%</span>
                         </div>
                         <div class="progress-legend">
-                            <span><i class="fas fa-circle" style="color: #22c55e"></i> Approved (0)</span>
-                            <span><i class="fas fa-circle" style="color: #a855f7"></i> Review (0)</span>
-                            <span><i class="fas fa-circle" style="color: #94a3b8"></i> Open (4)</span>
+                            <span><i class="fas fa-circle" style="color: #22c55e"></i> Approved (<span id="legend-approved">0</span>)</span>
+                            <span><i class="fas fa-circle" style="color: #a855f7"></i> Review (<span id="legend-review">0</span>)</span>
+                            <span><i class="fas fa-circle" style="color: #94a3b8"></i> Open (<span id="legend-open">0</span>)</span>
                         </div>
                         <div class="progress-grid-stats">
                             <div class="stat-box">
                                 <label>TIME REMAINING</label>
-                                <strong>0m</strong>
+                                <strong id="stat-time">—</strong>
                             </div>
                             <div class="stat-box">
                                 <label>APPROVED</label>
-                                <strong>0 / 4</strong>
+                                <strong id="stat-approved-val">0 / 0</strong>
                             </div>
                             <div class="stat-box">
                                 <label>IN REVIEW</label>
-                                <strong>0</strong>
+                                <strong id="stat-review-val">0</strong>
                             </div>
                             <div class="stat-box">
                                 <label>OPEN</label>
-                                <strong>4</strong>
+                                <strong id="stat-open-val">0</strong>
                             </div>
                         </div>
                     </div>
@@ -251,9 +226,71 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Empty State -->
+            <div id="projects-empty" style="display:none;text-align:center;padding:4rem 2rem;color:var(--text-secondary);">
+                <i class="fas fa-folder-open" style="font-size:3rem;margin-bottom:1rem;display:block;"></i>
+                <h3 style="margin-bottom:0.5rem;">No Projects Found</h3>
+                <p>Select a course from the dropdown to view projects.</p>
+            </div>
         </div>
     </main>
 
-    <script src="projects.js"></script>
+    <!-- Submission Modal -->
+    <div class="modal-overlay" id="submissionModal" role="dialog" aria-modal="true" aria-hidden="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Submit Final Project</h2>
+                <button class="close-btn" onclick="closeSubmissionModal()" type="button">&times;</button>
+            </div>
+            <form id="finalSubmitForm">
+                <div id="milestone-form-content">
+                    <div class="form-group">
+                        <label for="submission_type">Submission Type</label>
+                        <select name="submission_type" id="submission_type" required>
+                            <option value="github">GitHub Repository Link</option>
+                            <option value="link">External Link</option>
+                            <option value="text">Text</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="resource_link">URL / Repo / Text</label>
+                        <input type="text" name="resource_link" id="resource_link" placeholder="https://github.com/..." required>
+                    </div>
+                    <div class="form-group">
+                        <label for="notes">Notes to Reviewer (Optional)</label>
+                        <textarea name="notes" id="notes" rows="4" placeholder="Any specific areas you want feedback on?"></textarea>
+                    </div>
+                </div>
+                <div id="modal-pulse-tracker" style="display:none;padding:1rem 0;">
+                    <div class="pulse-steps">
+                        <div class="pulse-step" id="step-init"><div class="step-icon"><i class="fa-solid fa-terminal"></i></div><div class="step-text"><span class="step-title">Initializing Pipeline</span><span class="step-desc">Preparing environment...</span></div></div>
+                        <div class="pulse-step" id="step-clone"><div class="step-icon"><i class="fa-solid fa-code-branch"></i></div><div class="step-text"><span class="step-title">Cloning Repository</span><span class="step-desc">Fetching code...</span></div></div>
+                        <div class="pulse-step" id="step-test"><div class="step-icon"><i class="fa-solid fa-flask"></i></div><div class="step-text"><span class="step-title">Running Tests</span><span class="step-desc">Executing automated checks...</span></div></div>
+                        <div class="pulse-step" id="step-grade"><div class="step-icon"><i class="fa-solid fa-brain"></i></div><div class="step-text"><span class="step-title">AI Analysis</span><span class="step-desc">Reviewing logic & reasoning...</span></div></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div id="submission-status-message" role="status" aria-live="polite" style="flex:1;font-size:12px;color:var(--text-secondary);"></div>
+                    <button type="submit" id="submit-final-btn" class="btn btn-primary">Submit Project</button>
+                    <button type="button" id="btn-close-pulse" class="btn btn-outline" style="display:none;" onclick="closeSubmissionModal()">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../react-page-utils.js"></script>
+    <script>
+        if (window.NibrasShared?.session?.updateUserInfoDisplay) {
+            window.NibrasShared.session.updateUserInfoDisplay();
+        }
+    </script>
+    <script src="../config.js"></script>
+    <script src="../services/api.js"></script>
+    <script src="../react-bootstrap.js"></script>
+    <script src="../Courses/courseData.js"></script>
+    <script src="../Courses/Projects/projectsApi.js"></script>
+    <script src="./projects.js"></script>
+    <script src="../services/gamification-ui.js"></script>
 </body>
 </html>
