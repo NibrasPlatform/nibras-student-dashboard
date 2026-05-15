@@ -82,7 +82,7 @@ function handleVideoComplete(lesson, videoItem) {
         }
 
         applyCompletionState();
-        renderLectureList();
+        populateUI(courseData);
         saveProgressToBackend(lessonId);
     }
 }
