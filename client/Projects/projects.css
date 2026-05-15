@@ -112,6 +112,13 @@ body {
 
 .content-wrapper { padding: 2rem; max-width: 1400px; margin: 0 auto; width: 100%; }
 
+/* --- COURSE SELECTOR BAR (Always visible) --- */
+.course-selector-bar {
+    margin-bottom: 1.5rem; padding: 1rem 1.25rem; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+}
+.course-selector-bar label { font-size: 0.75rem; color: var(--text-secondary); font-weight: 700; white-space: nowrap; }
+.course-selector-bar .available-count { font-size: 0.7rem; color: var(--text-secondary); white-space: nowrap; }
+
 /* --- PROJECT SPECIFIC STYLES --- */
 .project-hero {
     display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem;
