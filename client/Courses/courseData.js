@@ -65,30 +65,30 @@
         { code: "PHYS 43", title: "Electricity and Magnetism", category: "core" },
         { code: "BIO", title: "Biology", category: "core" },
         { code: "CHEM", title: "Chemistry", category: "core" },
+    ];
+
+    const intermediateCourseRows = [
+        { code: "CS 107", title: "Computer Organization & Systems", category: "core" },
+        { code: "CS 110", title: "Principles of Computer Systems / Operating Systems Principles", category: "core" },
+        { code: "CS 157", title: "Computational Logic", category: "core" },
+        { code: "CS 161", title: "Design & Analysis of Algorithms", category: "core" },
+        { code: "CS 181", title: "Computers, Ethics, and Public Policy", category: "elective" },
+        { code: "CS 181W", title: "Computers, Ethics, and Public Policy (WIM)", category: "elective" },
+        { code: "CS 194", title: "Software Project", category: "core" },
+        { code: "CS 205L", title: "Continuous Mathematical Methods with an Emphasis on Machine Learning", category: "core" },
+        { code: "CS 210", title: "Software Project Experience with Corporate Partners", category: "core" },
+        { code: "CS 294", title: "Research Project in Computer Science", category: "core" },
         { code: "MATH 104", title: "Applied Matrix Theory", category: "core" },
         { code: "MATH 107", title: "Graph Theory", category: "core" },
         { code: "MATH 108", title: "Introduction to Combinatorics and Its Applications", category: "core" },
         { code: "MATH 109", title: "Groups and Symmetry", category: "core" },
         { code: "MATH 110", title: "Number Theory for Cryptography", category: "core" },
         { code: "MATH 113", title: "Linear Algebra and Matrix Theory", category: "core" },
-        { code: "CS 157", title: "Computational Logic", category: "core" },
-        { code: "CS 205L", title: "Continuous Mathematical Methods with an Emphasis on Machine Learning", category: "core" },
-        { code: "PHIL 251", title: "Metalogic (PHIL 251)", category: "core" },
         { code: "ENGR 40M", title: "Making: Integrated Engineering", category: "elective" },
         { code: "ENGR 76", title: "Information Science & Engineering", category: "elective" },
+        { code: "PHIL 251", title: "Metalogic (PHIL 251)", category: "core" },
         { code: "Other EF", title: "See Stanford list of approved EF courses", category: "elective" },
-    ];
-
-    const intermediateCourseRows = [
-        { code: "CS 181", title: "Computers, Ethics, and Public Policy", category: "elective" },
-        { code: "CS 181W", title: "Computers, Ethics, and Public Policy (WIM)", category: "elective" },
         { code: "STS options", title: "Science, Technology, and Society courses", category: "elective" },
-        { code: "CS 107", title: "Computer Organization & Systems", category: "core" },
-        { code: "CS 110", title: "Principles of Computer Systems / Operating Systems Principles", category: "core" },
-        { code: "CS 161", title: "Design & Analysis of Algorithms", category: "core" },
-        { code: "CS 194", title: "Software Project", category: "core" },
-        { code: "CS 210", title: "Software Project Experience with Corporate Partners", category: "core" },
-        { code: "CS 294", title: "Research Project in Computer Science", category: "core" },
     ];
 
     function normalizeCourseField(value) {
