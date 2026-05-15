@@ -165,6 +165,25 @@ async function fetchDashboardFromCoursesBackend() {
 
     var beginnerCourses = courses.filter(function (c) { return (c.level || '').toLowerCase() === 'beginner'; });
 
+    // Fallback: read video progress from localStorage for all beginner courses
+    if (overallProgress === 0 && beginnerCourses.length > 0) {
+        var totalPct = 0;
+        var countWithProgress = 0;
+        beginnerCourses.forEach(function (c) {
+            try {
+                var localKey = 'nibras_course_progress_' + (c.id || c._id);
+                var stored = JSON.parse(localStorage.getItem(localKey) || '{}');
+                if (stored.percentage > 0) {
+                    totalPct += stored.percentage;
+                    countWithProgress++;
+                }
+            } catch (_) {}
+        });
+        if (countWithProgress > 0) {
+            overallProgress = Math.round(totalPct / countWithProgress);
+        }
+    }
+
     return {
         stats: {
             coursesEnrolled: beginnerCourses.length,

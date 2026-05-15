@@ -123,6 +123,14 @@ function initCourses() {
                             c.progress = Math.max(0, Math.min(100, Math.round(Number(pct))));
                         }
                     }
+                    // Fallback: read video progress from localStorage
+                    if (c.progress === undefined || c.progress === null || c.progress === 0) {
+                        try {
+                            var localKey = 'nibras_course_progress_' + c.id;
+                            var stored = JSON.parse(localStorage.getItem(localKey) || '{}');
+                            if (stored.percentage > 0) c.progress = stored.percentage;
+                        } catch (_) {}
+                    }
                 });
             }
 

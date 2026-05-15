@@ -123,7 +123,23 @@ function handleVideoComplete(lesson, videoItem) {
         applyCompletionState();
         populateUI(courseData);
         saveProgressToBackend(lessonId);
+        saveCourseProgress();
     }
+}
+
+function saveCourseProgress() {
+    var total = courseData?.lessons?.length || 0;
+    var completedCount = getCompletedLectures().length;
+    var pct = total > 0 ? Math.round((completedCount / total) * 100) : 0;
+    var cpKey = 'nibras_course_progress_' + courseId;
+    try {
+        localStorage.setItem(cpKey, JSON.stringify({
+            completed: completedCount,
+            total: total,
+            percentage: pct,
+            lastUpdated: Date.now(),
+        }));
+    } catch (_) {}
 }
 
 function saveProgressToBackend(lessonId) {
