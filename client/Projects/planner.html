@@ -13,20 +13,20 @@
     <!-- SIDEBAR (Consistent with previous pages) -->
     <aside class="sidebar">
         <div class="logo-area">
-            <img src="https://via.placeholder.com/140x40?text=NiBRAS" alt="NiBras Logo" class="sidebar-logo">
+            <img src="../Assets/images/logo-light.png" alt="Nibras Logo" class="sidebar-logo">
         </div>
         <ul class="nav-menu">
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-th-large"></i> Dashboard</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-book"></i> Courses</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-folder-open"></i> Projects</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-list"></i> Catalog</a></li>
-            <li class="nav-item"><a href="#" class="nav-link active"><i class="fas fa-calendar-alt"></i> Planner</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-trophy"></i> Competitions</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-users"></i> Community</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-medal"></i> Achievements</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-robot"></i> AI Tutor</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-chart-bar"></i> Analytics</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-cog"></i> Settings</a></li>
+            <li class="nav-item"><a href="../Dashboard/dashboard.html" class="nav-link"><i class="fas fa-th-large"></i> Dashboard</a></li>
+            <li class="nav-item"><a href="../Levels/level.html" class="nav-link"><i class="fas fa-book"></i> Courses</a></li>
+            <li class="nav-item"><a href="./projects.html" class="nav-link"><i class="fas fa-folder-open"></i> Projects</a></li>
+            <li class="nav-item"><a href="./catalog.html" class="nav-link"><i class="fas fa-list"></i> Catalog</a></li>
+            <li class="nav-item"><a href="./planner.html" class="nav-link active"><i class="fas fa-calendar-alt"></i> Planner</a></li>
+            <li class="nav-item"><a href="../Competitions/Contests/contest.html" class="nav-link"><i class="fas fa-trophy"></i> Competitions</a></li>
+            <li class="nav-item"><a href="../Community/community.html" class="nav-link"><i class="fas fa-users"></i> Community</a></li>
+            <li class="nav-item"><a href="../Achievements/Achievements/achievements.html" class="nav-link"><i class="fas fa-medal"></i> Achievements</a></li>
+            <li class="nav-item"><a href="../Ai-tutor/Ai%20Tutor/ai_tutor.html" class="nav-link"><i class="fas fa-robot"></i> AI Tutor</a></li>
+            <li class="nav-item"><a href="../Analytics/Overview/overview.html" class="nav-link"><i class="fas fa-chart-bar"></i> Analytics</a></li>
+            <li class="nav-item"><a href="../Settings/settings.html" class="nav-link"><i class="fas fa-cog"></i> Settings</a></li>
         </ul>
         <div class="user-profile">
             <div class="avatar-circle">U</div>
@@ -42,9 +42,9 @@
     <main class="main-content">
         <header class="top-header">
             <nav class="top-nav">
-                <a href="#" class="nav-tab">Projects</a>
-                <a href="#" class="nav-tab">Catalog</a>
-                <a href="#" class="nav-tab active">Planner</a>
+                <a href="./projects.html" class="nav-tab">Projects</a>
+                <a href="./catalog.html" class="nav-tab">Catalog</a>
+                <a href="./planner.html" class="nav-tab active">Planner</a>
             </nav>
             <div class="header-actions">
                 <button id="theme-toggle" class="icon-btn"><i class="fas fa-moon"></i></button>
@@ -159,18 +159,18 @@
                     <!-- Fall Row -->
                     <div class="grid-row">
                         <div class="row-label">FALL</div>
-                        <div class="grid-cell"></div>
-                        <div class="grid-cell"></div>
-                        <div class="grid-cell"></div>
-                        <div class="grid-cell"></div>
+                        <div class="grid-cell" data-year="1" data-term="fall"></div>
+                        <div class="grid-cell" data-year="2" data-term="fall"></div>
+                        <div class="grid-cell" data-year="3" data-term="fall"></div>
+                        <div class="grid-cell" data-year="4" data-term="fall"></div>
                     </div>
                     <!-- Spring Row -->
                     <div class="grid-row">
                         <div class="row-label">SPRING</div>
-                        <div class="grid-cell"></div>
-                        <div class="grid-cell"></div>
-                        <div class="grid-cell"></div>
-                        <div class="grid-cell"></div>
+                        <div class="grid-cell" data-year="1" data-term="spring"></div>
+                        <div class="grid-cell" data-year="2" data-term="spring"></div>
+                        <div class="grid-cell" data-year="3" data-term="spring"></div>
+                        <div class="grid-cell" data-year="4" data-term="spring"></div>
                     </div>
                 </div>
 
@@ -394,6 +394,12 @@
         </div>
     </main>
 
-    <script src="planner.js"></script>
+    <script src="../react-page-utils.js"></script>
+    <script>if (window.NibrasShared?.session?.updateUserInfoDisplay) window.NibrasShared.session.updateUserInfoDisplay();</script>
+    <script src="../config.js"></script>
+    <script src="../services/api.js"></script>
+    <script src="../react-bootstrap.js"></script>
+    <script src="./planner.js"></script>
+    <script src="../services/gamification-ui.js"></script>
 </body>
 </html>

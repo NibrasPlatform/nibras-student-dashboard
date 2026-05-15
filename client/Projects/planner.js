@@ -1,82 +1,222 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // Theme Toggle Logic
-    const themeToggle = document.getElementById('theme-toggle');
-    const htmlElement = document.documentElement;
-    const themeIcon = themeToggle.querySelector('i');
+var plannerState = { placements: {} };
 
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    htmlElement.setAttribute('data-theme', savedTheme);
-    updateIcon(savedTheme);
-
-    themeToggle.addEventListener('click', () => {
-        const currentTheme = htmlElement.getAttribute('data-theme');
-        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-        htmlElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-        updateIcon(newTheme);
-    });
-
-    function updateIcon(theme) {
-        if (theme === 'dark') {
-            themeIcon.classList.replace('fa-sun', 'fa-moon');
-        } else {
-            themeIcon.classList.replace('fa-moon', 'fa-sun');
-        }
+window.NibrasReact.run(function () {
+    var themeToggle = document.getElementById('theme-toggle');
+    if (themeToggle) {
+        var htmlEl = document.documentElement;
+        var themeIcon = themeToggle.querySelector('i');
+        var saved = localStorage.getItem('theme') || 'light';
+        htmlEl.setAttribute('data-theme', saved);
+        updateUI(themeIcon, saved);
+        themeToggle.addEventListener('click', function () {
+            var cur = htmlEl.getAttribute('data-theme');
+            var next = cur === 'light' ? 'dark' : 'light';
+            htmlEl.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            updateUI(themeIcon, next);
+        });
     }
+    function updateUI(el, theme) {
+        if (!el) return;
+        el.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        var logo = document.querySelector('.sidebar-logo');
+        if (logo) logo.src = theme === 'dark' ? '../Assets/images/logo-dark.png' : '../Assets/images/logo-light.png';
+    }
+
+    initPaletteDrag();
+    initCellDrop();
+    initEnrollButton();
 });
 
-// PLANNER TAB SWITCHING LOGIC
-function switchPlannerTab(tabId) {
-    // 1. Update Tab Buttons
-    document.querySelectorAll('.tab-pill').forEach(btn => {
-        btn.classList.remove('active');
-        if(btn.innerText.toLowerCase() === tabId) btn.classList.add('active');
+function initPaletteDrag() {
+    document.querySelectorAll('.palette-item').forEach(function (item) {
+        item.draggable = true;
+        item.addEventListener('dragstart', function (e) {
+            e.dataTransfer.setData('text/plain', this.textContent);
+            this.classList.add('dragging');
+        });
+        item.addEventListener('dragend', function () {
+            this.classList.remove('dragging');
+        });
+    });
+}
+
+function initCellDrop() {
+    document.querySelectorAll('.grid-cell').forEach(function (cell) {
+        cell.addEventListener('dragover', function (e) {
+            e.preventDefault();
+            this.classList.add('drag-over');
+        });
+        cell.addEventListener('dragleave', function () {
+            this.classList.remove('drag-over');
+        });
+        cell.addEventListener('drop', function (e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+            var courseName = e.dataTransfer.getData('text/plain');
+            if (!courseName) return;
+
+            var year = this.getAttribute('data-year');
+            var term = this.getAttribute('data-term');
+            var key = 'year' + year + '-' + term;
+
+            if (!plannerState.placements[key]) plannerState.placements[key] = [];
+            if (plannerState.placements[key].indexOf(courseName) !== -1) return;
+
+            plannerState.placements[key].push(courseName);
+            removeFromPalette(courseName);
+            renderCellContents();
+            updateUnitCounts();
+        });
+    });
+}
+
+function removeFromPalette(name) {
+    var list = document.querySelector('.palette-list');
+    var items = list.querySelectorAll('.palette-item');
+    for (var i = 0; i < items.length; i++) {
+        if (items[i].textContent === name) {
+            items[i].style.display = 'none';
+            break;
+        }
+    }
+    document.querySelector('.palette-count').textContent = list.querySelectorAll('.palette-item:not([style*="display: none"])').length;
+}
+
+function restoreToPalette(name) {
+    var list = document.querySelector('.palette-list');
+    var items = list.querySelectorAll('.palette-item');
+    for (var i = 0; i < items.length; i++) {
+        if (items[i].textContent === name && items[i].style.display === 'none') {
+            items[i].style.display = '';
+            break;
+        }
+    }
+    document.querySelector('.palette-count').textContent = list.querySelectorAll('.palette-item:not([style*="display: none"])').length;
+}
+
+function renderCellContents() {
+    var keys = Object.keys(plannerState.placements);
+    keys.forEach(function (key) {
+        var parts = key.replace('year', '').split('-');
+        var year = parts[0];
+        var term = parts[1];
+        var cells = document.querySelectorAll('.grid-cell[data-year="' + year + '"][data-term="' + term + '"]');
+        if (!cells.length) return;
+        var cell = cells[0];
+        cell.innerHTML = '';
+        (plannerState.placements[key] || []).forEach(function (course) {
+            var div = document.createElement('div');
+            div.className = 'placed-course';
+            div.textContent = course;
+            div.draggable = true;
+            div.addEventListener('dragstart', function (e) {
+                e.dataTransfer.setData('text/plain', course);
+                e.dataTransfer.setData('source-cell', key);
+                this.classList.add('dragging');
+            });
+            div.addEventListener('dragend', function () {
+                this.classList.remove('dragging');
+            });
+            var rmBtn = document.createElement('span');
+            rmBtn.className = 'remove-course';
+            rmBtn.innerHTML = '&times;';
+            rmBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                removeFromCell(key, course);
+            });
+            div.appendChild(rmBtn);
+            cell.appendChild(div);
+        });
     });
 
-    // 2. Update Content Visibility
-    document.querySelectorAll('.planner-tab-content').forEach(content => {
-        content.classList.remove('active');
+    document.querySelectorAll('.grid-cell').forEach(function (c) {
+        c.addEventListener('dragover', function (e) {
+            e.preventDefault();
+            this.classList.add('drag-over');
+        });
+        c.addEventListener('drop', function (e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+            var course = e.dataTransfer.getData('text/plain');
+            if (!course) return;
+            var sourceKey = e.dataTransfer.getData('source-cell');
+            var targetYear = this.getAttribute('data-year');
+            var targetTerm = this.getAttribute('data-term');
+            var targetKey = 'year' + targetYear + '-' + targetTerm;
+
+            if (sourceKey) {
+                removeFromCell(sourceKey, course);
+            } else {
+                removeFromPalette(course);
+            }
+
+            if (!plannerState.placements[targetKey]) plannerState.placements[targetKey] = [];
+            if (plannerState.placements[targetKey].indexOf(course) === -1) {
+                plannerState.placements[targetKey].push(course);
+            }
+            renderCellContents();
+            updateUnitCounts();
+        });
     });
-    document.getElementById('tab-' + tabId).classList.add('active');
+}
 
-    // 3. Update Hero Section Content based on Tab
-    const heroTitle = document.getElementById('heroTitle');
-    const heroDesc = document.getElementById('heroDesc');
-    const heroActions = document.getElementById('heroActions');
-
-    if (tabId === 'overview') {
-        heroTitle.innerText = "University-style program planning";
-        heroDesc.innerText = "Organize your degree path, choose a track when eligible, file petitions, and keep a printable record of requirement progress.";
-        heroActions.innerHTML = `<button class="btn-outline">Choose Track</button><button class="btn-planner-primary">Printable Sheet</button>`;
-    } else if (tabId === 'track') {
-        heroTitle.innerText = "Choose your academic track";
-        heroDesc.innerText = "Select the specialization path attached to your program version. Track selection follows the current year gate in your program policy.";
-        heroActions.innerHTML = `<button class="btn-outline">Back to planner</button>`;
-    } else if (tabId === 'petitions') {
-        heroTitle.innerText = "Petitions and exceptions";
-        heroDesc.innerText = "Request transfer credit, substitutions, or waivers and track each review state alongside your program record.";
-        heroActions.innerHTML = `<button class="btn-outline">Back to planner</button>`;
-    } else if (tabId === 'sheet') {
-        heroTitle.innerText = "Printable program sheet";
-        heroDesc.innerText = "Generate a snapshot of your requirement matches, petitions, approvals, and current track for advisor or department review.";
-        heroActions.innerHTML = `<button class="btn-outline">Print</button><button class="btn-planner-primary">Generate snapshot</button>`;
+function removeFromCell(key, course) {
+    if (!plannerState.placements[key]) return;
+    var idx = plannerState.placements[key].indexOf(course);
+    if (idx !== -1) {
+        plannerState.placements[key].splice(idx, 1);
+        restoreToPalette(course);
+        renderCellContents();
+        updateUnitCounts();
     }
 }
 
-// Logic for the "Enroll" button transition
-const btnEnrollNow = document.getElementById('btn-enroll-now');
-const enrollSection = document.getElementById('enroll-section');
-const degreePlanSection = document.getElementById('degree-plan-section');
+function updateUnitCounts() {
+    var totals = { 1: 0, 2: 0, 3: 4, 4: 0 };
+    for (var y = 1; y <= 4; y++) {
+        var count = 0;
+        ['fall', 'spring'].forEach(function (term) {
+            var key = 'year' + y + '-' + term;
+            count += (plannerState.placements[key] || []).length;
+        });
+        var units = document.querySelectorAll('.unit-count');
+        if (units[y - 1]) units[y - 1].textContent = count + ' / ' + totals[y];
+    }
+}
 
-if (btnEnrollNow) {
-    btnEnrollNow.addEventListener('click', () => {
-        // Hide the enrollment cards
-        enrollSection.style.display = 'none';
-        
-        // Show the 4-year planning grid
-        degreePlanSection.style.display = 'block';
-        
-        // Optional: Smooth scroll to the top of the plan
+// Planner tab switching
+function switchPlannerTab(tabId) {
+    document.querySelectorAll('.tab-pill').forEach(function (btn) {
+        btn.classList.remove('active');
+        if (btn.innerText.toLowerCase() === tabId) btn.classList.add('active');
+    });
+    document.querySelectorAll('.planner-tab-content').forEach(function (c) { c.classList.remove('active'); });
+    var tab = document.getElementById('tab-' + tabId);
+    if (tab) tab.classList.add('active');
+
+    var heroTitle = document.getElementById('heroTitle');
+    var heroDesc = document.getElementById('heroDesc');
+    var heroActions = document.getElementById('heroActions');
+    var data = {
+        overview: { title: 'University-style program planning', desc: 'Organize your degree path, choose a track when eligible, file petitions, and keep a printable record of requirement progress.', html: '<button class="btn-outline">Choose Track</button><button class="btn-planner-primary">Printable Sheet</button>' },
+        track: { title: 'Choose your academic track', desc: 'Select the specialization path attached to your program version.', html: '<button class="btn-outline">Back to planner</button>' },
+        petitions: { title: 'Petitions and exceptions', desc: 'Request transfer credit, substitutions, or waivers.', html: '<button class="btn-outline">Back to planner</button>' },
+        sheet: { title: 'Printable program sheet', desc: 'Generate a snapshot of your requirement matches.', html: '<button class="btn-outline">Print</button><button class="btn-planner-primary">Generate snapshot</button>' },
+    };
+    var d = data[tabId] || data.overview;
+    heroTitle.innerText = d.title;
+    heroDesc.innerText = d.desc;
+    heroActions.innerHTML = d.html;
+}
+
+// Enroll button shows degree plan
+function initEnrollButton() {
+    var btn = document.getElementById('btn-enroll-now');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+        document.getElementById('enroll-section').style.display = 'none';
+        document.getElementById('degree-plan-section').style.display = 'block';
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 }
