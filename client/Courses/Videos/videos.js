@@ -81,44 +81,77 @@ function handleVideoComplete(lesson, videoItem) {
             badge.style.display = "flex";
         }
 
-        const lessons = courseData?.lessons || [];
-        let maxUnlocked = 0;
-        completed.forEach(id => {
-            const match = id.match(/-lecture-(\d+)$/);
-            if (match) {
-                const num = parseInt(match[1], 10);
-                if (num > maxUnlocked) maxUnlocked = num;
-            }
-        });
-
-        const nextLectureNum = maxUnlocked + 1;
-        if (nextLectureNum <= lessons.length) {
-            console.log(`[VIDEOS.JS] Lecture ${nextLectureNum} is now unlocked!`);
-            applyCompletionState();
-            renderLectureList();
-        }
+        applyCompletionState();
+        renderLectureList();
+        saveProgressToBackend(lessonId);
     }
+}
+
+function saveProgressToBackend(lessonId) {
+    var svc = window.NibrasServices?.coursesService;
+    if (!svc || !courseId) return;
+    svc.toggleSection(courseId, lessonId, true).catch(function () {});
+}
+
+async function syncProgressFromBackend() {
+    var svc = window.NibrasServices?.coursesService;
+    if (!svc || !courseId) return;
+    try {
+        var res = await svc.getProgress(courseId);
+        var progress = res?.data || res || {};
+        var items = progress.items || [];
+        if (items.length > 0) {
+            var completedIds = [];
+            items.forEach(function (item) {
+                if (item.state === 'completed' && item.sectionId) {
+                    completedIds.push(item.sectionId);
+                }
+            });
+            if (completedIds.length > 0) {
+                var stored = getCompletedLectures();
+                var changed = false;
+                (courseData?.lessons || []).forEach(function (lesson) {
+                    var found = completedIds.some(function (sid) {
+                        return lesson.id === sid || lesson.id.endsWith(sid);
+                    });
+                    if (found && !stored.includes(lesson.id)) {
+                        stored.push(lesson.id);
+                        changed = true;
+                    }
+                });
+                if (changed) {
+                    saveCompletedLectures(stored);
+                    console.log('[VIDEOS.JS] Synced completed lectures from backend:', stored);
+                }
+            }
+        }
+    } catch (_) {
+        // Backend unavailable — localStorage fallback is fine
+    }
+    applyCompletionState();
 }
 
 function applyCompletionState() {
     const completed = getCompletedLectures();
-    if (courseData?.lessons && completed.length > 0) {
+    if (courseData?.lessons) {
+        var completedCount = 0;
         courseData.lessons.forEach(lesson => {
-            if (completed.includes(lesson.id)) {
-                lesson.completed = true;
-            }
+            var isDone = completed.includes(lesson.id);
+            lesson.completed = isDone;
+            if (isDone) completedCount++;
 
             const match = lesson.id.match(/-lecture-(\d+)$/);
             if (match) {
                 const lectureNum = parseInt(match[1], 10);
-                const maxCompleted = Math.max(...completed.map(id => {
+                const maxCompleted = completed.length > 0 ? Math.max(...completed.map(id => {
                     const m = id.match(/-lecture-(\d+)$/);
                     return m ? parseInt(m[1], 10) : 0;
-                }), 0);
+                }), 0) : 0;
 
                 lesson.locked = lectureNum > Math.max(maxCompleted + 1, 3);
             }
         });
+        courseData.progress.completed = completedCount;
     }
 }
 
@@ -185,6 +218,7 @@ function initVideos() {
     setupLectureVideoItemsHandler();
     setupNavigationButtons();
     hydrateLessonsFromAdmin();
+    syncProgressFromBackend();
 }
 
 function populateUI(data) {
