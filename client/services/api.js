@@ -829,12 +829,11 @@
          * @param {string} answerId - Answer MongoDB ObjectId
          * @returns {Promise<object>}
          */
-        async accept(answerId) {
-            return apiFetch(`/community/answers/${answerId}/accept`, {
+        async accept(questionId, answerId) {
+            return apiFetch(`/community/answers/${encodeURIComponent(String(questionId))}/${encodeURIComponent(String(answerId))}/accept`, {
                 service: 'legacyCommunity',
                 method: 'PATCH',
                 auth: true,
-                body: {},
             });
         },
     };
@@ -2593,8 +2592,8 @@
          * @returns {Promise<{success: boolean, enoughData: boolean, data: {grades: object}}>}
          */
         async getGrades() {
-            return apiFetch('/courses/grades', {
-                service: 'courses',
+            return apiFetch('/ai/grades', {
+                service: 'admin',
                 method: 'GET',
                 auth: true,
             });
@@ -2766,6 +2765,34 @@
     };
 
     // ============================================================
+    // Mentorship Service (admin service → /api/mentorship/*)
+    // ============================================================
+    const mentorshipService = {
+        async getSuggestions(limit) {
+            var params = {};
+            if (limit != null) params.limit = limit;
+            return apiFetch('/mentorship/suggestions/me' + toQueryString(params), { service: 'admin', method: 'GET', auth: true });
+        },
+        async updateProfile(data) {
+            return apiFetch('/mentorship/profile/me', { service: 'admin', method: 'PUT', auth: true, body: data });
+        },
+        async listProfiles(status) {
+            var params = {};
+            if (status) params.status = status;
+            return apiFetch('/mentorship/admin/profiles' + toQueryString(params), { service: 'admin', method: 'GET', auth: true });
+        },
+        async approveProfile(userId) {
+            return apiFetch('/mentorship/admin/profiles/' + encodeURIComponent(String(userId)) + '/approve', { service: 'admin', method: 'PATCH', auth: true });
+        },
+        async rejectProfile(userId) {
+            return apiFetch('/mentorship/admin/profiles/' + encodeURIComponent(String(userId)) + '/reject', { service: 'admin', method: 'PATCH', auth: true });
+        },
+        async updateAvailability(userId, availability) {
+            return apiFetch('/mentorship/admin/profiles/' + encodeURIComponent(String(userId)) + '/availability', { service: 'admin', method: 'PATCH', auth: true, body: { availability } });
+        },
+    };
+
+    // ============================================================
     // Expose on window
     // ============================================================
     window.NibrasServices = Object.freeze({
@@ -2796,6 +2823,7 @@
         gamificationService,
         reputationService,
         aiService,
+        mentorshipService,
     });
 
     console.log('[NibrasServices] Initialized. Available as window.NibrasServices');

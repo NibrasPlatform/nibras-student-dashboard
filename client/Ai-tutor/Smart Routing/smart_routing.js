@@ -1,76 +1,92 @@
-window.NibrasReact.run(() => {
+window.NibrasReact.run(function () {
 
-    // --- 1. SIDEBAR LOGIC ---
-    const navLinks = document.querySelectorAll('.nav-link');
-    navLinks.forEach(link => {
-        link.addEventListener('click', (e) => { 
-            navLinks.forEach(n => n.classList.remove('active'));
+    var navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(function (link) {
+        link.addEventListener('click', function (e) {
+            navLinks.forEach(function (n) { n.classList.remove('active'); });
             link.classList.add('active');
         });
     });
 
-    // --- 2. BACKEND DATA ---
-    const routingData = [
-        {
-            id: 1,
-            question: "How to optimize this recursive solution?",
-            routedTo: "Dr. Sarah Chen",
-            tag: "Algorithms & Optimization",
-            matchConfidence: "94% match confidence",
-            response: "Responded in 12 minutes"
-        },
-        {
-            id: 2,
-            question: "Database design for social media app",
-            routedTo: "TA Mike Johnson",
-            tag: "Database Systems",
-            matchConfidence: "87% match confidence",
-            response: "Responded in 25 minutes"
-        },
-        {
-            id: 3,
-            question: "React component lifecycle confusion",
-            routedTo: "Prof. Alex Kim",
-            tag: "Web Development",
-            matchConfidence: "91% match confidence",
-            response: "Responded in 8 minutes"
-        }
-    ];
+    var container = document.getElementById('routing-list-container');
 
-    // --- 3. RENDER UI ---
-    const container = document.getElementById('routing-list-container');
-    container.innerHTML = '';
+    var services = window.NibrasServices;
 
-    routingData.forEach(item => {
-        container.innerHTML += `
-            <div class="route-card">
-                <div class="route-header">
-                    <h4>${item.question}</h4>
-                </div>
-                <div class="route-meta">
-                    <span class="route-pill">Routed to: ${item.routedTo}</span>
-                    <span class="route-tag">${item.tag}</span>
-                </div>
-                <div class="route-stats">
-                    <span>${item.matchConfidence}</span>
-                    <span>${item.response}</span>
-                </div>
-            </div>
-        `;
-    });
-
-    // --- 4. THEME TOGGLE & LOGO SWAP ---
-    const themeBtn = document.getElementById('themeBtn');
-    const themeIcon = themeBtn ? themeBtn.querySelector('i') : null;
-    const appLogo = document.getElementById('app-logo');
-
-    // Ensure theme is set on page load
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-        document.documentElement.setAttribute('data-theme', savedTheme);
+    if (services && services.mentorshipService) {
+        services.mentorshipService.getSuggestions(10).then(function (res) {
+            var data = res && (res.data || res);
+            var suggestions = Array.isArray(data) ? data : (Array.isArray(data.suggestions) ? data.suggestions : []);
+            if (suggestions.length === 0) { renderStatic(); return; }
+            renderSuggestions(suggestions);
+        }).catch(function () { renderStatic(); });
+    } else {
+        renderStatic();
     }
 
-    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    function renderSuggestions(suggestions) {
+        container.innerHTML = '';
+        suggestions.forEach(function (s) {
+            var mentorName = s.mentorName || s.mentor?.name || s.name || 'Mentor';
+            var topic = s.topic || s.expertise || s.specialty || 'General';
+            var confidence = s.confidence || s.matchConfidence || s.score || '';
+            var responseTime = s.responseTime || s.availability || '';
+            var question = s.question || s.title || s.description || '';
+
+            container.innerHTML += [
+                '<div class="route-card">',
+                '<div class="route-header"><h4>' + esc(question) + '</h4></div>',
+                '<div class="route-meta">',
+                '<span class="route-pill">Routed to: ' + esc(mentorName) + '</span>',
+                '<span class="route-tag">' + esc(topic) + '</span>',
+                '</div>',
+                '<div class="route-stats">',
+                confidence ? '<span>' + esc(confidence) + '% match confidence</span>' : '',
+                responseTime ? '<span>' + esc(responseTime) + '</span>' : '',
+                '</div>',
+                '</div>',
+            ].join('');
+        });
+    }
+
+    function renderStatic() {
+        var fallback = [
+            { question: 'How to optimize this recursive solution?', routedTo: 'Dr. Sarah Chen', tag: 'Algorithms & Optimization', confidence: '94% match confidence', responseTime: 'Responded in 12 minutes' },
+            { question: 'Database design for social media app', routedTo: 'TA Mike Johnson', tag: 'Database Systems', confidence: '87% match confidence', responseTime: 'Responded in 25 minutes' },
+            { question: 'React component lifecycle confusion', routedTo: 'Prof. Alex Kim', tag: 'Web Development', confidence: '91% match confidence', responseTime: 'Responded in 8 minutes' },
+        ];
+        container.innerHTML = '';
+        fallback.forEach(function (item) {
+            container.innerHTML += [
+                '<div class="route-card">',
+                '<div class="route-header"><h4>' + esc(item.question) + '</h4></div>',
+                '<div class="route-meta">',
+                '<span class="route-pill">Routed to: ' + esc(item.routedTo) + '</span>',
+                '<span class="route-tag">' + esc(item.tag) + '</span>',
+                '</div>',
+                '<div class="route-stats">',
+                '<span>' + esc(item.confidence) + '</span>',
+                '<span>' + esc(item.responseTime) + '</span>',
+                '</div>',
+                '</div>',
+            ].join('');
+        });
+    }
+
+    function esc(str) {
+        if (!str && str !== 0) return '';
+        var d = document.createElement('div');
+        d.appendChild(document.createTextNode(String(str)));
+        return d.innerHTML;
+    }
+
+    var themeBtn = document.getElementById('themeBtn');
+    var themeIcon = themeBtn ? themeBtn.querySelector('i') : null;
+    var appLogo = document.getElementById('app-logo');
+
+    var savedTheme = localStorage.getItem('theme');
+    if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
+
+    var currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
     if (currentTheme === 'dark') {
         if (themeIcon) themeIcon.className = 'fa-solid fa-sun';
         if (appLogo) appLogo.src = '/Assets/images/logo-dark.png';
@@ -80,28 +96,21 @@ window.NibrasReact.run(() => {
     }
 
     if (themeBtn) {
-        themeBtn.addEventListener('click', () => {
-            const html = document.documentElement;
-            const current = html.getAttribute('data-theme');
-            const newTheme = current === 'light' ? 'dark' : 'light';
-            
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            
-            if (themeIcon) {
-                themeIcon.className = newTheme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
-            }
-            if (appLogo) {
-                appLogo.src = newTheme === 'dark' ? '/Assets/images/logo-dark.png' : '/Assets/images/logo-light.png';
-            }
+        themeBtn.addEventListener('click', function () {
+            var html = document.documentElement;
+            var cur = html.getAttribute('data-theme');
+            var next = cur === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            if (themeIcon) themeIcon.className = next === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            if (appLogo) appLogo.src = next === 'dark' ? '/Assets/images/logo-dark.png' : '/Assets/images/logo-light.png';
         });
     }
 
-    // --- 5. TAB LOGIC ---
-    const aiTabs = document.querySelectorAll('.ai-tab');
-    aiTabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            aiTabs.forEach(t => t.classList.remove('active'));
+    var aiTabs = document.querySelectorAll('.ai-tab');
+    aiTabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+            aiTabs.forEach(function (t) { t.classList.remove('active'); });
             tab.classList.add('active');
         });
     });
