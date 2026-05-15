@@ -2244,6 +2244,23 @@
                 auth: true,
             });
         },
+
+        async getCatalog() {
+            return apiFetch('/v1/tracking/catalog', {
+                service: 'tracking',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        async submitApplication(projectId, data) {
+            return apiFetch(`/v1/tracking/projects/${encodeURIComponent(String(projectId))}/applications`, {
+                service: 'tracking',
+                method: 'POST',
+                auth: true,
+                body: data,
+            });
+        },
     };
 
     // ============================================================
