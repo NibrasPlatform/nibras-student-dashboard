@@ -468,9 +468,7 @@ function setupVideoControls(videoElement) {
         if (currentLesson && !currentLesson.completed) {
             const percentWatched = (videoElement.currentTime / videoElement.duration) * 100;
             if (percentWatched >= 95) {
-                currentLesson.completed = true;
-                courseData.progress.completed = Math.min(courseData.progress.total, courseData.progress.completed + 1);
-                populateUI(courseData);
+                handleVideoComplete(currentLesson, activeVideoItem);
             }
         }
     });
