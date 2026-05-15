@@ -32,14 +32,111 @@ window.NibrasReact.run(function () {
         if (logo) logo.src = theme === 'dark' ? '/Assets/images/logo-dark.png' : '/Assets/images/logo-light.png';
     }
 
-    var urlParams = new URLSearchParams(window.location.search);
-    var courseId = urlParams.get('courseId') || '';
-    if (courseId) {
-        projectsPageState.trackingCourseId = courseId;
-        loadSelectedCourseProjects(courseId);
-    } else {
-        showEmptyState();
+    var select = document.getElementById('course-selector');
+    if (select) {
+        select.addEventListener('change', function () {
+            var val = this.value;
+            if (val) {
+                projectsPageState.trackingCourseId = val;
+                loadSelectedCourseProjects(val);
+            } else {
+                showEmptyState();
+            }
+        });
     }
+
+    loadCoursesDropdown();
+});
+
+function setNotice(message, type) {
+    var el = document.getElementById('projects-api-notice');
+    if (!el) return;
+    if (!message) { el.style.display = 'none'; return; }
+    el.style.display = '';
+    el.textContent = message;
+    el.style.color = type === 'error' ? '#ef4444' : type === 'loading' ? 'var(--text-secondary)' : '';
+}
+
+function loadCoursesDropdown() {
+    var select = document.getElementById('course-selector');
+    if (!select) return;
+
+    var urlParams = new URLSearchParams(window.location.search);
+    var preselectedId = urlParams.get('courseId') || '';
+
+    var tryTracking = function () {
+        if (!window.NibrasServices?.trackingCourseService) return tryCoursesBackend();
+        return window.NibrasServices.trackingCourseService.list().then(function (res) {
+            var courses = Array.isArray(res) ? res : (res?.data || res?.courses || []);
+            if (!courses || courses.length === 0) return tryCoursesBackend();
+            populateDropdown(courses, preselectedId, 'id');
+        }).catch(function () { return tryCoursesBackend(); });
+    };
+
+    var tryCoursesBackend = function () {
+        if (!window.NibrasServices?.coursesService) { select.innerHTML = '<option value="">Select a course...</option>'; finish(preselectedId); return; }
+        return window.NibrasServices.coursesService.list({ page: 1, limit: 100 }).then(function (res) {
+            var items = res?.data?.items || res?.data || res?.courses || [];
+            var courses = Array.isArray(items) ? items : (Array.isArray(res?.data) ? res.data : []);
+            var mapped = courses.map(function (c) {
+                var localId = '';
+                try {
+                    var resolved = window.NibrasCourses?.resolveCourseIdentifiers?.(c._id || c.id);
+                    localId = resolved?.trackingCourseIdForApi || resolved?.trackingCourseId || c._id || c.id || '';
+                } catch (_) { localId = c._id || c.id || ''; }
+                return { display: c.title || c.courseCode || 'Course', value: localId };
+            });
+            if (mapped.length === 0) { select.innerHTML = '<option value="">No courses found</option>'; finish(preselectedId); return; }
+            select.innerHTML = '<option value="">Select a course...</option>';
+            var hasSelected = false;
+            mapped.forEach(function (c) {
+                var selected = (c.value === preselectedId) ? 'selected' : '';
+                if (selected) hasSelected = true;
+                select.innerHTML += '<option value="' + escapeHtml(c.value) + '" ' + selected + '>' + escapeHtml(c.display) + '</option>';
+            });
+            document.getElementById('available-count').textContent = mapped.length + ' available';
+            if (!hasSelected && preselectedId) {
+                select.innerHTML += '<option value="' + escapeHtml(preselectedId) + '" selected>Course (' + escapeHtml(preselectedId.slice(0, 8)) + '...)</option>';
+            }
+            finish(preselectedId || (mapped.length === 1 ? mapped[0].value : ''));
+        }).catch(function () {
+            select.innerHTML = '<option value="">Select a course...</option>';
+            finish(preselectedId);
+        });
+    };
+
+    var finish = function (targetId) {
+        if (targetId) {
+            select.value = targetId;
+            projectsPageState.trackingCourseId = targetId;
+            loadSelectedCourseProjects(targetId);
+        } else {
+            showEmptyState();
+        }
+    };
+
+    tryTracking();
+}
+
+function populateDropdown(courses, preselectedId, idField) {
+    var select = document.getElementById('course-selector');
+    select.innerHTML = '<option value="">Select a course...</option>';
+    var hasSelected = false;
+    (courses || []).forEach(function (c) {
+        var id = c.id || c._id || '';
+        var name = c.name || c.title || c.courseCode || c.slug || id;
+        var selected = (id === preselectedId) ? 'selected' : '';
+        if (selected) hasSelected = true;
+        select.innerHTML += '<option value="' + escapeHtml(id) + '" ' + selected + '>' + escapeHtml(name) + '</option>';
+    });
+    document.getElementById('available-count').textContent = (courses?.length || 0) + ' available';
+    var targetId = preselectedId || (courses && courses.length === 1 ? (courses[0].id || courses[0]._id) : '');
+    if (targetId && !hasSelected) {
+        select.value = targetId;
+        projectsPageState.trackingCourseId = targetId;
+        loadSelectedCourseProjects(targetId);
+    }
+}
 });
 
 function setNotice(message, type) {
