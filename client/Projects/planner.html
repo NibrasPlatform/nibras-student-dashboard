@@ -1,29 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NiBras - Planner</title>
-    <script>
-    (function () {
-        var t = localStorage.getItem('theme');
-        if (t) document.documentElement.setAttribute('data-theme', t);
-    })();
-    </script>
-    <link rel="stylesheet" href="planner.css">
+    <title>NiBras - Student Planner</title>
+    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
+    <!-- SIDEBAR (Consistent with previous pages) -->
     <aside class="sidebar">
         <div class="logo-area">
-            <img src="../Assets/images/logo-light.png" alt="Nibras Logo" class="sidebar-logo">
+            <img src="https://via.placeholder.com/140x40?text=NiBRAS" alt="NiBras Logo" class="sidebar-logo">
         </div>
         <ul class="nav-menu">
             <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-th-large"></i> Dashboard</a></li>
             <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-book"></i> Courses</a></li>
-            <li class="nav-item"><a href="./projects.html" class="nav-link"><i class="fas fa-folder-open"></i> Projects</a></li>
+            <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-folder-open"></i> Projects</a></li>
+            <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-list"></i> Catalog</a></li>
+            <li class="nav-item"><a href="#" class="nav-link active"><i class="fas fa-calendar-alt"></i> Planner</a></li>
             <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-trophy"></i> Competitions</a></li>
             <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-users"></i> Community</a></li>
             <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-medal"></i> Achievements</a></li>
@@ -33,18 +30,21 @@
         </ul>
         <div class="user-profile">
             <div class="avatar-circle">U</div>
-            <div class="user-info"><h4>User</h4><span>Student</span></div>
+            <div class="user-info">
+                <h4>usa</h4>
+                <span>Student</span>
+            </div>
         </div>
-        <div class="reputation-box">Reputation <span class="rep-badge">0</span></div>
+        <div class="reputation-box">Reputation <span class="rep-badge">148</span></div>
         <button class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
     </aside>
 
     <main class="main-content">
         <header class="top-header">
             <nav class="top-nav">
-                <a href="./projects.html" class="nav-tab">Projects</a>
-                <a href="./catalog.html" class="nav-tab">Catalog</a>
-                <a href="./planner.html" class="nav-tab active">Planner</a>
+                <a href="#" class="nav-tab">Projects</a>
+                <a href="#" class="nav-tab">Catalog</a>
+                <a href="#" class="nav-tab active">Planner</a>
             </nav>
             <div class="header-actions">
                 <button id="theme-toggle" class="icon-btn"><i class="fas fa-moon"></i></button>
@@ -54,16 +54,253 @@
         </header>
 
         <div class="content-wrapper">
-            <!-- Add your planner content here -->
+            
+            <!-- DYNAMIC PLANNER HEADER -->
+            <section class="planner-hero" id="plannerHero">
+                <div class="hero-left">
+                    <span class="hero-label" id="heroLabel">STUDENT PLANNER</span>
+                    <h1 id="heroTitle">University-style program planning</h1>
+                    <p id="heroDesc">Organize your degree path, choose a track when eligible, file petitions, and keep a printable record of requirement progress.</p>
+                </div>
+                <div class="hero-right" id="heroActions">
+                    <button class="btn-outline">Choose Track</button>
+                    <button class="btn-planner-primary">Printable Sheet</button>
+                </div>
+            </section>
+
+            <!-- PLANNER TABS -->
+            <div class="planner-tabs">
+                <button class="tab-pill active" onclick="switchPlannerTab('overview')">Overview</button>
+                <button class="tab-pill" onclick="switchPlannerTab('track')">Track</button>
+                <button class="tab-pill" onclick="switchPlannerTab('petitions')">Petitions</button>
+                <button class="tab-pill" onclick="switchPlannerTab('sheet')">Sheet</button>
+            </div>
+
+            <!-- TAB CONTENT: OVERVIEW -->
+            <div id="tab-overview" class="planner-tab-content active">
+                <div class="section-header-row">
+                    <h3>Enroll in a program</h3>
+                    <span class="count-text">1 available</span>
+                </div>
+                <div class="enroll-grid">
+                    <div class="program-card">
+                        <span class="prog-tag">CS</span>
+                        <h2>Computer Science Program</h2>
+                        <p class="prog-year">2026-2027</p>
+                        <p class="prog-units">120 total units</p>
+                        <button class="btn-planner-primary">Enroll</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB CONTENT: TRACK -->
+            <div id="tab-track" class="planner-tab-content">
+                <div class="track-status-grid">
+                    <div class="status-card">
+                        <span class="status-label">CURRENT TRACK</span>
+                        <h3>Not selected</h3>
+                        <p>CS</p>
+                    </div>
+                    <div class="status-card">
+                        <span class="status-label">SELECTION STATUS</span>
+                        <h3>Locked</h3>
+                        <p>Unlocks in Year 2.</p>
+                    </div>
+                </div>
+                <div class="tracks-grid">
+                    <!-- Track Card Template -->
+                    <div class="track-card">
+                        <span class="track-id">ARTIFICIAL-INTELLIGENCE-AI</span>
+                        <h4>Artificial Intelligence (AI)</h4>
+                        <p>Focused depth path for Artificial Intelligence (AI).</p>
+                        <span class="track-unlock">Opens from Year 2</span>
+                        <button class="btn-track-locked">Track locked</button>
+                    </div>
+                    <div class="track-card">
+                        <span class="track-id">COMPUTATIONAL-BIO-BIOCOMP</span>
+                        <h4>Computational Bio (Biocomp)</h4>
+                        <p>Focused depth path for Computational Bio (Biocomp).</p>
+                        <span class="track-unlock">Opens from Year 2</span>
+                        <button class="btn-track-locked">Track locked</button>
+                    </div>
+                    <div class="track-card">
+                        <span class="track-id">HUMAN-COMPUTER-INTERACTION</span>
+                        <h4>Human-Computer Interaction</h4>
+                        <p>Focused depth path for Human-Computer Interaction.</p>
+                        <span class="track-unlock">Opens from Year 2</span>
+                        <button class="btn-track-locked">Track locked</button>
+                    </div>
+                    <div class="track-card">
+                        <span class="track-id">INDIVIDUALLY-DESIGNED</span>
+                        <h4>Individually Designed</h4>
+                        <p>Focused depth path for Individually Designed.</p>
+                        <span class="track-unlock">Opens from Year 2</span>
+                        <button class="btn-track-locked">Track locked</button>
+                    </div>
+                    <div class="track-card">
+                        <span class="track-id">INFORMATION</span>
+                        <h4>Information</h4>
+                        <p>Focused depth path for Information.</p>
+                        <span class="track-unlock">Opens from Year 2</span>
+                        <button class="btn-track-locked">Track locked</button>
+                    </div>
+                    <div class="track-card">
+                        <span class="track-id">SYSTEMS</span>
+                        <h4>Systems</h4>
+                        <p>Focused depth path for Systems.</p>
+                        <span class="track-unlock">Opens from Year 2</span>
+                        <button class="btn-track-locked">Track locked</button>
+                    </div>
+                    <div class="track-card">
+                        <span class="track-id">THEORY</span>
+                        <h4>Theory</h4>
+                        <p>Focused depth path for Theory.</p>
+                        <span class="track-unlock">Opens from Year 2</span>
+                        <button class="btn-track-locked">Track locked</button>
+                    </div>
+                    <div class="track-card">
+                        <span class="track-id">UNSPECIALIZED</span>
+                        <h4>Unspecialized</h4>
+                        <p>Focused depth path for Unspecialized.</p>
+                        <span class="track-unlock">Opens from Year 2</span>
+                        <button class="btn-track-locked">Track locked</button>
+                    </div>
+                    <div class="track-card">
+                        <span class="track-id">VISUAL-COMPUTING-GRAPHICS</span>
+                        <h4>Visual Computing (Graphics)</h4>
+                        <p>Focused depth path for Visual Computing (Graphics).</p>
+                        <span class="track-unlock">Opens from Year 2</span>
+                        <button class="btn-track-locked">Track locked</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB CONTENT: PETITIONS -->
+            <div id="tab-petitions" class="planner-tab-content">
+                <div class="petition-stats">
+                    <div class="stat-box-planner">
+                        <span class="stat-label">SUBMITTED</span>
+                        <div class="stat-value">0</div>
+                        <div class="stat-sub">Total requests on file</div>
+                    </div>
+                    <div class="stat-box-planner">
+                        <span class="stat-label">PENDING</span>
+                        <div class="stat-value">0</div>
+                        <div class="stat-sub">Awaiting advisor or department review</div>
+                    </div>
+                </div>
+                <div class="petition-main-grid">
+                    <div class="petition-form-card">
+                        <h3>Submit a petition</h3>
+                        <div class="form-group">
+                            <label>TYPE</label>
+                            <select><option>Transfer / AP credit</option></select>
+                        </div>
+                        <div class="form-group">
+                            <label>REQUIREMENT GROUP</label>
+                            <select><option>Optional target</option></select>
+                        </div>
+                        <div class="form-group">
+                            <label>ORIGINAL / SATISFIED COURSE</label>
+                            <select><option>Optional course</option></select>
+                        </div>
+                        <div class="form-group">
+                            <label>SUBSTITUTE COURSE</label>
+                            <select><option>Optional substitute</option></select>
+                        </div>
+                        <div class="form-group">
+                            <label>JUSTIFICATION</label>
+                            <textarea placeholder="Explain why this exception is needed."></textarea>
+                        </div>
+                        <button class="btn-planner-primary">Submit petition</button>
+                    </div>
+                    <div class="petition-list-card">
+                        <h3>Submitted petitions</h3>
+                        <p class="empty-msg">No petitions submitted yet.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB CONTENT: SHEET -->
+            <div id="tab-sheet" class="planner-tab-content">
+                <div class="sheet-top-stats">
+                    <div class="sheet-stat">
+                        <span class="label">PROGRAM</span>
+                        <strong>CS</strong>
+                        <span class="sub">2026-2027</span>
+                    </div>
+                    <div class="sheet-stat">
+                        <span class="label">TRACK</span>
+                        <strong>Not selected</strong>
+                        <span class="sub">enrolled</span>
+                    </div>
+                    <div class="sheet-stat">
+                        <span class="label">SNAPSHOT</span>
+                        <strong>Draft</strong>
+                        <span class="sub">Generate a stored view when ready.</span>
+                    </div>
+                </div>
+
+                <div class="sheet-container">
+                    <div class="sheet-header">
+                        <span>Computer Science Program · 2026-2027</span>
+                        <span class="draft-view">Draft view</span>
+                    </div>
+                    <div class="sheet-row">
+                        <span class="row-label">Student</span>
+                        <span class="row-val">AbdallahRT · AbdallahRT@users.noreply.github.com</span>
+                    </div>
+                    <div class="sheet-row">
+                        <span class="row-label">Track</span>
+                        <span class="row-val">Not selected</span>
+                    </div>
+                    <div class="sheet-row">
+                        <span class="row-label">Status</span>
+                        <span class="row-val">enrolled</span>
+                    </div>
+
+                    <div class="sheet-section">
+                        <div class="section-head"><span>Year 1 Foundation</span><span class="pending">pending</span></div>
+                        <p class="section-info">Minimum 7 courses · 22 units</p>
+                        <p class="section-desc">Common first-year foundation shared by all students before track selection.</p>
+                        <p class="section-empty">No planned courses matched yet.</p>
+                    </div>
+
+                    <div class="sheet-section">
+                        <div class="section-head"><span>Shared CS Core</span><span class="pending">pending</span></div>
+                        <p class="section-info">Minimum 6 courses · 21 units</p>
+                        <p class="section-desc">Core CS courses shared across every specialization.</p>
+                        <p class="section-empty">No planned courses matched yet.</p>
+                    </div>
+
+                    <div class="sheet-section">
+                        <div class="section-head"><span>Capstone and Professional Practice</span><span class="pending">pending</span></div>
+                        <p class="section-info">Minimum 3 courses · 9 units</p>
+                        <p class="section-desc">Final-year integration and professional synthesis.</p>
+                        <p class="section-empty">No planned courses matched yet.</p>
+                    </div>
+
+                    <div class="sheet-footer-grid">
+                        <div class="sheet-footer-box">
+                            <h4>Petitions</h4>
+                            <p class="empty-msg">No petitions on file.</p>
+                        </div>
+                        <div class="sheet-footer-box">
+                            <h4>Approvals</h4>
+                            <div class="approval-row"><span>advisor</span><span class="pending">pending</span></div>
+                            <div class="approval-row"><span>department</span><span class="pending">pending</span></div>
+                        </div>
+                    </div>
+
+                    <div class="sheet-policies">
+                        <h4>Policies</h4>
+                        <p>Students complete the common Year 1 foundation, select one track from Year 2 onward, and must maintain advisor then department approval for exceptions.</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 
-    <script src="../react-page-utils.js"></script>
-    <script>if (window.NibrasShared?.session?.updateUserInfoDisplay) window.NibrasShared.session.updateUserInfoDisplay();</script>
-    <script src="../config.js"></script>
-    <script src="../services/api.js"></script>
-    <script src="../react-bootstrap.js"></script>
-    <script src="./planner.js"></script>
-    <script src="../services/gamification-ui.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
