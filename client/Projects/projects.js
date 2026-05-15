@@ -32,18 +32,14 @@ window.NibrasReact.run(function () {
         if (logo) logo.src = theme === 'dark' ? '/Assets/images/logo-dark.png' : '/Assets/images/logo-light.png';
     }
 
-    var courseSelect = document.getElementById('course-selector');
-    if (courseSelect) {
-        courseSelect.addEventListener('change', function () {
-            var val = this.value;
-            if (val) {
-                projectsPageState.trackingCourseId = val;
-                loadSelectedCourseProjects(val);
-            }
-        });
+    var urlParams = new URLSearchParams(window.location.search);
+    var courseId = urlParams.get('courseId') || '';
+    if (courseId) {
+        projectsPageState.trackingCourseId = courseId;
+        loadSelectedCourseProjects(courseId);
+    } else {
+        showEmptyState();
     }
-
-    loadCoursesList();
 });
 
 function setNotice(message, type) {
@@ -55,45 +51,8 @@ function setNotice(message, type) {
     el.style.color = type === 'error' ? '#ef4444' : type === 'loading' ? 'var(--text-secondary)' : '';
 }
 
-function loadCoursesList() {
-    var select = document.getElementById('course-selector');
-    if (!select) return;
-
-    if (!window.NibrasServices || !window.NibrasServices.trackingCourseService) {
-        select.innerHTML = '<option value="">Service unavailable</option>';
-        return;
-    }
-
-    window.NibrasServices.trackingCourseService.list().then(function (res) {
-        var courses = Array.isArray(res) ? res : (res?.data || res?.courses || []);
-        select.innerHTML = '<option value="">Select a course...</option>';
-
-        var urlParams = new URLSearchParams(window.location.search);
-        var preselectedId = urlParams.get('courseId') || '';
-
-        (courses || []).forEach(function (c) {
-            var id = c.id || c._id || '';
-            var name = c.name || c.title || c.courseCode || id;
-            var selected = (id === preselectedId) ? 'selected' : '';
-            select.innerHTML += '<option value="' + escapeHtml(id) + '" ' + selected + '>' + escapeHtml(name) + '</option>';
-        });
-
-        var avail = document.getElementById('available-count');
-        if (avail) avail.textContent = (courses?.length || 0) + ' available';
-
-        var targetId = preselectedId || (courses && courses.length === 1 ? (courses[0].id || courses[0]._id) : '');
-        if (targetId) {
-            select.value = targetId;
-            projectsPageState.trackingCourseId = targetId;
-            loadSelectedCourseProjects(targetId);
-        }
-    }).catch(function () {
-        select.innerHTML = '<option value="">Failed to load courses</option>';
-    });
-}
-
 function loadSelectedCourseProjects(courseId) {
-    if (!courseId) return;
+    if (!courseId) { showEmptyState(); return; }
     setNotice('Loading projects...', 'loading');
 
     if (!projectsApiClient) {
@@ -110,7 +69,6 @@ function loadSelectedCourseProjects(courseId) {
             showEmptyState();
             return;
         }
-
         showProjectData(projects[0], payload);
     }).catch(function (error) {
         setNotice('Failed to load projects. ' + (error?.message || ''), 'error');
@@ -146,11 +104,14 @@ function showProjectData(project, payload) {
     var inReview = stats.in_review || 0;
     var completion = stats.completion || 0;
 
+    var courseNameEl = document.getElementById('course-name');
+    if (courseNameEl) courseNameEl.textContent = courseCode || title;
+
     document.getElementById('stat-approved').textContent = approved;
     document.getElementById('stat-review').textContent = inReview;
     document.getElementById('stat-complete').textContent = completion + '%';
 
-    document.getElementById('progress-title').textContent = courseCode + ' — ' + title;
+    document.getElementById('progress-title').textContent = (courseCode ? courseCode + ' — ' : '') + title;
     document.getElementById('progress-pct').textContent = completion + '%';
     document.getElementById('progress-fill').style.width = completion + '%';
 
@@ -171,10 +132,9 @@ function showProjectData(project, payload) {
     milestoneList.innerHTML = '';
     milestones.forEach(function (m) {
         var mStatus = m.status || 'open';
-        var icon = mStatus === 'approved' || mStatus === 'complete' || mStatus === 'passed' ? 'fa-regular fa-circle-check' : 'far fa-circle';
-        var iconColor = mStatus === 'approved' || mStatus === 'complete' || mStatus === 'passed' ? 'color:#22c55e;' : '';
+        var icon = (mStatus === 'approved' || mStatus === 'complete' || mStatus === 'passed') ? 'fa-regular fa-circle-check' : 'far fa-circle';
+        var iconColor = (mStatus === 'approved' || mStatus === 'complete' || mStatus === 'passed') ? 'color:#22c55e;' : '';
         var statusLabel = mStatus.charAt(0).toUpperCase() + mStatus.slice(1).replace('_', ' ');
-        var isFinal = m.isFinal || false;
 
         milestoneList.innerHTML += [
             '<div class="milestone-item">',
@@ -198,16 +158,13 @@ function showProjectData(project, payload) {
     if (project.details?.rubricWeight) {
         metaEl.innerHTML += '<span class="meta-pill">WEIGHT <strong>' + escapeHtml(project.details.rubricWeight) + '</strong></span>';
     }
-    var delivery = project.details?.deliveryMode || project.details?.type || 'Individual';
-    metaEl.innerHTML += '<span class="meta-pill">TYPE <strong>' + escapeHtml(delivery) + '</strong></span>';
+    metaEl.innerHTML += '<span class="meta-pill">TYPE <strong>' + escapeHtml(project.details?.deliveryMode || project.details?.type || 'Individual') + '</strong></span>';
 
     document.getElementById('standing-level').textContent = project.details?.level || 'Year 1';
     var standingTracker = document.getElementById('standing-tracker');
     standingTracker.innerHTML = '';
-    var years = ['Freshman', 'Sophomore', 'Junior', 'Senior'];
-    var activeYear = 0;
-    years.forEach(function (y, i) {
-        var active = i === activeYear ? 'active' : '';
+    ['Freshman', 'Sophomore', 'Junior', 'Senior'].forEach(function (y, i) {
+        var active = i === 0 ? 'active' : '';
         standingTracker.innerHTML += '<div class="step ' + active + '"><span>' + (i + 1) + '</span><p>Yr ' + (i + 1) + ' ' + y + '</p></div>';
     });
     document.getElementById('standing-hint').textContent = 'Complete all projects to advance.';

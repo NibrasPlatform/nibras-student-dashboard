@@ -80,9 +80,9 @@
                 <div class="hero-stats-card">
                     <div class="course-selector">
                         <label>COURSE</label>
-                        <select id="course-selector" class="select-box" style="width:100%;padding:0.8rem;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-input);color:var(--text-primary);font-size:0.9rem;font-weight:500;">
-                            <option value="">Loading courses...</option>
-                        </select>
+                        <div class="select-box" id="course-display" style="font-size:0.85rem;">
+                            <span id="course-name">Select a course to view projects</span>
+                        </div>
                         <span class="available-count" id="available-count"></span>
                     </div>
                     <div class="quick-stats">
@@ -189,7 +189,7 @@
             <div id="projects-empty" style="text-align:center;padding:4rem 2rem;color:var(--text-secondary);display:none;">
                 <i class="fas fa-folder-open" style="font-size:3rem;margin-bottom:1rem;display:block;"></i>
                 <h3 style="margin-bottom:0.5rem;">No Projects Found</h3>
-                <p>Select a course from the sidebar or enroll in a course to see projects here.</p>
+                <p>Navigate to a course first, then click Projects to see your milestones and submissions here.</p>
             </div>
         </div>
     </main>
