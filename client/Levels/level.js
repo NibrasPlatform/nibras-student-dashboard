@@ -114,19 +114,16 @@ window.NibrasReact.run(function () {
         var levelNames = { 1: 'Beginner', 2: 'Intermediate', 3: 'Advanced', 4: 'Expert' };
         var levelName = levelNames[levelId] || 'Beginner';
 
+        try {
+            var u = JSON.parse(localStorage.getItem('user'));
+            if (u) { u.selectedLevel = levelName; localStorage.setItem('user', JSON.stringify(u)); }
+        } catch (_) {}
+
+        window.location.href = page;
+
         var s = window.NibrasServices;
         if (s && s.coursesService && s.coursesService.updateLevel) {
-            s.coursesService.updateLevel(levelName).then(function () {
-                try {
-                    var u = JSON.parse(localStorage.getItem('user'));
-                    if (u) { u.selectedLevel = levelName; localStorage.setItem('user', JSON.stringify(u)); }
-                } catch (_) {}
-                window.location.href = page;
-            }).catch(function () {
-                window.location.href = page;
-            });
-        } else {
-            window.location.href = page;
+            s.coursesService.updateLevel(levelName).catch(function () {});
         }
     };
 
