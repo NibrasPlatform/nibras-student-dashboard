@@ -19,6 +19,8 @@ window.NibrasReact.run(function () {
     function updateUI(el, theme) {
         if (!el) return;
         el.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        var logo = document.querySelector('.sidebar-logo');
+        if (logo) logo.src = theme === 'dark' ? '../Assets/images/logo-dark.png' : '../Assets/images/logo-light.png';
     }
 
     var sel = document.getElementById('course-select');
@@ -216,7 +218,6 @@ function renderPage(course, progress, performance) {
                 var title = this.getAttribute('data-section-title') || 'Section';
                 var btn = document.createElement('div');
                 btn.className = 'milestone-submit-area';
-                btn.style.cssText = 'padding:0.75rem 1rem 0.5rem 3.5rem;';
                 btn.innerHTML = '<button class="btn-submit-gradient" style="padding:0.6rem 1.2rem;font-size:0.85rem;width:auto;display:inline-flex;align-items:center;gap:0.5rem;" onclick="event.stopPropagation();openMilestoneSubmit(\'' + esc(this.getAttribute('data-section-id')) + '\',\'' + esc(title) + '\')"><i class="fas fa-upload"></i> Submit ' + esc(title) + '</button>';
                 this.appendChild(btn);
             });
