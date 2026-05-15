@@ -70,6 +70,15 @@
         <div class="content-wrapper">
             <div id="projects-api-notice" style="padding: 1rem; text-align: center; color: var(--text-secondary); display: none;"></div>
 
+            <!-- COURSE SELECTOR (Always Visible) -->
+            <div class="course-selector-bar">
+                <label>COURSE</label>
+                <select id="course-selector" style="width:100%;max-width:500px;padding:0.8rem;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-input);color:var(--text-primary);font-size:0.85rem;font-weight:500;">
+                    <option value="">Loading courses...</option>
+                </select>
+                <span class="available-count" id="available-count"></span>
+            </div>
+
             <!-- PROJECT HERO SECTION -->
             <section class="project-hero" id="projects-hero" style="display:none;">
                 <div class="hero-text">
@@ -78,13 +87,6 @@
                     <p id="hero-subtitle"></p>
                 </div>
                 <div class="hero-stats-card">
-                    <div class="course-selector">
-                        <label>COURSE</label>
-                        <select id="course-selector" style="width:100%;padding:0.8rem;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-input);color:var(--text-primary);font-size:0.85rem;font-weight:500;">
-                            <option value="">Loading courses...</option>
-                        </select>
-                        <span class="available-count" id="available-count"></span>
-                    </div>
                     <div class="quick-stats">
                         <div class="stat-item"><strong id="stat-approved">0</strong><span>APPROVED</span></div>
                         <div class="stat-item"><strong id="stat-review">0</strong><span>IN REVIEW</span></div>
