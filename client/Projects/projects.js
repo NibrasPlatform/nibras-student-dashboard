@@ -47,6 +47,36 @@ window.NibrasReact.run(function () {
 
     loadCoursesDropdown();
 });
+
+function loadCoursesDropdown() {
+    var select = document.getElementById('course-selector');
+    if (!select) return;
+
+    var urlParams = new URLSearchParams(window.location.search);
+    var preselectedId = urlParams.get('courseId') || '';
+
+    var tryTracking = function () {
+        if (!window.NibrasServices?.trackingCourseService) { tryCoursesBackend(); return; }
+        window.NibrasServices.trackingCourseService.list().then(function (res) {
+            var courses = Array.isArray(res) ? res : (res?.data || res?.courses || []);
+            if (!courses || courses.length === 0) { tryCoursesBackend(); return; }
+            populateDropdown(courses, preselectedId, 'id');
+        }).catch(function () { tryCoursesBackend(); });
+    };
+
+    var tryCoursesBackend = function () {
+        if (!window.NibrasServices?.coursesService) { select.innerHTML = '<option value="">Select a course...</option>'; finish(preselectedId); return; }
+        window.NibrasServices.coursesService.list({ page: 1, limit: 100 }).then(function (res) {
+            var items = res?.data?.items || res?.data || res?.courses || [];
+            var courses = Array.isArray(items) ? items : (Array.isArray(res?.data) ? res.data : []);
+            var mapped = courses.map(function (c) {
+                var localId = '';
+                try {
+                    var resolved = window.NibrasCourses?.resolveCourseIdentifiers?.(c._id || c.id);
+                    localId = resolved?.trackingCourseIdForApi || resolved?.trackingCourseId || c._id || c.id || '';
+                } catch (_) { localId = c._id || c.id || ''; }
+                return { display: c.title || c.courseCode || 'Course', value: localId };
+            });
             if (mapped.length === 0) { select.innerHTML = '<option value="">No courses found</option>'; finish(preselectedId); return; }
             select.innerHTML = '<option value="">Select a course...</option>';
             var hasSelected = false;
@@ -98,7 +128,6 @@ function populateDropdown(courses, preselectedId, idField) {
         loadSelectedCourseProjects(targetId);
     }
 }
-});
 
 function setNotice(message, type) {
     var el = document.getElementById('projects-api-notice');
