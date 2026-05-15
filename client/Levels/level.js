@@ -57,7 +57,7 @@ window.NibrasReact.run(function () {
 
             var buttonHtml = '';
             if (unlocked && level.page) {
-                buttonHtml = '<a href="' + level.page + '" class="btn-level-action btn-start">' + (level.id === 4 ? 'Coming Soon' : 'Start Learning') + '</a>';
+                buttonHtml = '<a href="javascript:;" onclick="window.selectLevel(' + level.id + ', \'' + level.page + '\')" class="btn-level-action btn-start">' + (level.id === 4 ? 'Coming Soon' : 'Start Learning') + '</a>';
             } else if (unlocked) {
                 buttonHtml = '<button class="btn-level-action btn-start">Start Learning</button>';
             }
@@ -108,6 +108,26 @@ window.NibrasReact.run(function () {
 
     window.showLockModal = function (levelId) {
         alert('\uD83D\uDD12 Level Locked\n\nReach ' + (levelId === 2 ? '25' : levelId === 3 ? '50' : '75') + '% overall course progress to unlock this level.\n\nCurrent Progress: ' + overallProgress + '%');
+    };
+
+    window.selectLevel = function (levelId, page) {
+        var levelNames = { 1: 'Beginner', 2: 'Intermediate', 3: 'Advanced', 4: 'Expert' };
+        var levelName = levelNames[levelId] || 'Beginner';
+
+        var s = window.NibrasServices;
+        if (s && s.coursesService && s.coursesService.updateLevel) {
+            s.coursesService.updateLevel(levelName).then(function () {
+                try {
+                    var u = JSON.parse(localStorage.getItem('user'));
+                    if (u) { u.selectedLevel = levelName; localStorage.setItem('user', JSON.stringify(u)); }
+                } catch (_) {}
+                window.location.href = page;
+            }).catch(function () {
+                window.location.href = page;
+            });
+        } else {
+            window.location.href = page;
+        }
     };
 
     window.toggleDetails = function (id, btn) {

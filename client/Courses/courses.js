@@ -6,6 +6,14 @@ let coursesData = [];
 function initCourses() {
     console.log('[COURSES.JS] Initializing courses page');
 
+    // Check if user has selected a level (first-time onboarding)
+    var storedUser = null;
+    try { storedUser = JSON.parse(localStorage.getItem('user')); } catch (_) {}
+    if (!storedUser || !storedUser.selectedLevel) {
+        window.location.replace('../Levels/level.html');
+        return;
+    }
+
     // --- 2. SIDEBAR ACTIVE LOGIC ---
     const navLinks = document.querySelectorAll('.nav-link');
     navLinks.forEach(link => {

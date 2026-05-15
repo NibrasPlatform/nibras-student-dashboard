@@ -2598,6 +2598,15 @@
                 auth: true,
             });
         },
+
+        async updateLevel(level) {
+            return apiFetch('/courses/update-level', {
+                service: 'courses',
+                method: 'POST',
+                auth: true,
+                body: { level: String(level) },
+            });
+        },
     };
 
     // ============================================================
