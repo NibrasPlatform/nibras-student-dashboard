@@ -126,7 +126,8 @@ function initCourses() {
                     // Fallback: read video progress from localStorage
                     if (c.progress === undefined || c.progress === null || c.progress === 0) {
                         try {
-                            var localKey = 'nibras_course_progress_' + c.id;
+                            var uid = ''; try { var u = JSON.parse(localStorage.getItem('user')); uid = u?._id || u?.id || ''; } catch (_) {}
+                            var localKey = 'nibras_course_progress_' + uid + '_' + c.id;
                             var stored = JSON.parse(localStorage.getItem(localKey) || '{}');
                             if (stored.percentage > 0) c.progress = stored.percentage;
                         } catch (_) {}

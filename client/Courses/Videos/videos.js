@@ -86,8 +86,12 @@ function stopCurrentMedia() {
     }
 }
 
+function getUserId() {
+    try { var u = JSON.parse(localStorage.getItem('user')); return u?._id || u?.id || u?.userId || ''; } catch (_) { return ''; }
+}
+
 function getCompletedLecturesKey() {
-    return `nibras_completed_lectures_${courseId}`;
+    return 'nibras_completed_lectures_' + getUserId() + '_' + courseId;
 }
 
 function getCompletedLectures() {
@@ -131,7 +135,7 @@ function saveCourseProgress() {
     var total = courseData?.lessons?.length || 0;
     var completedCount = getCompletedLectures().length;
     var pct = total > 0 ? Math.round((completedCount / total) * 100) : 0;
-    var cpKey = 'nibras_course_progress_' + courseId;
+    var cpKey = 'nibras_course_progress_' + getUserId() + '_' + courseId;
     try {
         localStorage.setItem(cpKey, JSON.stringify({
             completed: completedCount,

@@ -171,7 +171,8 @@ async function fetchDashboardFromCoursesBackend() {
         var countWithProgress = 0;
         beginnerCourses.forEach(function (c) {
             try {
-                var localKey = 'nibras_course_progress_' + (c.id || c._id);
+                var uid2 = ''; try { var u2 = JSON.parse(localStorage.getItem('user')); uid2 = u2?._id || u2?.id || ''; } catch (_) {}
+                var localKey = 'nibras_course_progress_' + uid2 + '_' + (c.id || c._id);
                 var stored = JSON.parse(localStorage.getItem(localKey) || '{}');
                 if (stored.percentage > 0) {
                     totalPct += stored.percentage;
