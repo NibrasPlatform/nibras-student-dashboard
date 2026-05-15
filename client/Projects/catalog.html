@@ -23,16 +23,15 @@
         </div>
         
         <ul class="nav-menu">
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-th-large"></i> Dashboard</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-book"></i> Courses</a></li>
+            <li class="nav-item"><a href="../Dashboard/dashboard.html" class="nav-link"><i class="fas fa-th-large"></i> Dashboard</a></li>
+            <li class="nav-item"><a href="../Levels/level.html" class="nav-link"><i class="fas fa-book"></i> Courses</a></li>
             <li class="nav-item"><a href="./projects.html" class="nav-link"><i class="fas fa-folder-open"></i> Projects</a></li>
-            <li class="nav-item"><a href="./catalog.html" class="nav-link"><i class="fas fa-list"></i> Catalog</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-trophy"></i> Competitions</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-users"></i> Community</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-medal"></i> Achievements</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-robot"></i> AI Tutor</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-chart-bar"></i> Analytics</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-cog"></i> Settings</a></li>
+            <li class="nav-item"><a href="../Competitions/Contests/contest.html" class="nav-link"><i class="fas fa-trophy"></i> Competitions</a></li>
+            <li class="nav-item"><a href="../Community/community.html" class="nav-link"><i class="fas fa-users"></i> Community</a></li>
+            <li class="nav-item"><a href="../Achievements/Achievements/achievements.html" class="nav-link"><i class="fas fa-medal"></i> Achievements</a></li>
+            <li class="nav-item"><a href="../Ai-tutor/Ai%20Tutor/ai_tutor.html" class="nav-link"><i class="fas fa-robot"></i> AI Tutor</a></li>
+            <li class="nav-item"><a href="../Analytics/Overview/overview.html" class="nav-link"><i class="fas fa-chart-bar"></i> Analytics</a></li>
+            <li class="nav-item"><a href="../Settings/settings.html" class="nav-link"><i class="fas fa-cog"></i> Settings</a></li>
         </ul>
 
         <div class="user-profile">
@@ -84,59 +83,43 @@
                     <div class="filter-group">
                         <label class="group-title">DELIVERY</label>
                         <div class="filter-option">
-                            <input type="radio" name="delivery" id="all" checked>
-                            <label for="all">All</label>
+                            <input type="radio" name="delivery" id="delivery-all" value="all" checked>
+                            <label for="delivery-all">All</label>
                         </div>
                         <div class="filter-option">
-                            <input type="radio" name="delivery" id="team">
-                            <label for="team">Team</label>
+                            <input type="radio" name="delivery" id="delivery-team" value="team">
+                            <label for="delivery-team">Team</label>
                         </div>
                         <div class="filter-option">
-                            <input type="radio" name="delivery" id="individual">
-                            <label for="individual">Individual</label>
+                            <input type="radio" name="delivery" id="delivery-individual" value="individual">
+                            <label for="delivery-individual">Individual</label>
                         </div>
                     </div>
 
                     <div class="filter-group">
                         <label class="group-title">DIFFICULTY</label>
                         <div class="filter-option">
-                            <input type="checkbox" id="beginner">
-                            <label for="beginner">Beginner</label>
+                            <input type="checkbox" id="diff-beginner" value="beginner">
+                            <label for="diff-beginner">Beginner</label>
                         </div>
                         <div class="filter-option">
-                            <input type="checkbox" id="intermediate">
-                            <label for="intermediate">Intermediate</label>
+                            <input type="checkbox" id="diff-intermediate" value="intermediate">
+                            <label for="diff-intermediate">Intermediate</label>
                         </div>
                         <div class="filter-option">
-                            <input type="checkbox" id="advanced">
-                            <label for="advanced">Advanced</label>
-                        </div>
-                    </div>
-
-                    <div class="filter-group">
-                        <label class="group-title">SEARCH TAGS</label>
-                        <div class="search-input-wrapper">
-                            <input type="text" placeholder="e.g. React">
-                        </div>
-                        <div class="tag-cloud">
-                            <span class="cloud-tag">C</span>
-                            <span class="cloud-tag">Linux</span>
-                            <span class="cloud-tag">Memory Management</span>
-                            <span class="cloud-tag">NodeJS</span>
-                            <span class="cloud-tag">Operating Systems</span>
-                            <span class="cloud-tag">Processes</span>
-                            <span class="cloud-tag">React</span>
+                            <input type="checkbox" id="diff-advanced" value="advanced">
+                            <label for="diff-advanced">Advanced</label>
                         </div>
                     </div>
                 </aside>
 
                 <!-- RIGHT SIDE: PROJECT GRID -->
                 <div class="catalog-main">
-                    <p class="results-count">4 templates found</p>
+                    <p class="results-count"><span id="results-count">4</span> templates found</p>
                     
-                    <div class="projects-grid">
+                    <div class="projects-grid" id="projects-grid">
                         <!-- Card 1 -->
-                        <div class="catalog-card">
+                        <div class="catalog-card" data-delivery="team" data-difficulty="intermediate">
                             <div class="card-top">
                                 <span class="course-pill">CS 107</span>
                                 <span class="team-pill"><i class="fas fa-users"></i> Team</span>
@@ -169,7 +152,7 @@
                         </div>
 
                         <!-- Card 2 -->
-                        <div class="catalog-card">
+                        <div class="catalog-card" data-delivery="team" data-difficulty="beginner">
                             <div class="card-top">
                                 <span class="course-pill">CS161</span>
                                 <span class="team-pill"><i class="fas fa-users"></i> Team</span>
@@ -200,7 +183,7 @@
                         </div>
 
                         <!-- Card 3 -->
-                        <div class="catalog-card">
+                        <div class="catalog-card" data-delivery="team">
                             <div class="card-top">
                                 <span class="course-pill">CS106L</span>
                                 <span class="team-pill"><i class="fas fa-users"></i> Team</span>
@@ -225,7 +208,7 @@
                         </div>
 
                         <!-- Card 4 -->
-                        <div class="catalog-card">
+                        <div class="catalog-card" data-delivery="team">
                             <div class="card-top">
                                 <span class="course-pill">CS106L</span>
                                 <span class="team-pill"><i class="fas fa-users"></i> Team</span>
