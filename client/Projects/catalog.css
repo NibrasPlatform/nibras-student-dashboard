@@ -105,6 +105,21 @@ a { text-decoration: none; }
 .btn-apply:hover { background: #16a34a; }
 .btn-disabled { margin-top: auto; width: 100%; padding: 0.8rem; background: var(--tag-bg); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 8px; font-weight: 600; cursor: not-allowed; }
 
+/* --- MODAL BASE --- */
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(2px); }
+.modal-overlay.active { display: flex; animation: fadeIn 0.2s; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.modal-content { background-color: var(--bg-card); border-radius: 12px; width: 90%; max-width: 560px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 1px solid var(--border-color); position: relative; }
+.modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+.modal-header h2 { font-size: 1.1rem; }
+.close-btn { background: none; border: none; font-size: 20px; color: var(--text-secondary); cursor: pointer; }
+.modal-footer { display: flex; gap: 12px; margin-top: 24px; }
+.btn { padding: 10px 20px; border-radius: 6px; font-weight: 500; cursor: pointer; font-size: 0.9rem; border: none; }
+.btn-primary { background-color: var(--accent-blue); color: white; }
+.btn-primary:hover { background-color: var(--accent-blue-hover); }
+.btn-outline { border: 1px solid var(--border-color); background-color: transparent; color: var(--text-primary); }
+.btn-outline:hover { background-color: var(--tag-bg); }
+
 /* --- ROLE APPLICATION MODAL --- */
 .step-indicator { display: flex; align-items: center; justify-content: center; gap: 0; margin-bottom: 2rem; }
 .step-dot { display: flex; flex-direction: column; align-items: center; gap: 6px; }
