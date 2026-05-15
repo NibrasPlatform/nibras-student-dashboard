@@ -126,7 +126,12 @@ async function fetchDashboardFromCoursesBackend() {
         try {
             const response = await coursesService.getDashboard();
             if (response?.success && response?.data) {
-                return response.data;
+                var dashData = response.data;
+                var dashCourses = dashData.courses || [];
+                var beginnerDash = dashCourses.filter(function (c) { return (c.level || '').toLowerCase() === 'beginner'; });
+                if (dashData.stats) dashData.stats.coursesEnrolled = beginnerDash.length;
+                if (dashData.courses) dashData.courses = beginnerDash;
+                return dashData;
             }
         } catch (error) {
             console.warn('[DASHBOARD.JS] /courses/my-dashboard unavailable, falling back to list/global progress:', error?.message || error);
@@ -158,10 +163,7 @@ async function fetchDashboardFromCoursesBackend() {
         }
     }
 
-    console.log('[DASHBOARD.JS] Total courses from API:', courses.length, '| Sample levels:', JSON.stringify(courses.slice(0, 5).map(function(c) { return { title: c.title, level: c.level }; })));
-
     var beginnerCourses = courses.filter(function (c) { return (c.level || '').toLowerCase() === 'beginner'; });
-    console.log('[DASHBOARD.JS] Beginner filtered:', beginnerCourses.length);
 
     return {
         stats: {
