@@ -158,7 +158,10 @@ async function fetchDashboardFromCoursesBackend() {
         }
     }
 
+    console.log('[DASHBOARD.JS] Total courses from API:', courses.length, '| Sample levels:', JSON.stringify(courses.slice(0, 5).map(function(c) { return { title: c.title, level: c.level }; })));
+
     var beginnerCourses = courses.filter(function (c) { return (c.level || '').toLowerCase() === 'beginner'; });
+    console.log('[DASHBOARD.JS] Beginner filtered:', beginnerCourses.length);
 
     return {
         stats: {
