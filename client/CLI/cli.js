@@ -5,7 +5,10 @@ function updateSidebarUser() {
         var nameEl = document.querySelector('.user-info h4');
         if (nameEl) nameEl.textContent = u.name;
         var roleEl = document.querySelector('.user-info span');
-        if (roleEl) roleEl.textContent = u.role || 'student';
+        if (roleEl) {
+            var r = u.role;
+            roleEl.textContent = (typeof r === 'object' && r ? (r.name || r.title || 'student') : (r || 'student'));
+        }
         var avatarEl = document.querySelector('.avatar-circle');
         if (avatarEl) {
             var initials = u.name.split(' ').map(function (n) { return n.charAt(0); }).join('').toUpperCase().slice(0, 2);

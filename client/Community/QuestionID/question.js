@@ -579,7 +579,7 @@ window.NibrasReact.run(() => {
                 time: formatTimeAgo(question.createdAt),
                 tags: question.tags ||[],
                 authorRole: normalizeRole(question.author?.role) || 'student',
-                authorRep: question.author?.reputation || 0,
+                authorRep: question.author?.reputation?.total ?? question.author?.reputation ?? 0,
                 replies: comments.map(comment => {
                     const rawBody = String(comment.body || '');
                     const normalizedBody = stripAiTutorMarker(rawBody);
@@ -596,7 +596,7 @@ window.NibrasReact.run(() => {
                     votes: comment.votesCount || 0,
                     author: isFromAI ? 'AI Tutor' : (comment.author?.name || 'Unknown'),
                     authorRole: isFromAI ? 'ai_tutor' : (normalizeRole(comment.author?.role) || 'student'),
-                    authorRep: comment.author?.reputation || 0,
+                    authorRep: comment.author?.reputation?.total ?? comment.author?.reputation ?? 0,
                     initials: isFromAI ? 'AI' : getInitials(comment.author?.name),
                     time: formatTimeAgo(comment.createdAt),
                     createdAt: comment.createdAt,
