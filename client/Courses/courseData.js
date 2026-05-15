@@ -945,8 +945,8 @@
 
         return titles.map((title, index) => {
             const lessonNumber = index + 1;
-            const isCompleted = lessonNumber <= completedLessons;
-            const isOpen = lessonNumber <= completedLessons + 1;
+            const isCompleted = false;
+            const isOpen = lessonNumber <= Math.max(completedLessons + 1, 3);
             return {
                 id: `${meta.id}-lesson-${lessonNumber}`,
                 title: `Lesson ${lessonNumber}: ${title}`,
@@ -966,8 +966,8 @@
         return cs106aMultiVideoLectures.map((lecture, lectureIndex) => {
             const lectureNumber = lectureIndex + 1;
             const lessonId = `${meta.id}-lecture-${lectureNumber}`;
-            const isCompleted = lectureNumber <= completedLessons;
-            const isOpen = lectureNumber <= completedLessons + 1;
+            const isCompleted = false;
+            const isOpen = lectureNumber <= Math.max(completedLessons + 1, 3);
             const videoItems = lecture.videos.map((video, videoIndex) => ({
                 id: `${lessonId}-video-${videoIndex + 1}`,
                 title: video.title,
@@ -997,8 +997,8 @@
         return cs106bMultiVideoLectures.map((lecture, lectureIndex) => {
             const lectureNumber = lectureIndex + 1;
             const lessonId = `${meta.id}-lecture-${lectureNumber}`;
-            const isCompleted = lectureNumber <= completedLessons;
-            const isOpen = lectureNumber <= completedLessons + 1;
+            const isCompleted = false;
+            const isOpen = lectureNumber <= Math.max(completedLessons + 1, 3);
             const videoItems = lecture.videos.map((video, videoIndex) => ({
                 id: `${lessonId}-video-${videoIndex + 1}`,
                 title: video.title,
@@ -1028,8 +1028,8 @@
         return cs106xMultiVideoLectures.map((lecture, lectureIndex) => {
             const lectureNumber = lectureIndex + 1;
             const lessonId = `${meta.id}-lecture-${lectureNumber}`;
-            const isCompleted = lectureNumber <= completedLessons;
-            const isOpen = lectureNumber <= completedLessons + 1;
+            const isCompleted = false;
+            const isOpen = lectureNumber <= Math.max(completedLessons + 1, 3);
             const videoItems = lecture.videos.map((video, videoIndex) => ({
                 id: `${lessonId}-video-${videoIndex + 1}`,
                 title: video.title,
@@ -1060,8 +1060,8 @@
         return math18MultiVideoLectures.map((lecture, lectureIndex) => {
             const lectureNumber = lectureIndex + 1;
             const lessonId = `${meta.id}-lecture-${lectureNumber}`;
-            const isCompleted = lectureNumber <= completedLessons;
-            const isOpen = lectureNumber <= completedLessons + 1;
+            const isCompleted = false;
+            const isOpen = lectureNumber <= Math.max(completedLessons + 1, 3);
             const videoItems = lecture.videos.map((video, videoIndex) => ({
                 id: `${lessonId}-video-${videoIndex + 1}`,
                 title: video.title,
@@ -1091,8 +1091,8 @@
         return math19MultiVideoLectures.map((lecture, lectureIndex) => {
             const lectureNumber = lectureIndex + 1;
             const lessonId = `${meta.id}-lecture-${lectureNumber}`;
-            const isCompleted = lectureNumber <= completedLessons;
-            const isOpen = lectureNumber <= completedLessons + 1;
+            const isCompleted = false;
+            const isOpen = lectureNumber <= Math.max(completedLessons + 1, 3);
             const videoItems = lecture.videos.map((video, videoIndex) => ({
                 id: `${lessonId}-video-${videoIndex + 1}`,
                 title: video.title,
@@ -1122,8 +1122,8 @@
         return math20MultiVideoLectures.map((lecture, lectureIndex) => {
             const lectureNumber = lectureIndex + 1;
             const lessonId = `${meta.id}-lecture-${lectureNumber}`;
-            const isCompleted = lectureNumber <= completedLessons;
-            const isOpen = lectureNumber <= completedLessons + 1;
+            const isCompleted = false;
+            const isOpen = lectureNumber <= Math.max(completedLessons + 1, 3);
             const videoItems = lecture.videos.map((video, videoIndex) => ({
                 id: `${lessonId}-video-${videoIndex + 1}`,
                 title: video.title,
@@ -1153,8 +1153,8 @@
         return math21MultiVideoLectures.map((lecture, lectureIndex) => {
             const lectureNumber = lectureIndex + 1;
             const lessonId = `${meta.id}-lecture-${lectureNumber}`;
-            const isCompleted = lectureNumber <= completedLessons;
-            const isOpen = lectureNumber <= completedLessons + 1;
+            const isCompleted = false;
+            const isOpen = lectureNumber <= Math.max(completedLessons + 1, 3);
             const videoItems = lecture.videos.map((video, videoIndex) => ({
                 id: `${lessonId}-video-${videoIndex + 1}`,
                 title: video.title,
@@ -1184,8 +1184,8 @@
         return math51MultiVideoLectures.map((lecture, lectureIndex) => {
             const lectureNumber = lectureIndex + 1;
             const lessonId = `${meta.id}-lecture-${lectureNumber}`;
-            const isCompleted = lectureNumber <= completedLessons;
-            const isOpen = lectureNumber <= completedLessons + 1;
+            const isCompleted = false;
+            const isOpen = lectureNumber <= Math.max(completedLessons + 1, 3);
             const videoItems = lecture.videos.map((video, videoIndex) => ({
                 id: `${lessonId}-video-${videoIndex + 1}`,
                 title: video.title,
@@ -1215,8 +1215,8 @@
         return math52MultiVideoLectures.map((lecture, lectureIndex) => {
             const lectureNumber = lectureIndex + 1;
             const lessonId = `${meta.id}-lecture-${lectureNumber}`;
-            const isCompleted = lectureNumber <= completedLessons;
-            const isOpen = lectureNumber <= completedLessons + 1;
+            const isCompleted = false;
+            const isOpen = lectureNumber <= Math.max(completedLessons + 1, 3);
             const videoItems = lecture.videos.map((video, videoIndex) => ({
                 id: `${lessonId}-video-${videoIndex + 1}`,
                 title: video.title,
@@ -1246,8 +1246,8 @@
         return math53MultiVideoLectures.map((lecture, lectureIndex) => {
             const lectureNumber = lectureIndex + 1;
             const lessonId = `${meta.id}-lecture-${lectureNumber}`;
-            const isCompleted = lectureNumber <= completedLessons;
-            const isOpen = lectureNumber <= completedLessons + 1;
+            const isCompleted = false;
+            const isOpen = lectureNumber <= Math.max(completedLessons + 1, 3);
             const videoItems = lecture.videos.map((video, videoIndex) => ({
                 id: `${lessonId}-video-${videoIndex + 1}`,
                 title: video.title,
@@ -1277,8 +1277,8 @@
         return cs103MultiVideoLectures.map((lecture, lectureIndex) => {
             const lectureNumber = lectureIndex + 1;
             const lessonId = `${meta.id}-lecture-${lectureNumber}`;
-            const isCompleted = lectureNumber <= completedLessons;
-            const isOpen = lectureNumber <= completedLessons + 1;
+            const isCompleted = false;
+            const isOpen = lectureNumber <= Math.max(completedLessons + 1, 3);
             const videoItems = lecture.videos.map((video, videoIndex) => ({
                 id: `${lessonId}-video-${videoIndex + 1}`,
                 title: video.title,
@@ -1308,8 +1308,8 @@
         return cs107MultiVideoLectures.map((lecture, lectureIndex) => {
             const lectureNumber = lectureIndex + 1;
             const lessonId = `${meta.id}-lecture-${lectureNumber}`;
-            const isCompleted = lectureNumber <= completedLessons;
-            const isOpen = lectureNumber <= completedLessons + 1;
+            const isCompleted = false;
+            const isOpen = lectureNumber <= Math.max(completedLessons + 1, 3);
 
             const videoItems = lecture.videos.map((video, videoIndex) => {
                 const archiveId = video.videoId;
@@ -1347,8 +1347,8 @@
         return cs110MultiVideoLectures.map((lecture, lectureIndex) => {
             const lectureNumber = lectureIndex + 1;
             const lessonId = `${meta.id}-lecture-${lectureNumber}`;
-            const isCompleted = lectureNumber <= completedLessons;
-            const isOpen = lectureNumber <= completedLessons + 1;
+            const isCompleted = false;
+            const isOpen = lectureNumber <= Math.max(completedLessons + 1, 3);
 
             const videoItems = lecture.videos.map((video, videoIndex) => ({
                 id: `${lessonId}-video-${videoIndex + 1}`,
@@ -1379,8 +1379,8 @@
         return cs294MultiVideoLectures.map((lecture, lectureIndex) => {
             const lectureNumber = lectureIndex + 1;
             const lessonId = `${meta.id}-lecture-${lectureNumber}`;
-            const isCompleted = lectureNumber <= completedLessons;
-            const isOpen = lectureNumber <= completedLessons + 1;
+            const isCompleted = false;
+            const isOpen = lectureNumber <= Math.max(completedLessons + 1, 3);
 
             const videoItems = lecture.videos.map((video, videoIndex) => ({
                 id: `${lessonId}-video-${videoIndex + 1}`,
@@ -1411,8 +1411,8 @@
         return cs161PlaylistA_BlackboardLectures.map((topic, topicIndex) => {
             const lessonNumber = topicIndex + 1;
             const lessonId = `${meta.id}-topic-${lessonNumber}`;
-            const isCompleted = lessonNumber <= completedLessons;
-            const isOpen = lessonNumber <= completedLessons + 1;
+            const isCompleted = false;
+            const isOpen = lessonNumber <= Math.max(completedLessons + 1, 3);
 
             const videoItems = topic.videos.map((video, videoIndex) => ({
                 id: `${lessonId}-video-${videoIndex + 1}`,
@@ -1444,8 +1444,8 @@
         return cs109MultiVideoLectures.map((lecture, lectureIndex) => {
             const lectureNumber = lectureIndex + 1;
             const lessonId = `${meta.id}-lecture-${lectureNumber}`;
-            const isCompleted = lectureNumber <= completedLessons;
-            const isOpen = lectureNumber <= completedLessons + 1;
+            const isCompleted = false;
+            const isOpen = lectureNumber <= Math.max(completedLessons + 1, 3);
 
             const videoItems = lecture.videos.map((video, videoIndex) => ({
                 id: `${lessonId}-video-${videoIndex + 1}`,
@@ -1476,8 +1476,8 @@
         return phys41MultiVideoLectures.map((lecture, lectureIndex) => {
             const lectureNumber = lectureIndex + 1;
             const lessonId = `${meta.id}-lecture-${lectureNumber}`;
-            const isCompleted = lectureNumber <= completedLessons;
-            const isOpen = lectureNumber <= completedLessons + 1;
+            const isCompleted = false;
+            const isOpen = lectureNumber <= Math.max(completedLessons + 1, 3);
 
             const videoItems = lecture.videos.map((video, videoIndex) => ({
                 id: `${lessonId}-video-${videoIndex + 1}`,
@@ -1508,8 +1508,8 @@
         return phys43MultiVideoLectures.map((lecture, lectureIndex) => {
             const lectureNumber = lectureIndex + 1;
             const lessonId = `${meta.id}-lecture-${lectureNumber}`;
-            const isCompleted = lectureNumber <= completedLessons;
-            const isOpen = lectureNumber <= completedLessons + 1;
+            const isCompleted = false;
+            const isOpen = lectureNumber <= Math.max(completedLessons + 1, 3);
 
             const videoItems = lecture.videos.map((video, videoIndex) => ({
                 id: `${lessonId}-video-${videoIndex + 1}`,
@@ -1540,8 +1540,8 @@
         return bioMultiVideoLectures.map((lecture, lectureIndex) => {
             const lectureNumber = lectureIndex + 1;
             const lessonId = `${meta.id}-lecture-${lectureNumber}`;
-            const isCompleted = lectureNumber <= completedLessons;
-            const isOpen = lectureNumber <= completedLessons + 1;
+            const isCompleted = false;
+            const isOpen = lectureNumber <= Math.max(completedLessons + 1, 3);
 
             const videoItems = lecture.videos.map((video, videoIndex) => ({
                 id: `${lessonId}-video-${videoIndex + 1}`,
@@ -1574,8 +1574,8 @@
         return chemMultiVideoLectures.map((lecture, lectureIndex) => {
             const lectureNumber = lectureIndex + 1;
             const lessonId = `${meta.id}-lecture-${lectureNumber}`;
-            const isCompleted = lectureNumber <= completedLessons;
-            const isOpen = lectureNumber <= completedLessons + 1;
+            const isCompleted = false;
+            const isOpen = lectureNumber <= Math.max(completedLessons + 1, 3);
 
             const videoItems = lecture.videos.map((video, videoIndex) => ({
                 id: `${lessonId}-video-${videoIndex + 1}`,

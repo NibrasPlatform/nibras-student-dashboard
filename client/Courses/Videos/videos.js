@@ -116,7 +116,7 @@ function applyCompletionState() {
                     return m ? parseInt(m[1], 10) : 0;
                 }), 0);
 
-                lesson.locked = lectureNum > maxCompleted + 1;
+                lesson.locked = lectureNum > Math.max(maxCompleted + 1, 3);
             }
         });
     }
@@ -130,8 +130,8 @@ function setCourseLinks() {
         { key: "courseContent", path: "../Course Description/courseContent.html" },
         { key: "videos", path: "./videos.html" },
         { key: "assignments", path: "../Assignments/Assignments.html" },
-        { key: "projects", path: "../Projects/Projects.html" },
-        { key: "grades", path: "../Grades/grades.html" },
+        
+{ key: "grades", path: "../Grades/grades.html" },
     ];
 
     navLinks.forEach(({ key, path }) => {

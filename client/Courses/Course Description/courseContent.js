@@ -54,8 +54,8 @@ window.NibrasReact.run(() => {
             { key: "courseContent", path: "./courseContent.html" },
             { key: "videos", path: "../Videos/videos.html" },
             { key: "assignments", path: "../Assignments/Assignments.html" },
-            { key: "projects", path: "../Projects/Projects.html" },
-            { key: "grades", path: "../Grades/grades.html" },
+            
+{ key: "grades", path: "../Grades/grades.html" },
         ];
 
         navLinks.forEach(({ key, path }) => {
