@@ -71,21 +71,90 @@
                         <span class="step-check" id="check-1"><i class="fa-regular fa-circle"></i></span>
                     </div>
                     <div class="step-body" id="body-1">
-                        <p>You need <strong>Node.js ≥ 18</strong>, <strong>npm ≥ 9</strong>, and <strong>git</strong> before installing the CLI.</p>
+                        <p>You need <strong>Node.js ≥ 18</strong>, <strong>npm ≥ 9</strong>, and <strong>git</strong> before installing the CLI. Follow the steps for your OS.</p>
+
+                        <div class="video-embed" style="margin-bottom:1rem;position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;">
+                            <iframe style="position:absolute;top:0;left:0;width:100%;height:100%;" src="https://www.youtube.com/embed/EPtpi7PvtII" title="Install Node.js, NPM &amp; Git" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+
+                        <h4 style="margin-bottom:10px;font-size:0.95rem;">Install Node.js ≥ 18 + npm</h4>
+
                         <div class="os-tabs"><button class="os-tab active" onclick="switchOs('macos', this)">macOS</button><button class="os-tab" onclick="switchOs('linux', this)">Linux</button><button class="os-tab" onclick="switchOs('windows', this)">Windows</button></div>
+
+                        <!-- macOS -->
                         <div class="code-block os-content macos"><pre><code>curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 source ~/.zshrc
 nvm install --lts
 nvm use --lts</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+
+                        <!-- Linux -->
                         <div class="code-block os-content linux" style="display:none;"><pre><code>curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 source ~/.bashrc
 nvm install --lts
 nvm use --lts</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
-                        <div class="code-block os-content windows" style="display:none;"><pre><code># Download and run the nvm-windows installer:
-# https://github.com/coreybutler/nvm-windows/releases
-nvm install lts
-nvm use lts</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
-                        <p style="margin-top:10px;">Verify: <code>node --version</code> should return v18 or higher, <code>npm --version</code> should return 9 or higher, <code>git --version</code> should return a version.</p>
+
+                        <!-- Windows -->
+                        <div class="os-content windows" style="display:none;">
+                            <p style="margin-bottom:8px;font-size:0.85rem;color:var(--text-secondary);"><strong>Recommended:</strong> Use one shell and keep using it.</p>
+                            <div class="win-tabs" style="display:flex;gap:8px;margin-bottom:12px;">
+                                <button class="os-tab active" onclick="switchWinShell('powershell', this)">PowerShell</button>
+                                <button class="os-tab" onclick="switchWinShell('gitbash', this)">Git Bash</button>
+                            </div>
+                            <div class="win-shell powershell">
+                                <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:10px;">Open Windows Terminal and choose <strong>PowerShell</strong>. Install Node.js, then install Git. Close that terminal and open a <strong>new</strong> PowerShell window before verifying.</p>
+                            </div>
+                            <div class="win-shell gitbash" style="display:none;">
+                                <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:10px;">Open Windows Terminal and choose <strong>Git Bash</strong>. Install Node.js, then install Git. Close that terminal and open a <strong>new</strong> Git Bash window before verifying.</p>
+                            </div>
+                            <div class="code-block win-shell powershell"><pre><code># Option A — winget (Windows 10 1709+ / Windows 11)
+winget install OpenJS.NodeJS.LTS
+
+# Option B — download the official .msi from nodejs.org
+# (includes npm, adds Node.js to PATH automatically)</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                            <div class="code-block win-shell gitbash" style="display:none;"><pre><code># Option A — winget (Windows 10 1709+ / Windows 11)
+winget install OpenJS.NodeJS.LTS
+
+# Option B — download the official .msi from nodejs.org
+# (includes npm, adds Node.js to PATH automatically)</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                            <div class="note-box" style="background:rgba(245,158,11,0.1);border-left:4px solid #f59e0b;padding:0.75rem 1rem;border-radius:8px;margin-bottom:12px;font-size:0.85rem;color:var(--text-secondary);">
+                                <strong>After installing, close and reopen your terminal</strong> so the updated PATH takes effect before running npm.
+                            </div>
+                        </div>
+
+                        <h4 style="margin:16px 0 8px;font-size:0.95rem;">Install Git</h4>
+                        <div class="code-block os-content macos" style="margin-bottom:0;"><pre><code># Xcode Command Line Tools
+xcode-select --install</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                        <div class="code-block os-content linux" style="display:none;margin-bottom:0;"><pre><code># Debian/Ubuntu
+sudo apt-get install git
+
+# Fedora
+sudo dnf install git</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                        <div class="code-block os-content windows" style="display:none;margin-bottom:0;"><pre><code>winget install Git.Git</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                        <div class="os-content windows" style="display:none;">
+                            <p style="font-size:0.85rem;color:var(--text-secondary);margin-top:8px;">Or download the installer from <strong>git-scm.com/download/win</strong>. During setup, select "Git from the command line and also from 3rd-party software".</p>
+                        </div>
+
+                        <h4 style="margin:16px 0 8px;font-size:0.95rem;">Verify all three tools</h4>
+                        <div class="code-block" style="margin-bottom:12px;"><pre><code>node --version   # must be v18.x or higher
+npm --version    # must be 9.x or higher
+git --version</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                        <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:12px;">All three commands must return version numbers. If any fails, revisit the install step above and open a <strong>new terminal</strong> after installing.</p>
+
+                        <div class="os-content windows" style="display:none;">
+                            <div class="note-box" style="background:rgba(245,158,11,0.1);border-left:4px solid #f59e0b;padding:0.75rem 1rem;border-radius:8px;margin-bottom:12px;font-size:0.85rem;color:var(--text-secondary);">
+                                <strong>Allow PowerShell scripts (if blocked)</strong>
+                                <div class="code-block" style="margin-top:8px;margin-bottom:8px;"><pre><code>Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser</code></pre><button class="copy-btn" onclick="copyCmd(this)">Copy</button></div>
+                                Skip this step if <code>npm --version</code> already runs without error.
+                            </div>
+                        </div>
+
+                        <div style="display:flex;flex-direction:column;gap:6px;margin-top:10px;padding:1rem;background:var(--bg-body);border-radius:8px;border:1px solid var(--border-color);">
+                            <span><i class="fa-regular fa-circle" style="color:var(--text-tertiary);margin-right:8px;"></i> Node.js ≥ 18 — <code>node --version</code> returns v18 or higher</span>
+                            <span><i class="fa-regular fa-circle" style="color:var(--text-tertiary);margin-right:8px;"></i> npm ≥ 9 — <code>npm --version</code> returns 9 or higher</span>
+                            <span><i class="fa-regular fa-circle" style="color:var(--text-tertiary);margin-right:8px;"></i> Git — <code>git --version</code> returns any version</span>
+                            <span><i class="fa-regular fa-circle" style="color:var(--text-tertiary);margin-right:8px;"></i> GitHub account — you will authenticate with GitHub OAuth in step 03</span>
+                        </div>
+
                         <button class="btn-mark-done" onclick="markStep(1)">Mark as complete</button>
                     </div>
                 </div>

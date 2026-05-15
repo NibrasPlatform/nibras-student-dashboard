@@ -63,6 +63,13 @@ function saveProgress(num) {
     } catch (_) {}
 }
 
+function switchWinShell(shell, btn) {
+    document.querySelectorAll('.win-tabs .os-tab').forEach(function (t) { t.classList.remove('active'); });
+    btn.classList.add('active');
+    document.querySelectorAll('.win-shell').forEach(function (c) { c.style.display = 'none'; });
+    document.querySelectorAll('.win-shell.' + shell).forEach(function (c) { c.style.display = ''; });
+}
+
 function switchOs(os, btn) {
     document.querySelectorAll('.os-tab').forEach(function (t) { t.classList.remove('active'); });
     btn.classList.add('active');
