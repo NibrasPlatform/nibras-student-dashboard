@@ -158,12 +158,14 @@ async function fetchDashboardFromCoursesBackend() {
         }
     }
 
+    var beginnerCourses = courses.filter(function (c) { return (c.level || '').toLowerCase() === 'beginner'; });
+
     return {
         stats: {
-            coursesEnrolled: courses.length,
+            coursesEnrolled: beginnerCourses.length,
             overallProgress,
         },
-        courses: courses.map((course) => ({
+        courses: beginnerCourses.map((course) => ({
             _id: course?._id || course?.id || '',
             title: course?.title || course?.name || 'Untitled Course',
             assignmentsCount: Array.isArray(course?.assignments)

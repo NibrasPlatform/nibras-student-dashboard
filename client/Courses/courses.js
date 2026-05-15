@@ -1,7 +1,7 @@
 console.log('[COURSES.JS] Script started (direct execution)');
 
 // --- 1. DATA ---
-let coursesData = window.NibrasCourses?.getCoursesList?.() || [];
+let coursesData = [];
 
 function initCourses() {
     console.log('[COURSES.JS] Initializing courses page');
@@ -27,7 +27,6 @@ function initCourses() {
 
     console.log('[COURSES.JS] Found container, rendering courses');
     let activeCategory = 'all';
-    filterAndRender(activeCategory);
 
     tabs.forEach(tab => {
         tab.addEventListener('click', () => {
