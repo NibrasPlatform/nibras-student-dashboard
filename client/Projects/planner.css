@@ -516,6 +516,16 @@ body {
     color: var(--text-secondary);
 }
 
+/* Print Styles */
+@media print {
+    .sidebar, .top-header, .planner-hero, .planner-tabs, #tab-track, #tab-petitions, #tab-overview, #enroll-section, #degree-plan-section { display: none !important; }
+    #tab-sheet { display: block !important; }
+    .main-content { margin-left: 0; }
+    .content-wrapper { padding: 0; max-width: 100%; }
+    body { background: white; }
+    .sheet-container { border: 1px solid #ddd; }
+}
+
 /* Custom Scrollbar for Palette */
 .palette-list::-webkit-scrollbar { width: 4px; }
 .palette-list::-webkit-scrollbar-track { background: transparent; }

@@ -199,10 +199,10 @@ function switchPlannerTab(tabId) {
     var heroDesc = document.getElementById('heroDesc');
     var heroActions = document.getElementById('heroActions');
     var data = {
-        overview: { title: 'University-style program planning', desc: 'Organize your degree path, choose a track when eligible, file petitions, and keep a printable record of requirement progress.', html: '<button class="btn-outline">Choose Track</button><button class="btn-planner-primary">Printable Sheet</button>' },
-        track: { title: 'Choose your academic track', desc: 'Select the specialization path attached to your program version.', html: '<button class="btn-outline">Back to planner</button>' },
-        petitions: { title: 'Petitions and exceptions', desc: 'Request transfer credit, substitutions, or waivers.', html: '<button class="btn-outline">Back to planner</button>' },
-        sheet: { title: 'Printable program sheet', desc: 'Generate a snapshot of your requirement matches.', html: '<button class="btn-outline">Print</button><button class="btn-planner-primary">Generate snapshot</button>' },
+        overview: { title: 'University-style program planning', desc: 'Organize your degree path, choose a track when eligible, file petitions, and keep a printable record of requirement progress.', html: '<button class="btn-outline" onclick="switchPlannerTab(\'track\')">Choose Track</button><button class="btn-planner-primary" onclick="switchPlannerTab(\'sheet\')">Printable Sheet</button>' },
+        track: { title: 'Choose your academic track', desc: 'Select the specialization path attached to your program version.', html: '<button class="btn-outline" onclick="switchPlannerTab(\'overview\')">Back to planner</button>' },
+        petitions: { title: 'Petitions and exceptions', desc: 'Request transfer credit, substitutions, or waivers.', html: '<button class="btn-outline" onclick="switchPlannerTab(\'overview\')">Back to planner</button>' },
+        sheet: { title: 'Printable program sheet', desc: 'Generate a snapshot of your requirement matches.', html: '<button class="btn-outline" onclick="window.print()">Print</button><button class="btn-planner-primary">Generate snapshot</button>' },
     };
     var d = data[tabId] || data.overview;
     heroTitle.innerText = d.title;
