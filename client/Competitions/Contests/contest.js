@@ -409,30 +409,8 @@
         if (!ensureAuth()) return;
         try {
             if (action === 'join') {
-                const contest = findContestById(contestId);
-                console.log('Join contest debug:', JSON.stringify(contest));
-                
-                let targetUrl = contest?.joinUrl;
-                
-                // Build platform-specific registration URL if not provided
-                if (!targetUrl && contest?.contestIdOnPlatform) {
-                    if (contest.platform === 'codeforces') {
-                        // Codeforces: use contestIdOnPlatform for registration
-                        targetUrl = `https://codeforces.com/contestRegistration/${contest.contestIdOnPlatform}`;
-                    } else if (contest.platform === 'leetcode') {
-                        targetUrl = `https://leetcode.com/contest/${contest.contestIdOnPlatform}`;
-                    } else if (contest.platform === 'atcoder') {
-                        targetUrl = `https://atcoder.jp/contests/${contest.contestIdOnPlatform}`;
-                    }
-                }
-                
-                console.log('Final targetUrl:', targetUrl);
-                if (targetUrl) {
-                    window.open(targetUrl, '_blank', 'noopener,noreferrer');
-                } else {
-                    await competitionsService.joinContest(contestId);
-                    showFeedback('Contest joined successfully.', 'info');
-                }
+                await competitionsService.joinContest(contestId);
+                showFeedback('Contest joined successfully.', 'info');
             } else if (action === 'bookmark') {
                 if (bookmarkedContestIds.has(contestId)) {
                     await competitionsService.removeBookmark(contestId);
@@ -595,29 +573,33 @@
         });
     });
 
-    liveContainer?.addEventListener('click', (event) => {
-        const button = event.target.closest('button[data-action][data-id]');
-        if (!button) return;
-        handleContestAction(button.dataset.action, button.dataset.id);
-    });
+    function openJoinUrlSync(contestId) {
+        var c = findContestById(contestId);
+        if (!c) return false;
+        var url = c.joinUrl;
+        if (!url && c.contestIdOnPlatform) {
+            var p = (c.platform || '').toLowerCase();
+            if (p === 'codeforces') url = 'https://codeforces.com/contestRegistration/' + c.contestIdOnPlatform;
+            else if (p === 'leetcode') url = 'https://leetcode.com/contest/' + c.contestIdOnPlatform;
+            else if (p === 'atcoder') url = 'https://atcoder.jp/contests/' + c.contestIdOnPlatform;
+        }
+        if (url) { window.open(url, '_blank', 'noopener,noreferrer'); return true; }
+        return false;
+    }
 
-    upcomingContainer?.addEventListener('click', (event) => {
-        const button = event.target.closest('button[data-action][data-id]');
+    function onContestClick(event) {
+        var button = event.target.closest('button[data-action][data-id]');
         if (!button) return;
-        handleContestAction(button.dataset.action, button.dataset.id);
-    });
+        var action = button.dataset.action;
+        var id = button.dataset.id;
+        if (action === 'join' && openJoinUrlSync(id)) return;
+        handleContestAction(action, id);
+    }
 
-    bookmarksContainer?.addEventListener('click', (event) => {
-        const button = event.target.closest('button[data-action][data-id]');
-        if (!button) return;
-        handleContestAction(button.dataset.action, button.dataset.id);
-    });
-
-    remindersContainer?.addEventListener('click', (event) => {
-        const button = event.target.closest('button[data-action][data-id]');
-        if (!button) return;
-        handleContestAction(button.dataset.action, button.dataset.id);
-    });
+    liveContainer?.addEventListener('click', onContestClick);
+    upcomingContainer?.addEventListener('click', onContestClick);
+    bookmarksContainer?.addEventListener('click', onContestClick);
+    remindersContainer?.addEventListener('click', onContestClick);
 
     statsContainer?.addEventListener('click', (event) => {
         const statCard = event.target.closest('.stat-card');

@@ -763,11 +763,11 @@
                 '  </div>',
                 '</div>',
                 '<div class="dd-divider"></div>',
-                '<a class="dd-item" data-href="../Dashboard/dashboard.html"><span>📊</span> Dashboard</a>',
-                '<a class="dd-item" data-href="../Courses/courses.html"><span>📚</span> My Courses</a>',
-                '<a class="dd-item" data-href="../Achievements/Achievements/achievements.html"><span>🏆</span> Achievements</a>',
+                '<a class="dd-item" data-href="/Dashboard/dashboard.html"><span>📊</span> Dashboard</a>',
+                '<a class="dd-item" data-href="/Courses/courses.html"><span>📚</span> My Courses</a>',
+                '<a class="dd-item" data-href="/Achievements/Achievements/achievements.html"><span>🏆</span> Achievements</a>',
                 '<div class="dd-divider"></div>',
-                '<a class="dd-item" data-href="../Settings/settings.html"><span>⚙️</span> Settings</a>',
+                '<a class="dd-item" data-href="/Settings/settings.html"><span>⚙️</span> Settings</a>',
                 '<div class="dd-divider"></div>',
                 '<a class="dd-item dd-action" data-action="theme"><span>' + tIcon + '</span> ' + tLabel + '</a>',
                 '<a class="dd-item dd-signout" data-action="logout"><span>🚪</span> Sign Out</a>',
@@ -803,7 +803,7 @@
                 } else if (action === 'logout') {
                     closeAll();
                     try { localStorage.removeItem('token'); localStorage.removeItem('refreshToken'); localStorage.removeItem('user'); } catch (_) {}
-                    window.location.href = '../Login/loginPage/login.html';
+                    window.location.href = '/Login/loginPage/login.html';
                 }
             });
         });
