@@ -69,6 +69,12 @@ window.NibrasReact.run(() => {
 
         const forumLink = document.querySelector("#discussion-forum-link");
         if (forumLink) forumLink.setAttribute("href", window.NibrasCourses.withCourseId("../../Community/CourseDiscussions/discussions.html", courseId));
+
+        const videosLink = document.querySelector("#videos-link");
+        if (videosLink) videosLink.setAttribute("href", window.NibrasCourses.withCourseId("../Videos/videos.html", courseId));
+
+        const playgroundLink = document.querySelector("#playground-link");
+        if (playgroundLink) playgroundLink.setAttribute("href", "../../Competitions/Practice/practice.html");
     }
 
     setCourseLinks();
