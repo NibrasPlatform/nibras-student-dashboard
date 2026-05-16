@@ -76,21 +76,18 @@
                 </div>
                 
                 <div class="avatar-edit-row">
-                    <div class="avatar-large">ZA</div>
-                    <button class="btn-outline-small">Change Avatar</button>
+                    <div class="avatar-large" id="avatar-display">ZA</div>
+                    <button class="btn-outline-small" id="btn-change-avatar">Change Avatar</button>
+                    <input type="file" id="avatar-file-input" accept="image/*" style="display:none">
                 </div>
 
                 <div class="form-group">
-                    <label>Full Name</label>
+                    <label>Display Name</label>
                     <input type="text" id="input-name" class="form-control">
                 </div>
                 <div class="form-group">
                     <label>Email Address</label>
                     <input type="email" id="input-email" class="form-control">
-                </div>
-                <div class="form-group">
-                    <label>Student ID</label>
-                    <input type="text" id="input-id" class="form-control" readonly>
                 </div>
             </section>
 
@@ -114,16 +111,6 @@
                     <input type="password" placeholder="Confirm new password" class="form-control">
                 </div>
 
-                <div class="toggle-row border-top">
-                    <div class="toggle-info">
-                        <h4>Two-Factor Authentication</h4>
-                        <p>Add an extra layer of security to your account</p>
-                    </div>
-                    <label class="switch">
-                        <input type="checkbox" id="toggle-2fa">
-                        <span class="slider round"></span>
-                    </label>
-                </div>
             </section>
 
             <!-- 2.1 Connected Accounts (NEW) -->
@@ -173,25 +160,8 @@
                 <div class="card-header-simple">
                     <h3>Learning Preferences</h3>
                     <p class="section-desc">Customize your learning experience</p>
-                    <div id="course-context-banner" style="margin-bottom: 1rem; font-size: 0.9rem; color: var(--text-muted);"></div>
                 </div>
 
-                <div class="form-group">
-                    <label>Preferred Language</label>
-                    <select class="form-control" id="pref-lang">
-                        <option value="English">English</option>
-                        <option value="Arabic">Arabic</option>
-                        <option value="French">French</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Timezone</label>
-                    <select class="form-control" id="pref-timezone">
-                        <option value="Cairo">GMT+2 (Cairo)</option>
-                        <option value="London">GMT+0 (London)</option>
-                        <option value="New York">GMT-5 (New York)</option>
-                    </select>
-                </div>
                 <div class="form-group">
                     <label>Study Level</label>
                     <select class="form-control" id="pref-level">
@@ -203,18 +173,7 @@
                 </div>
             </section>
 
-            <!-- 5. Privacy Settings -->
-            <section class="card settings-card">
-                <div class="card-header-simple">
-                    <h3>Privacy Settings</h3>
-                    <p class="section-desc">Control what others can see about your profile</p>
-                </div>
-                <div class="toggle-list" id="privacy-container">
-                    <!-- JS Injected -->
-                </div>
-            </section>
-
-            <!-- 6. Appearance -->
+            <!-- 5. Appearance -->
             <section class="card settings-card">
                 <div class="card-header-simple">
                     <h3>Appearance</h3>

@@ -16,33 +16,12 @@ window.NibrasReact.run(() => {
 
     const adminApiBase = String(resolveServiceUrl('admin') || 'https://nibras-backend.up.railway.app/api').replace(/\/+$/, '');
     const trackingApiBase = String(resolveServiceUrl('tracking') || 'https://nibras-backend.up.railway.app/api').replace(/\/+$/, '');
-    // Course context for preferences
-    const selectedCourseId = localStorage.getItem('selectedCourseId') || '';
-
-    function getPreferenceStorageKey(suffix, courseId) {
-        return courseId ? `pref-${suffix}-${courseId}` : `pref-${suffix}`;
+    function loadLevel() {
+        return localStorage.getItem('pref-level') || settingsData.preferences.level;
     }
 
-    function loadPreferences() {
-        const langKey = getPreferenceStorageKey('lang', selectedCourseId);
-        const timezoneKey = getPreferenceStorageKey('timezone', selectedCourseId);
-        const levelKey = getPreferenceStorageKey('level', selectedCourseId);
-
-        const lang = localStorage.getItem(langKey) || settingsData.preferences.language;
-        const timezone = localStorage.getItem(timezoneKey) || settingsData.preferences.timezone;
-        const level = localStorage.getItem(levelKey) || settingsData.preferences.level;
-
-        return { language: lang, timezone: timezone, level: level };
-    }
-
-    function savePreferences(prefs) {
-        const langKey = getPreferenceStorageKey('lang', selectedCourseId);
-        const timezoneKey = getPreferenceStorageKey('timezone', selectedCourseId);
-        const levelKey = getPreferenceStorageKey('level', selectedCourseId);
-
-        localStorage.setItem(langKey, prefs.language);
-        localStorage.setItem(timezoneKey, prefs.timezone);
-        localStorage.setItem(levelKey, prefs.level);
+    function saveLevel(level) {
+        localStorage.setItem('pref-level', level);
     }
 
     const githubServiceCandidates = ['tracking', 'admin'];
@@ -320,13 +299,9 @@ window.NibrasReact.run(() => {
     function applyProfileToUI(user) {
         const nameInput = document.getElementById('input-name');
         const emailInput = document.getElementById('input-email');
-        const idInput = document.getElementById('input-id');
 
         if (nameInput && (user.name || user.username)) nameInput.value = user.name || user.username;
         if (emailInput && user.email) emailInput.value = user.email;
-        if (idInput && user.studentId) idInput.value = user.studentId;
-        else if (idInput && user._id) idInput.value = user._id;
-        else if (idInput && user.id) idInput.value = user.id;
 
         const displayName = user?.name || user?.username || '';
         if (displayName) {
@@ -474,121 +449,57 @@ window.NibrasReact.run(() => {
 
     // --- 3. BACKEND DATA (fallback defaults) ---
     const settingsData = {
-        profile: {
-            name: "",
-            email: "",
-            studentId: "",
-            avatar: ""
-        },
-        preferences: {
-            language: "English",
-            timezone: "Cairo",
-            level: "Level 3"
-        },
-        privacy: [
-            { id: "priv-public", title: "Public Profile", desc: "Make your profile visible to other students", checked: true },
-            { id: "priv-progress", title: "Show Learning Progress", desc: "Display your course progress on your profile", checked: true },
-            { id: "priv-achieve", title: "Show Achievements", desc: "Display your badges and achievements publicly", checked: true }
-        ],
+        profile: { name: "", email: "", avatar: "" },
+        preferences: { level: "Level 3" },
         theme: "light"
     };
 
     // --- 4. RENDER UI ---
     document.getElementById('input-name').value = settingsData.profile.name;
     document.getElementById('input-email').value = settingsData.profile.email;
-    document.getElementById('input-id').value = settingsData.profile.studentId;
 
     loadNotificationPreferences();
 
-    var prefs = loadPreferences();
+    var savedLevel = loadLevel();
+    document.getElementById('pref-level').value = savedLevel;
 
-    function applyPreferences(p) {
-        document.getElementById('pref-lang').value = p.language;
-        document.getElementById('pref-timezone').value = p.timezone;
-        document.getElementById('pref-level').value = p.level;
-    }
-
-    if (window.NibrasServices?.usersService) {
-        window.NibrasServices.usersService.getMe().then(function (res) {
-            var user = res?.user || res?.data || res;
-            if (user?.preferences) {
-                prefs = {
-                    language: user.preferences.language || prefs.language,
-                    timezone: user.preferences.timezone || prefs.timezone,
-                    level: user.preferences.level || prefs.level,
-                };
-                savePreferences(prefs);
-            }
-            applyPreferences(prefs);
-        }).catch(function () {
-            applyPreferences(prefs);
-        });
-    } else {
-        applyPreferences(prefs);
-    }
-
-    // Update course context banner
-    const banner = document.getElementById('course-context-banner');
-    if (banner) {
-        if (selectedCourseId) {
-            banner.textContent = `Editing settings for course ID: ${selectedCourseId}`;
-        } else {
-            banner.textContent = 'Editing global settings';
-        }
-    }
-
-    const privContainer = document.getElementById('privacy-container');
-    privContainer.innerHTML = '';
-    settingsData.privacy.forEach(p => {
-        const isChecked = p.checked ? 'checked' : '';
-        privContainer.innerHTML += `
-            <div class="toggle-row">
-                <div class="toggle-info">
-                    <h4>${p.title}</h4>
-                    <p>${p.desc}</p>
-                </div>
-                <label class="switch">
-                    <input type="checkbox" id="${p.id}" ${isChecked}>
-                    <span class="slider round"></span>
-                </label>
-            </div>
-        `;
+    // --- 5. AVATAR (local file) ---
+    document.getElementById('btn-change-avatar').addEventListener('click', function () {
+        document.getElementById('avatar-file-input').click();
     });
+    document.getElementById('avatar-file-input').addEventListener('change', function (e) {
+        var file = e.target.files?.[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function (ev) {
+            document.getElementById('avatar-display').innerHTML = '<img src="' + ev.target.result + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover">';
+            localStorage.setItem('nibras_avatar', ev.target.result);
+        };
+        reader.readAsDataURL(file);
+    });
+    var savedAvatar = localStorage.getItem('nibras_avatar');
+    if (savedAvatar) {
+        document.getElementById('avatar-display').innerHTML = '<img src="' + savedAvatar + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover">';
+    }
 
-    // --- 5. THEME TOGGLE & SYNC ---
+    // --- 6. THEME TOGGLE (apply only on save) ---
     const appLogo = document.getElementById('app-logo');
     const themeSelector = document.getElementById('theme-selector');
-    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-    updateThemeUI(currentTheme);
+    var pendingTheme = null;
 
-    themeSelector.addEventListener('change', (e) => {
-        const selectedTheme = e.target.value;
-        document.documentElement.setAttribute('data-theme', selectedTheme);
-        localStorage.setItem('theme', selectedTheme);
-        updateThemeUI(selectedTheme);
+    themeSelector.addEventListener('change', function () {
+        pendingTheme = themeSelector.value;
     });
 
-    function updateThemeUI(theme) {
-        if (appLogo) {
-            appLogo.src = theme === 'dark' ? '/Assets/images/logo-dark.png' : '/Assets/images/logo-light.png';
-        }
-        if (themeSelector) {
-            themeSelector.value = theme;
-        }
-    }
-
-    // --- 6. SAVE PREFERENCES ---
+    // --- 7. SAVE ---
     document.querySelector('.btn-save').addEventListener('click', function () {
         var btn = document.querySelector('.btn-save');
         var originalText = btn.textContent;
         btn.textContent = "Saving...";
         btn.disabled = true;
 
-        var prefs = {
-            language: document.getElementById('pref-lang').value,
-            timezone: document.getElementById('pref-timezone').value,
-            level: document.getElementById('pref-level').value
-        };
+        var level = document.getElementById('pref-level').value;
+        var theme = pendingTheme || localStorage.getItem('theme') || 'light';
 
         function done(ok) {
             btn.textContent = ok ? "Settings saved!" : "Save failed";
@@ -600,10 +511,17 @@ window.NibrasReact.run(() => {
             }, 1500);
         }
 
-        savePreferences(prefs);
+        saveLevel(level);
+
+        // Apply theme
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        if (appLogo) {
+            appLogo.src = theme === 'dark' ? '/Assets/images/logo-dark.png' : '/Assets/images/logo-light.png';
+        }
 
         if (window.NibrasServices?.usersService) {
-            window.NibrasServices.usersService.updateMe({ preferences: prefs }).then(function () {
+            window.NibrasServices.usersService.updateMe({ preferences: { level: level } }).then(function () {
                 done(true);
             }).catch(function () {
                 done(false);
