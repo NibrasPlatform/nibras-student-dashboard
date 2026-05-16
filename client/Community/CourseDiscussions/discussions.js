@@ -132,13 +132,7 @@ window.NibrasReact.run(() => {
     };
     const communityCourseService = services.communityCourseService || {
         list: (filters = {}) => requestCommunity(`/courses${toQueryString(filters)}`, { method: "GET", auth: true }),
-        enroll: (courseId) => requestCommunity(`/courses/${courseId}/enroll`, { method: "POST", auth: true, body: {} }),
-        unenroll: (courseId) => requestCommunity(`/courses/${courseId}/enroll`, { method: "DELETE", auth: true }),
     };
-    let enrollmentApiSupported = (
-        typeof communityCourseService.enroll === "function" &&
-        typeof communityCourseService.unenroll === "function"
-    );
     const threadService = services.threadService || {
         listByCourse: (courseId, filters = {}) =>
             requestCommunity(`/community/threads/course/${courseId}${toQueryString(filters)}`, { method: "GET", auth: true }),
@@ -167,7 +161,6 @@ window.NibrasReact.run(() => {
         courseSelect: document.getElementById("community-course-select"),
         searchInput: document.getElementById("thread-search"),
         statusFilter: document.getElementById("thread-status-filter"),
-        enrollmentButton: document.getElementById("enrollment-btn"),
         openThreadModalButton: document.getElementById("open-thread-modal-btn"),
         notice: document.getElementById("ui-notice"),
         threadsContainer: document.getElementById("threads-container"),
@@ -261,12 +254,6 @@ window.NibrasReact.run(() => {
             loadThreads({ announce: false });
         });
 
-        elements.enrollmentButton?.addEventListener("click", () => {
-            toggleEnrollment().catch((error) => {
-                showErrorNotice(error, "Enrollment request failed.");
-            });
-        });
-
         elements.openThreadModalButton?.addEventListener("click", () => {
             if (!state.user) {
                 showNotice("Sign in is required to access course discussions.", "unauthorized");
@@ -334,7 +321,6 @@ window.NibrasReact.run(() => {
 
             pickInitialCommunityCourse();
             renderCourseSelect();
-            renderEnrollmentState();
             initSocket();
             await loadThreads({ announce: true });
             console.log('[Bootstrap] Done');
@@ -346,7 +332,7 @@ window.NibrasReact.run(() => {
 
     async function refreshAll(options = {}) {
         await loadCurrentUser();
-        renderEnrollmentState();
+        updateUI();
         if (!state.user) {
             renderAuthRequiredState();
             return;
@@ -374,8 +360,12 @@ window.NibrasReact.run(() => {
         try {
             const payload = await communityCourseService.list();
             console.log('[Courses] Response:', payload);
-            state.availableCourses = pickArray(payload, "courses");
-            console.log('[Courses] Loaded:', state.availableCourses.length);
+            var all = pickArray(payload, "courses");
+            var userLevel = (state.user?.selectedLevel || 'Beginner').toLowerCase();
+            state.availableCourses = all.filter(function (c) {
+                return (c.level || '').toLowerCase() === userLevel;
+            });
+            console.log('[Courses] Filtered by level "' + userLevel + '":', state.availableCourses.length);
         } catch (error) {
             console.error('[Courses] Error:', error);
             state.availableCourses = [];
@@ -465,66 +455,11 @@ window.NibrasReact.run(() => {
         }
     }
 
-    function renderEnrollmentState() {
-        if (!elements.enrollmentButton) return;
-        const canUseDiscussions = Boolean(state.user && state.communityCourseId);
-        if (elements.openThreadModalButton) {
-            elements.openThreadModalButton.disabled = !canUseDiscussions;
-        }
-        if (elements.searchInput) {
-            elements.searchInput.disabled = !state.user;
-        }
-        if (elements.statusFilter) {
-            elements.statusFilter.disabled = !state.user;
-        }
-
-        const enrollment = getEnrollmentState();
-        if (!state.user) {
-            elements.enrollmentButton.textContent = "Sign in required";
-            elements.enrollmentButton.disabled = true;
-            return;
-        }
-
-        if (!enrollmentApiSupported) {
-            elements.enrollmentButton.textContent = "Enrollment unavailable";
-            elements.enrollmentButton.disabled = true;
-            return;
-        }
-
-        elements.enrollmentButton.disabled = !state.communityCourseId;
-        if (enrollment.privileged) {
-            elements.enrollmentButton.textContent = "Instructor/Admin access";
-            elements.enrollmentButton.disabled = true;
-            return;
-        }
-
-        elements.enrollmentButton.textContent = enrollment.enrolled ? "Unenroll" : "Enroll";
-    }
-
-    async function toggleEnrollment() {
-        if (!state.communityCourseId || !state.user) return;
-        if (!enrollmentApiSupported) return;
-        const enrollment = getEnrollmentState();
-        if (enrollment.privileged) return;
-
-        try {
-            if (enrollment.enrolled) {
-                await communityCourseService.unenroll(state.communityCourseId);
-                showNotice("You have been unenrolled from this course.", "info");
-            } else {
-                await communityCourseService.enroll(state.communityCourseId);
-                showNotice("Enrollment successful.", "info");
-            }
-            await refreshAll({ announce: false });
-        } catch (error) {
-            if (isEnrollmentApiUnavailableError(error)) {
-                enrollmentApiSupported = false;
-                renderEnrollmentState();
-                showNotice("Enrollment endpoint is unavailable on this backend.", "error");
-                return;
-            }
-            throw error;
-        }
+    function updateUI() {
+        var canUse = Boolean(state.user && state.communityCourseId);
+        if (elements.openThreadModalButton) elements.openThreadModalButton.disabled = !canUse;
+        if (elements.searchInput) elements.searchInput.disabled = !state.user;
+        if (elements.statusFilter) elements.statusFilter.disabled = !state.user;
     }
 
     async function createThread() {
@@ -783,32 +718,6 @@ window.NibrasReact.run(() => {
         } catch (_) {
             return {};
         }
-    }
-
-    function getEnrollmentState() {
-        if (!state.user) return { enrolled: false, privileged: false };
-        const role = String(state.user?.role || "").toLowerCase();
-        if (role === "admin" || role === "instructor") {
-            return { enrolled: true, privileged: true };
-        }
-        const enrolledCourses = Array.isArray(state.user?.enrolledCourses) ? state.user.enrolledCourses : [];
-        if (!enrolledCourses.length) return { enrolled: false, privileged: false };
-        const enrolled = enrolledCourses.some((entry) => normalizeIdentifier(entry?.course?._id || entry?.course) === normalizeIdentifier(state.communityCourseId));
-        return { enrolled, privileged: false };
-    }
-
-    function isEnrollmentApiUnavailableError(error) {
-        const status = Number(error?.status || error?.payload?.code || 0);
-        if (status === 404 || status === 405 || status === 501) return true;
-        const message = String(error?.message || error?.payload?.message || "").toLowerCase();
-        return (
-            message.includes("enroll") &&
-            (
-                message.includes("not found") ||
-                message.includes("not implemented") ||
-                message.includes("unsupported")
-            )
-        );
     }
 
     function findCourseById(courseId) {
