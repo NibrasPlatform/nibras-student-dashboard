@@ -736,7 +736,7 @@
         var displayEmail = user?.email || '';
 
         function closeAll() {
-            document.querySelectorAll('.profile-dropdown-menu.show').forEach(function (m) { m.classList.remove('show'); });
+            document.querySelectorAll('.profile-dropdown-menu.show, .notif-dropdown-menu.show').forEach(function (m) { m.classList.remove('show'); });
         }
 
         avatars.forEach(function (avatar) {
@@ -868,9 +868,48 @@
             '.dd-item span { font-size:1rem; }',
             '.dd-signout { color:var(--tag-red-text,#dc2626) !important; }',
             '.dd-signout:hover { background:rgba(220,38,38,0.08) !important; }',
+            '.notif-dropdown-menu { position:absolute; top:calc(100% + 8px); right:0; min-width:240px; background:var(--bg-body,#fff); border:1px solid var(--border-color,#e2e8f0); border-radius:12px; box-shadow:0 10px 40px rgba(0,0,0,0.15); z-index:9999; display:none; overflow:hidden; }',
+            '.notif-dropdown-menu.show { display:block; }',
+            '.notif-header { padding:16px 16px 8px; font-weight:600; font-size:0.95rem; color:var(--text-primary,#1e293b); }',
+            '.notif-empty { display:flex; flex-direction:column; align-items:center; gap:6px; padding:28px 16px; color:var(--text-secondary,#64748b); }',
+            '.notif-empty-icon { font-size:1.8rem; }',
+            '.notif-empty-text { font-size:0.9rem; }',
         ].join('');
         document.head.appendChild(style);
     })();
+
+    function setupNotificationDropdown() {
+        var bellBtn = document.querySelector('.icon-btn .fa-bell, .icon-btn .fa-regular.fa-bell');
+        if (!bellBtn) return;
+        bellBtn = bellBtn.closest('button');
+        if (!bellBtn || bellBtn.getAttribute('data-ndd')) return;
+        bellBtn.setAttribute('data-ndd', '1');
+        bellBtn.style.cursor = 'pointer';
+
+        var wrap = document.createElement('span');
+        wrap.style.cssText = 'position:relative;display:inline-flex;align-items:center';
+        bellBtn.parentNode.insertBefore(wrap, bellBtn);
+        wrap.appendChild(bellBtn);
+
+        var dd = document.createElement('div');
+        dd.className = 'notif-dropdown-menu';
+        dd.innerHTML = [
+            '<div class="notif-header">Notifications</div>',
+            '<div class="dd-divider"></div>',
+            '<div class="notif-empty">',
+            '  <div class="notif-empty-icon">✅</div>',
+            '  <div class="notif-empty-text">All caught up 🎉</div>',
+            '</div>',
+        ].join('');
+
+        wrap.appendChild(dd);
+
+        bellBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            document.querySelectorAll('.profile-dropdown-menu.show, .notif-dropdown-menu.show').forEach(function (m) { m.classList.remove('show'); });
+            dd.classList.toggle('show');
+        });
+    }
 
     // --- Auto-init dropdown on all pages ---
     (function () {
@@ -880,6 +919,7 @@
             var nm = u?.name || 'User';
             var rl = u?.role?.name || u?.role || 'student';
             setupProfileDropdowns(u, init, nm, rl);
+            setupNotificationDropdown();
         } catch (_) {}
     })();
 
