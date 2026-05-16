@@ -721,11 +721,95 @@
                 el.textContent = `Welcome back, ${firstName}!`;
             });
 
+            setupProfileDropdowns(user, initials, displayName, displayRole);
+
             return { user, initials, displayName, displayRole };
         } catch (_) {
             return null;
         }
     };
+
+    function setupProfileDropdowns(user, initials, displayName, displayRole) {
+        var avatars = document.querySelectorAll('.profile-circle-small');
+        if (!avatars.length) return;
+
+        var displayEmail = user?.email || '';
+
+        function closeAll() {
+            document.querySelectorAll('.profile-dropdown-menu.show').forEach(function (m) { m.classList.remove('show'); });
+        }
+
+        avatars.forEach(function (avatar) {
+            if (avatar.getAttribute('data-dd')) return;
+            avatar.setAttribute('data-dd', '1');
+            avatar.style.cursor = 'pointer';
+
+            var parent = avatar.parentElement;
+            if (getComputedStyle(parent).position === 'static') parent.style.position = 'relative';
+
+            var curTheme = localStorage.getItem('theme') || 'light';
+            var tIcon = curTheme === 'dark' ? '🌙' : '☀️';
+            var tLabel = curTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
+
+            var dd = document.createElement('div');
+            dd.className = 'profile-dropdown-menu';
+            dd.innerHTML = [
+                '<div class="dd-header">',
+                '  <div class="dd-avatar-circle">' + initials + '</div>',
+                '  <div class="dd-info">',
+                '    <div class="dd-name">' + (displayName) + '</div>',
+                '    <div class="dd-role">' + (displayRole) + '</div>',
+                (displayEmail ? '    <div class="dd-email">' + (displayEmail) + '</div>' : ''),
+                '  </div>',
+                '</div>',
+                '<div class="dd-divider"></div>',
+                '<a class="dd-item" data-href="../Dashboard/dashboard.html"><span>📊</span> Dashboard</a>',
+                '<a class="dd-item" data-href="../Courses/courses.html"><span>📚</span> My Courses</a>',
+                '<a class="dd-item" data-href="../Achievements/Achievements/achievements.html"><span>🏆</span> Achievements</a>',
+                '<div class="dd-divider"></div>',
+                '<a class="dd-item" data-href="../Settings/settings.html"><span>⚙️</span> Settings</a>',
+                '<div class="dd-divider"></div>',
+                '<a class="dd-item dd-action" data-action="theme"><span>' + tIcon + '</span> ' + tLabel + '</a>',
+                '<a class="dd-item dd-signout" data-action="logout"><span>🚪</span> Sign Out</a>',
+            ].join('');
+
+            parent.appendChild(dd);
+
+            avatar.addEventListener('click', function (e) {
+                e.stopPropagation();
+                closeAll();
+                dd.classList.toggle('show');
+            });
+
+            dd.addEventListener('click', function (e) {
+                var item = e.target.closest('.dd-item');
+                if (!item) return;
+                var href = item.getAttribute('data-href');
+                var action = item.getAttribute('data-action');
+                if (href) {
+                    closeAll();
+                    window.location.href = href;
+                } else if (action === 'theme') {
+                    var theme = window.NibrasShared?.theme;
+                    var html = document.documentElement;
+                    var cur = html.getAttribute('data-theme') || 'light';
+                    var next = cur === 'dark' ? 'light' : 'dark';
+                    html.setAttribute('data-theme', next);
+                    localStorage.setItem('theme', next);
+                    item.innerHTML = '<span>' + (next === 'dark' ? '🌙' : '☀️') + '</span> ' + (next === 'dark' ? 'Light Mode' : 'Dark Mode');
+                    var logo = document.getElementById('app-logo');
+                    if (logo) logo.src = next === 'dark' ? '/Assets/images/logo-dark.png' : '/Assets/images/logo-light.png';
+                    closeAll();
+                } else if (action === 'logout') {
+                    closeAll();
+                    try { localStorage.removeItem('token'); localStorage.removeItem('refreshToken'); localStorage.removeItem('user'); } catch (_) {}
+                    window.location.href = '../Login/loginPage/login.html';
+                }
+            });
+        });
+
+        document.addEventListener('click', closeAll);
+    }
 
     const requireAuth = (redirectUrl = '/Login/loginPage/login.html') => {
         const token = getToken();
@@ -762,6 +846,42 @@
             return null;
         }
     };
+
+    // --- Inject dropdown styles ---
+    (function () {
+        var id = 'nibras-profile-dropdown-styles';
+        if (document.getElementById(id)) return;
+        var style = document.createElement('style');
+        style.id = id;
+        style.textContent = [
+            '.profile-dropdown-menu { position:absolute; top:calc(100% + 8px); right:0; min-width:220px; background:var(--bg-body,#fff); border:1px solid var(--border-color,#e2e8f0); border-radius:12px; box-shadow:0 10px 40px rgba(0,0,0,0.15); z-index:9999; display:none; overflow:hidden; }',
+            '.profile-dropdown-menu.show { display:block; }',
+            '.dd-header { display:flex; align-items:center; gap:12px; padding:16px; }',
+            '.dd-avatar-circle { width:40px; height:40px; border-radius:50%; background:var(--accent-blue,#2563eb); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:0.9rem; flex-shrink:0; }',
+            '.dd-info { min-width:0; }',
+            '.dd-name { font-weight:600; font-size:0.9rem; color:var(--text-primary,#1e293b); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }',
+            '.dd-role { font-size:0.75rem; color:var(--text-secondary,#64748b); text-transform:capitalize; }',
+            '.dd-email { font-size:0.75rem; color:var(--text-secondary,#64748b); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }',
+            '.dd-divider { height:1px; background:var(--border-color,#e2e8f0); margin:0; }',
+            '.dd-item { display:flex; align-items:center; gap:10px; padding:10px 16px; font-size:0.85rem; color:var(--text-primary,#1e293b); text-decoration:none; cursor:pointer; transition:background 0.15s; }',
+            '.dd-item:hover { background:var(--bg-secondary,#f1f5f9); }',
+            '.dd-item span { font-size:1rem; }',
+            '.dd-signout { color:var(--tag-red-text,#dc2626) !important; }',
+            '.dd-signout:hover { background:rgba(220,38,38,0.08) !important; }',
+        ].join('');
+        document.head.appendChild(style);
+    })();
+
+    // --- Auto-init dropdown on all pages ---
+    (function () {
+        try {
+            var u = JSON.parse(localStorage.getItem('user') || '{}');
+            var init = u?.name ? u.name.split(' ').map(function (n) { return n[0]; }).join('').substring(0, 2).toUpperCase() : 'US';
+            var nm = u?.name || 'User';
+            var rl = u?.role?.name || u?.role || 'student';
+            setupProfileDropdowns(u, init, nm, rl);
+        } catch (_) {}
+    })();
 
     window.NibrasApi = nibrasApi;
     window.NibrasShared = {
