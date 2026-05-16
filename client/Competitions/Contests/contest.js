@@ -583,7 +583,12 @@
             else if (p === 'leetcode') url = 'https://leetcode.com/contest/' + c.contestIdOnPlatform;
             else if (p === 'atcoder') url = 'https://atcoder.jp/contests/' + c.contestIdOnPlatform;
         }
-        if (url) { window.open(url, '_blank', 'noopener,noreferrer'); return true; }
+        if (url) {
+            console.log('[Join] Opening:', url);
+            var win = window.open(url, '_blank', 'noopener,noreferrer');
+            if (!win) { window.location.href = url; }
+            return true;
+        }
         return false;
     }
 
