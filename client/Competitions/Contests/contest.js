@@ -585,8 +585,7 @@
         }
         if (url) {
             console.log('[Join] Opening:', url);
-            var win = window.open(url, '_blank', 'noopener,noreferrer');
-            if (!win) { window.location.href = url; }
+            window.open(url, '_blank', 'noopener,noreferrer');
             return true;
         }
         return false;
