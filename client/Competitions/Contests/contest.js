@@ -573,30 +573,35 @@
         });
     });
 
-    function openJoinUrlSync(contestId) {
-        var c = findContestById(contestId);
-        if (!c) return false;
-        var url = c.joinUrl;
-        if (!url && c.contestIdOnPlatform) {
-            var p = (c.platform || '').toLowerCase();
-            if (p === 'codeforces') url = 'https://codeforces.com/contestRegistration/' + c.contestIdOnPlatform;
-            else if (p === 'leetcode') url = 'https://leetcode.com/contest/' + c.contestIdOnPlatform;
-            else if (p === 'atcoder') url = 'https://atcoder.jp/contests/' + c.contestIdOnPlatform;
-        }
-        if (url) {
-            console.log('[Join] Opening:', url);
-            window.open(url, '_blank', 'noopener,noreferrer');
-            return true;
-        }
-        return false;
-    }
-
     function onContestClick(event) {
         var button = event.target.closest('button[data-action][data-id]');
         if (!button) return;
         var action = button.dataset.action;
         var id = button.dataset.id;
-        if (action === 'join' && openJoinUrlSync(id)) return;
+
+        if (action === 'join') {
+            var c = findContestById(id);
+            if (!c) return;
+            var url = c.joinUrl;
+            if (!url && c.contestIdOnPlatform) {
+                var p = (c.platform || '').toLowerCase();
+                if (p === 'codeforces') url = 'https://codeforces.com/contestRegistration/' + c.contestIdOnPlatform;
+                else if (p === 'leetcode') url = 'https://leetcode.com/contest/' + c.contestIdOnPlatform;
+                else if (p === 'atcoder') url = 'https://atcoder.jp/contests/' + c.contestIdOnPlatform;
+            }
+            if (url) {
+                console.log('[Join] Opening:', url);
+                var link = document.createElement('a');
+                link.href = url;
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                return;
+            }
+        }
+
         handleContestAction(action, id);
     }
 
