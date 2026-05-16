@@ -358,14 +358,17 @@ window.NibrasReact.run(() => {
 
     async function loadCommunityCourses() {
         try {
-            const payload = await communityCourseService.list();
+            var userLevel = state.user?.selectedLevel || 'Beginner';
+            var payload;
+            var svc = window.NibrasServices?.coursesService;
+            if (svc && typeof svc.getByLevel === 'function') {
+                payload = await svc.getByLevel(userLevel);
+            } else {
+                payload = await communityCourseService.list();
+            }
             console.log('[Courses] Response:', payload);
-            var all = pickArray(payload, "courses");
-            var userLevel = (state.user?.selectedLevel || 'Beginner').toLowerCase();
-            state.availableCourses = all.filter(function (c) {
-                return (c.level || '').toLowerCase() === userLevel;
-            });
-            console.log('[Courses] Filtered by level "' + userLevel + '":', state.availableCourses.length);
+            state.availableCourses = pickArray(payload, "courses");
+            console.log('[Courses] Loaded:', state.availableCourses.length);
         } catch (error) {
             console.error('[Courses] Error:', error);
             state.availableCourses = [];
