@@ -241,7 +241,7 @@
                         </div>
                     </div>
                     <div class="uc-meta-row" style="margin-top: 10px; gap: 8px;">
-                        <button class="btn-register-full" data-action="join" data-id="${contestId}">Join</button>
+                        <button class="btn-register-full" data-action="join" data-id="${contestId}" data-url="${getJoinUrl(contest)}">Join</button>
                         <button class="btn-register-full" data-action="bookmark" data-id="${contestId}">
                             ${isBookmarked ? '<i class="fa-solid fa-bookmark"></i> Bookmarked' : '<i class="fa-regular fa-bookmark"></i> Bookmark'}
                         </button>
@@ -381,6 +381,18 @@
         const all = runningContests.concat(upcomingContests);
         return all.find((entry) => (entry._id || entry.id) === id) || null;
     };
+
+    function getJoinUrl(contest) {
+        if (!contest) return '';
+        var url = contest.joinUrl;
+        if (!url && contest.contestIdOnPlatform) {
+            var p = (contest.platform || '').toLowerCase();
+            if (p === 'codeforces') url = 'https://codeforces.com/contestRegistration/' + contest.contestIdOnPlatform;
+            else if (p === 'leetcode') url = 'https://leetcode.com/contest/' + contest.contestIdOnPlatform;
+            else if (p === 'atcoder') url = 'https://atcoder.jp/contests/' + contest.contestIdOnPlatform;
+        }
+        return url || '';
+    }
 
     const ensureAuth = () => {
         if (!authEnabled) {
@@ -580,15 +592,7 @@
         var id = button.dataset.id;
 
         if (action === 'join') {
-            var c = findContestById(id);
-            if (!c) return;
-            var url = c.joinUrl;
-            if (!url && c.contestIdOnPlatform) {
-                var p = (c.platform || '').toLowerCase();
-                if (p === 'codeforces') url = 'https://codeforces.com/contestRegistration/' + c.contestIdOnPlatform;
-                else if (p === 'leetcode') url = 'https://leetcode.com/contest/' + c.contestIdOnPlatform;
-                else if (p === 'atcoder') url = 'https://atcoder.jp/contests/' + c.contestIdOnPlatform;
-            }
+            var url = button.dataset.url;
             if (url) {
                 console.log('[Join] Opening:', url);
                 var link = document.createElement('a');
