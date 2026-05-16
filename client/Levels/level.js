@@ -119,11 +119,13 @@ window.NibrasReact.run(function () {
             if (u) { u.selectedLevel = levelName; localStorage.setItem('user', JSON.stringify(u)); }
         } catch (_) {}
 
-        window.location.href = page;
+        function navigate() { window.location.href = page; }
 
         var s = window.NibrasServices;
         if (s && s.coursesService && s.coursesService.updateLevel) {
-            s.coursesService.updateLevel(levelName).catch(function () {});
+            s.coursesService.updateLevel(levelName).then(navigate).catch(navigate);
+        } else {
+            navigate();
         }
     };
 

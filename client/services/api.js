@@ -2601,8 +2601,8 @@
 
         async updateLevel(level) {
             return apiFetch('/courses/update-level', {
-                service: 'courses',
-                method: 'POST',
+                service: 'admin',
+                method: 'PATCH',
                 auth: true,
                 body: { level: String(level) },
             });
