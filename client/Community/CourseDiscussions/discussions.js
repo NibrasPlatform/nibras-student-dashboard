@@ -359,13 +359,7 @@ window.NibrasReact.run(() => {
     async function loadCommunityCourses() {
         try {
             var userLevel = state.user?.selectedLevel || 'Beginner';
-            var payload;
-            var svc = window.NibrasServices?.coursesService;
-            if (svc && typeof svc.getByLevel === 'function') {
-                payload = await svc.getByLevel(userLevel);
-            } else {
-                payload = await communityCourseService.list();
-            }
+            var payload = await communityCourseService.list({ level: userLevel });
             console.log('[Courses] Response:', payload);
             state.availableCourses = pickArray(payload, "courses");
             console.log('[Courses] Loaded:', state.availableCourses.length);
