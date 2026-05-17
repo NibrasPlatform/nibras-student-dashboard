@@ -79,7 +79,7 @@ window.NibrasReact.run(function () {
 
                 entries.forEach(function (item) {
                     var rank = item.rank || 0;
-                    var entryName = (item.userId && item.userId.name) || item.name || 'User';
+                    var entryName = (item.user?.name) || item.name || 'User';
                     var initials = entryName.split(' ').map(function (w) { return w.charAt(0); }).join('').toUpperCase().slice(0, 2);
                     var repScore = getReputationScore(item);
                     var role = 'student';
