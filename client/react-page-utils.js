@@ -911,17 +911,22 @@
         dd.innerHTML = '<div class="notif-header">Notifications</div><div class="dd-divider"></div><div class="notif-loading" style="padding:24px;text-align:center;color:var(--text-secondary,#64748b);font-size:0.85rem">Loading...</div>';
         wrap.appendChild(dd);
 
-        var svc = window.NibrasServices?.adminNotificationService;
-        if (svc && svc.count) {
-            svc.count().then(function (res) {
-                var data = res?.data || res || {};
-                var c = Number(data.count || 0);
-                if (c > 0) { badge.textContent = c > 99 ? '99+' : c; badge.style.display = 'flex'; }
-            }).catch(function () {});
-        }
+        (function () {
+            var s = window.NibrasServices?.adminNotificationService;
+            if (s && s.count) {
+                s.count().then(function (res) {
+                    var data = res?.data || res || {};
+                    var c = Number(data.count || 0);
+                    if (c > 0) { badge.textContent = c > 99 ? '99+' : c; badge.style.display = 'flex'; }
+                }).catch(function () {});
+            }
+        })();
+
+        function getSvc() { return window.NibrasServices?.adminNotificationService; }
 
         function renderNotifications() {
             dd.innerHTML = '<div class="notif-header">Notifications</div><div class="dd-divider"></div><div class="notif-loading" style="padding:24px;text-align:center;color:var(--text-secondary,#64748b);font-size:0.85rem">Loading...</div>';
+            var svc = getSvc();
             if (!svc || !svc.list) { dd.innerHTML = '<div class="notif-header">Notifications</div><div class="dd-divider"></div><div class="notif-empty"><div class="notif-empty-icon">ℹ️</div><div class="notif-empty-text">Service unavailable</div></div>'; return; }
             svc.list(1, 20).then(function (res) {
                 var data = res?.data || res || {};
