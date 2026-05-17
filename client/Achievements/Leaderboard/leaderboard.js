@@ -47,6 +47,13 @@ window.NibrasReact.run(function () {
                 } catch (_) {}
             }
 
+            if (entries.length) {
+                entries = entries.filter(function (e) {
+                    return (e.user?.role || '').toLowerCase() === 'student';
+                });
+                entries.forEach(function (e, i) { e.rank = i + 1; });
+            }
+
             var currentUser = myData || null;
             var pagination = (lbData && lbData.pagination) || null;
 
