@@ -25,10 +25,10 @@ window.NibrasReact.run(function () {
         var page = currentState.page;
 
         Promise.all([
-            services.gamificationService.getLeaderboard({ period: period, scope: scope, page: page, limit: 20 }).catch(function () { return null; }),
+            services.gamificationService.getLeaderboard({ period: period, scope: scope, page: page, limit: 20 }).catch(function (err) { console.error('[Leaderboard] Error fetching leaderboard:', err?.message || err); return null; }),
             services.gamificationService.getMyLeaderboardRank({ period: period, scope: scope }).catch(function () { return null; }),
             services.reputationService.getMyReputation().catch(function () { return null; }),
-        ]).then(function (results) {
+        ]).then(async function (results) {
             var lbRes = results[0];
             var myRes = results[1];
             var repRes = results[2];
@@ -37,6 +37,16 @@ window.NibrasReact.run(function () {
             var myData = (myRes && (myRes.data || myRes)) || null;
 
             var entries = (lbData && lbData.entries) || [];
+
+            // Fallback: retry without pagination params if first attempt failed
+            if (!entries.length && services.gamificationService) {
+                try {
+                    var fbRes = await services.gamificationService.getLeaderboard({ period: period, scope: scope });
+                    var fbData = (fbRes && (fbRes.data || fbRes)) || null;
+                    if (fbData && fbData.entries) entries = fbData.entries;
+                } catch (_) {}
+            }
+
             var currentUser = myData || null;
             var pagination = (lbData && lbData.pagination) || null;
 
