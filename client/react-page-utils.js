@@ -922,6 +922,19 @@
             }
         })();
 
+        function refreshBadge() {
+            var s = window.NibrasServices?.adminNotificationService;
+            if (s && s.count) {
+                s.count().then(function (res) {
+                    var data = res?.data || res || {};
+                    var c = Number(data.count || 0);
+                    if (c > 0) { badge.textContent = c > 99 ? '99+' : c; badge.style.display = 'flex'; }
+                    else badge.style.display = 'none';
+                }).catch(function () {});
+            }
+        }
+        setInterval(refreshBadge, 30000);
+
         function getSvc() { return window.NibrasServices?.adminNotificationService; }
 
         function renderNotifications() {
@@ -950,7 +963,8 @@
                         else if (mins < 1440) time = Math.floor(mins / 60) + 'h ago';
                         else time = Math.floor(mins / 1440) + 'd ago';
                     }
-                    html += '<div class="notif-item' + (n.isRead ? '' : ' unread') + '" data-id="' + (n._id || n.id || '') + '"><div class="notif-icon">' + icon + '</div><div class="notif-body"><div class="notif-title">' + (n.title || '') + '</div><div class="notif-msg">' + (n.message || '') + '</div><div class="notif-time">' + time + '</div></div></div>';
+                    var relatedId = n._id || n.id || '';
+                    html += '<div class="notif-item' + (n.isRead ? '' : ' unread') + '" data-id="' + relatedId + '" data-type="' + (n.type || '') + '" data-related="' + (n.relatedId || '') + '"><div class="notif-icon">' + icon + '</div><div class="notif-body"><div class="notif-title">' + (n.title || '') + '</div><div class="notif-msg">' + (n.message || '') + '</div><div class="notif-time">' + time + '</div></div></div>';
                 });
                 html += '</div><div class="dd-divider"></div><div class="notif-footer" style="padding:8px 16px;text-align:center"><button class="notif-mark-read-btn" style="background:none;border:none;color:var(--accent-blue,#2563eb);cursor:pointer;font-size:0.8rem;padding:4px 8px">Mark all as read</button></div>';
                 dd.innerHTML = html;
@@ -962,6 +976,22 @@
                         if (svc && svc.markAllRead) svc.markAllRead().catch(function () {});
                         badge.style.display = 'none';
                         renderNotifications();
+                    });
+                }
+
+                var listEl = dd.querySelector('.notif-list');
+                if (listEl) {
+                    listEl.addEventListener('click', function (e) {
+                        var item = e.target.closest('.notif-item');
+                        if (!item) return;
+                        var type = item.getAttribute('data-type') || '';
+                        var related = item.getAttribute('data-related') || '';
+                        var url = '';
+                        if (type === 'contest_reminder') url = '/Competitions/Contests/contest.html';
+                        else if (type === 'question_vote' || type === 'question_answered') url = related ? '/Community/QuestionID/question.html?questionId=' + encodeURIComponent(related) : '';
+                        else if (type === 'answer_vote') url = related ? '/Community/QuestionID/question.html?questionId=' + encodeURIComponent(related) : '';
+                        else if (type === 'comment_vote') url = '/Community/CourseDiscussions/discussions.html';
+                        if (url) { dd.classList.remove('show'); window.location.href = url; }
                     });
                 }
             }).catch(function () {
