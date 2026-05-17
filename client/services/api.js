@@ -1640,6 +1640,52 @@
     };
 
     // ============================================================
+    // Admin Notification Service (Nibras-Backend /notifications)
+    // ============================================================
+    const adminNotificationService = {
+        async list(page, limit) {
+            var qs = '';
+            if (page || limit) {
+                var p = new URLSearchParams();
+                if (page) p.set('page', page);
+                if (limit) p.set('limit', limit);
+                qs = '?' + p.toString();
+            }
+            return apiFetch('/notifications' + qs, {
+                service: 'admin',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        async count() {
+            return apiFetch('/notifications/unread-count', {
+                service: 'admin',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        async markRead(notificationId) {
+            return apiFetch('/notifications/' + encodeURIComponent(String(notificationId)) + '/read', {
+                service: 'admin',
+                method: 'PATCH',
+                auth: true,
+                body: {},
+            });
+        },
+
+        async markAllRead() {
+            return apiFetch('/notifications/read-all', {
+                service: 'admin',
+                method: 'PATCH',
+                auth: true,
+                body: {},
+            });
+        },
+    };
+
+    // ============================================================
     // Program Service (tracking backend)
     // ============================================================
     const programService = {
@@ -2847,6 +2893,7 @@
         threadService,
         postService,
         notificationService,
+        adminNotificationService,
         programService,
         competitionsService,
         tagService,

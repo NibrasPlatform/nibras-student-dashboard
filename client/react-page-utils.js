@@ -874,6 +874,15 @@
             '.notif-empty { display:flex; flex-direction:column; align-items:center; gap:6px; padding:28px 16px; color:var(--text-secondary,#64748b); }',
             '.notif-empty-icon { font-size:1.8rem; }',
             '.notif-empty-text { font-size:0.9rem; }',
+            '.notif-list { max-height:320px; overflow-y:auto; }',
+            '.notif-item { display:flex; gap:10px; padding:10px 16px; cursor:pointer; transition:background 0.15s; border-bottom:1px solid var(--border-color,#e2e8f0); }',
+            '.notif-item:hover { background:var(--bg-secondary,#f1f5f9); }',
+            '.notif-item.unread { background:rgba(37,99,235,0.04); }',
+            '.notif-icon { font-size:1.1rem; flex-shrink:0; margin-top:2px; }',
+            '.notif-body { min-width:0; flex:1; }',
+            '.notif-title { font-size:0.82rem; font-weight:500; color:var(--text-primary,#1e293b); line-height:1.3; }',
+            '.notif-msg { font-size:0.75rem; color:var(--text-secondary,#64748b); margin-top:1px; line-height:1.3; display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden; }',
+            '.notif-time { font-size:0.7rem; color:var(--text-secondary,#64748b); margin-top:3px; }',
         ].join('');
         document.head.appendChild(style);
     })();
@@ -885,29 +894,81 @@
         if (!bellBtn || bellBtn.getAttribute('data-ndd')) return;
         bellBtn.setAttribute('data-ndd', '1');
         bellBtn.style.cursor = 'pointer';
+        bellBtn.style.position = 'relative';
 
         var wrap = document.createElement('span');
         wrap.style.cssText = 'position:relative;display:inline-flex;align-items:center';
         bellBtn.parentNode.insertBefore(wrap, bellBtn);
         wrap.appendChild(bellBtn);
 
+        var badge = document.createElement('span');
+        badge.className = 'notif-badge';
+        badge.style.cssText = 'position:absolute;top:-4px;right:-4px;background:#dc2626;color:#fff;font-size:10px;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;display:none';
+        wrap.appendChild(badge);
+
         var dd = document.createElement('div');
         dd.className = 'notif-dropdown-menu';
-        dd.innerHTML = [
-            '<div class="notif-header">Notifications</div>',
-            '<div class="dd-divider"></div>',
-            '<div class="notif-empty">',
-            '  <div class="notif-empty-icon">✅</div>',
-            '  <div class="notif-empty-text">All caught up 🎉</div>',
-            '</div>',
-        ].join('');
-
+        dd.innerHTML = '<div class="notif-header">Notifications</div><div class="dd-divider"></div><div class="notif-loading" style="padding:24px;text-align:center;color:var(--text-secondary,#64748b);font-size:0.85rem">Loading...</div>';
         wrap.appendChild(dd);
+
+        var svc = window.NibrasServices?.adminNotificationService;
+        if (svc && svc.count) {
+            svc.count().then(function (res) {
+                var data = res?.data || res || {};
+                var c = Number(data.count || 0);
+                if (c > 0) { badge.textContent = c > 99 ? '99+' : c; badge.style.display = 'flex'; }
+            }).catch(function () {});
+        }
+
+        function renderNotifications() {
+            dd.innerHTML = '<div class="notif-header">Notifications</div><div class="dd-divider"></div><div class="notif-loading" style="padding:24px;text-align:center;color:var(--text-secondary,#64748b);font-size:0.85rem">Loading...</div>';
+            if (!svc || !svc.list) { dd.innerHTML = '<div class="notif-header">Notifications</div><div class="dd-divider"></div><div class="notif-empty"><div class="notif-empty-icon">ℹ️</div><div class="notif-empty-text">Service unavailable</div></div>'; return; }
+            svc.list(1, 20).then(function (res) {
+                var data = res?.data || res || {};
+                var items = data.notifications || [];
+                if (!items.length) {
+                    dd.innerHTML = '<div class="notif-header">Notifications</div><div class="dd-divider"></div><div class="notif-empty"><div class="notif-empty-icon">✅</div><div class="notif-empty-text">All caught up 🎉</div></div>';
+                    return;
+                }
+                var html = '<div class="notif-header">' + (data.pagination?.total || items.length) + ' Notifications</div><div class="dd-divider"></div><div class="notif-list">';
+                items.forEach(function (n) {
+                    var icon = '📌';
+                    if (n.type === 'contest_reminder') icon = '🏆';
+                    else if (n.type === 'question_answered') icon = '💬';
+                    else if (n.type === 'question_vote' || n.type === 'answer_vote' || n.type === 'comment_vote') icon = '⬆️';
+                    var time = '';
+                    if (n.createdAt) {
+                        var diff = Date.now() - new Date(n.createdAt).getTime();
+                        var mins = Math.floor(diff / 60000);
+                        if (mins < 1) time = 'just now';
+                        else if (mins < 60) time = mins + 'm ago';
+                        else if (mins < 1440) time = Math.floor(mins / 60) + 'h ago';
+                        else time = Math.floor(mins / 1440) + 'd ago';
+                    }
+                    html += '<div class="notif-item' + (n.isRead ? '' : ' unread') + '" data-id="' + (n._id || n.id || '') + '"><div class="notif-icon">' + icon + '</div><div class="notif-body"><div class="notif-title">' + (n.title || '') + '</div><div class="notif-msg">' + (n.message || '') + '</div><div class="notif-time">' + time + '</div></div></div>';
+                });
+                html += '</div><div class="dd-divider"></div><div class="notif-footer" style="padding:8px 16px;text-align:center"><button class="notif-mark-read-btn" style="background:none;border:none;color:var(--accent-blue,#2563eb);cursor:pointer;font-size:0.8rem;padding:4px 8px">Mark all as read</button></div>';
+                dd.innerHTML = html;
+
+                var markBtn = dd.querySelector('.notif-mark-read-btn');
+                if (markBtn) {
+                    markBtn.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        if (svc && svc.markAllRead) svc.markAllRead().catch(function () {});
+                        badge.style.display = 'none';
+                        renderNotifications();
+                    });
+                }
+            }).catch(function () {
+                dd.innerHTML = '<div class="notif-header">Notifications</div><div class="dd-divider"></div><div class="notif-empty"><div class="notif-empty-icon">❌</div><div class="notif-empty-text">Could not load notifications</div></div>';
+            });
+        }
 
         bellBtn.addEventListener('click', function (e) {
             e.stopPropagation();
             document.querySelectorAll('.profile-dropdown-menu.show, .notif-dropdown-menu.show').forEach(function (m) { m.classList.remove('show'); });
             dd.classList.toggle('show');
+            if (dd.classList.contains('show')) renderNotifications();
         });
     }
 
