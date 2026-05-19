@@ -4,122 +4,291 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nibras - Sign Up</title>
-<script>
-    (function () {
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) {
-            document.documentElement.setAttribute('data-theme', savedTheme);
+    
+    <!-- Theme Detection -->
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            }
+        })();
+    </script>
+    
+    <!-- Modern Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: ['class', '[data-theme="dark"]'],
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
+                        display: ['Syne', 'Plus Jakarta Sans', 'sans-serif'],
+                    },
+                }
+            }
         }
-    })();
-</script>
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    </script>
+    
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    
     <!-- CSS -->
     <link rel="stylesheet" href="./signup.css">
-    <!-- Google OAuth Client ID -->
+    
+    <!-- Google OAuth -->
     <script>
         window.NibrasApiConfig = {
             googleClientId: '809028632276-sgttn83goo7em2anm7t0t5ar37m4v8nm.apps.googleusercontent.com'
         };
     </script>
+    
+    <style>
+        /* Modern gradient background */
+        .gradient-bg {
+            background: linear-gradient(135deg, #030712 0%, #0f172a 50%, #1e293b 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Animated stars */
+        .stars-container {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+        
+        [data-theme="light"] .stars-container {
+            display: none;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+        
+        #stars, #stars2, #stars3 {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 
+                50px 100px white, 150px 200px white, 250px 50px white,
+                350px 300px white, 450px 150px white, 100px 350px white,
+                200px 400px white, 300px 250px white, 400px 100px white,
+                500px 350px white, 600px 200px white, 700px 400px white,
+                800px 100px white, 900px 300px white, 1000px 200px white;
+            animation: twinkle 4s ease-in-out infinite;
+        }
+        
+        #stars2 { animation-delay: 1s; }
+        #stars3 { animation-delay: 2s; }
+        
+        /* Floating shapes */
+        .float-shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.3;
+        }
+        
+        .shape-1 {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            top: -100px;
+            right: -100px;
+        }
+        
+        .shape-2 {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, #0ea5e9, #3b82f6);
+            bottom: -50px;
+            left: -50px;
+        }
+        
+        /* Form card */
+        .auth-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        
+        [data-theme="dark"] .auth-card {
+            background: rgba(30, 41, 59, 0.9);
+            border: 1px solid rgba(71, 85, 105, 0.3);
+        }
+        
+        /* Input focus */
+        .input-modern:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+        
+        /* Button gradient */
+        .btn-gradient {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #0ea5e9 100%);
+            background-size: 200% 200%;
+            transition: all 0.4s ease;
+        }
+        
+        .btn-gradient:hover {
+            background-position: 100% 0;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px -5px rgba(59, 130, 246, 0.4);
+        }
+    </style>
 </head>
-<body class="signup-page">
+<body class="font-sans antialiased">
     <div id="app-root" hidden></div>
 
-    <!-- Starry Background (Visible Only in Dark Mode) -->
-    <div class="stars-container">
-        <div id="stars"></div>
-        <div id="stars2"></div>
-        <div id="stars3"></div>
+    <!-- Background -->
+    <div class="gradient-bg fixed inset-0 -z-10">
+        <div class="stars-container">
+            <div id="stars"></div>
+            <div id="stars2"></div>
+            <div id="stars3"></div>
+        </div>
+        <div class="float-shape shape-1"></div>
+        <div class="float-shape shape-2"></div>
     </div>
 
     <!-- Header -->
-    <header class="auth-header">
-        <div class="logo-area">
-            <!-- Logo is white in both designs -->
-            <img src="/Assets/images/logo-dark.png" alt="Nibras Logo" class="auth-logo">
-        </div>
-        
-        <!-- Theme Toggle Button -->
-        <button class="theme-toggle-btn" id="themeBtn">
+    <header class="fixed top-0 left-0 right-0 z-50 px-6 py-4 flex justify-between items-center">
+        <img src="/Assets/images/logo-dark.png" alt="Nibras Logo" class="h-8 w-auto">
+        <button class="w-10 h-10 rounded-full bg-white/10 backdrop-blur flex items-center justify-center text-white hover:bg-white/20 transition-all" id="themeBtn" aria-label="Toggle theme">
             <i class="fa-solid fa-moon"></i>
         </button>
     </header>
 
     <!-- Main Content -->
-    <div class="auth-container">
-        <div class="auth-card">
+    <div class="min-h-screen flex items-center justify-center p-4 pt-20">
+        <div class="auth-card w-full max-w-md p-8 rounded-2xl shadow-2xl animate__animated animate__fadeIn">
             
-            <h2 class="auth-title">Create an account</h2>
-            <p id="signupNotice" class="auth-notice" hidden></p>
+            <h2 class="font-display text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white text-center mb-6">
+                Create an account
+            </h2>
+            
+            <p id="signupNotice" class="mb-4 p-3 rounded-xl text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700" hidden></p>
 
-            <form id="signupForm">
-                <div class="form-group">
-                    <label>Name</label>
-                    <input type="text" id="nameInput" placeholder="Your full name" class="form-control" required>
+            <!-- Signup Form -->
+            <form id="signupForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Name</label>
+                    <input type="text" id="nameInput" placeholder="Your full name" required
+                        class="input-modern w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 transition-all duration-300 outline-none">
                 </div>
 
-                <div class="form-group">
-                    <label>Email (Gmail only)</label>
-                    <input type="email" id="emailInput" placeholder="name@gmail.com" class="form-control" required>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Email (Gmail only)</label>
+                    <input type="email" id="emailInput" placeholder="name@gmail.com" required
+                        class="input-modern w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 transition-all duration-300 outline-none">
                 </div>
 
-                <div class="form-group">
-                    <label>Password</label>
-                    <div class="password-input-wrapper">
-                        <input type="password" placeholder="Enter your password" class="form-control" id="passInput" required>
-                        <i class="fa-regular fa-eye toggle-password" onclick="togglePass('passInput', this)"></i>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Password</label>
+                    <div class="relative">
+                        <input type="password" placeholder="Enter your password" id="passInput" required
+                            class="input-modern w-full px-4 py-3 pr-12 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 transition-all duration-300 outline-none">
+                        <button type="button" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors" onclick="togglePass('passInput', this.querySelector('i'))">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label>Confirm Password</label>
-                    <div class="password-input-wrapper">
-                        <input type="password" placeholder="Confirm your password" class="form-control" id="confPassInput" required>
-                        <i class="fa-regular fa-eye toggle-password" onclick="togglePass('confPassInput', this)"></i>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Confirm Password</label>
+                    <div class="relative">
+                        <input type="password" placeholder="Confirm your password" id="confPassInput" required
+                            class="input-modern w-full px-4 py-3 pr-12 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 transition-all duration-300 outline-none">
+                        <button type="button" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors" onclick="togglePass('confPassInput', this.querySelector('i'))">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
                     </div>
                 </div>
 
-                <button type="submit" class="btn-login" style="margin-top: 1rem; width: 100%; border: none; cursor: pointer;">Sign Up</button>
+                <button type="submit" class="btn-gradient w-full py-3.5 rounded-xl text-white font-semibold mt-2">
+                    Sign Up
+                </button>
             </form>
 
-            <form id="otpForm" hidden>
-                <h3 class="auth-subtitle">Verify your email OTP</h3>
-                <p class="auth-note">We sent a 6-digit OTP to <strong id="otpEmailLabel"></strong>. Enter it below to activate your account.</p>
-                <div class="form-group">
-                    <label>Email (Gmail only)</label>
-                    <input type="email" id="otpEmailInput" placeholder="name@gmail.com" class="form-control" required>
+            <!-- OTP Form -->
+            <form id="otpForm" class="space-y-4" hidden>
+                <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Verify your email OTP</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400">We sent a 6-digit OTP to <strong id="otpEmailLabel" class="text-primary-600 dark:text-primary-400"></strong>. Enter it below to activate your account.</p>
+                
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Email (Gmail only)</label>
+                    <input type="email" id="otpEmailInput" placeholder="name@gmail.com" required
+                        class="input-modern w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 transition-all duration-300 outline-none">
                 </div>
-                <div class="form-group">
-                    <label>OTP code</label>
-                    <input type="text" id="otpCodeInput" placeholder="6-digit OTP" class="form-control" maxlength="6" inputmode="numeric" required>
+                
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">OTP code</label>
+                    <input type="text" id="otpCodeInput" placeholder="6-digit OTP" maxlength="6" inputmode="numeric" required
+                        class="input-modern w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 transition-all duration-300 outline-none tracking-widest text-center text-lg font-mono">
                 </div>
-                <button type="submit" class="btn-login" style="margin-top: 1rem; width: 100%; border: none; cursor: pointer;">Verify OTP</button>
-                <button type="button" id="otpBackBtn" class="btn-secondary">Back to sign up</button>
+                
+                <button type="submit" class="btn-gradient w-full py-3.5 rounded-xl text-white font-semibold">
+                    Verify OTP
+                </button>
+                
+                <button type="button" id="otpBackBtn" class="w-full py-3 rounded-xl text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                    Back to sign up
+                </button>
             </form>
 
-            <div class="auth-divider" aria-hidden="true"><span>or</span></div>
-            <div id="googleSignInContainer" class="google-signin-container"></div>
-            <p id="googleAuthStatus" class="auth-note" hidden></p>
-
-            <!-- Role Toggle Link -->
-            <div class="signup-link">
-                <span id="roleQuestion">Are You Instructor ?</span> 
-                <a href="./signupInstructor/signup-ins.html" id="roleToggleBtn" onclick="toggleRole(event)">Sign Up</a>
+            <!-- Divider -->
+            <div class="flex items-center gap-4 my-6">
+                <div class="flex-1 h-px bg-slate-200 dark:bg-slate-700"></div>
+                <span class="text-sm text-slate-400 dark:text-slate-500">or</span>
+                <div class="flex-1 h-px bg-slate-200 dark:bg-slate-700"></div>
             </div>
+            
+            <!-- Google Sign In -->
+            <div id="googleSignInContainer" class="flex justify-center min-h-[42px]"></div>
+            <p id="googleAuthStatus" class="text-center text-sm text-slate-500 dark:text-slate-400 mt-3" hidden></p>
 
-            <div class="signup-link" style="margin-top: 0.5rem;">
-                Already Have An Account ? <a href="../loginPage/login.html">Log In</a>
+            <!-- Links -->
+            <div class="mt-6 space-y-2 text-center text-sm">
+                <p class="text-slate-500 dark:text-slate-400">
+                    <span id="roleQuestion">Are You Instructor?</span> 
+                    <a href="./signupInstructor/signup-ins.html" id="roleToggleBtn" onclick="toggleRole(event)" class="font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors">Sign Up</a>
+                </p>
+                <p class="text-slate-500 dark:text-slate-400">
+                    Already Have An Account? <a href="../loginPage/login.html" class="font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors">Log In</a>
+                </p>
             </div>
-
         </div>
     </div>
 
-        <script src="../../config.js"></script>
-        <script src="../../react-bootstrap.js"></script>
-        <script src="https://accounts.google.com/gsi/client" async defer data-google-gsi="true"></script>
+    <script src="../../config.js"></script>
+    <script src="../../react-bootstrap.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer data-google-gsi="true"></script>
     <script src="./signup.js"></script>
 </body>
 </html>

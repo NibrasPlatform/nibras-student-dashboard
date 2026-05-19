@@ -4,130 +4,373 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nibras - Login</title>
-<script>
-    (function () {
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) {
-            document.documentElement.setAttribute('data-theme', savedTheme);
+    
+    <!-- Theme Detection (before render) -->
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            }
+        })();
+    </script>
+    
+    <!-- Modern Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: ['class', '[data-theme="dark"]'],
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        },
+                        surface: {
+                            light: '#ffffff',
+                            dark: '#0f172a',
+                            card: '#1e293b',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
+                        display: ['Syne', 'Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                        'slide-up': 'slideUp 0.6s ease-out forwards',
+                        'slide-left': 'slideLeft 0.6s ease-out forwards',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(30px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        slideLeft: {
+                            '0%': { opacity: '0', transform: 'translateX(30px)' },
+                            '100%': { opacity: '1', transform: 'translateX(0)' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
         }
-    })();
-</script>
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    </script>
+    
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- CSS -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    
+    <!-- Custom Styles -->
     <link rel="stylesheet" href="./login.css">
+    
     <!-- Google OAuth Client ID -->
     <script>
         window.NibrasApiConfig = {
             googleClientId: '809028632276-sgttn83goo7em2anm7t0t5ar37m4v8nm.apps.googleusercontent.com'
         };
     </script>
+    
+    <style>
+        /* Glassmorphism & Modern Effects */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        
+        [data-theme="dark"] .glass-panel {
+            background: rgba(15, 23, 42, 0.9);
+        }
+        
+        /* Gradient Mesh Background */
+        .gradient-mesh {
+            background: 
+                radial-gradient(at 0% 0%, rgba(30, 64, 175, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(14, 165, 233, 0.1) 0px, transparent 50%),
+                linear-gradient(135deg, #030712 0%, #0f172a 50%, #1e293b 100%);
+        }
+        
+        /* Floating Shapes */
+        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.5;
+            animation: float 8s ease-in-out infinite;
+        }
+        
+        .shape-1 {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+        
+        .shape-2 {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, #0ea5e9, #3b82f6);
+            bottom: 20%;
+            left: 30%;
+            animation-delay: 2s;
+        }
+        
+        .shape-3 {
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(135deg, #1e40af, #0ea5e9);
+            top: 60%;
+            left: 5%;
+            animation-delay: 4s;
+        }
+        
+        /* Role Card Styling */
+        .role-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .role-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .role-card.active {
+            border-color: #3b82f6;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(14, 165, 233, 0.05));
+        }
+        
+        [data-theme="dark"] .role-card.active {
+            border-color: #60a5fa;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(14, 165, 233, 0.1));
+        }
+        
+        /* Input Focus Effects */
+        .input-modern:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+        
+        /* Button Gradient */
+        .btn-gradient {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #0ea5e9 100%);
+            background-size: 200% 200%;
+            transition: all 0.4s ease;
+        }
+        
+        .btn-gradient:hover {
+            background-position: 100% 0;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px -5px rgba(59, 130, 246, 0.4);
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 10px;
+        }
+        
+        [data-theme="dark"] ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+    </style>
 </head>
-<body>
+<body class="min-h-screen font-sans antialiased">
     <div id="app-root" hidden></div>
 
-    <div class="login-container">
+    <div class="flex min-h-screen">
         
         <!-- LEFT SIDE (Branding) -->
-        <div class="brand-panel">
-            <div class="brand-logo">
-                <img src="/Assets/images/logo-dark.png" alt="Nibras Logo" id="brand-logo-img"> 
-            </div>
+        <div class="hidden lg:flex lg:w-1/2 gradient-mesh relative overflow-hidden">
+            <!-- Floating Shapes -->
+            <div class="floating-shape shape-1"></div>
+            <div class="floating-shape shape-2"></div>
+            <div class="floating-shape shape-3"></div>
             
-            <div class="brand-text">
-                <h1>Welcome.</h1>
-                <h1>Start your journey<br>now with our<br>Education<br>Platform!</h1>
+            <!-- Content -->
+            <div class="relative z-10 flex flex-col justify-between p-8 lg:p-12 w-full">
+                <!-- Logo -->
+                <div class="animate__animated animate__fadeIn">
+                    <img src="/Assets/images/logo-dark.png" alt="Nibras Logo" id="brand-logo-img" class="w-36 h-auto"> 
+                </div>
+                
+                <!-- Hero Text -->
+                <div class="max-w-lg">
+                    <h1 class="font-display text-white text-4xl lg:text-5xl xl:text-6xl font-light leading-tight animate__animated animate__fadeInUp">
+                        Welcome.
+                    </h1>
+                    <h1 class="font-display text-white text-4xl lg:text-5xl xl:text-6xl font-light leading-tight mt-4 animate__animated animate__fadeInUp animate__delay-1s">
+                        Start your journey<br>now with our<br>
+                        <span class="font-semibold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">Education Platform!</span>
+                    </h1>
+                </div>
+                
+                <!-- Bottom Stats -->
+                <div class="flex gap-8 animate__animated animate__fadeIn animate__delay-2s">
+                    <div>
+                        <p class="text-3xl font-bold text-white">10K+</p>
+                        <p class="text-blue-200 text-sm">Active Students</p>
+                    </div>
+                    <div>
+                        <p class="text-3xl font-bold text-white">500+</p>
+                        <p class="text-blue-200 text-sm">Courses</p>
+                    </div>
+                    <div>
+                        <p class="text-3xl font-bold text-white">98%</p>
+                        <p class="text-blue-200 text-sm">Satisfaction</p>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- RIGHT SIDE (Form) -->
-        <div class="form-panel">
+        <div class="w-full lg:w-1/2 flex items-center justify-center bg-white dark:bg-slate-900 relative transition-colors duration-300">
             
             <!-- Theme Toggle (Top Right) -->
-            <button class="theme-toggle-btn" id="themeBtn">
-                <i class="fa-regular fa-moon"></i>
+            <button class="absolute top-6 right-6 w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-300" id="themeBtn" aria-label="Toggle theme">
+                <i class="fa-regular fa-moon text-lg"></i>
             </button>
 
-            <div class="form-wrapper">
-                <h2>Login to your account</h2>
-                <p id="loginNotice" class="auth-notice" hidden></p>
-                <form id="otpVerifyForm" class="otp-assist" hidden>
-                    <h3>Verify your email OTP</h3>
-                    <p class="auth-note">Your account is pending verification. Enter the OTP sent to your Gmail inbox.</p>
-                    <div class="form-group">
-                        <label>Email (Gmail only)</label>
-                        <input type="email" id="otpEmailInput" placeholder="name@gmail.com" required>
+            <div class="w-full max-w-md px-6 py-8 lg:px-8 animate__animated animate__fadeIn">
+                <!-- Title -->
+                <h2 class="text-2xl lg:text-3xl font-display font-bold text-slate-900 dark:text-white text-center mb-8">
+                    Login to your account
+                </h2>
+                
+                <!-- Notice Banner -->
+                <p id="loginNotice" class="auth-notice mb-4 p-3 rounded-xl text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700" hidden></p>
+                
+                <!-- OTP Verification Form -->
+                <form id="otpVerifyForm" class="mb-6 p-4 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50" hidden>
+                    <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Verify your email OTP</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Your account is pending verification. Enter the OTP sent to your Gmail inbox.</p>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Email (Gmail only)</label>
+                            <input type="email" id="otpEmailInput" placeholder="name@gmail.com" required
+                                class="input-modern w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 transition-all duration-300 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">OTP code</label>
+                            <input type="text" id="otpCodeInput" inputmode="numeric" maxlength="6" placeholder="6-digit OTP" required
+                                class="input-modern w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 transition-all duration-300 outline-none tracking-widest text-center text-lg font-mono">
+                        </div>
+                        <button type="submit" class="btn-gradient w-full py-3 rounded-xl text-white font-semibold">
+                            Verify OTP
+                        </button>
                     </div>
-                    <div class="form-group">
-                        <label>OTP code</label>
-                        <input type="text" id="otpCodeInput" inputmode="numeric" maxlength="6" placeholder="6-digit OTP" required>
-                    </div>
-                    <button type="submit" class="btn-login">Verify OTP</button>
                 </form>
 
                 <!-- Role Selector -->
-                <div class="role-selector">
-                    <div class="role-card active" onclick="selectRole(this)">
-                        <i class="fa-solid fa-graduation-cap"></i>
-                        <span>Student</span>
+                <div class="flex gap-3 mb-6">
+                    <div class="role-card active flex-1 flex flex-col items-center gap-2 p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 cursor-pointer" onclick="selectRole(this)">
+                        <i class="fa-solid fa-graduation-cap text-xl text-primary-600 dark:text-primary-400"></i>
+                        <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Student</span>
                     </div>
-                    <div class="role-card" onclick="selectRole(this)">
-                        <i class="fa-solid fa-chalkboard-user"></i>
-                        <span>Instructor</span>
+                    <div class="role-card flex-1 flex flex-col items-center gap-2 p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 cursor-pointer" onclick="selectRole(this)">
+                        <i class="fa-solid fa-chalkboard-user text-xl text-primary-600 dark:text-primary-400"></i>
+                        <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Instructor</span>
                     </div>
-                    <div class="role-card" onclick="selectRole(this)">
-                        <i class="fa-solid fa-user-shield"></i>
-                        <span>Admin</span>
+                    <div class="role-card flex-1 flex flex-col items-center gap-2 p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 cursor-pointer" onclick="selectRole(this)">
+                        <i class="fa-solid fa-user-shield text-xl text-primary-600 dark:text-primary-400"></i>
+                        <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Admin</span>
                     </div>
                 </div>
 
-                <!-- Inputs -->
-                <form id="loginForm">
-                    <div class="form-group">
-                        <label>Email (Gmail only)</label>
-                        <input type="email" id="emailInput" placeholder="name@gmail.com" value="name@gmail.com">
+                <!-- Login Form -->
+                <form id="loginForm" class="space-y-5">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Email (Gmail only)</label>
+                        <input type="email" id="emailInput" placeholder="name@gmail.com" value="name@gmail.com"
+                            class="input-modern w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 transition-all duration-300 outline-none">
                     </div>
 
-                    <div class="form-group">
-                        <div class="label-row">
-                            <label>Password</label>
-                            <a href="../Reset%20Password/Email/email.html" class="forgot-link">Forgot ?</a>
+                    <div>
+                        <div class="flex justify-between items-center mb-1.5">
+                            <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Password</label>
+                            <a href="../Reset%20Password/Email/email.html" class="text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors">Forgot?</a>
                         </div>
-                        <div class="password-input-wrapper">
-                            <input type="password" placeholder="Enter your password" id="passwordInput">
-                            <i class="fa-regular fa-eye toggle-password" onclick="togglePassword()"></i>
+                        <div class="relative">
+                            <input type="password" placeholder="Enter your password" id="passwordInput"
+                                class="input-modern w-full px-4 py-3 pr-12 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 transition-all duration-300 outline-none">
+                            <button type="button" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors" onclick="togglePassword()">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
                         </div>
                     </div>
 
-                    <div class="form-options">
-                        <label class="checkbox-container">
-                            <input type="checkbox" checked>
-                            <span class="checkmark"></span>
-                            Remember Me
-                        </label>
+                    <div class="flex items-center gap-2 pt-2">
+                        <input type="checkbox" id="rememberMe" checked class="w-4 h-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500 dark:border-slate-600 dark:bg-slate-800">
+                        <label for="rememberMe" class="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer">Remember Me</label>
                     </div>
 
-                    <button type="submit" class="btn-login">Login now</button>
+                    <button type="submit" class="btn-gradient w-full py-3.5 rounded-xl text-white font-semibold text-base">
+                        Login now
+                    </button>
 
-                    <div class="signup-link">
-                        Don't Have An Account ? <a href="../signupPage/signup.html">Sign Up</a>
-                    </div>
+                    <p class="text-center text-sm text-slate-500 dark:text-slate-400">
+                        {"Don't Have An Account?"} <a href="../signupPage/signup.html" class="font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors">Sign Up</a>
+                    </p>
                 </form>
 
-                <div class="auth-divider" aria-hidden="true"><span>or</span></div>
-                <div id="googleSignInContainer" class="google-signin-container"></div>
-                <p id="googleAuthStatus" class="auth-note" hidden></p>
+                <!-- Divider -->
+                <div class="flex items-center gap-4 my-6">
+                    <div class="flex-1 h-px bg-slate-200 dark:bg-slate-700"></div>
+                    <span class="text-sm text-slate-400 dark:text-slate-500">or</span>
+                    <div class="flex-1 h-px bg-slate-200 dark:bg-slate-700"></div>
+                </div>
+                
+                <!-- Google Sign In -->
+                <div id="googleSignInContainer" class="flex justify-center min-h-[42px]"></div>
+                <p id="googleAuthStatus" class="auth-note text-center text-sm text-slate-500 dark:text-slate-400 mt-3" hidden></p>
             </div>
-
         </div>
-
     </div>
 
     <script src="../../config.js"></script>
     <script src="../../react-bootstrap.js"></script>
     <script src="https://accounts.google.com/gsi/client" async defer data-google-gsi="true"></script>
     <script src="./login.js"></script>
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
 </body>
 </html>
