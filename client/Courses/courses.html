@@ -5,216 +5,110 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nibras - Courses</title>
     <script src="../services/auth-guard.js" data-login="../Login/loginPage/login.html" data-api="https://nibras-backend.up.railway.app/api"></script>
-    
-    <!-- Theme Detection -->
     <script>
-        (function () {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme) {
-                document.documentElement.setAttribute('data-theme', savedTheme);
-            }
-        })();
-    </script>
-    
-    <!-- Modern Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: ['class', '[data-theme="dark"]'],
-            theme: {
-                extend: {
-                    colors: {
-                        primary: {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            200: '#bfdbfe',
-                            300: '#93c5fd',
-                            400: '#60a5fa',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                            800: '#1e40af',
-                            900: '#1e3a8a',
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
-                        display: ['Syne', 'Plus Jakarta Sans', 'sans-serif'],
-                    },
-                }
-            }
+    (function () {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
         }
-    </script>
-    
-    <!-- Icons -->
+    })();
+</script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
-    
-    <!-- Animate.css -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-    
-    <!-- Base & Page Styles -->
-    <link rel="stylesheet" href="../shared/base.css">
     <link rel="stylesheet" href="./courses.css">
 </head>
-<body class="font-sans antialiased bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors duration-300">
+<body>
     <div id="app-root" hidden></div>
 
     <!-- SIDEBAR -->
-    <aside class="fixed left-0 top-0 h-screen w-[280px] bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col p-6 z-50 transition-colors duration-300 max-lg:hidden">
-        <!-- Logo -->
-        <div class="mb-8 pb-6 border-b border-slate-200 dark:border-slate-800">
-            <img src="/Assets/images/logo-light.png" alt="Nibras Logo" class="sidebar-logo h-8 w-auto" id="app-logo">
+    <aside class="sidebar">
+        <!-- LOGO AREA -->
+        <div class="logo-area">
+            <!-- Default to light logo -->
+            <img src="/Assets/images/logo-light.png" alt="Nibras Logo" class="sidebar-logo" id="app-logo">
         </div>
 
-        <!-- Navigation -->
-        <ul class="flex-1 space-y-1">
-            <li>
-                <a href="../Dashboard/dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white font-medium transition-all duration-200">
-                    <i class="fa-solid fa-house w-5 text-center"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
-            <li>
-                <a href="./courses.html" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 text-white font-semibold shadow-lg shadow-primary-500/25 transition-all duration-300">
-                    <i class="fa-solid fa-book-open w-5 text-center"></i>
-                    <span>Courses</span>
-                </a>
-            </li>
-            <li>
-                <a href="../Projects/projects.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white font-medium transition-all duration-200">
-                    <i class="fa-solid fa-diagram-project w-5 text-center"></i>
-                    <span>Projects</span>
-                </a>
-            </li>
-            <li>
-                <a href="../CLI/cli.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white font-medium transition-all duration-200">
-                    <i class="fa-solid fa-terminal w-5 text-center"></i>
-                    <span>CLI</span>
-                </a>
-            </li>
-            <li>
-                <a href="../Competitions/Contests/contest.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white font-medium transition-all duration-200">
-                    <i class="fa-solid fa-trophy w-5 text-center"></i>
-                    <span>Competitions</span>
-                </a>
-            </li>
-            <li>
-                <a href="../Community/community.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white font-medium transition-all duration-200">
-                    <i class="fa-solid fa-users w-5 text-center"></i>
-                    <span>Community</span>
-                </a>
-            </li>
-            <li>
-                <a href="../Achievements/Achievements/achievements.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white font-medium transition-all duration-200">
-                    <i class="fa-solid fa-medal w-5 text-center"></i>
-                    <span>Achievements</span>
-                </a>
-            </li>
-            <li>
-                <a href="../Ai-tutor/Ai%20Tutor/ai_tutor.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white font-medium transition-all duration-200">
-                    <i class="fa-solid fa-robot w-5 text-center"></i>
-                    <span>AI Tutor</span>
-                </a>
-            </li>
-            <li>
-                <a href="../Analytics/Overview/overview.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white font-medium transition-all duration-200">
-                    <i class="fa-solid fa-chart-simple w-5 text-center"></i>
-                    <span>Analytics</span>
-                </a>
-            </li>
-            <li>
-                <a href="../Settings/settings.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white font-medium transition-all duration-200">
-                    <i class="fa-solid fa-gear w-5 text-center"></i>
-                    <span>Settings</span>
-                </a>
-            </li>
+        <ul class="nav-menu">
+            <li class="nav-item"><a href="../Dashboard/dashboard.html" class="nav-link"><i class="fa-solid fa-house"></i> Dashboard</a></li>
+            <li class="nav-item"><a href="./courses.html" class="nav-link active"><i class="fa-solid fa-book-open"></i> Courses</a></li>
+            
+            <li class="nav-item"><a href="../Projects/projects.html" class="nav-link"><i class="fa-solid fa-diagram-project"></i> Projects</a></li>
+            <li class="nav-item"><a href="../CLI/cli.html" class="nav-link"><i class="fa-solid fa-terminal"></i> CLI</a></li><li class="nav-item"><a href="../Competitions/Contests/contest.html" class="nav-link"><i class="fa-solid fa-trophy"></i> Competitions</a></li>
+            <li class="nav-item"><a href="../Community/community.html" class="nav-link"><i class="fa-solid fa-users"></i> Community</a></li>
+            <li class="nav-item"><a href="../Achievements/Achievements/achievements.html" class="nav-link"><i class="fa-solid fa-medal"></i> Achievements</a></li>
+            <li class="nav-item"><a href="../Ai-tutor/Ai%20Tutor/ai_tutor.html" class="nav-link"><i class="fa-solid fa-robot"></i> AI Tutor</a></li>
+            <li class="nav-item"><a href="../Analytics/Overview/overview.html" class="nav-link"><i class="fa-solid fa-chart-simple"></i> Analytics</a></li>
+            <li class="nav-item"><a href="../Settings/settings.html" class="nav-link"><i class="fa-solid fa-gear"></i> Settings</a></li>
         </ul>
 
-        <!-- User Profile -->
-        <div class="mt-auto pt-6 border-t border-slate-200 dark:border-slate-800">
-            <div class="flex items-center gap-3 mb-4">
-                <div class="w-11 h-11 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-white font-bold shadow-lg shadow-primary-500/25">ZA</div>
-                <div>
-                    <h4 class="font-semibold text-slate-900 dark:text-white text-sm">Ziad Alaa</h4>
-                    <span class="text-xs text-slate-500 dark:text-slate-400 capitalize">student</span>
-                </div>
+        <div class="user-profile">
+            <div class="avatar-circle">ZA</div>
+            <div class="user-info">
+                <h4>Ziad Alaa</h4>
+                <span>student</span>
             </div>
-            
-            <div class="flex items-center justify-between p-3 bg-slate-100 dark:bg-slate-800 rounded-xl mb-4">
-                <span class="text-sm text-slate-600 dark:text-slate-400 font-medium">Reputation</span>
-                <span class="px-3 py-1 bg-primary-500 text-white text-xs font-bold rounded-full">0</span>
-            </div>
-
-            <a href="../Login/loginPage/login.html" class="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-red-50 dark:hover:bg-red-950/30 hover:border-red-300 dark:hover:border-red-800 hover:text-red-600 dark:hover:text-red-400 font-medium transition-all duration-200">
-                <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                <span>Logout</span>
-            </a>
         </div>
+        
+        <div class="reputation-box">
+            <span>Reputation</span>
+            <div class="rep-badge">0</div>
+        </div>
+
+        <a href="../Login/loginPage/login.html" class="logout-btn">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
+        </a>
     </aside>
 
     <!-- MAIN CONTENT -->
-    <main class="lg:ml-[280px] min-h-screen flex flex-col">
+    <main class="main-content">
         
         <!-- HEADER -->
-        <header class="sticky top-0 z-40 h-[72px] flex items-center justify-between px-8 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800">
-            <div class="relative w-full max-w-md">
-                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                <input type="text" placeholder="Search courses, problems" class="w-full pl-11 pr-4 py-2.5 rounded-full bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 text-slate-900 dark:text-white placeholder-slate-400 outline-none transition-all duration-200">
+        <header class="top-header">
+            <div class="search-bar-global">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" placeholder="Search courses, problems">
             </div>
             
-            <div class="flex items-center gap-3">
-                <button class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-200" id="themeBtn" aria-label="Toggle theme">
-                    <i class="fa-regular fa-moon"></i>
-                </button>
-                <button class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-200 relative" aria-label="Notifications">
-                    <i class="fa-regular fa-bell"></i>
-                </button>
-                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-white text-sm font-bold cursor-pointer hover:shadow-lg hover:shadow-primary-500/25 transition-all duration-200">ZA</div>
+            <div class="header-actions">
+                <!-- Theme Toggle Button -->
+                <button class="icon-btn" id="themeBtn"><i class="fa-regular fa-moon"></i></button>
+                <button class="icon-btn"><i class="fa-regular fa-bell"></i></button>
+                <div class="profile-circle-small">ZA</div>
             </div>
         </header>
 
-        <!-- Content -->
-        <div class="flex-1 p-8 max-w-[1600px]">
-            <!-- Page Header -->
-            <div class="mb-8 animate__animated animate__fadeIn">
-                <h1 class="font-display text-3xl font-bold text-slate-900 dark:text-white mb-2">Courses</h1>
-                <p class="text-slate-600 dark:text-slate-400">Manage your learning journey</p>
+        <div class="content-wrapper">
+            <div class="page-title-section">
+                <h1>Courses</h1>
+                <p>Manage your learning journey</p>
             </div>
 
             <!-- Filter Bar -->
-            <div class="relative mb-6">
-                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                <input type="text" id="course-search" placeholder="Search courses..." 
-                    class="w-full pl-11 pr-4 py-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 text-slate-900 dark:text-white placeholder-slate-400 outline-none transition-all duration-200">
+            <div class="filter-bar">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="course-search" placeholder="Search courses...">
             </div>
 
             <!-- Tabs -->
-            <div class="flex gap-1 border-b border-slate-200 dark:border-slate-800 mb-6">
-                <button class="tab-btn px-5 py-3 text-sm font-semibold text-primary-600 dark:text-primary-400 border-b-2 border-primary-500 transition-all" data-category="all">All Courses</button>
-                <button class="tab-btn px-5 py-3 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border-b-2 border-transparent transition-all" data-category="core">Core Courses</button>
-                <button class="tab-btn px-5 py-3 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border-b-2 border-transparent transition-all" data-category="elective">Electives</button>
+            <div class="tabs-container">
+                <button class="tab-btn active" data-category="all">All Courses</button>
+                <button class="tab-btn" data-category="core">Core Courses</button>
+                <button class="tab-btn" data-category="elective">Electives</button>
             </div>
 
-            <!-- Course Count -->
-            <div class="flex items-center gap-2 mb-6">
-                <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">My Courses</span>
-                <span class="px-2.5 py-0.5 bg-primary-500 text-white text-xs font-bold rounded-full" id="course-count">0</span>
+            <div class="course-count-label">
+                My Courses <span class="count-badge" id="course-count">0</span>
             </div>
 
             <!-- Grid Container -->
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" id="courses-container">
+            <div class="courses-grid" id="courses-container">
                 <!-- JS will inject cards here -->
             </div>
         </div>
+
     </main>
 
-    <script src="../../react-page-utils.js"></script>
+        <script src="../../react-page-utils.js"></script>
     <script>
         if (window.NibrasShared?.session?.updateUserInfoDisplay) {
             window.NibrasShared.session.updateUserInfoDisplay();
@@ -226,9 +120,5 @@
     <script src="./courseData.js"></script>
     <script src="./courses.js"></script>
     <script src="../services/gamification-ui.js"></script>
-    <script src="../shared/animations.js"></script>
-    <script>
-        if (typeof lucide !== 'undefined') lucide.createIcons();
-    </script>
 </body>
 </html>

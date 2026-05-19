@@ -5,57 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nibras - Community</title>
     <script src="../services/auth-guard.js" data-login="../Login/loginPage/login.html" data-api="https://nibras-backend.up.railway.app/api"></script>
-    
-    <!-- Theme Detection -->
     <script>
-        (function () {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme) {
-                document.documentElement.setAttribute('data-theme', savedTheme);
-            }
-        })();
-    </script>
-    
-    <!-- Modern Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: ['class', '[data-theme="dark"]'],
-            theme: {
-                extend: {
-                    colors: {
-                        primary: {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            200: '#bfdbfe',
-                            300: '#93c5fd',
-                            400: '#60a5fa',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                            800: '#1e40af',
-                            900: '#1e3a8a',
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
-                        display: ['Syne', 'Plus Jakarta Sans', 'sans-serif'],
-                    },
-                }
-            }
+    (function () {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
         }
+    })();
     </script>
-    
-    <!-- Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Animate.css -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
     
     <!-- MARKDOWN LIBRARIES -->
     <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
@@ -65,300 +24,225 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
 
-    <!-- Base & Page Styles -->
-    <link rel="stylesheet" href="../shared/base.css">
     <link rel="stylesheet" href="./community.css">
 
     <style>
-        /* Markdown Body Styling */
-        .markdown-body img { max-width: 100%; border-radius: 12px; margin: 12px 0; }
-        .markdown-body pre { background: #1e293b; padding: 16px; border-radius: 12px; overflow-x: auto; margin: 12px 0; }
-        .markdown-body code { font-family: 'Fira Code', monospace; font-size: 0.9em; background: rgba(128,128,128,0.1); padding: 2px 6px; border-radius: 6px; }
-        .markdown-body pre code { background: none; padding: 0; color: #e2e8f0; }
-        .markdown-body ul, .markdown-body ol { padding-left: 24px; margin-bottom: 16px; }
-        .markdown-body blockquote { border-left: 4px solid #3b82f6; padding-left: 16px; margin: 16px 0; color: #64748b; background: rgba(59,130,246,0.05); padding: 12px 16px; border-radius: 8px; }
-        .markdown-body a { color: #3b82f6; text-decoration: none; }
+        /* Global Markdown Styling */
+        .markdown-body img { max-width: 100%; border-radius: 8px; margin: 10px 0; }
+        .markdown-body pre { background: #1e1e1e; padding: 12px; border-radius: 8px; overflow-x: auto; margin: 10px 0; }
+        .markdown-body code { font-family: monospace; font-size: 0.9em; background: rgba(128,128,128,0.1); padding: 2px 4px; border-radius: 4px; }
+        .markdown-body pre code { background: none; padding: 0; color: #abb2bf; }
+        .markdown-body ul, .markdown-body ol { padding-left: 25px; margin-bottom: 15px; }
+        .markdown-body blockquote { border-left: 4px solid var(--accent-blue); padding-left: 15px; margin: 15px 0; color: var(--text-secondary); background: rgba(128,128,128,0.05); padding: 10px 15px; border-radius: 4px; }
+        .markdown-body a { color: var(--accent-blue); text-decoration: none; }
         .markdown-body a:hover { text-decoration: underline; }
         
-        /* Editor Dark Mode */
-        [data-theme="dark"] .editor-toolbar { background: #1e293b; border-color: #334155; }
-        [data-theme="dark"] .editor-toolbar a { color: #e2e8f0 !important; }
-        [data-theme="dark"] .editor-toolbar a.active, [data-theme="dark"] .editor-toolbar a:hover { background: #334155; border-color: #475569; }
-        [data-theme="dark"] .CodeMirror { background: #0f172a; color: #f1f5f9; border-color: #334155; }
-        [data-theme="dark"] .editor-statusbar { color: #94a3b8; }
+        /* Dark Mode fixes for Editor */
+        [data-theme="dark"] .editor-toolbar { background: #1f2937; border-color: #374151; }
+        [data-theme="dark"] .editor-toolbar a { color: #f3f4f6 !important; }[data-theme="dark"] .editor-toolbar a.active, [data-theme="dark"] .editor-toolbar a:hover { background: #374151; border-color: #4b5563; }
+        [data-theme="dark"] .CodeMirror { background: #111827; color: #f3f4f6; border-color: #374151; }
+        [data-theme="dark"] .editor-statusbar { color: #9ca3af; }
     </style>
 </head>
-<body class="font-sans antialiased bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors duration-300">
+<!-- (Keep the rest of your body content exactly as it is) -->
+<body>
     <div id="app-root" hidden></div>
 
     <!-- SIDEBAR -->
-    <aside class="fixed left-0 top-0 h-screen w-[280px] bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col p-6 z-50 transition-colors duration-300 max-lg:hidden">
-        <!-- Logo -->
-        <div class="mb-8 pb-6 border-b border-slate-200 dark:border-slate-800">
-            <img src="/Assets/images/logo-light.png" alt="Nibras Logo" class="sidebar-logo h-8 w-auto" id="app-logo">
+    <aside class="sidebar">
+        <div class="logo-area">
+            <img src="/Assets/images/logo-light.png" alt="Nibras Logo" class="sidebar-logo" id="app-logo">
         </div>
 
-        <!-- Navigation -->
-        <ul class="flex-1 space-y-1">
-            <li>
-                <a href="../Dashboard/dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white font-medium transition-all duration-200">
-                    <i class="fa-solid fa-house w-5 text-center"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
-            <li>
-                <a href="../Courses/courses.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white font-medium transition-all duration-200">
-                    <i class="fa-solid fa-book-open w-5 text-center"></i>
-                    <span>Courses</span>
-                </a>
-            </li>
-            <li>
-                <a href="../Projects/projects.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white font-medium transition-all duration-200">
-                    <i class="fa-solid fa-diagram-project w-5 text-center"></i>
-                    <span>Projects</span>
-                </a>
-            </li>
-            <li>
-                <a href="../CLI/cli.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white font-medium transition-all duration-200">
-                    <i class="fa-solid fa-terminal w-5 text-center"></i>
-                    <span>CLI</span>
-                </a>
-            </li>
-            <li>
-                <a href="../Competitions/Contests/contest.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white font-medium transition-all duration-200">
-                    <i class="fa-solid fa-trophy w-5 text-center"></i>
-                    <span>Competitions</span>
-                </a>
-            </li>
-            <li>
-                <a href="./community.html" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 text-white font-semibold shadow-lg shadow-primary-500/25 transition-all duration-300">
-                    <i class="fa-solid fa-users w-5 text-center"></i>
-                    <span>Community</span>
-                </a>
-            </li>
-            <li>
-                <a href="../Achievements/Achievements/achievements.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white font-medium transition-all duration-200">
-                    <i class="fa-solid fa-medal w-5 text-center"></i>
-                    <span>Achievements</span>
-                </a>
-            </li>
-            <li>
-                <a href="../Ai-tutor/Ai%20Tutor/ai_tutor.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white font-medium transition-all duration-200">
-                    <i class="fa-solid fa-robot w-5 text-center"></i>
-                    <span>AI Tutor</span>
-                </a>
-            </li>
-            <li>
-                <a href="../Analytics/Overview/overview.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white font-medium transition-all duration-200">
-                    <i class="fa-solid fa-chart-simple w-5 text-center"></i>
-                    <span>Analytics</span>
-                </a>
-            </li>
-            <li>
-                <a href="../Settings/settings.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white font-medium transition-all duration-200">
-                    <i class="fa-solid fa-gear w-5 text-center"></i>
-                    <span>Settings</span>
-                </a>
-            </li>
+        <ul class="nav-menu">
+            <li class="nav-item"><a href="../Dashboard/dashboard.html" class="nav-link"><i class="fa-solid fa-house"></i> Dashboard</a></li>
+            <li class="nav-item"><a href="../Courses/courses.html" class="nav-link"><i class="fa-solid fa-book-open"></i> Courses</a></li>
+            
+            <li class="nav-item"><a href="../Projects/projects.html" class="nav-link"><i class="fa-solid fa-diagram-project"></i> Projects</a></li>
+            <li class="nav-item"><a href="../CLI/cli.html" class="nav-link"><i class="fa-solid fa-terminal"></i> CLI</a></li><li class="nav-item"><a href="../Competitions/Contests/contest.html" class="nav-link"><i class="fa-solid fa-trophy"></i> Competitions</a></li>
+            <li class="nav-item"><a href="./community.html" class="nav-link active"><i class="fa-solid fa-users"></i> Community</a></li>
+            <li class="nav-item"><a href="../Achievements/Achievements/achievements.html" class="nav-link"><i class="fa-solid fa-medal"></i> Achievements</a></li>
+            <li class="nav-item"><a href="../Ai-tutor/Ai%20Tutor/ai_tutor.html" class="nav-link"><i class="fa-solid fa-robot"></i> AI Tutor</a></li>
+            <li class="nav-item"><a href="../Analytics/Overview/overview.html" class="nav-link"><i class="fa-solid fa-chart-simple"></i> Analytics</a></li>
+            <li class="nav-item"><a href="../Settings/settings.html" class="nav-link"><i class="fa-solid fa-gear"></i> Settings</a></li>
         </ul>
 
-        <!-- User Profile -->
-        <div class="mt-auto pt-6 border-t border-slate-200 dark:border-slate-800">
-            <div class="flex items-center gap-3 mb-4">
-                <div class="w-11 h-11 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-white font-bold shadow-lg shadow-primary-500/25">ZA</div>
-                <div>
-                    <h4 class="font-semibold text-slate-900 dark:text-white text-sm">Ziad Alaa</h4>
-                    <span class="text-xs text-slate-500 dark:text-slate-400 capitalize">student</span>
-                </div>
+        <div class="user-profile">
+            <div class="avatar-circle">ZA</div>
+            <div class="user-info">
+                <h4>Ziad Alaa</h4>
+                <span>student</span>
             </div>
-            
-            <div class="flex items-center justify-between p-3 bg-slate-100 dark:bg-slate-800 rounded-xl mb-4">
-                <span class="text-sm text-slate-600 dark:text-slate-400 font-medium">Reputation</span>
-                <span class="px-3 py-1 bg-primary-500 text-white text-xs font-bold rounded-full">0</span>
-            </div>
-
-            <a href="../Login/loginPage/login.html" class="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-red-50 dark:hover:bg-red-950/30 hover:border-red-300 dark:hover:border-red-800 hover:text-red-600 dark:hover:text-red-400 font-medium transition-all duration-200">
-                <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                <span>Logout</span>
-            </a>
         </div>
+        
+        <div class="reputation-box">
+            <span>Reputation</span>
+            <div class="rep-badge">0</div>
+        </div>
+
+        <a href="../Login/loginPage/login.html" class="logout-btn">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
+        </a>
     </aside>
 
     <!-- MAIN CONTENT -->
-    <main class="lg:ml-[280px] min-h-screen flex flex-col">
+    <main class="main-content">
         
         <!-- HEADER -->
-        <header class="sticky top-0 z-40 h-[72px] flex items-center justify-between px-8 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800">
-            <div class="relative w-full max-w-md">
-                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                <input type="text" id="global-search-input" placeholder="Search courses, problems" class="w-full pl-11 pr-4 py-2.5 rounded-full bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 text-slate-900 dark:text-white placeholder-slate-400 outline-none transition-all duration-200" aria-label="Search courses and problems">
+        <header class="top-header">
+            <div class="search-bar-global">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="global-search-input" placeholder="Search courses, problems" aria-label="Search courses and problems">
             </div>
             
-            <div class="flex items-center gap-3">
-                <button class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-200" id="themeBtn" type="button" aria-label="Toggle theme">
-                    <i class="fa-regular fa-moon"></i>
-                </button>
-                <button class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-200" type="button" aria-label="View notifications">
-                    <i class="fa-regular fa-bell"></i>
-                </button>
-                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-white text-sm font-bold">ZA</div>
+            <div class="header-actions">
+                <button class="icon-btn" id="themeBtn" type="button" aria-label="Toggle theme"><i class="fa-regular fa-moon"></i></button>
+                <button class="icon-btn" type="button" aria-label="View notifications"><i class="fa-regular fa-bell"></i></button>
+                <div class="profile-circle-small">ZA</div>
             </div>
         </header>
 
         <!-- VIEW 1: FEED VIEW -->
-        <div class="flex-1 p-8 max-w-[1600px]" id="feed-view">
-            <!-- Page Header -->
-            <div class="mb-8 animate__animated animate__fadeIn">
-                <h1 class="font-display text-3xl font-bold text-slate-900 dark:text-white mb-2">Community</h1>
-                <p class="text-slate-600 dark:text-slate-400">Ask questions, share knowledge and learn together</p>
+        <div class="content-wrapper" id="feed-view">
+            <div class="page-title-section">
+                <h1>Community</h1>
+                <p>Ask questions, share knowledge and learn together</p>
             </div>
 
-            <!-- Toolbar -->
-            <div class="flex flex-wrap items-center gap-4 mb-8">
-                <div class="relative flex-1 min-w-[280px]">
-                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                    <input type="text" id="question-search" placeholder="Search questions, tags, or content..." 
-                        class="w-full pl-11 pr-4 py-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 text-slate-900 dark:text-white placeholder-slate-400 outline-none transition-all duration-200" 
-                        aria-label="Search community questions">
-                </div>
-                <a class="flex items-center gap-2 px-5 py-3 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 font-medium transition-all duration-200" href="./CourseDiscussions/discussions.html">
-                    <i class="fa-solid fa-comments"></i>
-                    <span>Course Discussions</span>
-                </a>
-                <button class="flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 text-white font-semibold shadow-lg shadow-primary-500/25 hover:shadow-xl transition-all duration-200" id="openAskModalBtn" type="button">
-                    <i class="fa-solid fa-plus"></i>
-                    <span>Ask Question</span>
-                </button>
-            </div>
+            <!-- Search & Filter Bar -->
+             <div class="community-toolbar">
+                 <div class="search-bar-local">
+                     <i class="fa-solid fa-magnifying-glass"></i>
+                     <input type="text" id="question-search" placeholder="Search questions, tags, or content..." aria-label="Search community questions">
+                 </div>
+                 <a class="btn-secondary-link" href="./CourseDiscussions/discussions.html"><i class="fa-solid fa-comments"></i> Course Discussions</a>
+                 <button class="btn-primary" id="openAskModalBtn" type="button"><i class="fa-solid fa-plus"></i> Ask Question</button>
+             </div>
 
             <!-- Main Layout -->
-            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div class="community-grid">
                 
                 <!-- Left: Question Feed -->
-                <div class="lg:col-span-3">
-                    <!-- Tabs -->
-                    <div class="flex gap-1 border-b border-slate-200 dark:border-slate-800 mb-6">
-                        <button class="feed-tab px-5 py-3 text-sm font-semibold text-primary-600 dark:text-primary-400 border-b-2 border-primary-500" type="button" aria-pressed="true">Recent</button>
-                        <button class="feed-tab px-5 py-3 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border-b-2 border-transparent transition-all" type="button" aria-pressed="false">Popular</button>
-                        <button class="feed-tab px-5 py-3 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border-b-2 border-transparent transition-all" type="button" aria-pressed="false">Unanswered</button>
-                        <button class="feed-tab px-5 py-3 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border-b-2 border-transparent transition-all" type="button" aria-pressed="false">My Questions</button>
+                <div class="feed-column">
+                    <div class="feed-tabs">
+                        <button class="feed-tab active" type="button" aria-pressed="true">Recent</button>
+                        <button class="feed-tab" type="button" aria-pressed="false">Popular</button>
+                        <button class="feed-tab" type="button" aria-pressed="false">Unanswered</button>
+                        <button class="feed-tab" type="button" aria-pressed="false">My Questions</button>
                     </div>
                     
-                    <div class="space-y-4" id="questions-container" role="region" aria-live="polite" aria-label="Community questions">
+                    <div class="question-list" id="questions-container" role="region" aria-live="polite" aria-label="Community questions">
                         <!-- JS Injected -->
                     </div>
-                    <nav class="mt-6" id="questions-pagination" aria-label="Community question pages" hidden></nav>
+                    <nav class="questions-pagination" id="questions-pagination" aria-label="Community question pages" hidden></nav>
                 </div>
 
                 <!-- Right: Widgets -->
-                <div class="space-y-6">
+                <div class="widgets-column">
+                    
                     <!-- Popular Tags -->
-                    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
-                        <h4 class="font-display font-bold text-slate-900 dark:text-white mb-4">Popular Tags</h4>
-                        <div class="flex flex-wrap gap-2" id="tags-container" style="transition: max-height 0.3s ease-out; overflow: hidden;">
+                    <div class="widget-card">
+                        <h4>Popular Tags</h4>
+                        <!-- Container to hold tags and show more button -->
+                        <div class="tags-list" id="tags-container" style="transition: max-height 0.3s ease-out; overflow: hidden;">
                             <!-- JS Injected -->
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
 
         <!-- VIEW 2: QUESTION DETAIL VIEW (Hidden by default) -->
-        <div class="flex-1 p-8 max-w-[1200px] hidden" id="detail-view">
-            <button class="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 font-medium mb-6 transition-colors" id="backToFeedBtn" type="button">
-                <i class="fa-solid fa-chevron-left"></i>
-                <span>Back</span>
-            </button>
+        <div class="content-wrapper hidden" id="detail-view">
+            <button class="btn-back" id="backToFeedBtn" type="button"><i class="fa-solid fa-chevron-left"></i> Back</button>
             
-            <div class="space-y-6">
+            <div class="detail-container">
                 <!-- Question Main -->
-                <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm" id="q-main-content">
+                <div class="q-detail-card" id="q-main-content">
                     <!-- JS Injected -->
                 </div>
 
                 <!-- Answers Section -->
-                <div>
-                    <h3 id="answer-count-label" class="font-display text-lg font-bold text-slate-900 dark:text-white mb-4">0 Answers</h3>
-                    <div id="answers-container" class="space-y-4">
+                <div class="answers-section">
+                    <h3 id="answer-count-label">0 Answers</h3>
+                    <div id="answers-container">
                         <!-- JS Injected -->
                     </div>
                 </div>
 
                 <!-- Your Answer -->
-                <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
-                    <h3 class="font-display text-lg font-bold text-slate-900 dark:text-white mb-4">Your Answer</h3>
-                    <textarea class="w-full p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 outline-none focus:border-primary-500 transition-colors min-h-[150px]" id="detail-answer-input" placeholder="Type your answer here..." aria-label="Your answer"></textarea>
-                    <button class="mt-4 px-6 py-3 rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 text-white font-semibold shadow-lg shadow-primary-500/25 hover:shadow-xl transition-all" type="button">Post Answer</button>
+                <div class="your-answer-section">
+                    <h3>Your Answer</h3>
+                    <textarea class="answer-input" id="detail-answer-input" placeholder="Type your answer here..." aria-label="Your answer"></textarea>
+                    <button class="btn-primary" type="button" style="margin-top: 1rem;">Post Answer</button>
                 </div>
             </div>
         </div>
+
     </main>
 
     <!-- ASK QUESTION MODAL -->
-    <div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center" id="askModal" role="dialog" aria-modal="true" aria-labelledby="ask-modal-title" aria-hidden="true">
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl animate__animated animate__fadeIn">
-            <div class="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-800">
-                <h2 id="ask-modal-title" class="font-display text-xl font-bold text-slate-900 dark:text-white">Ask a Question</h2>
-                <button class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-600 transition-all" id="closeAskModal" type="button" aria-label="Close ask question modal">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+    <div class="modal-overlay" id="askModal" role="dialog" aria-modal="true" aria-labelledby="ask-modal-title" aria-hidden="true">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 id="ask-modal-title">Ask a Question</h2>
+                <button class="close-modal" id="closeAskModal" type="button" aria-label="Close ask question modal"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+            <div class="modal-body">
                 
-                <!-- Info Box -->
-                <div class="p-4 bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800 rounded-xl mb-6">
-                    <h4 class="font-semibold text-primary-800 dark:text-primary-300 mb-2">Writing a good question</h4>
-                    <ul class="text-sm text-primary-700 dark:text-primary-400 space-y-1 list-disc list-inside">
+                <div class="info-box">
+                    <h4>Writing a good question</h4>
+                    <ul>
                         <li>Be specific and provide context about your problem</li>
-                        <li>Include what you&apos;ve tried and what isn&apos;t working</li>
+                        <li>Include what you've tried and what isn't working</li>
                         <li>Use proper formatting and code blocks if applicable</li>
                         <li>Add relevant tags to help others find your question</li>
                     </ul>
                 </div>
 
-                <div class="space-y-5">
-                    <div>
-                        <label for="question-title" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Question Title <span class="text-red-500">*</span></label>
-                        <input type="text" id="question-title" placeholder="e.g., How to implement a binary search tree efficiently?" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 outline-none focus:border-primary-500 transition-colors">
-                    </div>
-
-                    <div class="hidden">
-                        <label for="question-course">Select Course</label>
-                        <select id="question-course" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white">
-                            <option value="">Choose a course...</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label for="question-body" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Question Details <span class="text-red-500">*</span></label>
-                        <textarea id="question-body" placeholder="Provide detailed information about your question..." rows="6" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 outline-none focus:border-primary-500 transition-colors resize-none"></textarea>
-                    </div>
-
-                    <!-- Tags Section -->
-                    <div>
-                        <div class="flex justify-between items-center mb-1.5">
-                            <label for="modal-tag-search" class="text-sm font-medium text-slate-700 dark:text-slate-300">Tags <span class="text-red-500">*</span></label>
-                            <span id="tag-count-indicator" class="text-xs text-slate-500 dark:text-slate-400 font-medium">0/5 selected</span>
-                        </div>
-                        
-                        <div class="relative mb-3">
-                            <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                            <input type="text" id="modal-tag-search" placeholder="Search tags (e.g., React, Python)..." class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 outline-none focus:border-primary-500 transition-colors" aria-label="Search and select tags">
-                        </div>
-
-                        <div id="modal-tags-container" role="group" aria-label="Select up to 5 tags" class="flex flex-wrap gap-2 max-h-40 overflow-y-auto p-1">
-                            <!-- JS will inject selectable tags here -->
-                        </div>
-                        
-                        <small id="tag-limit-warning" class="text-red-500 font-medium mt-2 hidden">
-                            <i class="fa-solid fa-circle-exclamation mr-1"></i> You can only select up to 5 tags.
-                        </small>
-                    </div>
+                <div class="form-group">
+                    <label for="question-title">Question Title <span class="required">*</span></label>
+                    <input type="text" id="question-title" placeholder="e.g., How to implement a binary search tree efficiently?">
                 </div>
+
+                <div class="form-group" style="display:none;">
+                    <label for="question-course">Select Course</label>
+                    <select id="question-course">
+                        <option value="">Choose a course...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="question-body">Question Details <span class="required">*</span></label>
+                    <textarea id="question-body" placeholder="Provide detailed information about your question..." rows="6"></textarea>
+                </div>
+
+                <!-- PROFESSIONAL TAGS SECTION -->
+                <div class="form-group">
+                     <label for="modal-tag-search" style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>Tags <span class="required">*</span></span>
+                        <span id="tag-count-indicator" style="color: var(--text-secondary); font-size: 0.85rem; font-weight: 500;">0/5 selected</span>
+                    </label>
+                    
+                    <!-- Search Bar for Tags -->
+                    <div class="tag-search-wrapper" style="position: relative; margin-bottom: 12px; margin-top: 5px;">
+                        <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af;"></i>
+                        <input type="text" id="modal-tag-search" style="width: 100%; padding: 10px 10px 10px 35px; border: 1px solid var(--border-color, #e5e7eb); border-radius: 8px; font-size: 0.95rem; background: transparent; color: inherit;" placeholder="Search tags (e.g., React, Python)..." aria-label="Search and select tags">
+                    </div>
+
+                    <!-- Scrollable Tag Container -->
+                    <div id="modal-tags-container" role="group" aria-label="Select up to 5 tags" style="display: flex; flex-wrap: wrap; gap: 8px; max-height: 160px; overflow-y: auto; padding-right: 5px; padding-bottom: 5px;">
+                        <!-- JS will inject selectable tags here -->
+                    </div>
+                    
+                    <small id="tag-limit-warning" style="color: #ef4444; display: none; margin-top: 8px; font-weight: 500; transition: transform 0.2s;"><i class="fa-solid fa-circle-exclamation"></i> You can only select up to 5 tags.</small>
+                </div>
+
             </div>
-            <div class="flex justify-end gap-3 p-5 border-t border-slate-200 dark:border-slate-800">
-                <button class="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-all" id="cancelAskBtn" type="button">Cancel</button>
-                <button class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 text-white font-semibold shadow-lg shadow-primary-500/25 hover:shadow-xl transition-all" id="postQuestionBtn" type="button">Post Question</button>
+            <div class="modal-footer">
+                <button  class="btn-secondary" id="cancelAskBtn" type="button">Cancel</button>
+                <button class="btn-primary" id="postQuestionBtn" type="button">Post Question</button>
             </div>
         </div>
     </div>
@@ -367,6 +251,5 @@
     <script src="../react-bootstrap.js"></script>
     <script src="./community.js"></script>
     <script src="../services/gamification-ui.js"></script>
-    <script src="../shared/animations.js"></script>
 </body>
 </html>
