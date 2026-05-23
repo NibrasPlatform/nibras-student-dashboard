@@ -13,107 +13,95 @@
         }
     })();
 </script>
-    <script>
-    tailwind.config = {
-        darkMode: ['selector', '[data-theme="dark"]'],
-        theme: {
-            extend: {
-                colors: {
-                    accent: { DEFAULT: '#2563eb', hover: '#1d4ed8' },
-                },
-                fontFamily: { sans: ['Inter', 'sans-serif'] },
-            }
-        }
-    }
-    </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="./courses.css">
 </head>
-<body class="flex min-h-screen bg-[var(--bg-body)] text-[var(--text-primary)] transition-colors duration-300">
-
+<body>
     <div id="app-root" hidden></div>
 
     <!-- SIDEBAR -->
-    <aside class="fixed h-screen w-[260px] border-r border-gray-200 dark:border-gray-700 p-6 flex flex-col z-10" style="background:var(--bg-sidebar)">
-        <div class="mb-8 flex items-center">
-            <img src="/Assets/images/logo-light.png" alt="Nibras Logo" class="max-w-[140px] h-auto object-contain" id="app-logo">
+    <aside class="sidebar">
+        <!-- LOGO AREA -->
+        <div class="logo-area">
+            <!-- Default to light logo -->
+            <img src="/Assets/images/logo-light.png" alt="Nibras Logo" class="sidebar-logo" id="app-logo">
         </div>
 
-        <ul class="list-none flex-1 space-y-1">
-            <li><a href="../Dashboard/dashboard.html" class="nav-link flex items-center gap-3 px-4 py-3 no-underline text-sm rounded-lg transition text-[var(--text-secondary)] hover:bg-[var(--tag-bg)] hover:text-[var(--text-primary)]"><i class="fa-solid fa-house w-5 text-center"></i> Dashboard</a></li>
-            <li><a href="./courses.html" class="nav-link flex items-center gap-3 px-4 py-3 no-underline text-sm rounded-lg transition bg-accent text-white"><i class="fa-solid fa-book-open w-5 text-center"></i> Courses</a></li>
-            <li><a href="../Projects/projects.html" class="nav-link flex items-center gap-3 px-4 py-3 no-underline text-sm rounded-lg transition text-[var(--text-secondary)] hover:bg-[var(--tag-bg)] hover:text-[var(--text-primary)]"><i class="fa-solid fa-diagram-project w-5 text-center"></i> Projects</a></li>
-            <li><a href="../CLI/cli.html" class="nav-link flex items-center gap-3 px-4 py-3 no-underline text-sm rounded-lg transition text-[var(--text-secondary)] hover:bg-[var(--tag-bg)] hover:text-[var(--text-primary)]"><i class="fa-solid fa-terminal w-5 text-center"></i> CLI</a></li>
-            <li><a href="../Competitions/Contests/contest.html" class="nav-link flex items-center gap-3 px-4 py-3 no-underline text-sm rounded-lg transition text-[var(--text-secondary)] hover:bg-[var(--tag-bg)] hover:text-[var(--text-primary)]"><i class="fa-solid fa-trophy w-5 text-center"></i> Competitions</a></li>
-            <li><a href="../Community/community.html" class="nav-link flex items-center gap-3 px-4 py-3 no-underline text-sm rounded-lg transition text-[var(--text-secondary)] hover:bg-[var(--tag-bg)] hover:text-[var(--text-primary)]"><i class="fa-solid fa-users w-5 text-center"></i> Community</a></li>
-            <li><a href="../Achievements/Achievements/achievements.html" class="nav-link flex items-center gap-3 px-4 py-3 no-underline text-sm rounded-lg transition text-[var(--text-secondary)] hover:bg-[var(--tag-bg)] hover:text-[var(--text-primary)]"><i class="fa-solid fa-medal w-5 text-center"></i> Achievements</a></li>
-            <li><a href="../Ai-tutor/Ai%20Tutor/ai_tutor.html" class="nav-link flex items-center gap-3 px-4 py-3 no-underline text-sm rounded-lg transition text-[var(--text-secondary)] hover:bg-[var(--tag-bg)] hover:text-[var(--text-primary)]"><i class="fa-solid fa-robot w-5 text-center"></i> AI Tutor</a></li>
-            <li><a href="../Analytics/Overview/overview.html" class="nav-link flex items-center gap-3 px-4 py-3 no-underline text-sm rounded-lg transition text-[var(--text-secondary)] hover:bg-[var(--tag-bg)] hover:text-[var(--text-primary)]"><i class="fa-solid fa-chart-simple w-5 text-center"></i> Analytics</a></li>
-            <li><a href="../Settings/settings.html" class="nav-link flex items-center gap-3 px-4 py-3 no-underline text-sm rounded-lg transition text-[var(--text-secondary)] hover:bg-[var(--tag-bg)] hover:text-[var(--text-primary)]"><i class="fa-solid fa-gear w-5 text-center"></i> Settings</a></li>
+        <ul class="nav-menu">
+            <li class="nav-item"><a href="../Dashboard/dashboard.html" class="nav-link"><i class="fa-solid fa-house"></i> Dashboard</a></li>
+            <li class="nav-item"><a href="./courses.html" class="nav-link active"><i class="fa-solid fa-book-open"></i> Courses</a></li>
+            
+            <li class="nav-item"><a href="../Projects/projects.html" class="nav-link"><i class="fa-solid fa-diagram-project"></i> Projects</a></li>
+            <li class="nav-item"><a href="../CLI/cli.html" class="nav-link"><i class="fa-solid fa-terminal"></i> CLI</a></li><li class="nav-item"><a href="../Competitions/Contests/contest.html" class="nav-link"><i class="fa-solid fa-trophy"></i> Competitions</a></li>
+            <li class="nav-item"><a href="../Community/community.html" class="nav-link"><i class="fa-solid fa-users"></i> Community</a></li>
+            <li class="nav-item"><a href="../Achievements/Achievements/achievements.html" class="nav-link"><i class="fa-solid fa-medal"></i> Achievements</a></li>
+            <li class="nav-item"><a href="../Ai-tutor/Ai%20Tutor/ai_tutor.html" class="nav-link"><i class="fa-solid fa-robot"></i> AI Tutor</a></li>
+            <li class="nav-item"><a href="../Analytics/Overview/overview.html" class="nav-link"><i class="fa-solid fa-chart-simple"></i> Analytics</a></li>
+            <li class="nav-item"><a href="../Settings/settings.html" class="nav-link"><i class="fa-solid fa-gear"></i> Settings</a></li>
         </ul>
 
-        <div class="flex items-center gap-2.5 mt-auto pt-4 border-t border-gray-200 dark:border-gray-700">
-            <div class="w-10 h-10 bg-accent text-white rounded-full flex items-center justify-center font-semibold">ZA</div>
-            <div>
-                <h4 class="text-sm font-medium">Ziad Alaa</h4>
-                <span class="text-xs text-[var(--text-secondary)]">student</span>
+        <div class="user-profile">
+            <div class="avatar-circle">ZA</div>
+            <div class="user-info">
+                <h4>Ziad Alaa</h4>
+                <span>student</span>
             </div>
         </div>
-
-        <div class="mt-4 text-xs text-[var(--text-secondary)]">
+        
+        <div class="reputation-box">
             <span>Reputation</span>
-            <div class="inline-block px-2 py-0.5 border border-accent text-accent rounded-full mt-1 font-semibold text-xs">0</div>
+            <div class="rep-badge">0</div>
         </div>
 
-        <a href="../Login/loginPage/login.html" class="mt-4 w-full px-2.5 py-2 bg-transparent border border-gray-200 dark:border-gray-700 rounded-md cursor-pointer text-xs flex items-center gap-2 no-underline text-[var(--text-secondary)] hover:bg-[var(--tag-bg)] hover:text-[var(--text-primary)]">
+        <a href="../Login/loginPage/login.html" class="logout-btn">
             <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
         </a>
     </aside>
 
     <!-- MAIN CONTENT -->
-    <main class="ml-[260px] flex-1 flex flex-col">
-
+    <main class="main-content">
+        
         <!-- HEADER -->
-        <header class="h-[70px] flex justify-between items-center px-8 border-b border-gray-200 dark:border-gray-700" style="background:var(--bg-body)">
-            <div class="relative w-[400px]">
-                <i class="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] text-sm fa-solid fa-magnifying-glass"></i>
-                <input type="text" placeholder="Search courses, problems" class="w-full py-2.5 pl-9 pr-4 border border-gray-200 dark:border-gray-700 rounded-md outline-none text-sm" style="background:var(--bg-input);color:var(--text-primary)">
+        <header class="top-header">
+            <div class="search-bar-global">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" placeholder="Search courses, problems">
             </div>
-
-            <div class="flex items-center gap-4">
-                <button class="bg-transparent border-none text-lg text-[var(--text-secondary)] cursor-pointer" id="themeBtn"><i class="fa-regular fa-moon"></i></button>
-                <button class="bg-transparent border-none text-lg text-[var(--text-secondary)] cursor-pointer"><i class="fa-regular fa-bell"></i></button>
-                <div class="w-8 h-8 bg-accent text-white rounded-full flex items-center justify-center text-xs">ZA</div>
+            
+            <div class="header-actions">
+                <!-- Theme Toggle Button -->
+                <button class="icon-btn" id="themeBtn"><i class="fa-regular fa-moon"></i></button>
+                <button class="icon-btn"><i class="fa-regular fa-bell"></i></button>
+                <div class="profile-circle-small">ZA</div>
             </div>
         </header>
 
-        <div class="p-8 max-w-[1600px]">
-            <div class="mb-6">
-                <h1 class="text-[1.75rem] font-bold mb-1"><span id="page-level-badge" class="level-badge">Beginner</span> Courses</h1>
-                <p class="text-[var(--text-secondary)] text-sm" id="page-level-title">Manage your learning journey</p>
+        <div class="content-wrapper">
+            <div class="page-title-section">
+                <h1><span id="page-level-badge" class="level-badge">Beginner</span> Courses</h1>
+                <p id="page-level-title">Manage your learning journey</p>
             </div>
 
             <!-- Filter Bar -->
-            <div class="relative mb-6">
-                <i class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="course-search" placeholder="Search courses..." class="w-full py-3 pl-10 pr-4 border border-gray-200 dark:border-gray-700 rounded-md outline-none text-sm" style="background:var(--bg-input);color:var(--text-primary)">
+            <div class="filter-bar">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="course-search" placeholder="Search courses...">
             </div>
 
             <!-- Tabs -->
-            <div class="flex gap-6 border-b border-gray-200 dark:border-gray-700 mb-6">
-                <button class="tab-btn active bg-transparent border-none px-0 py-3 text-sm text-accent font-semibold cursor-pointer relative after:absolute after:bottom-[-1px] after:left-0 after:w-full after:h-0.5 after:bg-accent" data-category="all">All Courses</button>
-                <button class="tab-btn bg-transparent border-none px-0 py-3 text-sm text-[var(--text-secondary)] cursor-pointer hover:text-[var(--text-primary)] relative" data-category="core">Core Courses</button>
-                <button class="tab-btn bg-transparent border-none px-0 py-3 text-sm text-[var(--text-secondary)] cursor-pointer hover:text-[var(--text-primary)] relative" data-category="elective">Electives</button>
+            <div class="tabs-container">
+                <button class="tab-btn active" data-category="all">All Courses</button>
+                <button class="tab-btn" data-category="core">Core Courses</button>
+                <button class="tab-btn" data-category="elective">Electives</button>
             </div>
 
-            <div class="mb-4 text-sm font-medium flex items-center gap-2">
-                My Courses <span class="bg-accent text-white px-[7px] py-[1px] rounded-full text-xs" id="course-count">0</span>
+            <div class="course-count-label">
+                My Courses <span class="count-badge" id="course-count">0</span>
             </div>
 
             <!-- Grid Container -->
-            <div class="grid grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-6" id="courses-container">
+            <div class="courses-grid" id="courses-container">
                 <!-- JS will inject cards here -->
             </div>
         </div>

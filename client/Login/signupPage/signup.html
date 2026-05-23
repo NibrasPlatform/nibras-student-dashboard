@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nibras - Sign Up</title>
-    <script>
+<script>
     (function () {
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme) {
@@ -18,6 +18,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- CSS -->
     <link rel="stylesheet" href="./signup.css">
+    <!-- Google OAuth Client ID -->
+    <script>
+        window.NibrasApiConfig = {
+            googleClientId: '809028632276-sgttn83goo7em2anm7t0t5ar37m4v8nm.apps.googleusercontent.com'
+        };
+    </script>
 </head>
 <body class="signup-page">
     <div id="app-root" hidden></div>
@@ -33,7 +39,7 @@
     <header class="auth-header">
         <div class="logo-area">
             <!-- Logo is white in both designs -->
-            <img src="../../Assets/images/logo-dark.png" alt="Nibras Logo" class="auth-logo">
+            <img src="/Assets/images/logo-dark.png" alt="Nibras Logo" class="auth-logo">
         </div>
         
         <!-- Theme Toggle Button -->
@@ -113,6 +119,7 @@
 
         <script src="../../config.js"></script>
         <script src="../../react-bootstrap.js"></script>
+        <script src="https://accounts.google.com/gsi/client" async defer data-google-gsi="true"></script>
     <script src="./signup.js"></script>
 </body>
 </html>

@@ -15,165 +15,151 @@
         }
     })();
     </script>
-    <script>
-    tailwind.config = {
-        darkMode: ['selector', '[data-theme="dark"]'],
-        theme: {
-            extend: {
-                colors: {
-                    accent: { DEFAULT: '#2563eb', hover: '#1d4ed8', light: '#dbeafe' },
-                    surface: '#ffffff',
-                },
-                fontFamily: { sans: ['Inter', 'sans-serif'] },
-            }
-        }
-    }
-    </script>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="./dashboard.css">
 </head>
-<body class="flex min-h-screen bg-[var(--bg-body)] text-[var(--text-primary)] transition-colors duration-300">
-
+<body>
     <div id="app-root" hidden></div>
 
     <!-- SIDEBAR -->
-    <aside class="fixed h-screen w-[260px] border-r border-gray-200 dark:border-gray-700 p-6 flex flex-col z-10" style="background:var(--bg-sidebar)">
-        <div class="mb-8 flex items-center">
-            <img src="/Assets/images/logo-light.png" alt="Nibras Logo" class="max-w-[140px] h-auto object-contain" id="app-logo">
+    <aside class="sidebar">
+        <div class="logo-area">
+            <img src="/Assets/images/logo-light.png" alt="Nibras Logo" class="sidebar-logo" id="app-logo">
         </div>
 
-        <ul class="list-none flex-1 space-y-1">
-            <li><a href="./dashboard.html" class="flex items-center gap-3 px-4 py-3 no-underline text-sm rounded-lg transition bg-accent text-white"><i class="fa-solid fa-house w-5 text-center"></i> Dashboard</a></li>
-            <li><a href="../Courses/courses.html" class="flex items-center gap-3 px-4 py-3 no-underline text-sm rounded-lg transition text-[var(--text-secondary)] hover:bg-[var(--tag-bg)] hover:text-[var(--text-primary)]"><i class="fa-solid fa-book-open w-5 text-center"></i> Courses</a></li>
-            <li><a href="../Projects/projects.html" class="flex items-center gap-3 px-4 py-3 no-underline text-sm rounded-lg transition text-[var(--text-secondary)] hover:bg-[var(--tag-bg)] hover:text-[var(--text-primary)]"><i class="fa-solid fa-diagram-project w-5 text-center"></i> Projects</a></li>
-            <li><a href="../CLI/cli.html" class="flex items-center gap-3 px-4 py-3 no-underline text-sm rounded-lg transition text-[var(--text-secondary)] hover:bg-[var(--tag-bg)] hover:text-[var(--text-primary)]"><i class="fa-solid fa-terminal w-5 text-center"></i> CLI</a></li>
-            <li><a href="../Competitions/Contests/contest.html" class="flex items-center gap-3 px-4 py-3 no-underline text-sm rounded-lg transition text-[var(--text-secondary)] hover:bg-[var(--tag-bg)] hover:text-[var(--text-primary)]"><i class="fa-solid fa-trophy w-5 text-center"></i> Competitions</a></li>
-            <li><a href="../Community/community.html" class="flex items-center gap-3 px-4 py-3 no-underline text-sm rounded-lg transition text-[var(--text-secondary)] hover:bg-[var(--tag-bg)] hover:text-[var(--text-primary)]"><i class="fa-solid fa-users w-5 text-center"></i> Community</a></li>
-            <li><a href="../Achievements/Achievements/achievements.html" class="flex items-center gap-3 px-4 py-3 no-underline text-sm rounded-lg transition text-[var(--text-secondary)] hover:bg-[var(--tag-bg)] hover:text-[var(--text-primary)]"><i class="fa-solid fa-medal w-5 text-center"></i> Achievements</a></li>
-            <li><a href="../Ai-tutor/Ai%20Tutor/ai_tutor.html" class="flex items-center gap-3 px-4 py-3 no-underline text-sm rounded-lg transition text-[var(--text-secondary)] hover:bg-[var(--tag-bg)] hover:text-[var(--text-primary)]"><i class="fa-solid fa-robot w-5 text-center"></i> AI Tutor</a></li>
-            <li><a href="../Analytics/Overview/overview.html" class="flex items-center gap-3 px-4 py-3 no-underline text-sm rounded-lg transition text-[var(--text-secondary)] hover:bg-[var(--tag-bg)] hover:text-[var(--text-primary)]"><i class="fa-solid fa-chart-simple w-5 text-center"></i> Analytics</a></li>
-            <li><a href="../Settings/settings.html" class="flex items-center gap-3 px-4 py-3 no-underline text-sm rounded-lg transition text-[var(--text-secondary)] hover:bg-[var(--tag-bg)] hover:text-[var(--text-primary)]"><i class="fa-solid fa-gear w-5 text-center"></i> Settings</a></li>
+        <ul class="nav-menu">
+            <li class="nav-item"><a href="./dashboard.html" class="nav-link active"><i class="fa-solid fa-house"></i> Dashboard</a></li>
+            <li class="nav-item"><a href="../Courses/courses.html" class="nav-link"><i class="fa-solid fa-book-open"></i> Courses</a></li>
+            <li class="nav-item"><a href="../Projects/projects.html" class="nav-link"><i class="fa-solid fa-diagram-project"></i> Projects</a></li>
+            <li class="nav-item"><a href="../CLI/cli.html" class="nav-link"><i class="fa-solid fa-terminal"></i> CLI</a></li>
+            <li class="nav-item"><a href="../Competitions/Contests/contest.html" class="nav-link"><i class="fa-solid fa-trophy"></i> Competitions</a></li>
+            <li class="nav-item"><a href="../Community/community.html" class="nav-link"><i class="fa-solid fa-users"></i> Community</a></li>
+            <li class="nav-item"><a href="../Achievements/Achievements/achievements.html" class="nav-link"><i class="fa-solid fa-medal"></i> Achievements</a></li>
+            <li class="nav-item"><a href="../Ai-tutor/Ai%20Tutor/ai_tutor.html" class="nav-link"><i class="fa-solid fa-robot"></i> AI Tutor</a></li>
+            <li class="nav-item"><a href="../Analytics/Overview/overview.html" class="nav-link"><i class="fa-solid fa-chart-simple"></i> Analytics</a></li>
+            <li class="nav-item"><a href="../Settings/settings.html" class="nav-link"><i class="fa-solid fa-gear"></i> Settings</a></li>
         </ul>
 
-        <div class="flex items-center gap-2.5 mt-auto pt-4 border-t border-gray-200 dark:border-gray-700">
-            <div class="w-10 h-10 bg-accent text-white rounded-full flex items-center justify-center font-semibold">ZA</div>
-            <div>
-                <h4 class="text-sm font-medium">Ziad Alaa</h4>
-                <span class="text-xs text-[var(--text-secondary)]">student</span>
+        <div class="user-profile">
+            <div class="avatar-circle">ZA</div>
+            <div class="user-info">
+                <h4>Ziad Alaa</h4>
+                <span>student</span>
             </div>
         </div>
-
-        <div class="mt-4 text-xs text-[var(--text-secondary)]">
+        
+        <div class="reputation-box">
             <span>Reputation</span>
-            <div class="inline-block px-2 py-0.5 border border-accent text-accent rounded-full mt-1 font-semibold text-xs">0</div>
+            <div class="rep-badge">0</div>
         </div>
 
-        <a href="../Login/loginPage/login.html" class="mt-4 w-full px-2.5 py-2 bg-transparent border border-gray-200 dark:border-gray-700 rounded-md cursor-pointer text-xs flex items-center gap-2 no-underline text-[var(--text-secondary)] hover:bg-[var(--tag-bg)] hover:text-[var(--text-primary)]">
+        <a href="../Login/loginPage/login.html" class="logout-btn">
             <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
         </a>
+
     </aside>
 
     <!-- MAIN CONTENT -->
-    <main class="ml-[260px] flex-1 flex flex-col">
-
+    <main class="main-content">
+        
         <!-- HEADER -->
-        <header class="h-[70px] flex justify-between items-center px-8 border-b border-gray-200 dark:border-gray-700" style="background:var(--bg-body)">
-            <div class="relative w-[400px]">
-                <i class="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] text-sm fa-solid fa-magnifying-glass"></i>
-                <input type="text" placeholder="Search courses, problems" class="w-full py-2.5 pl-9 pr-4 border border-gray-200 dark:border-gray-700 rounded-md outline-none text-sm" style="background:var(--bg-input);color:var(--text-primary)">
+        <header class="top-header">
+            <div class="search-bar-global">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" placeholder="Search courses, problems">
             </div>
-
-            <div class="flex items-center gap-4">
-                <button class="bg-transparent border-none text-lg text-[var(--text-secondary)] cursor-pointer" id="themeBtn"><i class="fa-regular fa-moon"></i></button>
-                <button class="bg-transparent border-none text-lg text-[var(--text-secondary)] cursor-pointer"><i class="fa-regular fa-bell"></i></button>
-                <div class="w-8 h-8 bg-accent text-white rounded-full flex items-center justify-center text-xs">ZA</div>
+            
+            <div class="header-actions">
+                <button class="icon-btn" id="themeBtn"><i class="fa-regular fa-moon"></i></button>
+                <button class="icon-btn"><i class="fa-regular fa-bell"></i></button>
+                <div class="profile-circle-small">ZA</div>
             </div>
         </header>
 
-        <div class="p-8 max-w-[1600px]">
-
+        <div class="content-wrapper">
+            
             <!-- Welcome Section -->
-            <div class="mb-8">
-                <h1 class="text-[1.75rem] font-bold mb-1" id="welcome-msg">Welcome back!</h1>
-                <p class="text-[var(--text-secondary)] text-sm">Ready to continue your computer science journey?</p>
+            <div class="welcome-section">
+                <h1 id="welcome-msg">Welcome back!</h1>
+                <p>Ready to continue your computer science journey?</p>
             </div>
 
             <!-- Stats Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8" id="stats-container">
+            <div class="stats-grid" id="stats-container">
                 <!-- JS Injected (Courses, Problems, Rating, Streak, GPA) -->
             </div>
 
             <!-- Dashboard Main Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6">
-
+            <div class="dashboard-layout">
+                
                 <!-- Left Column -->
-                <div>
-                    <section class="p-6 mb-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm" style="background:var(--bg-card)">
-                        <div class="mb-6">
-                            <h3 class="text-lg font-semibold mb-1">Recent Activities</h3>
-                            <p class="text-sm text-[var(--text-secondary)]">Your latest coursework and achievements</p>
+                <div class="dash-left">
+                    <section class="card">
+                        <div class="section-header">
+                            <h3>Recent Activities</h3>
+                            <p class="section-sub">Your latest coursework and achievements</p>
                         </div>
-                        <div class="flex flex-col gap-4" id="activities-container"></div>
+                        <div class="activities-list" id="activities-container"></div>
                     </section>
 
-                    <section class="p-6 mb-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm" style="background:var(--bg-card)">
-                        <div class="mb-6">
-                            <h3 class="text-lg font-semibold mb-1">Learning Progress</h3>
-                            <p class="text-sm text-[var(--text-secondary)]">Your progress across different subjects</p>
+                    <section class="card">
+                        <div class="section-header">
+                            <h3>Learning Progress</h3>
+                            <p class="section-sub">Your progress across different subjects</p>
                         </div>
-                        <div class="flex flex-col gap-6" id="progress-container"></div>
+                        <div class="progress-list" id="progress-container"></div>
                     </section>
                 </div>
 
                 <!-- Right Column -->
-                <div>
-
-                    <section class="p-6 mb-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm" style="background:var(--bg-card)">
-                        <div class="mb-4">
-                            <h3 class="text-lg font-semibold mb-1">Active Projects</h3>
-                            <p class="text-sm text-[var(--text-secondary)]">Track your key milestones</p>
+                <div class="dash-right">
+                    
+                    <!-- Project Milestones Card -->
+                    <section class="card project-milestone-card">
+                        <div class="section-header" style="margin-bottom: 1rem;">
+                            <h3>Active Projects</h3>
+                            <p class="section-sub">Track your key milestones</p>
                         </div>
-                        <div class="flex flex-col gap-5" id="milestone-container">
+                        <div class="milestone-list" id="milestone-container">
                             <!-- JS Injected -->
                         </div>
                     </section>
 
-                    <section class="p-6 mb-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm" style="background:var(--bg-card)">
-                        <div class="mb-6">
-                            <h3 class="text-lg font-semibold mb-1">Upcoming Deadlines</h3>
-                            <p class="text-sm text-[var(--text-secondary)]">Don't miss these important dates</p>
+                    <section class="card">
+                        <div class="section-header">
+                            <h3>Upcoming Deadlines</h3>
+                            <p class="section-sub">Don't miss these important dates</p>
                         </div>
-                        <div class="flex flex-col gap-6" id="deadlines-container"></div>
+                        <div class="deadlines-list" id="deadlines-container"></div>
                     </section>
 
-                    <section class="p-6 mb-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm" style="background:var(--bg-card)">
-                        <div class="mb-6">
-                            <h3 class="text-lg font-semibold mb-1">Achievements</h3>
-                            <p class="text-sm text-[var(--text-secondary)]">Your recent accomplishments</p>
+                    <section class="card">
+                        <div class="section-header">
+                            <h3>Achievements</h3>
+                            <p class="section-sub">Your recent accomplishments</p>
                         </div>
-                        <div class="flex flex-col gap-3" id="achievements-container"></div>
+                        <div class="achievements-list" id="achievements-container"></div>
                     </section>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- GPA Modal -->
-    <div class="fixed hidden z-[100] left-0 top-0 w-full h-full items-center justify-center" id="gpaModal" style="background:var(--bg-modal-overlay)">
-        <div class="rounded-xl w-[90%] max-w-[500px] shadow-xl animate-[fadeIn_0.2s_ease-out] border border-gray-200 dark:border-gray-700" style="background:var(--bg-card)">
-            <div class="flex justify-between items-center px-5 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h3 class="text-lg font-semibold text-[var(--text-primary)]">GPA Calculator</h3>
-                <button class="bg-transparent border-none text-2xl cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]" id="closeGpaModal">&times;</button>
+    <!-- GPA Modal (Same as before) -->
+    <div class="gpa-modal" id="gpaModal">
+        <div class="gpa-modal-content">
+            <div class="gpa-modal-header">
+                <h3>GPA Calculator</h3>
+                <button class="gpa-modal-close" id="closeGpaModal">&times;</button>
             </div>
-            <div class="p-6">
+            <div class="gpa-modal-body">
                 <div class="gpa-input-section">
-                    <p class="text-sm text-[var(--text-secondary)] mb-4">Add your courses to calculate your semester GPA.</p>
-                    <div class="max-h-[250px] overflow-y-auto flex flex-col gap-3 mb-6" id="courseInputs">
-                        <div class="flex gap-2 course-input-row">
-                            <input type="text" placeholder="Course Name" class="flex-[2] px-2.5 py-2 border border-gray-200 dark:border-gray-700 rounded-md outline-none text-sm course-name" style="background:var(--bg-input);color:var(--text-primary)">
-                            <select class="flex-1 px-2.5 py-2 border border-gray-200 dark:border-gray-700 rounded-md outline-none text-sm course-grade" style="background:var(--bg-input);color:var(--text-primary)">
+                    <p class="gpa-desc">Add your courses to calculate your semester GPA.</p>
+                    <div class="course-inputs" id="courseInputs">
+                        <div class="course-input-row">
+                            <input type="text" placeholder="Course Name" class="course-name">
+                            <select class="course-grade">
                                 <option value="" disabled selected>Grade</option>
                                 <option value="4.0">A</option>
                                 <option value="3.7">A-</option>
@@ -183,27 +169,28 @@
                                 <option value="2.3">C+</option>
                                 <option value="2.0">C</option>
                                 <option value="1.7">C-</option>
+                                <option value="1.3">D+</option>
                                 <option value="1.0">D</option>
                                 <option value="0.0">F</option>
                             </select>
-                            <input type="number" placeholder="Credits" class="flex-1 px-2.5 py-2 border border-gray-200 dark:border-gray-700 rounded-md outline-none text-sm course-credits" min="1" max="6" style="background:var(--bg-input);color:var(--text-primary)">
+                            <input type="number" placeholder="Credits" class="course-credits" min="1" max="6">
                         </div>
                     </div>
-                    <div class="flex gap-4">
-                        <button class="flex-1 px-2.5 py-2 border border-gray-200 dark:border-gray-700 bg-transparent rounded-md cursor-pointer text-sm text-[var(--text-primary)] hover:bg-[var(--tag-bg)]" id="addCourseBtn"><i class="fa-solid fa-plus"></i> Add Course</button>
-                        <button class="flex-1 px-2.5 py-2 border-none bg-accent rounded-md cursor-pointer text-sm text-white hover:bg-accent-hover" id="calculateGpaBtn">Calculate GPA</button>
+                    <div class="gpa-actions">
+                        <button class="btn-outline-small" id="addCourseBtn"><i class="fa-solid fa-plus"></i> Add Course</button>
+                        <button class="btn-solid-small" id="calculateGpaBtn">Calculate GPA</button>
                     </div>
                 </div>
-                <div class="hidden mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 text-center" id="gpaResult">
-                    <h4 class="text-sm text-[var(--text-secondary)] mb-2">Your GPA</h4>
-                    <div class="text-[2.5rem] font-bold leading-none mb-2" style="color:var(--accent-blue)" id="gpaResultValue">0.00</div>
-                    <div class="text-xs text-[var(--text-tertiary)] flex justify-center gap-4" id="gpaResultDetails"></div>
+                <div class="gpa-result" id="gpaResult" style="display: none;">
+                    <h4>Your GPA</h4>
+                    <div class="gpa-result-value" id="gpaResultValue">0.00</div>
+                    <div class="gpa-result-details" id="gpaResultDetails"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="../../react-page-utils.js"></script>
+        <script src="../../react-page-utils.js"></script>
     <script>
         if (window.NibrasShared?.session?.updateUserInfoDisplay) {
             window.NibrasShared.session.updateUserInfoDisplay();

@@ -13,66 +13,59 @@
         }
     })();
 </script>
-    <script>
-    tailwind.config = {
-        darkMode: ['selector', '[data-theme="dark"]'],
-        theme: {
-            extend: {
-                colors: {
-                    accent: { DEFAULT: '#2563eb', hover: '#1d4ed8' },
-                },
-                fontFamily: { sans: ['Inter', 'sans-serif'] },
-            }
-        }
-    }
-    </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="./level.css">
 </head>
-<body class="flex flex-col min-h-screen text-[var(--text-primary)]" style="background:var(--bg-body)">
+<body class="path-page">
+    <div id="app-root" hidden></div>
 
-    <nav class="flex justify-between items-center px-12 py-6 sticky top-0 z-50" style="background:var(--bg-body)">
-        <div class="flex-1">
-            <a href="../Dashboard/dashboard.html" class="inline-flex items-center gap-2 no-underline text-[var(--text-secondary)] font-medium text-sm hover:text-accent transition">
+    <!-- Navbar -->
+    <nav class="path-navbar">
+        <div class="nav-left">
+            <a href="../Dashboard/dashboard.html" class="btn-back-nav">
                 <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
             </a>
         </div>
-        <div class="flex-[2] text-center">
-            <h1 class="text-2xl font-bold text-[var(--text-primary)] mb-1">Computer Science Learning Path</h1>
-            <p class="text-sm text-[var(--text-secondary)]">Progress through four comprehensive levels to master computer science</p>
+        <div class="nav-center">
+            <h1>Computer Science Learning Path</h1>
+            <p>Progress through four comprehensive levels to master computer science</p>
         </div>
-        <div class="flex-1 text-right">
-            <button class="bg-transparent border-none text-lg text-[var(--text-secondary)] cursor-pointer" id="themeBtn"><i class="fa-regular fa-moon"></i></button>
+        <div class="nav-right">
+            <button class="icon-btn" id="themeBtn"><i class="fa-regular fa-moon"></i></button>
         </div>
     </nav>
 
-    <div class="max-w-[1200px] mx-auto w-full p-8 flex-1">
+    <!-- Main Content -->
+    <div class="path-container">
         
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8" id="levels-container">
+        <!-- Level Grid -->
+        <div class="levels-grid" id="levels-container">
+            <!-- JS will inject cards here -->
         </div>
 
-        <div class="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl px-8 py-6 mb-8">
-            <div class="op-header flex justify-between mb-3 text-[var(--text-primary)] font-medium">
+        <!-- Overall Progress Bar -->
+        <div class="overall-progress-card">
+            <div class="op-header">
                 <h3>Overall Progress</h3>
                 <span>0 of 4 levels completed</span>
             </div>
-            <div class="w-full h-2.5 bg-[var(--tag-bg)] rounded-full overflow-hidden">
-                <div class="op-fill h-full bg-accent rounded-full" style="width: 0%"></div>
+            <div class="op-track">
+                <div class="op-fill" style="width: 0%"></div>
             </div>
         </div>
 
-        <div class="bg-[var(--bg-card)] border border-dashed border-[var(--border-color)] rounded-xl p-6 flex justify-center">
-            <div class="flex items-center gap-6 max-w-[800px] flex-col lg:flex-row text-center lg:text-left">
-                <div class="w-12 h-12 rounded-full bg-[var(--tag-bg)] text-[var(--text-primary)] flex items-center justify-center text-xl shrink-0">
+        <!-- Manual Selection Option -->
+        <div class="manual-choice-section">
+            <div class="manual-content">
+                <div class="manual-icon">
                     <i class="fa-solid fa-layer-group"></i>
                 </div>
-                <div>
-                    <h3 class="text-base font-semibold mb-1 text-[var(--text-primary)]">Already have prior knowledge?</h3>
-                    <p class="text-sm text-[var(--text-secondary)]">You can skip the structured path and build your own curriculum by selecting specific courses.</p>
+                <div class="manual-text">
+                    <h3>Already have prior knowledge?</h3>
+                    <p>You can skip the structured path and build your own curriculum by selecting specific courses.</p>
                 </div>
-                <button class="btn-manual whitespace-nowrap px-6 py-3 border border-[var(--border-color)] bg-transparent rounded-md text-[var(--text-primary)] cursor-pointer font-medium hover:bg-[var(--tag-bg)] transition">Pick Courses Manually</button>
+                <button class="btn-manual">Pick Courses Manually</button>
             </div>
         </div>
 
