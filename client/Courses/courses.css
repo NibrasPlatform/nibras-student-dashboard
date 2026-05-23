@@ -496,3 +496,13 @@
             align-self: flex-end;
         }
     }
+
+    .level-badge {
+        font-size: 0.6em;
+        vertical-align: middle;
+        background: var(--accent, #2563eb);
+        color: #fff;
+        padding: 2px 10px;
+        border-radius: 12px;
+        margin-right: 8px;
+    }

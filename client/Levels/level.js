@@ -9,14 +9,9 @@ window.NibrasReact.run(function () {
     } catch (_) {}
 
     var overallProgress = 0;
+    var levelAccessCache = null;
 
-    function isLevelUnlocked(levelId, overallPct) {
-        if (levelId === 1) return true;
-        if (levelId === 2) return overallPct >= 25;
-        if (levelId === 3) return overallPct >= 50;
-        if (levelId === 4) return overallPct >= 75;
-        return false;
-    }
+    var levelOrder = ['Beginner', 'Intermediate', 'Advanced', 'Expert'];
 
     var pathData = [
         {
@@ -29,20 +24,104 @@ window.NibrasReact.run(function () {
             id: 2, title: "Intermediate Level",
             desc: "Build upon your foundation with data structures, advanced programming concepts, and algorithm design.",
             topics: ["Data Structures (Arrays, Lists, Stacks)", "Object-Oriented Programming", "Algorithm Complexity (Big O)", "Recursion and Sorting", "File Handling and IO"],
-            page: "../Courses/intermediateCourses.html"
+            page: "../Courses/courses.html"
         },
         {
             id: 3, title: "Advanced Level",
             desc: "Master advanced topics including system design, databases, networks, and software engineering principles.",
             topics: ["Advanced Data Structures (Trees, Graphs)", "Database Management Systems", "Computer Networking Basics", "Operating Systems Concepts", "Software Design Patterns"],
-            page: "../Recommendation System/recommendation.html"
+            page: "../Courses/courses.html"
         },
         {
             id: 4, title: "Expert Level",
             desc: "Reach mastery with artificial intelligence, machine learning, distributed systems, and cutting-edge technologies.",
-            topics: ["Artificial Intelligence Basics", "Distributed Systems", "Cloud Computing Architectures", "Advanced Algorithms Design", "Cyber Security Fundamentals"]
+            topics: ["Artificial Intelligence Basics", "Distributed Systems", "Cloud Computing Architectures", "Advanced Algorithms Design", "Cyber Security Fundamentals"],
+            page: "../Courses/courses.html"
         }
     ];
+
+    async function fetchLevelCompletionFromBackend() {
+        var services = window.NibrasServices;
+        if (!services || !services.coursesService) return null;
+
+        try {
+            var cs = services.coursesService;
+            var results = {};
+
+            var responses = await Promise.allSettled(
+                levelOrder.map(function (l) { return cs.getByLevel(l); })
+            );
+
+            for (var i = 0; i < levelOrder.length; i++) {
+                var level = levelOrder[i];
+                var resp = responses[i];
+
+                if (resp.status !== 'fulfilled' || !resp.value) {
+                    results[level] = { done: 0, total: 0, completed: true };
+                    continue;
+                }
+
+                var courses = resp.value.data;
+                if (!Array.isArray(courses)) courses = [];
+
+                if (courses.length === 0) {
+                    results[level] = { done: 0, total: 0, completed: true };
+                    continue;
+                }
+
+                var progResults = await Promise.allSettled(
+                    courses.map(function (c) { return cs.getProgress(c._id || c.id); })
+                );
+
+                var done = 0;
+                progResults.forEach(function (r) {
+                    if (r.status === 'fulfilled' && r.value) {
+                        var p = r.value.data || r.value;
+                        if (p && (p.status === 'completed' || Number(p.percentage) >= 100)) {
+                            done++;
+                        }
+                    }
+                });
+
+                results[level] = { done: done, total: courses.length, completed: done === courses.length };
+            }
+
+            return results;
+        } catch (err) {
+            console.warn('[LEVEL.JS] Failed to fetch level completion data:', err);
+            return null;
+        }
+    }
+
+    function isLevelUnlocked(levelId, completionData) {
+        if (levelId === 1) return true;
+
+        if (completionData) {
+            var prevLevelName = levelOrder[levelId - 2];
+            var prev = completionData[prevLevelName];
+            if (prev) return prev.completed;
+        }
+
+        if (levelId === 2) return overallProgress >= 25;
+        if (levelId === 3) return overallProgress >= 50;
+        if (levelId === 4) return overallProgress >= 75;
+        return false;
+    }
+
+    function getUnlockRequirement(levelId) {
+        var unlocked = isLevelUnlocked(levelId, levelAccessCache);
+        if (unlocked) return '';
+
+        if (levelAccessCache) {
+            var prevLevelName = levelOrder[levelId - 2];
+            var prev = levelAccessCache[prevLevelName];
+            if (prev && prev.total > 0) {
+                return 'Complete all ' + prevLevelName + ' courses (' + prev.done + ' of ' + prev.total + ' completed) to unlock this level.';
+            }
+        }
+
+        return 'Reach ' + (levelId === 2 ? '25' : levelId === 3 ? '50' : '75') + '% overall progress to unlock this level.';
+    }
 
     function renderLevels() {
         var container = document.getElementById('levels-container');
@@ -50,7 +129,7 @@ window.NibrasReact.run(function () {
         container.innerHTML = '';
 
         pathData.forEach(function (level) {
-            var unlocked = isLevelUnlocked(level.id, overallProgress);
+            var unlocked = isLevelUnlocked(level.id, levelAccessCache);
             var isLocked = !unlocked;
             var cardClass = isLocked ? 'locked' : '';
             var icon = isLocked ? 'fa-solid fa-lock' : 'fa-solid fa-book-open';
@@ -65,7 +144,7 @@ window.NibrasReact.run(function () {
                 buttonHtml = [
                     '<button class="btn-locked" onclick="window.showLockModal(' + level.id + ')">',
                     '<div class="lock-overlay"><i class="fa-solid fa-lock"></i>',
-                    '<span>Reach ' + (level.id === 2 ? '25' : level.id === 3 ? '50' : '75') + '% overall progress to unlock</span></div>',
+                    '<span>' + getUnlockRequirement(level.id) + '</span></div>',
                     '</button>',
                 ].join('');
             }
@@ -97,7 +176,7 @@ window.NibrasReact.run(function () {
     function updateOverallProgressBar() {
         var completed = 0;
         [1, 2, 3, 4].forEach(function (id) {
-            if (isLevelUnlocked(id, overallProgress)) completed++;
+            if (isLevelUnlocked(id, levelAccessCache)) completed++;
         });
         var pct = (completed / 4) * 100;
         var opSpan = document.querySelector('.op-header span');
@@ -107,7 +186,8 @@ window.NibrasReact.run(function () {
     }
 
     window.showLockModal = function (levelId) {
-        alert('\uD83D\uDD12 Level Locked\n\nReach ' + (levelId === 2 ? '25' : levelId === 3 ? '50' : '75') + '% overall course progress to unlock this level.\n\nCurrent Progress: ' + overallProgress + '%');
+        var req = getUnlockRequirement(levelId);
+        alert('\uD83D\uDD12 Level Locked\n\n' + req + '\n\nCurrent Progress: ' + overallProgress + '%');
     };
 
     window.selectLevel = function (levelId, page) {
@@ -151,13 +231,25 @@ window.NibrasReact.run(function () {
         }).catch(function () {
             overallProgress = 0;
         }).finally(function () {
-            renderLevels();
-            updateOverallProgressBar();
+            fetchLevelCompletionFromBackend().then(function (completionData) {
+                levelAccessCache = completionData;
+            }).catch(function () {
+                levelAccessCache = null;
+            }).finally(function () {
+                renderLevels();
+                updateOverallProgressBar();
+            });
         });
     } else {
         overallProgress = 0;
-        renderLevels();
-        updateOverallProgressBar();
+        fetchLevelCompletionFromBackend().then(function (completionData) {
+            levelAccessCache = completionData;
+        }).catch(function () {
+            levelAccessCache = null;
+        }).finally(function () {
+            renderLevels();
+            updateOverallProgressBar();
+        });
     }
 
     var themeBtn = document.getElementById('themeBtn');
