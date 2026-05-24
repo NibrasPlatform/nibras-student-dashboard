@@ -645,6 +645,7 @@ const runDashboardInit = () => {
             var progressArray = [];
             if (dashboardSource === 'courses' && rawCoursesResponse) {
                 var courseList = Array.isArray(rawCoursesResponse.courses) ? rawCoursesResponse.courses : [];
+                console.log('[DASHBOARD.JS] Dashboard courses:', JSON.stringify(courseList.map(function (c) { return { id: c._id || c.id, title: c.title, progress: c.progressPercentage || c.progress, level: c.level }; })));
                 if (courseList.length > 0) {
                     var topCourses = courseList.slice(0, 4);
                     var svc = window.NibrasServices?.coursesService;
