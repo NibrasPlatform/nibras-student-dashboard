@@ -506,3 +506,61 @@
         border-radius: 12px;
         margin-right: 8px;
     }
+
+    .level-complete-banner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: linear-gradient(135deg, #16a34a, #15803d);
+        color: #fff;
+        padding: 12px 20px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .level-complete-banner .banner-content {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .level-complete-banner .banner-icon {
+        font-size: 1.5rem;
+    }
+
+    .level-complete-banner .banner-btn {
+        background: #fff;
+        color: #16a34a;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: transform 0.15s;
+    }
+
+    .level-complete-banner .banner-btn:hover {
+        transform: scale(1.05);
+    }
+
+    .level-complete-banner .banner-dismiss {
+        background: transparent;
+        color: rgba(255,255,255,0.8);
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 4px;
+    }
+
+    .level-complete-banner .banner-dismiss:hover {
+        color: #fff;
+    }

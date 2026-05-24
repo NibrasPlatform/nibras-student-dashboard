@@ -81,7 +81,72 @@ async function initCourses() {
         });
     });
 
+    var mappedCoursesAll = [];
+
     hydrateCoursesFromAdmin(currentLevel);
+
+    function checkLevelComplete() {
+        var banner = document.getElementById('level-complete-banner');
+        var msgEl = document.getElementById('banner-message');
+        var btn = document.getElementById('btn-next-level');
+        if (!banner || !msgEl || !btn) return;
+
+        var incomplete = mappedCoursesAll.filter(function (c) {
+            if (c.type === 'practice_lab') return false;
+            var p = Number(c.progress);
+            if (!Number.isFinite(p)) return false;
+            return p < 100;
+        });
+
+        if (incomplete.length > 0 || mappedCoursesAll.length === 0) {
+            banner.style.display = 'none';
+            return;
+        }
+
+        var levelOrder = ['Beginner', 'Intermediate', 'Advanced', 'Expert'];
+        var currentIdx = levelOrder.indexOf(currentLevel);
+        if (currentIdx === -1 || currentIdx >= levelOrder.length - 1) {
+            banner.style.display = 'none';
+            return;
+        }
+
+        var dismissedKey = 'nibras_level_complete_dismissed_' + currentLevel;
+        if (localStorage.getItem(dismissedKey) === '1') {
+            banner.style.display = 'none';
+            return;
+        }
+
+        var nextLevel = levelOrder[currentIdx + 1];
+        msgEl.textContent = "You've completed all " + currentLevel + " courses! Ready for " + nextLevel + "?";
+        btn.onclick = function () {
+            var s = window.NibrasServices;
+            if (s && s.coursesService && s.coursesService.updateLevel) {
+                btn.disabled = true;
+                btn.textContent = 'Updating...';
+                s.coursesService.updateLevel(nextLevel).then(function () {
+                    try {
+                        var u = JSON.parse(localStorage.getItem('user'));
+                        if (u) { u.selectedLevel = nextLevel; localStorage.setItem('user', JSON.stringify(u)); }
+                    } catch (_) {}
+                    window.location.href = '../Levels/level.html';
+                }).catch(function () {
+                    window.location.href = '../Levels/level.html';
+                });
+            } else {
+                window.location.href = '../Levels/level.html';
+            }
+        };
+        banner.style.display = 'flex';
+    }
+
+    var dismissBtn = document.getElementById('banner-dismiss');
+    if (dismissBtn) {
+        dismissBtn.addEventListener('click', function () {
+            var banner = document.getElementById('level-complete-banner');
+            if (banner) banner.style.display = 'none';
+            try { localStorage.setItem('nibras_level_complete_dismissed_' + currentLevel, '1'); } catch (_) {}
+        });
+    }
 
     function filterAndRender(category) {
         grid.innerHTML = '';
@@ -213,7 +278,9 @@ async function initCourses() {
             });
 
             coursesData = mappedCourses.concat(extraCourses);
+            mappedCoursesAll = mappedCourses.concat(extraCourses);
             filterAndRender(activeCategory);
+            checkLevelComplete();
         } catch (error) {
             console.warn('[COURSES.JS] Failed to hydrate:', error?.message || error);
         }

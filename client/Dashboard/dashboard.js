@@ -122,15 +122,19 @@ async function fetchDashboardFromCoursesBackend() {
         throw new Error('Courses service unavailable');
     }
 
+    var currentUserLevel = 'Beginner';
+    try { var u = JSON.parse(localStorage.getItem('user')); if (u && u.selectedLevel) currentUserLevel = u.selectedLevel; } catch (_) {}
+    var currentLevelLower = currentUserLevel.toLowerCase();
+
     if (typeof coursesService.getDashboard === 'function') {
         try {
             const response = await coursesService.getDashboard();
             if (response?.success && response?.data) {
                 var dashData = response.data;
                 var dashCourses = dashData.courses || [];
-                var beginnerDash = dashCourses.filter(function (c) { return (c.level || '').toLowerCase() === 'beginner'; });
-                if (dashData.stats) dashData.stats.coursesEnrolled = beginnerDash.length;
-                if (dashData.courses) dashData.courses = beginnerDash;
+                var filteredDash = dashCourses.filter(function (c) { return (c.level || '').toLowerCase() === currentLevelLower; });
+                if (dashData.stats) dashData.stats.coursesEnrolled = filteredDash.length;
+                if (dashData.courses) dashData.courses = filteredDash;
                 return dashData;
             }
         } catch (error) {
@@ -163,13 +167,12 @@ async function fetchDashboardFromCoursesBackend() {
         }
     }
 
-    var beginnerCourses = courses.filter(function (c) { return (c.level || '').toLowerCase() === 'beginner'; });
+    var levelCourses = courses.filter(function (c) { return (c.level || '').toLowerCase() === currentLevelLower; });
 
-    // Fallback: read video progress from localStorage for all beginner courses
-    if (overallProgress === 0 && beginnerCourses.length > 0) {
+    if (overallProgress === 0 && levelCourses.length > 0) {
         var totalPct = 0;
         var countWithProgress = 0;
-        beginnerCourses.forEach(function (c) {
+        levelCourses.forEach(function (c) {
             try {
                 var uid2 = ''; try { var u2 = JSON.parse(localStorage.getItem('user')); uid2 = u2?._id || u2?.id || ''; } catch (_) {}
                 var localKey = 'nibras_course_progress_' + uid2 + '_' + (c.id || c._id);
@@ -187,10 +190,10 @@ async function fetchDashboardFromCoursesBackend() {
 
     return {
         stats: {
-            coursesEnrolled: beginnerCourses.length,
+            coursesEnrolled: levelCourses.length,
             overallProgress,
         },
-        courses: beginnerCourses.map((course) => ({
+        courses: levelCourses.map((course) => ({
             _id: course?._id || course?.id || '',
             title: course?.title || course?.name || 'Untitled Course',
             assignmentsCount: Array.isArray(course?.assignments)
@@ -361,13 +364,6 @@ function renderDashboard(data) {
 }
 
 function renderLists(data) {
-    // Activities
-    const actContainer = document.getElementById('activities-container');
-    actContainer.innerHTML = '';
-    data.activities.forEach(act => {
-        actContainer.innerHTML += `<div class="activity-item" style="border-left-color: ${act.borderColor}"><div class="act-info"><h4>${act.title}</h4><span>${act.sub}</span></div><div class="act-badge" style="background-color: ${act.tagColor}">${act.tag}</div></div>`;
-    });
-
     // Progress
     const progContainer = document.getElementById('progress-container');
     progContainer.innerHTML = '';
@@ -550,12 +546,12 @@ const runDashboardInit = () => {
             // Load courses for switcher
             await loadCourseSwitcher();
 
-            // Try new courses backend first, fall back to tracking if it fails
+            let rawCoursesResponse = null;
             let dashboardPayload;
             let dashboardSource = 'tracking';
             try {
-                const coursesResponse = await fetchDashboardFromCoursesBackend();
-                dashboardPayload = transformCoursesDashboardToDashboard(coursesResponse);
+                rawCoursesResponse = await fetchDashboardFromCoursesBackend();
+                dashboardPayload = transformCoursesDashboardToDashboard(rawCoursesResponse);
                 dashboardSource = 'courses';
                 console.log('[DASHBOARD.JS] Using new courses backend');
             } catch (coursesError) {
@@ -646,12 +642,24 @@ const runDashboardInit = () => {
                 };
             });
 
+            var progressArray = [];
+            if (dashboardSource === 'courses' && rawCoursesResponse) {
+                var courseList = Array.isArray(rawCoursesResponse.courses) ? rawCoursesResponse.courses : [];
+                if (courseList.length > 0) {
+                    progressArray = courseList.map(function (c) {
+                        var pct = Number(c.progressPercentage) || Number(c.progress) || 0;
+                        if (!Number.isFinite(pct)) pct = 0;
+                        return { subject: c.title || c.name || "Untitled", percent: Math.max(0, Math.min(100, Math.round(pct))) };
+                    });
+                }
+            }
+
             dashboardData = {
                 user: userName,
                 stats: statsArray,
                 milestones: dashboardMilestones,
                 activities: [],
-                progress: [],
+                progress: progressArray,
                 deadlines: [],
                 achievements: []
             };
@@ -672,7 +680,6 @@ const runDashboardInit = () => {
                     { label: "Overall Progress", value: "0%", icon: "fa-solid fa-graduation-cap", color: "purple" }
                 ],
                 milestones: [],
-                activities: [],
                 progress: [],
                 deadlines: [],
                 achievements: []

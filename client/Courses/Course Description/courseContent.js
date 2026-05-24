@@ -191,25 +191,98 @@ window.NibrasReact.run(() => {
     }
 
     async function hydrateOverviewFromAdmin() {
-        const loadRemoteCourse = window.NibrasCourses?.getAdminCourseByLocalId;
-        if (typeof loadRemoteCourse !== "function") return;
+        const selectedCourse = window.NibrasCourses?.getSelectedCourse?.();
+        const backendCourseId = selectedCourse?.adminCourseId || selectedCourse?.backendCourseId || null;
+        const coursesService = window.NibrasServices?.coursesService;
+
+        if (!backendCourseId || !coursesService || typeof coursesService.getById !== "function") {
+            const loadRemoteCourse = window.NibrasCourses?.getAdminCourseByLocalId;
+            if (typeof loadRemoteCourse !== "function") return;
+            const fallback = await loadRemoteCourse(courseId);
+            if (!fallback) return;
+            if (fallback.title) {
+                setText("header-title", fallback.title);
+                const breadcrumb = document.querySelector(".breadcrumbs");
+                if (breadcrumb) breadcrumb.textContent = `Dashboard / ${fallback.title}`;
+            }
+            if (fallback.description) setText("header-desc", fallback.description);
+            if (fallback.instructorName) setText("instructor-name", fallback.instructorName);
+            return;
+        }
 
         try {
-            const remoteCourse = await loadRemoteCourse(courseId);
-            if (!remoteCourse) return;
+            const payload = await coursesService.getById(backendCourseId);
+            const course = payload?.data || payload;
+            if (!course || typeof course !== "object") return;
 
-            if (remoteCourse.title) {
-                setText("header-title", remoteCourse.title);
+            if (course.title) {
+                setText("header-title", course.title);
                 const breadcrumb = document.querySelector(".breadcrumbs");
-                if (breadcrumb) breadcrumb.textContent = `Dashboard / ${remoteCourse.title}`;
+                if (breadcrumb) breadcrumb.textContent = `Dashboard / ${course.title}`;
+            }
+            if (course.description) setText("header-desc", course.description);
+            if (course.courseCode) {
+                setText("header-code", course.courseCode);
+                setText("sidebar-course-code", course.courseCode);
             }
 
-            if (remoteCourse.description) {
-                setText("header-desc", remoteCourse.description);
+            const stats = course.stats || {};
+            if (stats.duration) {
+                const term = stats.term || "";
+                setText("header-duration", `${term ? term + " • " : ""}${stats.duration}`);
+            }
+            if (stats.hoursPerWeek) setText("header-commitment", `${stats.hoursPerWeek} hrs/week`);
+            if (stats.enrolledStudents) setText("header-students", `${stats.enrolledStudents} Students Enrolled`);
+            if (stats.term) {
+                const sCount = Array.isArray(course.sections) ? course.sections.length : 0;
+                setText("sidebar-term", `${stats.term}${sCount ? " • " + sCount + " sections" : ""}`);
             }
 
-            if (remoteCourse.instructorName) {
-                setText("instructor-name", remoteCourse.instructorName);
+            const instrName = course.instructorName || course.instructor?.name || "";
+            if (instrName) {
+                setText("instructor-name", instrName);
+                const parts = instrName.trim().split(/\s+/);
+                const initials = parts.length >= 2
+                    ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+                    : parts[0][0].toUpperCase();
+                setText("instructor-initials", initials);
+            }
+
+            const sections = Array.isArray(course.sections) ? course.sections : [];
+            if (sections.length > 0) {
+                const container = document.getElementById("curriculum-container");
+                if (container) {
+                    const completedCount = sections.filter((s) => s.status === "completed").length;
+                    container.innerHTML = sections.map((s, i) => {
+                        const isComplete = s.status === "completed";
+                        const isAvailable = s.status === "available" || isComplete;
+                        const iconHtml = isComplete
+                            ? '<div class="week-icon completed"><i class="fa-solid fa-check"></i></div>'
+                            : isAvailable
+                                ? `<div class="week-icon current">${i + 1}</div>`
+                                : `<div class="week-icon upcoming">${i + 1}</div>`;
+                        const badgeHtml = isAvailable && !isComplete
+                            ? '<span class="status-badge">Available</span>'
+                            : isComplete ? '<span class="status-badge" style="background:#16a34a">Completed</span>' : "";
+                        const activeClass = isAvailable && !isComplete ? 'week-card-active' : "";
+                        return `<div class="curriculum-week">${iconHtml}<div class="week-content ${activeClass}"><div class="week-header"><span class="week-title">${s.title || "Section " + (i + 1)}</span>${badgeHtml}</div></div></div>`;
+                    }).join("");
+
+                    if (completedCount > 0 || sections.length > 0) {
+                        setText("sidebar-progress-text", `${completedCount} of ${sections.length} lectures completed`);
+                        setText("current-week-num", String(completedCount));
+                        setText("total-weeks", String(sections.length));
+                        const sidebarFill = document.getElementById("sidebar-progress-fill");
+                        if (sidebarFill) sidebarFill.style.width = `${(completedCount / sections.length) * 100}%`;
+                    }
+                }
+            }
+
+            if (Number.isFinite(Number(course.overallPercentage))) {
+                const pct = Math.max(0, Math.min(100, Math.round(Number(course.overallPercentage))));
+                setText("progress-percent-text", `${pct}%`);
+                const progressFillMain = document.getElementById("progress-fill-main");
+                if (progressFillMain) progressFillMain.style.width = `${pct}%`;
             }
         } catch (error) {
             console.warn("[COURSE-CONTENT] Failed to hydrate overview from admin backend:", error?.message || error);
