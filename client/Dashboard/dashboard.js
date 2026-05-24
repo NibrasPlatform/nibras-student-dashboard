@@ -646,8 +646,21 @@ const runDashboardInit = () => {
             if (dashboardSource === 'courses' && rawCoursesResponse) {
                 var courseList = Array.isArray(rawCoursesResponse.courses) ? rawCoursesResponse.courses : [];
                 if (courseList.length > 0) {
-                    progressArray = courseList.map(function (c) {
-                        var pct = Number(c.progressPercentage) || Number(c.progress) || 0;
+                    var topCourses = courseList.slice(0, 4);
+                    var svc = window.NibrasServices?.coursesService;
+                    var progressResults = await Promise.all(
+                        topCourses.map(function (c) {
+                            var bid = c._id || c.id || '';
+                            return svc && typeof svc.getProgress === 'function'
+                                ? svc.getProgress(bid).then(function (r) {
+                                    var pd = r?.data || r || {};
+                                    return Number.isFinite(Number(pd.percentage)) ? Number(pd.percentage) : 0;
+                                }).catch(function () { return 0; })
+                                : Promise.resolve(0);
+                        })
+                    );
+                    progressArray = topCourses.map(function (c, i) {
+                        var pct = progressResults[i] || Number(c.progressPercentage) || Number(c.progress) || 0;
                         if (!Number.isFinite(pct)) pct = 0;
                         return { subject: c.title || c.name || "Untitled", percent: Math.max(0, Math.min(100, Math.round(pct))) };
                     });
