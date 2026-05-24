@@ -647,24 +647,25 @@ const runDashboardInit = () => {
                 var courseList = Array.isArray(rawCoursesResponse.courses) ? rawCoursesResponse.courses : [];
                 console.log('[DASHBOARD.JS] Dashboard courses:', JSON.stringify(courseList.map(function (c) { return { id: c._id || c.id, title: c.title, progress: c.progressPercentage || c.progress, level: c.level }; })));
                 if (courseList.length > 0) {
-                    var topCourses = courseList.slice(0, 4);
                     var svc = window.NibrasServices?.coursesService;
-                    var progressResults = await Promise.all(
-                        topCourses.map(function (c) {
+                    var coursesWithProgress = await Promise.all(
+                        courseList.map(async function (c) {
+                            var pct = Number(c.progressPercentage) || Number(c.progress) || 0;
+                            if (!Number.isFinite(pct)) pct = 0;
                             var bid = c._id || c.id || '';
-                            return svc && typeof svc.getProgress === 'function'
-                                ? svc.getProgress(bid).then(function (r) {
+                            if (svc && typeof svc.getProgress === 'function' && bid) {
+                                try {
+                                    var r = await svc.getProgress(bid);
                                     var pd = r?.data || r || {};
-                                    return Number.isFinite(Number(pd.percentage)) ? Number(pd.percentage) : 0;
-                                }).catch(function () { return 0; })
-                                : Promise.resolve(0);
+                                    var apiPct = Number.isFinite(Number(pd.percentage)) ? Number(pd.percentage) : 0;
+                                    if (apiPct > 0) pct = apiPct;
+                                } catch (_) {}
+                            }
+                            return { subject: c.title || c.name || "Untitled", percent: Math.max(0, Math.min(100, Math.round(pct))), _sortPct: pct };
                         })
                     );
-                    progressArray = topCourses.map(function (c, i) {
-                        var pct = progressResults[i] || Number(c.progressPercentage) || Number(c.progress) || 0;
-                        if (!Number.isFinite(pct)) pct = 0;
-                        return { subject: c.title || c.name || "Untitled", percent: Math.max(0, Math.min(100, Math.round(pct))) };
-                    });
+                    coursesWithProgress.sort(function (a, b) { return b._sortPct - a._sortPct; });
+                    progressArray = coursesWithProgress.slice(0, 4).map(function (c) { return { subject: c.subject, percent: c.percent }; });
                 }
             }
 
