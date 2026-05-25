@@ -49,7 +49,9 @@ window.NibrasReact.run(() => {
                     authResult.user = data.user || payload.user || data;
                     setAuthData(authResult);
                     sessionStorage.removeItem('google_access_token');
-                    window.location.href = '../../Dashboard/dashboard.html';
+                    (function () {
+                        try { var _u = JSON.parse(localStorage.getItem('user')); var _r = String(_u?.role?.name || _u?.role || '').toLowerCase(); window.location.href = _r === 'instructor' ? '../../Dashboard/instructor-dashboard.html' : '../../Dashboard/dashboard.html'; } catch (_) { window.location.href = '../../Dashboard/dashboard.html'; }
+                    })();
                     return;
                 }
             } catch (e) {
@@ -231,6 +233,18 @@ window.NibrasReact.run(() => {
         });
     };
 
+    const redirectToDashboard = () => {
+        try {
+            var u = JSON.parse(localStorage.getItem('user'));
+            var role = String(u?.role?.name || u?.role || '').toLowerCase();
+            window.location.href = role === 'instructor'
+                ? '../../Dashboard/instructor-dashboard.html'
+                : '../../Dashboard/dashboard.html';
+        } catch (_) {
+            window.location.href = '../../Dashboard/dashboard.html';
+        }
+    };
+
     const setOtpMode = (enabled, email = '') => {
         if (signupForm) signupForm.hidden = enabled;
         if (otpForm) otpForm.hidden = !enabled;
@@ -334,7 +348,7 @@ window.NibrasReact.run(() => {
                 applyAuthenticatedSession(payload);
                 localStorage.removeItem('pendingVerificationEmail');
                 setNotice('OTP verified successfully. Redirecting...', 'success');
-                window.location.href = '../../Dashboard/dashboard.html';
+                redirectToDashboard();
             } catch (error) {
                 const message = error?.payload?.message || error?.message || 'OTP verification failed. Check the code and try again.';
                 setNotice(message, 'error');

@@ -1,5 +1,16 @@
 console.log('[COURSES.JS] Script started (direct execution)');
 
+// Redirect instructors to instructor courses page
+(function () {
+    try {
+        var _u = JSON.parse(localStorage.getItem('user') || '{}');
+        var _r = String(_u?.role?.name || _u?.role || '').toLowerCase();
+        if (_r === 'instructor') {
+            window.location.replace('./instructor-courses.html');
+        }
+    } catch (_) {}
+})();
+
 let coursesData = [];
 let currentLevel = null;
 

@@ -1,5 +1,16 @@
 console.log('[DASHBOARD.JS] Script started (direct execution)');
 
+// Redirect instructors to instructor dashboard
+(function () {
+    try {
+        var _user = JSON.parse(localStorage.getItem('user') || '{}');
+        var _role = String(_user?.role?.name || _user?.role || '').toLowerCase();
+        if (_role === 'instructor') {
+            window.location.replace('./instructor-dashboard.html');
+        }
+    } catch (_) {}
+})();
+
 // --- 2. BACKEND DATA ---
 let savedGPA = localStorage.getItem('calculatedGPA');
 let selectedCourseId = localStorage.getItem('selectedCourseId') || '';
