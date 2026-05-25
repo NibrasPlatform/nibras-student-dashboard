@@ -177,7 +177,17 @@
             }
         } catch (_) {}
 
-        // 2. Fetch courses from instructor course management
+        // 2. Fetch reputation
+        try {
+            var repData = await S.reputationService.getMyReputation();
+            var rep = repData && (repData.data || repData.reputation || repData);
+            var repBadge = document.querySelector('.rep-badge');
+            if (repBadge && rep && rep.points != null) {
+                repBadge.textContent = rep.points;
+            }
+        } catch (_) {}
+
+        // 3. Fetch courses from instructor course management
         try {
             var coursesResp = await S.instructorCourseManagementService.listCourses({ page: 1, limit: 100 });
             var coursesData = coursesResp && (
