@@ -45,27 +45,12 @@
         var cstatus = (c.status || 'active').toLowerCase();
         var isDraft = cstatus === 'draft';
         var students = c.enrolledCount || c.studentsCount || c.enrolledStudents || (isDraft ? 0 : '--');
-        var rating = c.rating || c.averageRating || '--';
-        var lastActive = c.lastActivity || c.updatedAt || '';
-        var progress = c.completionRate || c.averageCompletion || c.progress || 0;
         var pendingCount = c.pendingReviews || c.pendingSubmissions || 0;
         var recentSub = c.recentSubmission || c.latestSubmission || null;
-        var courseCode = c.code || c.courseCode || '';
 
         var pendingBadge = pendingCount > 0
             ? '<span class="inst-pending-badge">' + pendingCount + ' pending</span>'
             : '';
-
-        var timeDisplay = '';
-        if (lastActive) {
-            try {
-                var diff = Date.now() - new Date(lastActive).getTime();
-                var hours = Math.floor(diff / 3600000);
-                if (hours < 1) timeDisplay = 'Just now';
-                else if (hours < 24) timeDisplay = hours + ' hours ago';
-                else timeDisplay = Math.floor(hours / 24) + ' days ago';
-            } catch (_) { timeDisplay = ''; }
-        }
 
         var recentSubHtml = '';
         if (recentSub && !isDraft) {
@@ -109,17 +94,7 @@
             + '</div>'
             + '<div class="inst-course-stats-row">'
             + '<span><i class="fa-solid fa-user"></i> ' + students + ' students</span>'
-            + '<span><i class="fa-solid fa-star"></i> ' + rating + '</span>'
-            + (timeDisplay ? '<span><i class="fa-regular fa-clock"></i> ' + timeDisplay + '</span>' : '')
             + '</div>'
-            + '<div class="inst-progress-section">'
-            + '<div class="inst-progress-label">'
-            + '<span>Average Progress</span>'
-            + '<span>' + progress + '%</span>'
-            + '</div>'
-            + '<div class="inst-progress-track">'
-            + '<div class="inst-progress-fill" style="width:' + progress + '%;"></div>'
-            + '</div></div>'
             + recentSubHtml
             + '<div class="inst-card-actions">'
             + '<button class="inst-action-btn inst-view-btn" data-id="' + cid + '">View Course</button>'
