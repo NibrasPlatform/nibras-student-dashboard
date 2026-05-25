@@ -2880,6 +2880,58 @@
     };
 
     // ============================================================
+    // Instructor Dashboard Service (Nibras-Backend admin service)
+    // Backend: GET /instructor-dashboard, etc.
+    // ============================================================
+    const instructorDashboardService = {
+        async getDashboard() {
+            return apiFetch('/instructor-dashboard', {
+                service: 'admin',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        async getCoursePerformance(filters = {}) {
+            return apiFetch(`/instructor-dashboard/course-performance${toQueryString(filters)}`, {
+                service: 'admin',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        async getPendingAssignments(filters = {}) {
+            return apiFetch(`/instructor-dashboard/pending-assignments${toQueryString(filters)}`, {
+                service: 'admin',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        async getRecentSubmissions(filters = {}) {
+            return apiFetch(`/instructor-dashboard/recent-submissions${toQueryString(filters)}`, {
+                service: 'admin',
+                method: 'GET',
+                auth: true,
+            });
+        },
+    };
+
+    // ============================================================
+    // Instructor Course Management Service (Nibras-Backend admin)
+    // Backend: GET /instructor-course-management/courses
+    // ============================================================
+    const instructorCourseManagementService = {
+        async listCourses(filters = {}) {
+            return apiFetch(`/instructor-course-management/courses${toQueryString(filters)}`, {
+                service: 'admin',
+                method: 'GET',
+                auth: true,
+            });
+        },
+    };
+
+    // ============================================================
     // Expose on window
     // ============================================================
     window.NibrasServices = Object.freeze({
@@ -2913,6 +2965,8 @@
         reputationService,
         aiService,
         mentorshipService,
+        instructorDashboardService,
+        instructorCourseManagementService,
     });
 
     console.log('[NibrasServices] Initialized. Available as window.NibrasServices');
