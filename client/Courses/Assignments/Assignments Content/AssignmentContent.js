@@ -15,6 +15,10 @@ window.NibrasReact.run(() => {
         }
     }
 
+    var isInstructor = (function () {
+        try { var u = JSON.parse(localStorage.getItem('user') || '{}'); return String(u?.role?.name || u?.role || '').toLowerCase() === 'instructor'; } catch (_) { return false; }
+    })();
+
     // Update data-nav-link elements
     const navLinks = [
         { key: "courseContent", path: "../../Course Description/courseContent.html" },
@@ -236,8 +240,8 @@ window.NibrasReact.run(() => {
         document.getElementById('meta-time').textContent = data.dueTime;
         document.getElementById('meta-type').textContent = data.submissionType;
 
-        // Hide submission if already graded
-        if (scoreEarned > 0 || data.feedback.comment !== '...') {
+        // Hide submission if already graded or user is instructor
+        if (scoreEarned > 0 || data.feedback.comment !== '...' || isInstructor) {
             if (submitSection) submitSection.style.display = 'none';
         }
 

@@ -7,6 +7,9 @@ window.NibrasReact.run(() => {
     let activeFilter = "all";
     const assignmentsNotice = document.getElementById("assignments-api-notice");
     const sharedUiStates = window.NibrasShared?.uiStates || null;
+    var isInstructor = (function () {
+        try { var u = JSON.parse(localStorage.getItem('user') || '{}'); return String(u?.role?.name || u?.role || '').toLowerCase() === 'instructor'; } catch (_) { return false; }
+    })();
 
     function resolveUiStateFromError(error, fallbackMessage) {
         if (sharedUiStates?.fromError) {
@@ -236,10 +239,11 @@ window.NibrasReact.run(() => {
                 ? window.NibrasCourses.withCourseId(item.page, courseId)
                 : '#';
             const actionDisabled = !item.page;
-            const actionText = actionDisabled ? 'Unavailable' : item.action;
+            var actionLabel = isInstructor ? 'Grade Assignment' : 'Submit';
+            const actionText = actionDisabled ? 'Unavailable' : actionLabel;
             const actionAriaLabel = actionDisabled
                 ? `Assignment details unavailable for ${item.title}`
-                : `${item.action} for ${item.title}`;
+                : `${actionLabel} for ${item.title}`;
             const actionAttributes = actionDisabled
                 ? 'aria-disabled="true" tabindex="-1"'
                 : '';
@@ -406,7 +410,7 @@ window.NibrasReact.run(() => {
                     points: item.maxScore || item.points || 100,
                     score: null,
                     type: 'File Upload',
-                    action: 'Start Assignment',
+                    action: 'Submit',
                     page: "./Assignments Content/AssignmentContent.html",
                     milestoneId: item._id || `ms-${item.title}`,
                 };
