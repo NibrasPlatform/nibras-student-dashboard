@@ -162,15 +162,20 @@
             }
         } catch (_) {}
 
-        // 7. Delegate Manage button clicks
+        // 7. Delegate clicks: Manage buttons and quick action cards
         document.addEventListener('click', function (e) {
-            var btn = e.target.closest('.inst-manage-btn');
-            if (btn) {
-                var courseId = btn.getAttribute('data-id');
+            var manageBtn = e.target.closest('.inst-manage-btn');
+            if (manageBtn) {
+                var courseId = manageBtn.getAttribute('data-id');
                 if (courseId) {
                     localStorage.setItem('selectedCourseId', courseId);
                     window.location.href = '../Courses/Course Description/courseoverview.html';
                 }
+                return;
+            }
+            var actionCard = e.target.closest('.inst-action-card[data-nav]');
+            if (actionCard) {
+                window.location.href = actionCard.getAttribute('data-nav');
             }
         });
     }
