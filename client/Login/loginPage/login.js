@@ -171,11 +171,6 @@ window.NibrasReact.run(() => {
         icon.classList.add('fa-eye');
     };
 
-    window.selectRole = function (element) {
-        document.querySelectorAll('.role-card').forEach((card) => card.classList.remove('active'));
-        element.classList.add('active');
-    };
-
     if (sessionStorage.getItem('google_auth_error')) {
         const err = sessionStorage.getItem('google_auth_error');
         sessionStorage.removeItem('google_auth_error');
@@ -200,12 +195,6 @@ window.NibrasReact.run(() => {
             window.NIBRAS_GOOGLE_CLIENT_ID ||
             ''
         ).trim();
-    };
-
-    const getSelectedRole = () => {
-        const activeRoleCard = document.querySelector('.role-card.active');
-        if (!activeRoleCard) return '';
-        return String(activeRoleCard.querySelector('span')?.textContent || '').trim().toLowerCase();
     };
 
     const setNotice = (message, tone = 'info') => {
@@ -288,15 +277,10 @@ window.NibrasReact.run(() => {
         })();
     }
 
-    const applyAuthenticatedSession = (payload, selectedRole = '') => {
+    const applyAuthenticatedSession = (payload) => {
         const authData = shared.auth?.extractAuth ? shared.auth.extractAuth(payload) : extractAuthData(payload);
         const resolvedUser = authData.user || payload?.data || payload?.user || null;
-        const resolvedRole = String(resolvedUser?.role?.name || resolvedUser?.role || '').toLowerCase();
 
-        if (resolvedRole && selectedRole && resolvedRole !== selectedRole) {
-            clearAuthData();
-            throw new Error(`Role mismatch: you selected "${selectedRole}", but this account is "${resolvedRole}".`);
-        }
         if (!authData.accessToken) {
             throw new Error('Authentication succeeded but no access token was returned.');
         }
@@ -315,12 +299,6 @@ window.NibrasReact.run(() => {
 
             const email = String(emailInput?.value || '').trim().toLowerCase();
             const password = String(passwordInput?.value || '');
-            const selectedRole = getSelectedRole();
-
-            if (!selectedRole) {
-                setNotice('Please select a role before logging in.', 'error');
-                return;
-            }
             if (!gmailRegex.test(email)) {
                 setNotice('Use a valid @gmail.com address. This backend only supports Gmail accounts.', 'error');
                 return;
@@ -329,7 +307,7 @@ window.NibrasReact.run(() => {
             try {
                 const payload = await window.NibrasServices.authService.login(email, password);
 
-                applyAuthenticatedSession(payload, selectedRole);
+                applyAuthenticatedSession(payload);
                 setNotice('Login successful. Redirecting...', 'success');
                 window.location.href = '../../Dashboard/dashboard.html';
             } catch (error) {
@@ -361,7 +339,6 @@ window.NibrasReact.run(() => {
             event.preventDefault();
             setNotice('');
 
-            const selectedRole = getSelectedRole();
             const email = String(otpEmailInput?.value || '').trim().toLowerCase();
             const otp = String(otpCodeInput?.value || '').trim();
             if (!email || !otp) {
@@ -376,7 +353,7 @@ window.NibrasReact.run(() => {
             try {
                 const payload = await window.NibrasServices.authService.verifyOtp(email, otp);
 
-                applyAuthenticatedSession(payload, selectedRole);
+                applyAuthenticatedSession(payload);
                 setNotice('OTP verified successfully. Redirecting...', 'success');
                 window.location.href = '../../Dashboard/dashboard.html';
             } catch (error) {
