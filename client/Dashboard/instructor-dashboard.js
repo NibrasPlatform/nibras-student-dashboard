@@ -75,17 +75,7 @@
             }
         } catch (_) {}
 
-        // 3. Fetch reputation
-        try {
-            var repData = await S.reputationService.getMyReputation();
-            var rep = repData && (repData.data || repData.reputation || repData);
-            var repBadge = document.querySelector('.rep-badge');
-            if (repBadge && rep && rep.points != null) {
-                repBadge.textContent = rep.points;
-            }
-        } catch (_) {}
-
-        // 4. Fetch instructor dashboard
+        // 3. Fetch instructor dashboard
         try {
             var dashResp = await S.instructorDashboardService.getDashboard();
             var dash = dashResp && (dashResp.data || dashResp);

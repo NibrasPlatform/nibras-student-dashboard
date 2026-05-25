@@ -1005,6 +1005,12 @@
             dd.classList.toggle('show');
             if (dd.classList.contains('show')) renderNotifications();
         });
+
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('[data-ndd]') && !e.target.closest('.notif-dropdown-menu')) {
+                dd.classList.remove('show');
+            }
+        });
     }
 
     // --- Auto-init dropdown on all pages ---
