@@ -1,4 +1,19 @@
-window.NibrasReact.run(() => {
+window.NibrasReact.run(async () => {
+    // If a backend MongoDB ID is stored (e.g. from instructor pages),
+    // resolve it to a local slug so the correct course renders
+    try {
+        var rawId = localStorage.getItem('selectedCourseId');
+        if (rawId) {
+            var fallback = window.NibrasCourses?.getCourseById?.(rawId);
+            if (fallback && fallback.id !== rawId) {
+                var slug = await window.NibrasCourses?.resolveLocalCourseIdByBackendId?.(rawId);
+                if (slug) {
+                    window.NibrasCourses.setSelectedCourseId(slug);
+                }
+            }
+        }
+    } catch (_) {}
+
     const selectedCourse = window.NibrasCourses?.getSelectedCourse?.();
     if (!selectedCourse) return;
 

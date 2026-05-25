@@ -2652,6 +2652,38 @@
         return `${path}${separator}courseId=${encodeURIComponent(courseId)}`;
     }
 
+    async function resolveLocalCourseIdByBackendId(backendId) {
+        if (!backendId) return null;
+        var normalized = normalizeIdentifierToken(String(backendId));
+        if (!normalized) return null;
+
+        // Try already-loaded map first
+        var map = remoteCourseState.byLocalId;
+        if (map) {
+            for (var localId in map) {
+                if (!Object.prototype.hasOwnProperty.call(map, localId)) continue;
+                var remote = map[localId];
+                var a = normalizeIdentifierToken(remote.adminCourseId || '');
+                var b = normalizeIdentifierToken(remote.backendCourseId || '');
+                if (normalized === a || normalized === b) return localId;
+            }
+        }
+
+        // Load the map if needed
+        try {
+            map = await loadRemoteCourseMap();
+            for (var localId2 in map) {
+                if (!Object.prototype.hasOwnProperty.call(map, localId2)) continue;
+                var remote2 = map[localId2];
+                var a2 = normalizeIdentifierToken(remote2.adminCourseId || '');
+                var b2 = normalizeIdentifierToken(remote2.backendCourseId || '');
+                if (normalized === a2 || normalized === b2) return localId2;
+            }
+        } catch (_) {}
+
+        return null;
+    }
+
     window.NibrasCourses = {
         getCoursesList,
         getAdminCoursesList,
@@ -2666,5 +2698,6 @@
         resolveCourseId,
         setSelectedCourseId,
         withCourseId,
+        resolveLocalCourseIdByBackendId,
     };
 })();
