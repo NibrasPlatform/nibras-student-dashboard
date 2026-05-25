@@ -169,7 +169,7 @@
                 var courseId = manageBtn.getAttribute('data-id');
                 if (courseId) {
                     localStorage.setItem('selectedCourseId', courseId);
-                    window.location.href = '../Courses/Course Description/courseoverview.html';
+                    window.location.href = '../Courses/Course Description/courseContent.html';
                 }
                 return;
             }
