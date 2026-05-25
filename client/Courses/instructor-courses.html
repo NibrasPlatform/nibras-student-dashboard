@@ -1,265 +1,369 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NiBRAS - Manage Courses</title>
-    <link rel="stylesheet" href="instructor-courses.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <title>Nibras - Instructor Courses</title>
+    <script src="../services/auth-guard.js" data-login="../Login/loginPage/login.html" data-api="https://nibras-backend.up.railway.app/api"></script>
+    <script>
+    (function () {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        } else {
+            document.documentElement.setAttribute('data-theme', 'light');
+        }
+    })();
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="./courses.css">
+    <link rel="stylesheet" href="./instructor-courses.css">
 </head>
-<body class="courses-page">
+<body>
+    <div id="app-root" hidden></div>
 
-    <main class="main-content">
-        <!-- Top Header -->
-        <header class="top-header">
-            <div class="header-left">
-                <a href="index.html" class="back-btn"><i data-lucide="chevron-left"></i> Back</a>
-                <div class="title-group">
-                    <h1>Courses</h1>
-                    <p>Manage your courses and track student progress</p>
-                </div>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo-area">
+            <img src="/Assets/images/logo-light.png" alt="Nibras Logo" class="sidebar-logo" id="app-logo">
+        </div>
+
+        <ul class="nav-menu">
+            <li class="nav-item"><a href="../Dashboard/instructor-dashboard.html" class="nav-link"><i class="fa-solid fa-house"></i> Dashboard</a></li>
+            <li class="nav-item"><a href="./instructor-courses.html" class="nav-link active"><i class="fa-solid fa-book-open"></i> Courses</a></li>
+            <li class="nav-item"><a href="../Community/community.html" class="nav-link"><i class="fa-solid fa-users"></i> Community</a></li>
+            <li class="nav-item"><a href="../Analytics/Overview/overview.html" class="nav-link"><i class="fa-solid fa-chart-simple"></i> Analytics</a></li>
+            <li class="nav-item"><a href="../Settings/settings.html" class="nav-link"><i class="fa-solid fa-gear"></i> Settings</a></li>
+        </ul>
+
+        <div class="user-profile">
+            <div class="avatar-circle">ZA</div>
+            <div class="user-info">
+                <h4>Ziad Alaa</h4>
+                <span>Instructor</span>
             </div>
+        </div>
+
+        <div class="reputation-box">
+            <span>Reputation</span>
+            <div class="rep-badge">1250</div>
+        </div>
+
+        <a href="../Login/loginPage/login.html" class="logout-btn">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
+        </a>
+
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <!-- HEADER -->
+        <header class="top-header">
+            <div class="search-bar-global">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" placeholder="Search courses, problems">
+            </div>
+
             <div class="header-actions">
-                <button id="theme-toggle" class="icon-btn"><i data-lucide="moon"></i></button>
-                <button class="primary-btn"><i data-lucide="plus"></i> Create New Course</button>
+                <button class="icon-btn" id="themeBtn"><i class="fa-regular fa-moon"></i></button>
+                <button class="icon-btn"><i class="fa-regular fa-bell"></i></button>
+                <div class="avatar-circle" style="width:32px;height:32px;font-size:0.8rem;">ZA</div>
             </div>
         </header>
 
-        <section class="content-wrapper">
+        <div class="content-wrapper">
+
+            <!-- Page Header -->
+            <div class="welcome-section" style="display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                    <h1>Courses</h1>
+                    <p>Manage your courses and track student progress</p>
+                </div>
+                <button class="inst-primary-btn"><i class="fa-solid fa-plus"></i> Create New Course</button>
+            </div>
+
             <!-- Stats Row -->
-            <div class="stats-grid">
+            <div class="stats-grid" id="inst-courses-stats">
                 <div class="stat-card">
                     <div class="stat-info">
-                        <span class="label">Active Courses</span>
-                        <span class="value">5</span>
+                        <span>Active Courses</span>
+                        <h2>5</h2>
                     </div>
-                    <div class="stat-icon blue-bg"><i data-lucide="book-open"></i></div>
+                    <div class="stat-icon" style="background-color:var(--stat-icon-bg-blue);color:var(--stat-icon-text-blue);">
+                        <i class="fa-solid fa-book-open"></i>
+                    </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-info">
-                        <span class="label">Total Students</span>
-                        <span class="value">364</span>
+                        <span>Total Students</span>
+                        <h2>364</h2>
                     </div>
-                    <div class="stat-icon blue-bg"><i data-lucide="users"></i></div>
+                    <div class="stat-icon" style="background-color:var(--stat-icon-bg-green);color:var(--stat-icon-text-green);">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-info">
-                        <span class="label">Pending Reviews</span>
-                        <span class="value">63</span>
+                        <span>Pending Reviews</span>
+                        <h2>63</h2>
                     </div>
-                    <div class="stat-icon orange-bg"><i data-lucide="clipboard-list"></i></div>
+                    <div class="stat-icon" style="background-color:var(--stat-icon-bg-orange);color:var(--stat-icon-text-orange);">
+                        <i class="fa-solid fa-clipboard-list"></i>
+                    </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-info">
-                        <span class="label">Avg. Rating</span>
-                        <span class="value">4.7</span>
+                        <span>Avg. Rating</span>
+                        <h2>4.7</h2>
                     </div>
-                    <div class="stat-icon yellow-bg"><i data-lucide="star"></i></div>
+                    <div class="stat-icon" style="background-color:var(--stat-icon-bg-purple);color:var(--stat-icon-text-purple);">
+                        <i class="fa-solid fa-star"></i>
+                    </div>
                 </div>
             </div>
 
             <!-- Search and Filter Bar -->
-            <div class="filter-bar">
-                <div class="search-bar">
-                    <i data-lucide="search"></i>
+            <div class="inst-filter-bar">
+                <div class="inst-search-wrapper">
+                    <i class="fa-solid fa-magnifying-glass"></i>
                     <input type="text" placeholder="Search courses...">
                 </div>
-                <div class="filter-group">
-                    <button class="filter-btn active">All Courses</button>
-                    <button class="filter-btn">Active</button>
-                    <button class="filter-btn">Drafts</button>
-                    <button class="filter-btn">Archived</button>
+                <div class="inst-filter-group">
+                    <button class="inst-filter-btn inst-filter-active">All Courses</button>
+                    <button class="inst-filter-btn">Active</button>
+                    <button class="inst-filter-btn">Drafts</button>
+                    <button class="inst-filter-btn">Archived</button>
                 </div>
             </div>
 
             <!-- Course Cards Grid -->
-            <div class="course-grid">
-                
+            <div class="inst-course-grid">
+
                 <!-- Active Course 1 -->
-                <div class="course-card">
-                    <div class="card-top">
+                <div class="inst-course-card">
+                    <div class="inst-card-top">
                         <h3>Data Structures & Algorithms</h3>
-                        <span class="pending-badge">12 pending</span>
+                        <span class="inst-pending-badge">12 pending</span>
                     </div>
-                    <div class="course-stats">
-                        <span><i data-lucide="users"></i> 87 students</span>
-                        <span><i data-lucide="star"></i> 4.8</span>
-                        <span><i data-lucide="clock"></i> 2 hours ago</span>
+                    <div class="inst-course-stats-row">
+                        <span><i class="fa-solid fa-user"></i> 87 students</span>
+                        <span><i class="fa-solid fa-star"></i> 4.8</span>
+                        <span><i class="fa-regular fa-clock"></i> 2 hours ago</span>
                     </div>
-                    <div class="progress-section">
-                        <div class="progress-label">
+                    <div class="inst-progress-section">
+                        <div class="inst-progress-label">
                             <span>Average Progress</span>
                             <span>76%</span>
                         </div>
-                        <div class="progress-container">
-                            <div class="progress-bar" style="width: 76%;"></div>
+                        <div class="inst-progress-track">
+                            <div class="inst-progress-fill" style="width:76%;"></div>
                         </div>
                     </div>
-                    <div class="recent-submission">
-                        <div class="sub-icon"><i data-lucide="file-text"></i></div>
-                        <div class="sub-text">
+                    <div class="inst-recent-sub">
+                        <div class="inst-sub-icon"><i class="fa-solid fa-file-lines"></i></div>
+                        <div class="inst-sub-text">
                             <p><strong>Sarah Johnson</strong> submitted</p>
-                            <p class="sub-title">Binary Tree Implementation</p>
-                            <span class="sub-time">2 hours ago</span>
+                            <p class="inst-sub-title">Binary Tree Implementation</p>
+                            <span class="inst-sub-time">2 hours ago</span>
                         </div>
                     </div>
-                    <div class="card-actions">
-                        <button class="action-btn view-btn">View Course</button>
-                        <button class="action-btn grade-btn">Grade Work</button>
-                        <button class="settings-btn"><i data-lucide="settings"></i></button>
+                    <div class="inst-card-actions">
+                        <button class="inst-action-btn inst-view-btn">View Course</button>
+                        <button class="inst-action-btn inst-grade-btn">Grade Work</button>
+                        <button class="inst-settings-icon"><i class="fa-solid fa-gear"></i></button>
                     </div>
                 </div>
 
                 <!-- Active Course 2 -->
-                <div class="course-card">
-                    <div class="card-top">
+                <div class="inst-course-card">
+                    <div class="inst-card-top">
                         <h3>Database Systems</h3>
-                        <span class="pending-badge">23 pending</span>
+                        <span class="inst-pending-badge">23 pending</span>
                     </div>
-                    <div class="course-stats">
-                        <span><i data-lucide="users"></i> 97 students</span>
-                        <span><i data-lucide="star"></i> 4.7</span>
-                        <span><i data-lucide="clock"></i> 1 hour ago</span>
+                    <div class="inst-course-stats-row">
+                        <span><i class="fa-solid fa-user"></i> 97 students</span>
+                        <span><i class="fa-solid fa-star"></i> 4.7</span>
+                        <span><i class="fa-regular fa-clock"></i> 1 hour ago</span>
                     </div>
-                    <div class="progress-section">
-                        <div class="progress-label">
+                    <div class="inst-progress-section">
+                        <div class="inst-progress-label">
                             <span>Average Progress</span>
                             <span>85%</span>
                         </div>
-                        <div class="progress-container">
-                            <div class="progress-bar" style="width: 85%;"></div>
+                        <div class="inst-progress-track">
+                            <div class="inst-progress-fill" style="width:85%;"></div>
                         </div>
                     </div>
-                    <div class="recent-submission">
-                        <div class="sub-icon"><i data-lucide="file-text"></i></div>
-                        <div class="sub-text">
+                    <div class="inst-recent-sub">
+                        <div class="inst-sub-icon"><i class="fa-solid fa-file-lines"></i></div>
+                        <div class="inst-sub-text">
                             <p><strong>Michael Chen</strong> submitted</p>
-                            <p class="sub-title">Database Design Project</p>
-                            <span class="sub-time">1 hour ago</span>
+                            <p class="inst-sub-title">Database Design Project</p>
+                            <span class="inst-sub-time">1 hour ago</span>
                         </div>
                     </div>
-                    <div class="card-actions">
-                        <button class="action-btn view-btn">View Course</button>
-                        <button class="action-btn grade-btn">Grade Work</button>
-                        <button class="settings-btn"><i data-lucide="settings"></i></button>
+                    <div class="inst-card-actions">
+                        <button class="inst-action-btn inst-view-btn">View Course</button>
+                        <button class="inst-action-btn inst-grade-btn">Grade Work</button>
+                        <button class="inst-settings-icon"><i class="fa-solid fa-gear"></i></button>
                     </div>
                 </div>
 
                 <!-- Active Course 3 -->
-                <div class="course-card">
-                    <div class="card-top">
+                <div class="inst-course-card">
+                    <div class="inst-card-top">
                         <h3>Web Development</h3>
-                        <span class="pending-badge">8 pending</span>
+                        <span class="inst-pending-badge">8 pending</span>
                     </div>
-                    <div class="course-stats">
-                        <span><i data-lucide="users"></i> 65 students</span>
-                        <span><i data-lucide="star"></i> 4.9</span>
-                        <span><i data-lucide="clock"></i> 30 minutes ago</span>
+                    <div class="inst-course-stats-row">
+                        <span><i class="fa-solid fa-user"></i> 65 students</span>
+                        <span><i class="fa-solid fa-star"></i> 4.9</span>
+                        <span><i class="fa-regular fa-clock"></i> 30 minutes ago</span>
                     </div>
-                    <div class="progress-section">
-                        <div class="progress-label">
+                    <div class="inst-progress-section">
+                        <div class="inst-progress-label">
                             <span>Average Progress</span>
                             <span>72%</span>
                         </div>
-                        <div class="progress-container">
-                            <div class="progress-bar" style="width: 72%;"></div>
+                        <div class="inst-progress-track">
+                            <div class="inst-progress-fill" style="width:72%;"></div>
                         </div>
                     </div>
-                    <div class="recent-submission">
-                        <div class="sub-icon"><i data-lucide="file-text"></i></div>
-                        <div class="sub-text">
+                    <div class="inst-recent-sub">
+                        <div class="inst-sub-icon"><i class="fa-solid fa-file-lines"></i></div>
+                        <div class="inst-sub-text">
                             <p><strong>Emily Rodriguez</strong> submitted</p>
-                            <p class="sub-title">React Components Lab</p>
-                            <span class="sub-time">30 minutes ago</span>
+                            <p class="inst-sub-title">React Components Lab</p>
+                            <span class="inst-sub-time">30 minutes ago</span>
                         </div>
                     </div>
-                    <div class="card-actions">
-                        <button class="action-btn view-btn">View Course</button>
-                        <button class="action-btn grade-btn">Grade Work</button>
-                        <button class="settings-btn"><i data-lucide="settings"></i></button>
+                    <div class="inst-card-actions">
+                        <button class="inst-action-btn inst-view-btn">View Course</button>
+                        <button class="inst-action-btn inst-grade-btn">Grade Work</button>
+                        <button class="inst-settings-icon"><i class="fa-solid fa-gear"></i></button>
                     </div>
                 </div>
 
                 <!-- Active Course 4 -->
-                <div class="course-card">
-                    <div class="card-top">
+                <div class="inst-course-card">
+                    <div class="inst-card-top">
                         <h3>Competitive Programming</h3>
-                        <span class="pending-badge">15 pending</span>
+                        <span class="inst-pending-badge">15 pending</span>
                     </div>
-                    <div class="course-stats">
-                        <span><i data-lucide="users"></i> 42 students</span>
-                        <span><i data-lucide="star"></i> 4.7</span>
-                        <span><i data-lucide="clock"></i> 3 hours ago</span>
+                    <div class="inst-course-stats-row">
+                        <span><i class="fa-solid fa-user"></i> 42 students</span>
+                        <span><i class="fa-solid fa-star"></i> 4.7</span>
+                        <span><i class="fa-regular fa-clock"></i> 3 hours ago</span>
                     </div>
-                    <div class="progress-section">
-                        <div class="progress-label">
+                    <div class="inst-progress-section">
+                        <div class="inst-progress-label">
                             <span>Average Progress</span>
                             <span>68%</span>
                         </div>
-                        <div class="progress-container">
-                            <div class="progress-bar" style="width: 68%;"></div>
+                        <div class="inst-progress-track">
+                            <div class="inst-progress-fill" style="width:68%;"></div>
                         </div>
                     </div>
-                    <div class="recent-submission">
-                        <div class="sub-icon"><i data-lucide="file-text"></i></div>
-                        <div class="sub-text">
+                    <div class="inst-recent-sub">
+                        <div class="inst-sub-icon"><i class="fa-solid fa-file-lines"></i></div>
+                        <div class="inst-sub-text">
                             <p><strong>Ahmed Hassan</strong> submitted</p>
-                            <p class="sub-title">Dynamic Programming Set</p>
-                            <span class="sub-time">3 hours ago</span>
+                            <p class="inst-sub-title">Dynamic Programming Set</p>
+                            <span class="inst-sub-time">3 hours ago</span>
                         </div>
                     </div>
-                    <div class="card-actions">
-                        <button class="action-btn view-btn">View Course</button>
-                        <button class="action-btn grade-btn">Grade Work</button>
-                        <button class="settings-btn"><i data-lucide="settings"></i></button>
+                    <div class="inst-card-actions">
+                        <button class="inst-action-btn inst-view-btn">View Course</button>
+                        <button class="inst-action-btn inst-grade-btn">Grade Work</button>
+                        <button class="inst-settings-icon"><i class="fa-solid fa-gear"></i></button>
                     </div>
                 </div>
 
                 <!-- Active Course 5 -->
-                <div class="course-card">
-                    <div class="card-top">
+                <div class="inst-course-card">
+                    <div class="inst-card-top">
                         <h3>Operating Systems</h3>
-                        <span class="pending-badge">5 pending</span>
+                        <span class="inst-pending-badge">5 pending</span>
                     </div>
-                    <div class="course-stats">
-                        <span><i data-lucide="users"></i> 73 students</span>
-                        <span><i data-lucide="star"></i> 4.6</span>
-                        <span><i data-lucide="clock"></i> 5 hours ago</span>
+                    <div class="inst-course-stats-row">
+                        <span><i class="fa-solid fa-user"></i> 73 students</span>
+                        <span><i class="fa-solid fa-star"></i> 4.6</span>
+                        <span><i class="fa-regular fa-clock"></i> 5 hours ago</span>
                     </div>
-                    <div class="progress-section">
-                        <div class="progress-label">
+                    <div class="inst-progress-section">
+                        <div class="inst-progress-label">
                             <span>Average Progress</span>
                             <span>91%</span>
                         </div>
-                        <div class="progress-container">
-                            <div class="progress-bar" style="width: 91%;"></div>
+                        <div class="inst-progress-track">
+                            <div class="inst-progress-fill" style="width:91%;"></div>
                         </div>
                     </div>
-                    <div class="card-actions">
-                        <button class="action-btn view-btn">View Course</button>
-                        <button class="action-btn grade-btn">Grade Work</button>
-                        <button class="settings-btn"><i data-lucide="settings"></i></button>
+                    <div class="inst-card-actions">
+                        <button class="inst-action-btn inst-view-btn">View Course</button>
+                        <button class="inst-action-btn inst-grade-btn">Grade Work</button>
+                        <button class="inst-settings-icon"><i class="fa-solid fa-gear"></i></button>
                     </div>
                 </div>
 
                 <!-- Draft Course -->
-                <div class="course-card draft">
-                    <div class="card-top">
-                        <h3>Machine Learning Basics <span class="draft-badge">DRAFT</span></h3>
+                <div class="inst-course-card inst-draft">
+                    <div class="inst-card-top">
+                        <h3>Machine Learning Basics <span class="inst-draft-badge">DRAFT</span></h3>
                     </div>
-                    <div class="course-stats">
-                        <span><i data-lucide="users"></i> 0 students</span>
+                    <div class="inst-course-stats-row">
+                        <span><i class="fa-solid fa-user"></i> 0 students</span>
                     </div>
-                    <div class="draft-content">
-                        <button class="action-btn continue-btn">Continue Setup</button>
+                    <div class="inst-draft-content">
+                        <button class="inst-action-btn inst-continue-btn">Continue Setup</button>
                     </div>
                 </div>
 
             </div>
-        </section>
+
+        </div>
     </main>
 
-    <script src="instructor-courses.js"></script>
+    <script src="../../react-page-utils.js"></script>
+    <script>
+        if (window.NibrasShared?.session?.updateUserInfoDisplay) {
+            window.NibrasShared.session.updateUserInfoDisplay();
+        }
+    </script>
+    <script>
+        (function initTheme() {
+            const themeBtn = document.getElementById('themeBtn');
+            const themeIcon = themeBtn?.querySelector('i');
+            const appLogo = document.getElementById('app-logo');
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            if (currentTheme === 'dark') {
+                if (themeIcon) themeIcon.className = 'fa-solid fa-sun';
+                if (appLogo) appLogo.src = '/Assets/images/logo-dark.png';
+            } else {
+                if (themeIcon) themeIcon.className = 'fa-regular fa-moon';
+                if (appLogo) appLogo.src = '/Assets/images/logo-light.png';
+            }
+            if (themeBtn) {
+                themeBtn.addEventListener('click', function () {
+                    const html = document.documentElement;
+                    const current = html.getAttribute('data-theme');
+                    const newTheme = current === 'light' ? 'dark' : 'light';
+                    html.setAttribute('data-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+                    if (newTheme === 'dark') {
+                        if (themeIcon) themeIcon.className = 'fa-solid fa-sun';
+                        if (appLogo) appLogo.src = '/Assets/images/logo-dark.png';
+                    } else {
+                        if (themeIcon) themeIcon.className = 'fa-regular fa-moon';
+                        if (appLogo) appLogo.src = '/Assets/images/logo-light.png';
+                    }
+                });
+            }
+        })();
+    </script>
+    <script src="../../react-bootstrap.js"></script>
+    <script src="./instructor-courses.js"></script>
 </body>
 </html>
