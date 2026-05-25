@@ -14,6 +14,16 @@ window.NibrasReact.run(async () => {
         }
     } catch (_) {}
 
+    // Hide videos nav for instructors
+    try {
+        var _u = JSON.parse(localStorage.getItem('user') || '{}');
+        var _role = String(_u?.role?.name || _u?.role || '').toLowerCase();
+        if (_role === 'instructor') {
+            var videosLink = document.querySelector('[data-nav-link="videos"]');
+            if (videosLink) videosLink.style.display = 'none';
+        }
+    } catch (_) {}
+
     const selectedCourse = window.NibrasCourses?.getSelectedCourse?.();
     if (!selectedCourse) return;
 
