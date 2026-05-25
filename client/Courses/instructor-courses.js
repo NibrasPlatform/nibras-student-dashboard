@@ -201,41 +201,12 @@
             } catch (_2) {}
         }
 
-        // 4. Compute stats
+        // 4. Render default view (active courses)
         if (allCourses.length) {
-            var activeCourses = allCourses.filter(function (c) {
-                var s = (c.status || 'active').toLowerCase();
-                return s !== 'draft' && s !== 'archived';
-            });
-            var draftCourses = allCourses.filter(function (c) {
-                return (c.status || '').toLowerCase() === 'draft';
-            });
-            var totalStudents = 0;
-            var totalPending = 0;
-            var totalRatingSum = 0;
-            var ratingCount = 0;
-            allCourses.forEach(function (c) {
-                totalStudents += (c.enrolledCount || c.studentsCount || c.enrolledStudents || 0);
-                totalPending += (c.pendingReviews || c.pendingSubmissions || 0);
-                if (c.rating || c.averageRating) {
-                    totalRatingSum += parseFloat(c.rating || c.averageRating || 0);
-                    ratingCount++;
-                }
-            });
-
-            var statH2s = document.querySelectorAll('#inst-courses-stats .stat-card h2');
-            if (statH2s[0]) statH2s[0].textContent = activeCourses.length;
-            if (statH2s[1]) statH2s[1].textContent = totalStudents;
-            if (statH2s[2]) statH2s[2].textContent = totalPending;
-            if (statH2s[3] && ratingCount > 0) {
-                statH2s[3].textContent = (totalRatingSum / ratingCount).toFixed(1);
-            }
-
-            // 5. Render default view (active courses)
             applyFilter('active');
         }
 
-        // 6. Setup filter buttons
+        // 5. Setup filter buttons
         document.querySelectorAll('.inst-filter-btn').forEach(function (btn) {
             btn.addEventListener('click', function () {
                 var filter = this.getAttribute('data-filter') || 'all';
@@ -243,7 +214,7 @@
             });
         });
 
-        // 7. Setup search input
+        // 6. Setup search input
         var searchInput = document.querySelector('.inst-search-wrapper input');
         if (searchInput) {
             searchInput.addEventListener('input', function () {
@@ -271,7 +242,7 @@
             });
         }
 
-        // 8. Delegate button clicks
+        // 7. Delegate button clicks
         document.addEventListener('click', function (e) {
             var btn = e.target.closest('.inst-view-btn, .inst-grade-btn, .inst-continue-btn');
             if (btn) {
