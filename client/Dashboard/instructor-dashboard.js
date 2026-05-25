@@ -144,26 +144,25 @@
             // Backend not ready, keep hardcoded fallback
         }
 
-        // 5. Also fetch all courses to update active count
+        // 5. Fallback: Active Courses count
         try {
-            var coursesResp = await S.coursesService.list({ page: 1, limit: 100 });
-            var coursesList = coursesResp && (
-                (coursesResp.data && coursesResp.data.items) ||
-                coursesResp.data || coursesResp.courses || []
-            );
-            if (Array.isArray(coursesList) && coursesList.length) {
-                var activeCount = coursesList.filter(function (c) {
-                    var status = (c.status || '').toLowerCase();
-                    return status !== 'draft' && status !== 'archived' && status !== '';
-                }).length;
-                if (activeCount > 0) {
-                    var statH2 = document.querySelector('#stats-container .stat-card h2');
-                    if (statH2) statH2.textContent = activeCount;
-                }
+            var coursesResp = await S.coursesService.list({ page: 1, limit: 1 });
+            var totalCourses = coursesResp?.meta?.total ?? coursesResp?.data?.meta?.total;
+            if (totalCourses > 0) {
+                document.querySelectorAll('#stats-container .stat-card h2')[0].textContent = totalCourses;
             }
         } catch (_) {}
 
-        // 6. Delegate Manage button clicks
+        // 6. Fallback: Questions Asked count (public endpoint, total across all users)
+        try {
+            var qResp = await S.questionService.list({ page: 1, limit: 1 });
+            var totalQ = qResp?.data?.pagination?.total;
+            if (totalQ != null) {
+                document.querySelectorAll('#stats-container .stat-card h2')[3].textContent = totalQ;
+            }
+        } catch (_) {}
+
+        // 7. Delegate Manage button clicks
         document.addEventListener('click', function (e) {
             var btn = e.target.closest('.inst-manage-btn');
             if (btn) {
