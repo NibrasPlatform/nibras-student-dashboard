@@ -753,7 +753,8 @@
 
             var dd = document.createElement('div');
             dd.className = 'profile-dropdown-menu';
-            dd.innerHTML = [
+            var isInstructor = String(user?.role?.name || user?.role || '').toLowerCase() === 'instructor';
+            var menuItems = [
                 '<div class="dd-header">',
                 '  <div class="dd-avatar-circle">' + initials + '</div>',
                 '  <div class="dd-info">',
@@ -765,13 +766,18 @@
                 '<div class="dd-divider"></div>',
                 '<a class="dd-item" data-href="/Dashboard/dashboard.html"><span>📊</span> Dashboard</a>',
                 '<a class="dd-item" data-href="/Courses/courses.html"><span>📚</span> My Courses</a>',
-                '<a class="dd-item" data-href="/Achievements/Achievements/achievements.html"><span>🏆</span> Achievements</a>',
+            ];
+            if (!isInstructor) {
+                menuItems.push('<a class="dd-item" data-href="/Achievements/Achievements/achievements.html"><span>🏆</span> Achievements</a>');
+            }
+            menuItems.push(
                 '<div class="dd-divider"></div>',
                 '<a class="dd-item" data-href="/Settings/settings.html"><span>⚙️</span> Settings</a>',
                 '<div class="dd-divider"></div>',
                 '<a class="dd-item dd-action" data-action="theme"><span>' + tIcon + '</span> ' + tLabel + '</a>',
-                '<a class="dd-item dd-signout" data-action="logout"><span>🚪</span> Sign Out</a>',
-            ].join('');
+                '<a class="dd-item dd-signout" data-action="logout"><span>🚪</span> Sign Out</a>'
+            );
+            dd.innerHTML = menuItems.join('');
 
             parent.appendChild(dd);
 
