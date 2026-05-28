@@ -228,7 +228,8 @@
 
     const renderRunning = () => {
         if (!liveContainer) return;
-        if (!runningContests.length) {
+        const filtered = filterContestsByPlatform(runningContests, selectedPlatform);
+        if (!filtered.length) {
             if (uiStates?.render) {
                 uiStates.render(liveContainer, { state: 'empty', message: 'No running contests right now.' });
             } else {
@@ -238,7 +239,7 @@
         }
 
         liveContainer.innerHTML = '';
-        runningContests.forEach((contest) => {
+        filtered.forEach((contest) => {
             const contestId = contest._id || contest.id || '';
             const platformBadge = contest.platform ? `<span class="badge bg-blue">${contest.platform}</span>` : '';
             liveContainer.innerHTML += `
@@ -265,7 +266,8 @@
 
     const renderUpcoming = () => {
         if (!upcomingContainer) return;
-        if (!upcomingContests.length) {
+        const filtered = filterContestsByPlatform(upcomingContests, selectedPlatform);
+        if (!filtered.length) {
             if (uiStates?.render) {
                 uiStates.render(upcomingContainer, { state: 'empty', message: 'No upcoming contests available.' });
             } else {
@@ -275,7 +277,7 @@
         }
 
         upcomingContainer.innerHTML = '';
-        upcomingContests.forEach((contest) => {
+        filtered.forEach((contest) => {
             const contestId = contest._id || contest.id || '';
             const isBookmarked = bookmarkedContestIds.has(contestId);
             const hasReminder = reminderContestIds.has(contestId);
@@ -552,7 +554,7 @@
         document.querySelectorAll('.filter-chip').forEach((chip) => {
             chip.classList.toggle('active', chip.dataset.platform === platform);
         });
-        if (currentView === 'calendar') renderCalendar();
+        refreshContestViews();
     };
 
     const navigateCalendar = (direction) => {
