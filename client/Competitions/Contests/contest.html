@@ -95,48 +95,83 @@
                 <a href="../Ranking/ranking.html" class="tab-btn">Rankings</a>
             </div>
 
-            <!-- Live Contests -->
-            <section class="contest-section">
-                <div class="section-title-row">
-                    <span class="live-dot"></span>
-                    <h3>Live Contests</h3>
-                </div>
-                <p class="section-desc">Currently running competitions</p>
-                
-                <div class="live-grid" id="live-container">
-                    <!-- JS Injected -->
-                </div>
-            </section>
+            <!-- View Toggle: Calendar / List -->
+            <div class="view-toggle">
+                <button class="view-toggle-btn active" data-view="list"><i class="fa-solid fa-list"></i> List</button>
+                <button class="view-toggle-btn" data-view="calendar"><i class="fa-solid fa-calendar-days"></i> Calendar</button>
+            </div>
 
-            <!-- Upcoming Contests -->
-            <section class="contest-section">
-                <h3>Upcoming Contests</h3>
-                <p class="section-desc">Register for future competitions</p>
-                
-                <div class="upcoming-list" id="upcoming-container">
-                    <!-- JS Injected -->
-                </div>
-            </section>
+            <!-- Platform Filters -->
+            <div class="platform-filters">
+                <button class="filter-chip active" data-platform="all">All</button>
+                <button class="filter-chip" data-platform="codeforces">CODEFORCES</button>
+                <button class="filter-chip" data-platform="leetcode">LEETCODE</button>
+                <button class="filter-chip" data-platform="atcoder">ATCODER</button>
+            </div>
 
-            <!-- Bookmarked Contests -->
-            <section class="contest-section">
-                <h3><i class="fa-solid fa-bookmark" style="color: var(--accent-purple); margin-right: 8px;"></i>Bookmarked Contests</h3>
-                <p class="section-desc">Your saved contests</p>
-                
-                <div class="bookmarks-list" id="bookmarks-container">
-                    <!-- JS Injected -->
+            <!-- Calendar View -->
+            <div id="calendar-view" class="calendar-view" style="display: none;">
+                <div class="calendar-nav">
+                    <div class="calendar-nav-btns">
+                        <button class="calendar-nav-btn" id="prev-btn">←</button>
+                        <button class="calendar-today-btn" id="today-btn">Today</button>
+                        <button class="calendar-nav-btn" id="next-btn">→</button>
+                    </div>
+                    <h2 class="calendar-nav-title" id="nav-title"></h2>
+                    <div class="calendar-view-toggle">
+                        <button class="cal-view-btn active" data-cal-view="month">Month</button>
+                        <button class="cal-view-btn" data-cal-view="week">Week</button>
+                        <button class="cal-view-btn" data-cal-view="day">Day</button>
+                    </div>
                 </div>
-            </section>
+                <div id="calendar-grid" class="calendar-grid"></div>
+            </div>
 
-            <!-- Reminders -->
-            <section class="contest-section">
-                <h3><i class="fa-solid fa-bell" style="color: var(--accent-orange); margin-right: 8px;"></i>Reminders</h3>
-                <p class="section-desc">Contests you've set reminders for</p>
-                
-                <div class="reminders-list" id="reminders-container">
-                    <!-- JS Injected -->
-                </div>
-            </section>
+            <!-- List View -->
+            <div id="list-view">
+                <!-- Live Contests -->
+                <section class="contest-section">
+                    <div class="section-title-row">
+                        <span class="live-dot"></span>
+                        <h3>Live Contests</h3>
+                    </div>
+                    <p class="section-desc">Currently running competitions</p>
+                    
+                    <div class="live-grid" id="live-container">
+                        <!-- JS Injected -->
+                    </div>
+                </section>
+
+                <!-- Upcoming Contests -->
+                <section class="contest-section">
+                    <h3>Upcoming Contests</h3>
+                    <p class="section-desc">Register for future competitions</p>
+                    
+                    <div class="upcoming-list" id="upcoming-container">
+                        <!-- JS Injected -->
+                    </div>
+                </section>
+
+                <!-- Bookmarked Contests -->
+                <section class="contest-section">
+                    <h3><i class="fa-solid fa-bookmark" style="color: var(--accent-purple); margin-right: 8px;"></i>Bookmarked Contests</h3>
+                    <p class="section-desc">Your saved contests</p>
+                    
+                    <div class="bookmarks-list" id="bookmarks-container">
+                        <!-- JS Injected -->
+                    </div>
+                </section>
+
+                <!-- Reminders -->
+                <section class="contest-section">
+                    <h3><i class="fa-solid fa-bell" style="color: var(--accent-orange); margin-right: 8px;"></i>Reminders</h3>
+                    <p class="section-desc">Contests you've set reminders for</p>
+                    
+                    <div class="reminders-list" id="reminders-container">
+                        <!-- JS Injected -->
+                    </div>
+                </section>
+            </div>
 
         </div>
     </main>

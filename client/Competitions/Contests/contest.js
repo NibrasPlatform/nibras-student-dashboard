@@ -37,6 +37,14 @@
     let reminderContests = [];
     const isAuthError = (error) => Number(error?.status || 0) === 401 || Number(error?.status || 0) === 403;
 
+    let allContests = [];
+    let currentView = 'list';
+    let calendarViewMode = 'month';
+    let currentMonth = new Date().getMonth() + 1;
+    let currentYear = new Date().getFullYear();
+    let selectedPlatform = 'all';
+    let calendarDate = new Date();
+
     const showFeedback = (message, tone = 'info') => {
         if (!message) {
             feedbackNotice.hidden = true;
@@ -49,6 +57,52 @@
             return;
         }
         feedbackNotice.textContent = message;
+    };
+
+    const formatDateKey = (isoValue) => {
+        if (!isoValue) return null;
+        const d = new Date(isoValue);
+        if (Number.isNaN(d.getTime())) return null;
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    };
+
+    const groupContestsByDate = (contests) => {
+        const grouped = {};
+        contests.forEach((c) => {
+            const key = formatDateKey(c.startTime);
+            if (!key) return;
+            if (!grouped[key]) grouped[key] = [];
+            grouped[key].push(c);
+        });
+        return grouped;
+    };
+
+    const getGoogleCalendarLink = (contest) => {
+        if (!contest || !contest.startTime) return '#';
+        const start = new Date(contest.startTime);
+        const dur = Number(contest.duration) || 120;
+        const end = new Date(start.getTime() + dur * 60000);
+        const fmt = (d) => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+        const title = encodeURIComponent(contest.title || 'Contest');
+        const details = encodeURIComponent(`Platform: ${contest.platform || ''}\nContest: ${contest.url || ''}`);
+        const location = encodeURIComponent(contest.url || '');
+        return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${fmt(start)}/${fmt(end)}&details=${details}&location=${location}`;
+    };
+
+    const getChipClass = (platform) => {
+        const p = (platform || '').toLowerCase();
+        if (p === 'codeforces') return 'calendar-chip-codeforces';
+        if (p === 'leetcode') return 'calendar-chip-leetcode';
+        if (p === 'atcoder') return 'calendar-chip-atcoder';
+        return '';
+    };
+
+    const getDaysInMonth = (year, month) => new Date(year, month, 0).getDate();
+    const getFirstDayOfMonth = (year, month) => new Date(year, month - 1, 1).getDay();
+
+    const filterContestsByPlatform = (contests, platform) => {
+        if (!platform || platform === 'all') return contests;
+        return contests.filter((c) => (c.platform || '').toLowerCase() === platform.toLowerCase());
     };
 
     const formatDateTime = (isoValue) => {
@@ -255,12 +309,288 @@
         });
     };
 
+    const renderCalendar = () => {
+        if (!document.getElementById('calendar-grid')) return;
+        if (calendarViewMode === 'month') renderMonthGrid();
+        else if (calendarViewMode === 'week') renderWeekGrid();
+        else if (calendarViewMode === 'day') renderDayGrid();
+    };
+
     const refreshContestViews = () => {
         refreshStats();
         renderRunning();
         renderUpcoming();
         renderBookmarks();
         renderReminders();
+        renderCalendar();
+    };
+
+    const renderMonthGrid = () => {
+        const grid = document.getElementById('calendar-grid');
+        if (!grid) return;
+        const title = document.getElementById('nav-title');
+        if (title) {
+            const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+            title.textContent = `${months[currentMonth - 1]} ${currentYear}`;
+        }
+
+        const daysInMonth = getDaysInMonth(currentYear, currentMonth);
+        const firstDay = getFirstDayOfMonth(currentYear, currentMonth);
+        const daysInPrev = getDaysInMonth(currentYear, currentMonth - 1);
+        const filtered = filterContestsByPlatform(allContests, selectedPlatform);
+        const grouped = groupContestsByDate(filtered);
+        const today = new Date();
+        const todayKey = formatDateKey(today.toISOString());
+
+        let html = '<div class="calendar-weekday-header">';
+        ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach((d) => {
+            html += `<div class="calendar-weekday-cell">${d}</div>`;
+        });
+        html += '</div><div class="calendar-month-grid">';
+
+        const totalCells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+
+        for (let i = 0; i < totalCells; i++) {
+            let dayNum;
+            let isOutside = false;
+            let dateKey;
+
+            if (i < firstDay) {
+                dayNum = daysInPrev - firstDay + i + 1;
+                isOutside = true;
+                const pm = currentMonth === 1 ? 12 : currentMonth - 1;
+                const py = currentMonth === 1 ? currentYear - 1 : currentYear;
+                dateKey = `${py}-${String(pm).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
+            } else {
+                const dayOfMonth = i - firstDay + 1;
+                if (dayOfMonth > daysInMonth) {
+                    dayNum = dayOfMonth - daysInMonth;
+                    isOutside = true;
+                    const nm = currentMonth === 12 ? 1 : currentMonth + 1;
+                    const ny = currentMonth === 12 ? currentYear + 1 : currentYear;
+                    dateKey = `${ny}-${String(nm).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
+                } else {
+                    dayNum = dayOfMonth;
+                    dateKey = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
+                }
+            }
+
+            const dayContests = grouped[dateKey] || [];
+            const isToday = dateKey === todayKey;
+
+            let cellClass = 'calendar-day-cell';
+            if (isOutside) cellClass += ' calendar-day-cell-outside';
+            if (isToday) cellClass += ' calendar-day-cell-today';
+
+            html += `<div class="${cellClass}">`;
+            if (isToday) {
+                html += `<span class="calendar-day-number-today">${dayNum}</span>`;
+            } else {
+                html += `<span class="calendar-day-number">${dayNum}</span>`;
+            }
+
+            const visibleChips = 3;
+            const chipsToShow = dayContests.slice(0, visibleChips);
+            const remaining = dayContests.length - visibleChips;
+
+            if (chipsToShow.length > 0) {
+                html += '<div class="calendar-chip-row">';
+                chipsToShow.forEach((c) => {
+                    const chipClass = getChipClass(c.platform);
+                    const calLink = getGoogleCalendarLink(c);
+                    html += '<div class="calendar-chip-row-inner">';
+                    html += `<a href="${c.url || '#'}" target="_blank" rel="noopener noreferrer" class="calendar-contest-chip ${chipClass}" title="${(c.title || '')} - ${new Date(c.startTime).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}">${c.title || 'Untitled'}</a>`;
+                    html += `<a href="${calLink}" target="_blank" rel="noopener noreferrer" class="calendar-cal-link" title="Add to Google Calendar">+</a>`;
+                    html += '</div>';
+                });
+                if (remaining > 0) {
+                    html += `<span class="calendar-more-link">+${remaining} more</span>`;
+                }
+                html += '</div>';
+            }
+
+            html += '</div>';
+        }
+
+        html += '</div>';
+        grid.innerHTML = html;
+    };
+
+    const renderWeekGrid = () => {
+        const grid = document.getElementById('calendar-grid');
+        if (!grid) return;
+        const title = document.getElementById('nav-title');
+        const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+        const d = new Date(currentYear, currentMonth - 1, calendarDate.getDate());
+        const dayOfWeek = d.getDay();
+        const sunday = new Date(d);
+        sunday.setDate(d.getDate() - dayOfWeek);
+        const saturday = new Date(sunday);
+        saturday.setDate(sunday.getDate() + 6);
+
+        if (title) {
+            title.textContent = `${months[sunday.getMonth()]} ${sunday.getDate()} - ${months[saturday.getMonth()]} ${saturday.getDate()}, ${saturday.getFullYear()}`;
+        }
+
+        const filtered = filterContestsByPlatform(allContests, selectedPlatform);
+        const grouped = groupContestsByDate(filtered);
+
+        let html = '<div class="calendar-week-grid">';
+        html += '<div class="calendar-week-header-cell"></div>';
+        for (let i = 0; i < 7; i++) {
+            const day = new Date(sunday);
+            day.setDate(sunday.getDate() + i);
+            const dateKey = formatDateKey(day.toISOString());
+            html += `<div class="calendar-week-header-cell">${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][i]} ${day.getDate()}</div>`;
+        }
+
+        for (let hour = 0; hour < 24; hour++) {
+            const hLabel = hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM`;
+            html += `<div class="calendar-week-hour">${hLabel}</div>`;
+            for (let i = 0; i < 7; i++) {
+                const day = new Date(sunday);
+                day.setDate(sunday.getDate() + i);
+                day.setHours(hour, 0, 0, 0);
+                const dayEnd = new Date(day);
+                dayEnd.setHours(hour + 1);
+                const dateKey = formatDateKey(day.toISOString());
+                const hourContests = (grouped[dateKey] || []).filter((c) => {
+                    const cs = new Date(c.startTime);
+                    return cs >= day && cs < dayEnd;
+                });
+                html += `<div class="calendar-week-cell">`;
+                hourContests.forEach((c) => {
+                    const chipClass = getChipClass(c.platform);
+                    html += `<a href="${c.url || '#'}" target="_blank" rel="noopener noreferrer" class="calendar-contest-chip ${chipClass}" title="${c.title || ''}">${c.title || 'Contest'}</a>`;
+                });
+                html += '</div>';
+            }
+        }
+        html += '</div>';
+        grid.innerHTML = html;
+    };
+
+    const renderDayGrid = () => {
+        const grid = document.getElementById('calendar-grid');
+        if (!grid) return;
+        const title = document.getElementById('nav-title');
+        const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+        const d = new Date(currentYear, currentMonth - 1, calendarDate.getDate());
+        if (title) {
+            title.textContent = `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+        }
+
+        const filtered = filterContestsByPlatform(allContests, selectedPlatform);
+        const dateKey = formatDateKey(d.toISOString());
+        const dayContests = groupContestsByDate(filtered)[dateKey] || [];
+
+        let html = '<div class="calendar-day-grid">';
+        html += `<div class="calendar-day-header-cell">${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} - ${dayContests.length} contest${dayContests.length !== 1 ? 's' : ''}</div>`;
+
+        for (let hour = 0; hour < 24; hour++) {
+            const hLabel = hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM`;
+            html += `<div class="calendar-day-hour">${hLabel}</div>`;
+            const hourStart = new Date(d);
+            hourStart.setHours(hour, 0, 0, 0);
+            const hourEnd = new Date(hourStart);
+            hourEnd.setHours(hour + 1);
+            const hourContests = dayContests.filter((c) => {
+                const cs = new Date(c.startTime);
+                return cs >= hourStart && cs < hourEnd;
+            });
+            html += `<div class="calendar-day-slot">`;
+            if (hourContests.length === 0) {
+                html += '<span style="color:var(--text-tertiary);font-size:0.7rem;padding:4px 0;">—</span>';
+            } else {
+                hourContests.forEach((c) => {
+                    const chipClass = getChipClass(c.platform);
+                    const calLink = getGoogleCalendarLink(c);
+                    html += `<a href="${c.url || '#'}" target="_blank" rel="noopener noreferrer" class="calendar-contest-chip ${chipClass}" title="${c.title || ''}">${c.title || 'Contest'}</a>`;
+                    html += `<a href="${calLink}" target="_blank" rel="noopener noreferrer" class="calendar-cal-link" title="Add to Google Calendar" style="display:inline-flex;align-items:center;">+</a>`;
+                });
+            }
+            html += '</div>';
+        }
+        html += '</div>';
+        grid.innerHTML = html;
+    };
+
+    const switchView = (view) => {
+        currentView = view;
+        document.querySelectorAll('.view-toggle-btn').forEach((btn) => {
+            btn.classList.toggle('active', btn.dataset.view === view);
+        });
+        const calendarView = document.getElementById('calendar-view');
+        const listView = document.getElementById('list-view');
+        if (calendarView) calendarView.style.display = view === 'calendar' ? 'block' : 'none';
+        if (listView) listView.style.display = view === 'list' ? 'block' : 'none';
+        if (view === 'calendar') renderCalendar();
+    };
+
+    const switchCalendarViewMode = (mode) => {
+        const prevMode = calendarViewMode;
+        calendarViewMode = mode;
+        document.querySelectorAll('.cal-view-btn').forEach((btn) => {
+            btn.classList.toggle('active', btn.dataset.calView === mode);
+        });
+
+        if (prevMode === 'month' && (mode === 'week' || mode === 'day')) {
+            calendarDate = new Date(currentYear, currentMonth - 1, 15);
+        }
+        if (prevMode !== 'month' && mode === 'month') {
+            currentMonth = calendarDate.getMonth() + 1;
+            currentYear = calendarDate.getFullYear();
+        }
+
+        renderCalendar();
+    };
+
+    const setPlatformFilter = (platform) => {
+        selectedPlatform = platform;
+        document.querySelectorAll('.filter-chip').forEach((chip) => {
+            chip.classList.toggle('active', chip.dataset.platform === platform);
+        });
+        if (currentView === 'calendar') renderCalendar();
+    };
+
+    const navigateCalendar = (direction) => {
+        if (calendarViewMode === 'month') {
+            if (direction === 'prev') {
+                currentMonth--;
+                if (currentMonth < 1) { currentMonth = 12; currentYear--; }
+            } else if (direction === 'next') {
+                currentMonth++;
+                if (currentMonth > 12) { currentMonth = 1; currentYear++; }
+            } else {
+                const now = new Date();
+                currentMonth = now.getMonth() + 1;
+                currentYear = now.getFullYear();
+                calendarDate = new Date();
+            }
+        } else if (calendarViewMode === 'week') {
+            if (direction === 'prev') {
+                calendarDate.setDate(calendarDate.getDate() - 7);
+            } else if (direction === 'next') {
+                calendarDate.setDate(calendarDate.getDate() + 7);
+            } else {
+                calendarDate = new Date();
+            }
+            currentMonth = calendarDate.getMonth() + 1;
+            currentYear = calendarDate.getFullYear();
+        } else {
+            if (direction === 'prev') {
+                calendarDate.setDate(calendarDate.getDate() - 1);
+            } else if (direction === 'next') {
+                calendarDate.setDate(calendarDate.getDate() + 1);
+            } else {
+                calendarDate = new Date();
+            }
+            currentMonth = calendarDate.getMonth() + 1;
+            currentYear = calendarDate.getFullYear();
+        }
+        renderCalendar();
     };
 
     const renderBookmarks = () => {
@@ -492,12 +822,13 @@
 
         try {
             const [runningResult, upcomingResult] = await Promise.all([
-                competitionsService.listContests({ status: 'running', limit: 20, page: 1, sortBy: 'startTime', order: 'asc' }),
-                competitionsService.listContests({ status: 'upcoming', limit: 20, page: 1, sortBy: 'startTime', order: 'asc' }),
+                competitionsService.listContests({ status: 'running', limit: 50, page: 1, sortBy: 'startTime', order: 'asc' }),
+                competitionsService.listContests({ status: 'upcoming', limit: 100, page: 1, sortBy: 'startTime', order: 'asc' }),
             ]);
 
             runningContests = Array.isArray(runningResult?.contests) ? runningResult.contests : [];
             upcomingContests = Array.isArray(upcomingResult?.contests) ? upcomingResult.contests : [];
+            allContests = [...runningContests, ...upcomingContests];
 
             bookmarkedContestIds = new Set();
             reminderContestIds = new Set();
@@ -621,6 +952,26 @@
         if (action === 'view-bookmarks') {
             showBookmarksModal();
         }
+    });
+
+    // View Toggle
+    document.querySelectorAll('.view-toggle-btn').forEach((btn) => {
+        btn.addEventListener('click', () => switchView(btn.dataset.view));
+    });
+
+    // Platform Filters
+    document.querySelectorAll('.filter-chip').forEach((chip) => {
+        chip.addEventListener('click', () => setPlatformFilter(chip.dataset.platform));
+    });
+
+    // Calendar Navigation
+    document.getElementById('prev-btn')?.addEventListener('click', () => navigateCalendar('prev'));
+    document.getElementById('next-btn')?.addEventListener('click', () => navigateCalendar('next'));
+    document.getElementById('today-btn')?.addEventListener('click', () => navigateCalendar('today'));
+
+    // Calendar View Toggle (Month/Week/Day)
+    document.querySelectorAll('.cal-view-btn').forEach((btn) => {
+        btn.addEventListener('click', () => switchCalendarViewMode(btn.dataset.calView));
     });
 
     refreshStats();
