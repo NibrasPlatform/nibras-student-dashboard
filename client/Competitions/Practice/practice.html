@@ -76,16 +76,10 @@
         </header>
 
         <div class="content-wrapper">
-            
+
             <!-- Title Section -->
             <div class="page-title-section">
-                <h1>Competitive Programming</h1>
-                <p>Sharpen your algorithmic skills and compete with peers</p>
-            </div>
-
-            <!-- Stats Grid -->
-            <div class="comp-stats-grid" id="stats-container">
-                <!-- JS Injected -->
+                <h1 id="practice-title">Practice</h1>
             </div>
 
             <!-- Main Navigation Tabs -->
@@ -95,30 +89,47 @@
                 <a href="../Ranking/ranking.html" class="tab-btn">Rankings</a>
             </div>
 
-            <!-- Filter Section -->
-            <div class="filter-section">
-                <div class="search-bar-local">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" id="problem-search" placeholder="Search problems ...">
-                </div>
-                
-                <div class="difficulty-filters">
-                    <button class="filter-btn active" data-filter="All">All</button>
-                    <button class="filter-btn" data-filter="Easy">Easy</button>
-                    <button class="filter-btn" data-filter="Medium">Medium</button>
-                    <button class="filter-btn" data-filter="Hard">Hard</button>
+            <!-- Platform Tabs -->
+            <div class="platform-filters">
+                <button class="filter-chip active" data-platform="all">All</button>
+                <button class="filter-chip" data-platform="codeforces">CODEFORCES</button>
+                <button class="filter-chip" data-platform="leetcode">LEETCODE</button>
+                <button class="filter-chip" data-platform="atcoder">ATCODER</button>
+            </div>
+
+            <!-- Toolbar -->
+            <div class="practice-toolbar">
+                <input class="toolbar-input" id="filter-search" placeholder="Search problems">
+                <input class="toolbar-input" id="filter-tags" placeholder="Tag filter">
+                <input class="toolbar-input narrow" id="filter-min-rating" type="number" placeholder="Min rating">
+                <input class="toolbar-input narrow" id="filter-max-rating" type="number" placeholder="Max rating">
+                <div class="solved-filters">
+                    <button class="solve-chip active" data-solved="all">All</button>
+                    <button class="solve-chip" data-solved="solved">Solved</button>
+                    <button class="solve-chip" data-solved="unsolved">Unsolved</button>
                 </div>
             </div>
 
-            <!-- Problem List Section -->
-            <div class="practice-container">
-                <h3 class="section-title">Practice Problems</h3>
-                <p class="section-desc">Solve problems to improve your skills</p>
-                
-                <div class="problem-list" id="problem-list-container">
-                    <!-- JS Injected -->
-                </div>
+            <!-- Stats Line -->
+            <div class="practice-stats-line" id="stats-line"></div>
+
+            <!-- Problems Table -->
+            <div class="practice-table-wrap">
+                <table class="practice-table">
+                    <thead>
+                        <tr>
+                            <th>Problem</th>
+                            <th>Rating</th>
+                            <th>Tags</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="practice-tbody"></tbody>
+                </table>
             </div>
+
+            <!-- Pagination -->
+            <div class="practice-pagination" id="pagination"></div>
 
         </div>
     </main>
