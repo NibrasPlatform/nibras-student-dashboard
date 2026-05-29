@@ -1,26 +1,14 @@
 window.NibrasReact.run(function () {
 
-    // ── State ──
-    var badges = [];
-    var awardedIds = new Set();
-    var repTotal = 0;
-    var isLoading = true;
+    // ── Static badge data from HTML (backend has no badge system) ──
+    var EARNED_COUNT = 3;
+    var TOTAL_BADGES = 206;
+    var LEGENDARY_COUNT = 0;
 
     // ── DOM refs ──
     var statsEl = document.getElementById('stats-container');
-    var bannerEl = document.getElementById('new-badge-banner');
-
-    var LEVEL_THRESHOLDS = [0, 100, 500, 1000, 2000, 2500, 5000];
-    var LEVEL_NAMES = ['Novice', 'Learner', 'Contributor', 'Expert', 'Master', 'Legend'];
 
     // ── Helpers ──
-    function getLevelLabel(score) {
-        for (var i = LEVEL_THRESHOLDS.length - 1; i >= 0; i--) {
-            if (score >= LEVEL_THRESHOLDS[i]) return LEVEL_NAMES[i] || 'Legend';
-        }
-        return 'Novice';
-    }
-
     function escapeHtml(str) {
         if (!str && str !== 0) return '';
         var d = document.createElement('div');
@@ -36,7 +24,6 @@ window.NibrasReact.run(function () {
             '<div class="loading-skeleton-stats loading-shimmer"></div>',
             '</div>',
         ].join('');
-        isLoading = true;
     }
 
     function showError(message) {
@@ -44,100 +31,47 @@ window.NibrasReact.run(function () {
         statsEl.innerHTML = [
             '<div class="error-state">',
             '<div class="empty-state-icon"><i class="fa-solid fa-circle-exclamation"></i></div>',
-            '<strong>Couldn\'t load achievements</strong>',
+            '<strong>Couldn\'t load stats</strong>',
             '<p>' + escapeHtml(message || 'Something went wrong.') + '</p>',
             '<button type="button" class="retry-btn" id="retry-btn">Retry</button>',
             '</div>',
         ].join('');
         var retryBtn = document.getElementById('retry-btn');
-        if (retryBtn) retryBtn.addEventListener('click', fetchData);
+        if (retryBtn) retryBtn.addEventListener('click', loadStats);
     }
 
     // ── Data fetching ──
-    function fetchData() {
+    function loadStats() {
         showLoading();
         var services = window.NibrasServices;
 
-        Promise.all([
-            services.gamificationService.getAllBadges().catch(function () { return null; }),
-            services.gamificationService.checkAwardBadges().catch(function () { return null; }),
-            services.reputationService.getMyReputation().catch(function () { return null; }),
-        ]).then(function (results) {
-            var badgesRes = results[0];
-            var awardRes = results[1];
-            var repRes = results[2];
+        if (!services || !services.usersService) {
+            renderStats(0);
+            return;
+        }
 
-            var rawBadges = (badgesRes && (badgesRes.data || badgesRes)) || [];
-            if (!Array.isArray(rawBadges)) rawBadges = [];
-            badges = rawBadges;
-
-            awardedIds = new Set();
-            if (awardRes) {
-                var awarded = awardRes.data || awardRes;
-                if (Array.isArray(awarded)) {
-                    awarded.forEach(function (b) { if (b && b._id) awardedIds.add(b._id.toString()); });
-                }
-            }
-
-            repTotal = 0;
-            if (repRes && repRes.data) repTotal = repRes.data.total || repRes.data.reputationScore || 0;
-            else if (repRes && repRes.total) repTotal = repRes.total;
-
-            isLoading = false;
-            renderAll();
-        }).catch(function (err) {
-            isLoading = false;
-            showError(err && err.message ? err.message : 'Failed to load');
+        services.usersService.getMe().then(function (res) {
+            var rep = (res && res.user && res.user.reputation) || 0;
+            renderStats(rep);
+        }).catch(function () {
+            renderStats(0);
         });
     }
 
-    // ── Render ──
-    function renderAll() {
-        renderStats();
-    }
-
-    function renderStats() {
+    function renderStats(repTotal) {
         if (!statsEl) return;
-        var earnedCount = 0;
-        var totalPoints = 0;
-        var legendaryEarned = 0;
-        badges.forEach(function (b) {
-            totalPoints += (b.points || 0);
-            var id = b._id ? b._id.toString() : '';
-            if (awardedIds.has(id)) {
-                earnedCount++;
-                if (b.rarity === 'legendary') legendaryEarned++;
-            }
-        });
-
-        var completionPct = badges.length > 0 ? Math.round((earnedCount / badges.length) * 100) : 0;
-
-        var levelLabel = repTotal > 0 ? getLevelLabel(repTotal) : null;
+        var completionPct = Math.round((EARNED_COUNT / TOTAL_BADGES) * 100);
 
         statsEl.innerHTML = [
-            renderStatTile({ icon: 'fa-solid fa-trophy', value: earnedCount, caption: 'of ' + badges.length, label: 'Badges Earned' }),
-            renderStatTile({ icon: 'fa-solid fa-star', value: repTotal, label: 'Reputation', delta: levelLabel ? levelLabel : null, deltaTrend: 'up' }),
-            renderStatTile({ icon: 'fa-solid fa-ranking-star', value: completionPct + '%', label: 'Completion', caption: badges.length + ' total' }),
-            renderStatTile({ icon: 'fa-solid fa-gem', value: legendaryEarned, label: 'Legendary', caption: 'Rarest unlocks' }),
+            renderStatTile({ icon: 'fa-solid fa-trophy', value: EARNED_COUNT, caption: 'of ' + TOTAL_BADGES, label: 'Badges Earned' }),
+            renderStatTile({ icon: 'fa-solid fa-star', value: repTotal, label: 'Reputation' }),
+            renderStatTile({ icon: 'fa-solid fa-ranking-star', value: completionPct + '%', label: 'Completion', caption: TOTAL_BADGES + ' total' }),
+            renderStatTile({ icon: 'fa-solid fa-gem', value: LEGENDARY_COUNT, label: 'Legendary', caption: 'Rarest unlocks' }),
         ].join('');
     }
 
     function renderStatTile(o) {
-        var deltaHtml = '';
-        if (o.delta) {
-            var dirClass = 'stat-tile-delta-up';
-            var arrow = '<svg viewBox="0 0 12 12" fill="none"><path d="M3 7.5L6 4.5L9 7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-            if (o.deltaTrend === 'down') {
-                dirClass = 'stat-tile-delta-down';
-                arrow = '<svg viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-            } else if (o.deltaTrend === 'flat') {
-                dirClass = 'stat-tile-delta-flat';
-                arrow = '<svg viewBox="0 0 12 12" fill="none"><path d="M3 6h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
-            }
-            deltaHtml = '<span class="stat-tile-delta ' + dirClass + '">' + arrow + escapeHtml(o.delta) + '</span>';
-        }
         var captionHtml = o.caption ? '<span class="stat-tile-caption">' + escapeHtml(o.caption) + '</span>' : '';
-
         return [
             '<div class="stat-tile">',
             '<div class="stat-tile-head">',
@@ -145,13 +79,13 @@ window.NibrasReact.run(function () {
             '<span class="stat-tile-label">' + escapeHtml(o.label) + '</span>',
             '</div>',
             '<div class="stat-tile-value">' + escapeHtml(String(o.value)) + '</div>',
-            '<div class="stat-tile-foot">' + deltaHtml + captionHtml + '</div>',
+            '<div class="stat-tile-foot">' + captionHtml + '</div>',
             '</div>',
         ].join('');
     }
 
     // ── Init ──
-    fetchData();
+    loadStats();
 
     // ── Theme toggle ──
     var themeBtn = document.getElementById('themeBtn');
