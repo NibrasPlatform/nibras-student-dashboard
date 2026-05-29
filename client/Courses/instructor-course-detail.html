@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nibras - Course Detail</title>
+    <script src="../services/auth-guard.js" data-login="../Login/loginPage/login.html" data-api="https://nibras-backend.up.railway.app/api"></script>
+    <script>
+    (function () {
+        var savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        } else {
+            document.documentElement.setAttribute('data-theme', 'light');
+        }
+    })();
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="./courses.css">
+    <link rel="stylesheet" href="./instructor-courses.css">
+    <link rel="stylesheet" href="./instructor-course-detail.css">
+</head>
+<body>
+    <div id="app-root" hidden></div>
+
+    <aside class="sidebar">
+        <div class="logo-area">
+            <img src="/Assets/images/logo-light.png" alt="Nibras Logo" class="sidebar-logo" id="app-logo">
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item"><a href="../Dashboard/instructor-dashboard.html" class="nav-link"><i class="fa-solid fa-house"></i> Dashboard</a></li>
+            <li class="nav-item"><a href="./instructor-courses.html" class="nav-link active"><i class="fa-solid fa-book-open"></i> Courses</a></li>
+            <li class="nav-item"><a href="../Community/community.html" class="nav-link"><i class="fa-solid fa-users"></i> Community</a></li>
+            <li class="nav-item"><a href="../Analytics/Overview/overview.html" class="nav-link"><i class="fa-solid fa-chart-simple"></i> Analytics</a></li>
+            <li class="nav-item"><a href="../Settings/settings.html" class="nav-link"><i class="fa-solid fa-gear"></i> Settings</a></li>
+        </ul>
+        <div class="user-profile">
+            <div class="avatar-circle">ZA</div>
+            <div class="user-info">
+                <h4>Ziad Alaa</h4>
+                <span>Instructor</span>
+            </div>
+        </div>
+        <div class="reputation-box">
+            <span>Reputation</span>
+            <div class="rep-badge">1250</div>
+        </div>
+        <a href="../Login/loginPage/login.html" class="logout-btn">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
+        </a>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-header">
+            <div class="search-bar-global">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" placeholder="Search courses, problems">
+            </div>
+            <div class="header-actions">
+                <button class="icon-btn" id="themeBtn"><i class="fa-regular fa-moon"></i></button>
+                <button class="icon-btn"><i class="fa-regular fa-bell"></i></button>
+                <div class="avatar-circle profile-circle-small" style="width:32px;height:32px;font-size:0.8rem;">ZA</div>
+            </div>
+        </header>
+
+        <div class="content-wrapper">
+            <!-- Breadcrumb -->
+            <div class="detail-breadcrumb">
+                <a href="./instructor-courses.html">Courses</a>
+                <span class="breadcrumb-sep">/</span>
+                <span id="crumb-course-name">Course</span>
+            </div>
+
+            <!-- Page Header -->
+            <div class="detail-header">
+                <div>
+                    <h1 id="detail-course-title">Course Detail</h1>
+                    <p id="detail-course-meta" class="detail-subtitle">Loading...</p>
+                </div>
+                <div class="detail-header-actions">
+                    <button class="inst-primary-btn" id="btn-manage-templates"><i class="fa-solid fa-file"></i> Templates</button>
+                    <button class="inst-primary-btn" id="btn-manage-members"><i class="fa-solid fa-users-gear"></i> Members</button>
+                    <button class="inst-primary-btn" id="btn-new-project"><i class="fa-solid fa-plus"></i> New Project</button>
+                </div>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="detail-stats" id="detail-stats">
+                <div class="detail-stat-card">
+                    <span class="detail-stat-value" id="stat-projects">0</span>
+                    <span class="detail-stat-label">Projects</span>
+                </div>
+                <div class="detail-stat-card">
+                    <span class="detail-stat-value" id="stat-students">0</span>
+                    <span class="detail-stat-label">Students</span>
+                </div>
+                <div class="detail-stat-card">
+                    <span class="detail-stat-value" id="stat-pending">0</span>
+                    <span class="detail-stat-label">Pending Reviews</span>
+                </div>
+                <div class="detail-stat-card">
+                    <span class="detail-stat-value" id="stat-approved">0</span>
+                    <span class="detail-stat-label">Approved</span>
+                </div>
+            </div>
+
+            <!-- Two-Column Grid -->
+            <div class="detail-grid">
+                <!-- LEFT: Project List -->
+                <section class="detail-panel" id="panel-projects">
+                    <div class="panel-header">
+                        <h2>Projects</h2>
+                        <span class="panel-count" id="project-count">0 total</span>
+                    </div>
+                    <div class="project-list" id="project-list">
+                        <div class="detail-loading">Loading projects...</div>
+                    </div>
+                </section>
+
+                <!-- RIGHT: Review Queue -->
+                <section class="detail-panel" id="panel-review">
+                    <div class="panel-header">
+                        <h2>Review Queue</h2>
+                        <button class="panel-link" id="btn-view-all-submissions">See all</button>
+                    </div>
+                    <div class="review-list" id="review-list">
+                        <div class="detail-loading">Loading submissions...</div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Submissions Table (full view) -->
+            <section class="detail-panel" id="panel-submissions" style="display:none;">
+                <div class="panel-header">
+                    <h2>All Submissions</h2>
+                    <div>
+                        <button class="inst-filter-btn inst-filter-active" data-sfilter="all">All</button>
+                        <button class="inst-filter-btn" data-sfilter="pending">Pending</button>
+                        <button class="inst-filter-btn" data-sfilter="approved">Approved</button>
+                        <button class="inst-filter-btn" data-sfilter="needs_changes">Needs Changes</button>
+                    </div>
+                </div>
+                <div class="submissions-table-wrapper">
+                    <table class="submissions-table" id="submissions-table">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Project</th>
+                                <th>Status</th>
+                                <th>Grade</th>
+                                <th>Submitted</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="submissions-tbody">
+                            <tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-secondary);">No submissions yet.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Create Project Modal -->
+    <div class="modal-overlay" id="create-project-modal" style="display:none;">
+        <div class="modal-container modal-lg">
+            <div class="modal-header">
+                <h2>Create Project</h2>
+                <button class="modal-close" id="close-create-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="create-project-form">
+                    <div class="form-section">
+                        <div class="form-group">
+                            <label for="project-title">Project Title</label>
+                            <input type="text" id="project-title" required placeholder="e.g. Project 1: Buffer Overflow">
+                        </div>
+                        <div class="form-group">
+                            <label for="project-description">Description</label>
+                            <textarea id="project-description" rows="3" placeholder="Brief description shown to students."></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="project-due">Due Date</label>
+                                <input type="date" id="project-due">
+                            </div>
+                            <div class="form-group">
+                                <label for="project-max-score">Max Score</label>
+                                <input type="number" id="project-max-score" value="100" min="1" max="1000">
+                            </div>
+                            <div class="form-group">
+                                <label for="project-delivery">Delivery Mode</label>
+                                <select id="project-delivery">
+                                    <option value="individual">Individual</option>
+                                    <option value="team">Team</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Milestones -->
+                    <div class="dynamic-section">
+                        <div class="dynamic-section-header">
+                            <span class="dynamic-section-label">Milestones</span>
+                            <button type="button" class="btn-add-row" id="add-milestone-row">+ Add milestone</button>
+                        </div>
+                        <div id="milestones-container">
+                            <div class="dynamic-row" data-index="0">
+                                <input type="text" class="milestone-title" placeholder="Milestone title" style="flex:2;">
+                                <input type="date" class="milestone-due" placeholder="Due date" style="flex:1;">
+                                <label class="milestone-final-label"><input type="checkbox" class="milestone-final"> Final</label>
+                                <button type="button" class="btn-remove-row" title="Remove milestone">&times;</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Grading Rubric -->
+                    <div class="dynamic-section">
+                        <div class="dynamic-section-header">
+                            <span class="dynamic-section-label">Grading Rubric</span>
+                            <button type="button" class="btn-add-row" id="add-rubric-row">+ Add criterion</button>
+                        </div>
+                        <div id="rubric-container">
+                            <div class="dynamic-row" data-index="0">
+                                <input type="text" class="rubric-criterion" placeholder="Criterion description" style="flex:2;">
+                                <input type="number" class="rubric-score" placeholder="Max score" value="10" min="0" style="flex:0 0 100px;">
+                                <span class="dynamic-row-unit">pts</span>
+                                <button type="button" class="btn-remove-row" title="Remove criterion">&times;</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resources -->
+                    <div class="dynamic-section">
+                        <div class="dynamic-section-header">
+                            <span class="dynamic-section-label">Resources</span>
+                            <button type="button" class="btn-add-row" id="add-resource-row">+ Add resource</button>
+                        </div>
+                        <div id="resources-container"></div>
+                    </div>
+
+                    <div class="form-error" id="create-project-error" style="display:none;"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="inst-action-btn inst-view-btn" id="cancel-create-btn">Cancel</button>
+                <button class="inst-primary-btn" id="submit-create-btn">Create Project</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Submission Modal -->
+    <div class="modal-overlay" id="review-modal" style="display:none;">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>Review Submission</h2>
+                <button class="modal-close" id="close-review-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="review-info" id="review-info">
+                    <div class="review-info-row"><span class="review-label">Student:</span> <span id="review-student-name">—</span></div>
+                    <div class="review-info-row"><span class="review-label">Project:</span> <span id="review-project-name">—</span></div>
+                    <div class="review-info-row"><span class="review-label">Submitted:</span> <span id="review-submitted-at">—</span></div>
+                    <div class="review-info-row"><span class="review-label">GitHub:</span> <a id="review-github-link" href="#" target="_blank">—</a></div>
+                </div>
+                <form id="review-form">
+                    <div class="form-group">
+                        <label for="review-grade">Grade (0-100)</label>
+                        <input type="number" id="review-grade" min="0" max="100" placeholder="Enter grade">
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <div class="review-status-group">
+                            <label class="review-status-option">
+                                <input type="radio" name="review-status" value="approved" checked>
+                                <span class="review-status-label status-approved">Approved</span>
+                            </label>
+                            <label class="review-status-option">
+                                <input type="radio" name="review-status" value="needs_changes">
+                                <span class="review-status-label status-needs-changes">Needs Changes</span>
+                            </label>
+                            <label class="review-status-option">
+                                <input type="radio" name="review-status" value="pending">
+                                <span class="review-status-label status-pending">Pending</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="review-feedback">Feedback</label>
+                        <textarea id="review-feedback" rows="4" placeholder="Provide feedback to the student..."></textarea>
+                    </div>
+                    <div class="form-error" id="review-error" style="display:none;"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="inst-action-btn inst-view-btn" id="cancel-review-btn">Cancel</button>
+                <button class="inst-primary-btn" id="submit-review-btn">Submit Review</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../react-page-utils.js"></script>
+    <script>
+        if (window.NibrasShared?.session?.updateUserInfoDisplay) {
+            window.NibrasShared.session.updateUserInfoDisplay();
+        }
+    </script>
+    <script>
+        (function initTheme() {
+            var themeBtn = document.getElementById('themeBtn');
+            var themeIcon = themeBtn && themeBtn.querySelector('i');
+            var appLogo = document.getElementById('app-logo');
+            var currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            if (currentTheme === 'dark') {
+                if (themeIcon) themeIcon.className = 'fa-solid fa-sun';
+                if (appLogo) appLogo.src = '/Assets/images/logo-dark.png';
+            } else {
+                if (themeIcon) themeIcon.className = 'fa-regular fa-moon';
+                if (appLogo) appLogo.src = '/Assets/images/logo-light.png';
+            }
+            if (themeBtn) {
+                themeBtn.addEventListener('click', function () {
+                    var html = document.documentElement;
+                    var current = html.getAttribute('data-theme');
+                    var newTheme = current === 'light' ? 'dark' : 'light';
+                    html.setAttribute('data-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+                    if (newTheme === 'dark') {
+                        if (themeIcon) themeIcon.className = 'fa-solid fa-sun';
+                        if (appLogo) appLogo.src = '/Assets/images/logo-dark.png';
+                    } else {
+                        if (themeIcon) themeIcon.className = 'fa-regular fa-moon';
+                        if (appLogo) appLogo.src = '/Assets/images/logo-light.png';
+                    }
+                });
+            }
+        })();
+    </script>
+    <script src="../../react-bootstrap.js"></script>
+    <script src="../config.js"></script>
+    <script src="../services/api.js"></script>
+    <script src="../services/gamification-ui.js"></script>
+    <script src="./instructor-course-detail.js"></script>
+</body>
+</html>
