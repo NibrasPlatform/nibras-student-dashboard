@@ -8,6 +8,10 @@ window.NibrasReact.run(() => {
     const clearUiState = typeof uiStates.clear === "function" ? uiStates.clear : null;
     const resolveUiStateFromError = typeof uiStates.fromError === "function" ? uiStates.fromError : null;
     const apiFetch = typeof shared.apiFetch === "function" ? shared.apiFetch : null;
+    const ADMIN_FALLBACK_URL = "https://nibras-backend.up.railway.app/api";
+    const LEGACY_FALLBACK_URL = "https://nibras-backend.up.railway.app/api";
+    const COMMUNITY_FALLBACK_URL = "https://nibras-backend.up.railway.app/api";
+    const TRACKING_FALLBACK_URL = "https://nibras-backend.up.railway.app/api";
 
     const resolveServiceUrl = (service = "community") => {
         if (typeof shared.resolveServiceUrl === "function") {
@@ -19,7 +23,10 @@ window.NibrasReact.run(() => {
         if (typeof window.NibrasApiConfig?.getServiceUrl === "function") {
             return window.NibrasApiConfig.getServiceUrl(service);
         }
-        return window.NIBRAS_API_URL || window.NIBRAS_BACKEND_URL || "";
+        if (service === "legacyCommunity") return window.NIBRAS_LEGACY_API_URL || LEGACY_FALLBACK_URL;
+        if (service === "tracking") return window.NIBRAS_TRACKING_API_URL || TRACKING_FALLBACK_URL;
+        if (service === "community") return window.NIBRAS_COMMUNITY_API_URL || COMMUNITY_FALLBACK_URL;
+        return window.NIBRAS_API_URL || window.NIBRAS_BACKEND_URL || ADMIN_FALLBACK_URL;
     };
 
     const normalizeToken = (value) => {

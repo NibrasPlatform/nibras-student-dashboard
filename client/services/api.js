@@ -313,8 +313,17 @@
         if (window.NibrasApiConfig && typeof window.NibrasApiConfig.getServiceUrl === 'function') {
             return window.NibrasApiConfig.getServiceUrl(service);
         }
-        const apiUrl = window.NIBRAS_API_URL || window.NIBRAS_BACKEND_URL;
-        return apiUrl || '';
+        // Use fallback values from window if config is missing
+        const fallbacks = {
+            admin: window.NIBRAS_API_URL || window.NIBRAS_BACKEND_URL,
+            legacyCommunity: window.NIBRAS_LEGACY_API_URL || window.NIBRAS_API_URL,
+            community: window.NIBRAS_COMMUNITY_API_URL || window.NIBRAS_API_URL,
+            tracking: window.NIBRAS_TRACKING_API_URL || window.NIBRAS_API_URL,
+            competitions: window.NIBRAS_COMPETITIONS_API_URL || window.NIBRAS_API_URL,
+            recommendation: window.NIBRAS_RECOMMENDATION_API_URL || window.NIBRAS_API_URL,
+            courses: window.NIBRAS_COURSES_API_URL || window.NIBRAS_API_URL,
+        };
+        return fallbacks[service] || fallbacks.admin;
     };
 
     // ============================================================
