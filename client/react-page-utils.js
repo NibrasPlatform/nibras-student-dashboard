@@ -1,12 +1,4 @@
 (function () {
-    const MONOLITH_FALLBACK_URL = 'https://nibras-backend.up.railway.app/api';
-    const FALLBACK_ADMIN_URL = window.NIBRAS_API_URL || window.NIBRAS_BACKEND_URL || MONOLITH_FALLBACK_URL;
-    const FALLBACK_LEGACY_URL = window.NIBRAS_LEGACY_API_URL || window.NIBRAS_API_URL || window.NIBRAS_BACKEND_URL || MONOLITH_FALLBACK_URL;
-    const FALLBACK_COMMUNITY_URL = window.NIBRAS_COMMUNITY_API_URL || window.NIBRAS_API_URL || window.NIBRAS_BACKEND_URL || MONOLITH_FALLBACK_URL;
-    const FALLBACK_TRACKING_URL = window.NIBRAS_TRACKING_API_URL || window.NIBRAS_API_URL || window.NIBRAS_BACKEND_URL || MONOLITH_FALLBACK_URL;
-    const FALLBACK_COMPETITIONS_URL = window.NIBRAS_COMPETITIONS_API_URL || window.NIBRAS_API_URL || window.NIBRAS_BACKEND_URL || MONOLITH_FALLBACK_URL;
-    const FALLBACK_COURSES_URL = window.NIBRAS_COURSES_API_URL || window.NIBRAS_API_URL || window.NIBRAS_BACKEND_URL || MONOLITH_FALLBACK_URL;
-
     const onReady = (cb) => {
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', cb, { once: true });
@@ -30,12 +22,7 @@
         if (window.NibrasApiConfig && typeof window.NibrasApiConfig.getServiceUrl === 'function') {
             return window.NibrasApiConfig.getServiceUrl(service);
         }
-        if (service === 'legacyCommunity') return FALLBACK_LEGACY_URL;
-        if (service === 'community') return FALLBACK_COMMUNITY_URL;
-        if (service === 'tracking') return FALLBACK_TRACKING_URL;
-        if (service === 'competitions') return FALLBACK_COMPETITIONS_URL;
-        if (service === 'courses') return FALLBACK_COURSES_URL;
-        return FALLBACK_ADMIN_URL;
+        return window.NIBRAS_API_URL || window.NIBRAS_BACKEND_URL || '';
     };
 
     const safeStorageGet = (storage, key) => {
