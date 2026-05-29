@@ -165,7 +165,7 @@ body { background-color: var(--bg-body); color: var(--text-primary); display: fl
 .badge-card--locked { opacity: 0.55; filter: grayscale(0.6); }
 
 .badge-card--coming-soon {
-    opacity: 0.5;
+    opacity: 0.6;
     filter: grayscale(0.7);
     cursor: default;
     position: relative;
@@ -176,22 +176,28 @@ body { background-color: var(--bg-body); color: var(--text-primary); display: fl
     transform: none;
     border-color: var(--border-color) !important;
 }
+.badge-card--coming-soon .badge-progress-track,
+.badge-card--coming-soon .badge-progress-label {
+    display: none;
+}
 .badge-card--coming-soon::after {
     content: 'Coming Soon';
     position: absolute;
-    top: 6px;
-    right: -26px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-12deg);
     background: var(--text-muted);
     color: #fff;
-    font-size: 0.55rem;
+    font-size: 0.7rem;
     font-weight: 700;
-    padding: 2px 30px;
-    transform: rotate(45deg);
-    letter-spacing: 0.05em;
+    padding: 4px 14px;
+    border-radius: 4px;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
     pointer-events: none;
     z-index: 1;
-    line-height: 1.4;
+    white-space: nowrap;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
 
 .badge-icon-holder { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--surface-strong); color: var(--primary); flex-shrink: 0; }
