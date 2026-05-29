@@ -33,7 +33,6 @@
             <li class="nav-item"><a href="../../Projects/projects.html" class="nav-link"><i class="fa-solid fa-diagram-project"></i> Projects</a></li>
             <li class="nav-item"><a href="../../CLI/cli.html" class="nav-link"><i class="fa-solid fa-terminal"></i> CLI</a></li><li class="nav-item"><a href="../../Competitions/Contests/contest.html" class="nav-link"><i class="fa-solid fa-trophy"></i> Competitions</a></li>
             <li class="nav-item"><a href="../../Community/community.html" class="nav-link"><i class="fa-solid fa-users"></i> Community</a></li>
-            <!-- Active State -->
             <li class="nav-item"><a href="./achievements.html" class="nav-link active"><i class="fa-solid fa-medal"></i> Achievements</a></li>
             <li class="nav-item"><a href="../../Ai-tutor/Ai%20Tutor/ai_tutor.html" class="nav-link"><i class="fa-solid fa-robot"></i> AI Tutor</a></li>
             <li class="nav-item"><a href="../../Analytics/Overview/overview.html" class="nav-link"><i class="fa-solid fa-chart-simple"></i> Analytics</a></li>
@@ -69,7 +68,7 @@
             </div>
             
             <div class="header-actions">
-                <button class="icon-btn" id="themeBtn" onclick="const t=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',t);localStorage.setItem('theme',t);"><i class="fa-regular fa-moon"></i></button>
+                <button class="icon-btn" id="themeBtn"><i class="fa-regular fa-moon"></i></button>
                 <button class="icon-btn"><i class="fa-regular fa-bell"></i></button>
                 <div class="profile-circle-small">ZA</div>
             </div>
@@ -77,41 +76,39 @@
 
         <div class="content-wrapper">
             
-            <!-- Title Section -->
-            <div class="page-title-section">
-                <h1>Achievements & Reputation</h1>
-                <p>Track your progress and compete with peers</p>
+            <!-- Title + sub-page links -->
+            <div class="page-title-row">
+                <h1 class="page-title">Badges & reputation</h1>
+                <div class="page-sub-links">
+                    <a href="../Leaderboard/leaderboard.html" class="sub-link">Leaderboard</a>
+                    <span class="sub-link-sep">·</span>
+                    <a href="../Reputation/reputation.html" class="sub-link">Reputation</a>
+                </div>
             </div>
 
-            <!-- Segmented Control Tabs -->
-            <div class="segment-tabs">
-                <a href="./achievements.html" class="seg-btn active">Achievements</a>
-                <a href="../Leaderboard/leaderboard.html" class="seg-btn">Leaderboard</a>
-                <a href="../Reputation/reputation.html" class="seg-btn">Reputation</a>
+            <!-- New badge banner (hidden by default, shown via JS) -->
+            <div class="new-badge-banner" id="new-badge-banner" hidden>
+                <div>
+                    <strong id="banner-title">New badge unlocked!</strong>
+                    <p id="banner-text"></p>
+                </div>
+                <button type="button" class="dismiss-btn" id="banner-dismiss">Dismiss</button>
             </div>
 
-            <!-- Top Stats Grid -->
-            <div class="achieve-stats-grid" id="stats-container">
+            <!-- Stat tiles -->
+            <div class="stat-grid" id="stats-container">
                 <!-- JS Injected -->
             </div>
 
-            <!-- Recent Achievements (List View) -->
-            <section class="achieve-section">
-                <h3>Recent Achievements</h3>
-                <p class="section-desc">Your latest accomplishments</p>
-                <div class="recent-list" id="recent-container">
-                    <!-- JS Injected -->
-                </div>
-            </section>
+            <!-- Category tabs -->
+            <div class="tab-row" role="tablist" aria-label="Badge categories" id="tab-container">
+                <!-- JS Injected -->
+            </div>
 
-            <!-- All Achievements (Grid View) -->
-            <section class="achieve-section">
-                <h3>All Achievements</h3>
-                <p class="section-desc">Track your progress across all categories</p>
-                <div class="all-grid" id="all-container">
-                    <!-- JS Injected -->
-                </div>
-            </section>
+            <!-- Badge sections -->
+            <div id="badge-sections">
+                <!-- JS Injected -->
+            </div>
 
         </div>
     </main>
