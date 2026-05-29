@@ -33,7 +33,6 @@ window.NibrasReact.run(function () {
 
     function showLoading() {
         if (statsEl) statsEl.innerHTML = '<div class="loading-skeleton" aria-hidden="true"><div class="loading-skeleton-stats loading-shimmer"></div></div>';
-        if (sectionsEl) sectionsEl.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted);">Loading badges...</div>';
     }
 
     function init() {
@@ -78,7 +77,7 @@ window.NibrasReact.run(function () {
             var earnedIds = addStoredEarnedIds(newIds);
 
             renderStats(repTotal, allBadges.length, earnedIds);
-            renderBadges(allBadges, earnedIds);
+            annotateBadges(allBadges, earnedIds);
         });
     }
 
@@ -108,60 +107,168 @@ window.NibrasReact.run(function () {
         ].join('');
     }
 
-    function renderBadges(allBadges, earnedIds) {
+    function annotateBadges(allBackendBadges, earnedIds) {
         if (!sectionsEl) return;
 
-        var earned = [];
-        var locked = [];
-        allBadges.forEach(function (b) {
-            var id = b._id ? b._id.toString() : '';
-            if (earnedIds.indexOf(id) >= 0) earned.push(b);
-            else locked.push(b);
+        var backendMap = {};
+        allBackendBadges.forEach(function (b) {
+            var name = (b.name || '').trim().toLowerCase();
+            if (name) backendMap[name] = b;
         });
 
-        var html = '';
-        if (earned.length > 0) {
-            html += badgeBlock('Earned', earned.length + ' unlocked', earned, earnedIds);
-        }
-        if (locked.length > 0) {
-            html += badgeBlock('Locked', locked.length + ' to go', locked, earnedIds);
-        }
-        html += comingSoonHtml();
+        var matchedNames = {};
 
-        sectionsEl.innerHTML = html;
+        var cards = sectionsEl.querySelectorAll('.badge-card');
+        cards.forEach(function (card) {
+            var nameEl = card.querySelector('.badge-name');
+            if (!nameEl) return;
+            var cardName = (nameEl.textContent || '').trim().toLowerCase();
+            if (!cardName) return;
+
+            var backendBadge = backendMap[cardName];
+
+            card.classList.remove('badge-card--earned', 'badge-card--locked', 'badge-card--coming-soon');
+
+            var earnedLabels = card.querySelectorAll('.badge-earned-label');
+            earnedLabels.forEach(function (el) { el.remove(); });
+
+            if (backendBadge) {
+                matchedNames[cardName] = true;
+                var id = backendBadge._id ? backendBadge._id.toString() : '';
+                var isEarned = earnedIds.indexOf(id) >= 0;
+
+                var oldTrack = card.querySelector('.badge-progress-track');
+                var oldLabel = card.querySelector('.badge-progress-label');
+                if (oldTrack) oldTrack.remove();
+                if (oldLabel) oldLabel.remove();
+
+                if (isEarned) {
+                    card.classList.add('badge-card--earned');
+                    var label = document.createElement('span');
+                    label.className = 'badge-progress-label badge-earned-label';
+                    label.style.cssText = 'margin-top:4px;color:var(--primary-strong);font-weight:600;';
+                    label.textContent = 'Earned';
+                    card.appendChild(label);
+                } else {
+                    card.classList.add('badge-card--locked');
+                }
+            } else {
+                card.classList.add('badge-card--coming-soon');
+            }
+        });
+
+        var blocks = sectionsEl.querySelectorAll(':scope > .badge-block');
+        var earnedBlock = null;
+        var lockedBlock = null;
+        for (var i = 0; i < blocks.length; i++) {
+            var title = blocks[i].querySelector('.badge-section-title');
+            if (!title) continue;
+            var text = (title.textContent || '').trim().toLowerCase();
+            if (text === 'earned') earnedBlock = blocks[i];
+            else if (text === 'locked') lockedBlock = blocks[i];
+        }
+
+        var oldComingSoon = sectionsEl.querySelector('.badge-block-coming-soon');
+        if (oldComingSoon) oldComingSoon.remove();
+
+        var earnedGrid = earnedBlock ? earnedBlock.querySelector('.badge-grid') : null;
+        var lockedGrid = lockedBlock ? lockedBlock.querySelector('.badge-grid') : null;
+
+        if (!earnedBlock) {
+            earnedBlock = createBadgeBlock('Earned', '0 unlocked');
+            sectionsEl.insertBefore(earnedBlock, sectionsEl.firstChild);
+            earnedGrid = earnedBlock.querySelector('.badge-grid');
+        }
+        if (!lockedBlock) {
+            lockedBlock = createBadgeBlock('Locked', '0 to go');
+            if (earnedBlock) {
+                sectionsEl.insertBefore(lockedBlock, earnedBlock.nextSibling);
+            } else {
+                sectionsEl.appendChild(lockedBlock);
+            }
+            lockedGrid = lockedBlock.querySelector('.badge-grid');
+        }
+
+        allBackendBadges.forEach(function (b) {
+            var name = (b.name || '').trim().toLowerCase();
+            if (!name || matchedNames[name]) return;
+
+            var id = b._id ? b._id.toString() : '';
+            var isEarned = earnedIds.indexOf(id) >= 0;
+            var grid = isEarned ? earnedGrid : lockedGrid;
+            if (!grid) return;
+
+            var card = createBadgeCardElement(b, allBackendBadges.indexOf(b), earnedIds);
+            grid.appendChild(card);
+        });
+
+        updateSectionCounts(earnedBlock, lockedBlock, earnedIds, allBackendBadges.length);
+
+        sectionsEl.insertAdjacentHTML('beforeend', comingSoonHtml());
     }
 
-    function badgeBlock(title, meta, items, earnedIds) {
-        return [
-            '<div class="badge-block">',
+    function createBadgeBlock(title, meta) {
+        var div = document.createElement('div');
+        div.className = 'badge-block';
+        div.innerHTML = [
             '<div class="badge-section-head">',
             '<h3 class="badge-section-title">' + escapeHtml(title) + '</h3>',
             '<span class="badge-section-meta">' + escapeHtml(meta) + '</span>',
             '</div>',
             '<div class="panel">',
-            '<div class="badge-grid">',
-            items.map(function (b, i) { return badgeCard(b, i, earnedIds); }).join(''),
-            '</div>',
+            '<div class="badge-grid"></div>',
             '</div>',
             '</div>',
         ].join('');
+        return div;
     }
 
-    function badgeCard(item, index, earnedIds) {
+    function createBadgeCardElement(item, index, earnedIds) {
         var name = item.name || '';
         var desc = item.description || '';
         var id = item._id ? item._id.toString() : '';
         var isEarned = earnedIds.indexOf(id) >= 0;
-        var iconHtml = renderIcon(item.badgeIcon);
-        var earnedLabel = isEarned ? '<span class="badge-progress-label" style="margin-top:4px;color:var(--primary-strong);font-weight:600;">Earned</span>' : '';
-        return [
-            '<div class="badge-card ' + rarityClass(index) + ' ' + (isEarned ? 'badge-card--earned' : 'badge-card--locked') + '">',
-            '<div class="badge-icon-holder">' + iconHtml + '</div>',
-            '<strong class="badge-name">' + escapeHtml(name) + '</strong>',
-            '<span class="badge-desc">' + escapeHtml(desc) + '</span>',
-            earnedLabel,
-            '</div>',
-        ].join('');
+
+        var card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'badge-card ' + rarityClass(index) + ' ' + (isEarned ? 'badge-card--earned' : 'badge-card--locked');
+        card.setAttribute('aria-pressed', isEarned ? 'true' : 'false');
+
+        var iconHolder = document.createElement('div');
+        iconHolder.className = 'badge-icon-holder';
+        iconHolder.innerHTML = renderIcon(item.badgeIcon);
+        card.appendChild(iconHolder);
+
+        var nameEl = document.createElement('strong');
+        nameEl.className = 'badge-name';
+        nameEl.textContent = name;
+        card.appendChild(nameEl);
+
+        var descEl = document.createElement('span');
+        descEl.className = 'badge-desc';
+        descEl.textContent = desc;
+        card.appendChild(descEl);
+
+        if (isEarned) {
+            var label = document.createElement('span');
+            label.className = 'badge-progress-label badge-earned-label';
+            label.style.cssText = 'margin-top:4px;color:var(--primary-strong);font-weight:600;';
+            label.textContent = 'Earned';
+            card.appendChild(label);
+        }
+
+        return card;
+    }
+
+    function updateSectionCounts(earnedBlock, lockedBlock, earnedIds, totalBackendBadges) {
+        var earnedCount = earnedIds.length;
+        var lockedCount = totalBackendBadges - earnedCount;
+
+        var earnedMeta = earnedBlock ? earnedBlock.querySelector('.badge-section-meta') : null;
+        var lockedMeta = lockedBlock ? lockedBlock.querySelector('.badge-section-meta') : null;
+
+        if (earnedMeta) earnedMeta.textContent = earnedCount + ' unlocked';
+        if (lockedMeta) lockedMeta.textContent = lockedCount + ' to go';
     }
 
     function renderIcon(icon) {
@@ -176,7 +283,7 @@ window.NibrasReact.run(function () {
 
     function comingSoonHtml() {
         return [
-            '<div class="badge-block">',
+            '<div class="badge-block badge-block-coming-soon">',
             '<div class="badge-section-head">',
             '<h3 class="badge-section-title">More Coming Soon</h3>',
             '<span class="badge-section-meta">Additional badges in development</span>',
