@@ -2,10 +2,13 @@
     'use strict';
 
     var S = window.NibrasServices;
-    var courseId = null;
-    var courseData = null;
+    var allCourses = [];
+    var activeCourseId = null;
+    var activeCourseData = null;
     var projects = [];
     var submissions = [];
+
+    /* ── Helpers ─────────────────────────────────────── */
 
     function getInitials(name) {
         if (!name) return 'U';
@@ -54,7 +57,7 @@
     }
 
     function formatDate(dateStr) {
-        if (!dateStr) return '—';
+        if (!dateStr) return '';
         try {
             return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         } catch (_) { return dateStr; }
@@ -70,46 +73,156 @@
         return 'status-draft';
     }
 
-    function getCourseId() {
-        var params = new URLSearchParams(window.location.search);
-        var id = params.get('courseId');
-        if (id) {
-            localStorage.setItem('selectedCourseId', id);
-            return id;
+    /* ── API helper ──────────────────────────────────── */
+
+    function apiFetch(path, options) {
+        options = options || {};
+        var service = options.service || 'admin';
+        var method = options.method || 'GET';
+        var auth = options.auth !== false;
+        var baseUrl = (window.NibrasApiConfig && window.NibrasApiConfig.getServiceUrl)
+            ? window.NibrasApiConfig.getServiceUrl(service)
+            : window.NIBRAS_API_URL || 'https://nibras-backend.up.railway.app/api';
+        baseUrl = String(baseUrl).replace(/\/+$/, '');
+        var url = baseUrl + path;
+        var headers = { 'Content-Type': 'application/json' };
+        if (auth) {
+            var token = window.localStorage.getItem('token');
+            if (token) headers['Authorization'] = 'Bearer ' + token;
         }
-        return localStorage.getItem('selectedCourseId');
+        var fetchOptions = { method: method, headers: headers };
+        if (options.body) fetchOptions.body = JSON.stringify(options.body);
+        return fetch(url, fetchOptions).then(async function (response) {
+            if (!response.ok) {
+                var body = null;
+                try { body = await response.json(); } catch (_) {}
+                var err = new Error((body && (body.message || body.error)) || 'Request failed (' + response.status + ')');
+                err.status = response.status;
+                err.payload = body;
+                throw err;
+            }
+            return response.json();
+        });
     }
 
-    async function loadData() {
-        courseId = getCourseId();
+    /* ── Course Loading ─────────────────────────────── */
+
+    async function loadCourses() {
+        var sel = document.getElementById('course-select');
+        if (!sel) return;
+        sel.innerHTML = '<option value="">Loading...</option>';
+
+        try {
+            var resp = await S.backendCoursesService.list({ page: 1, limit: 100 });
+            var data = resp && (resp.data || resp);
+            var items = Array.isArray(data) ? data : (data && Array.isArray(data.items) ? data.items : []);
+
+            if (items.length) {
+                allCourses = items;
+                sel.innerHTML = '<option value="">Select a course</option>'
+                    + items.map(function (c) {
+                        var cid = c._id || c.id || '';
+                        var cname = c.title || c.name || 'Untitled';
+                        var ccode = c.courseCode || c.code || '';
+                        var label = ccode ? ccode + ' — ' + cname : cname;
+                        return '<option value="' + cid + '">' + label + '</option>';
+                    }).join('');
+                document.getElementById('available-count').textContent = items.length + ' course' + (items.length > 1 ? 's' : '');
+            } else {
+                sel.innerHTML = '<option value="">No courses available</option>';
+            }
+        } catch (_) {
+            try {
+                var fallbackResp = await S.coursesService.list({ page: 1, limit: 100 });
+                var fallbackData = fallbackResp && (fallbackResp.data || fallbackResp);
+                var fallbackItems = Array.isArray(fallbackData) ? fallbackData : (fallbackData && Array.isArray(fallbackData.items) ? fallbackData.items : []);
+                if (fallbackItems.length) {
+                    allCourses = fallbackItems;
+                    sel.innerHTML = '<option value="">Select a course</option>'
+                        + fallbackItems.map(function (c) {
+                            var cid = c._id || c.id || '';
+                            var cname = c.title || c.name || 'Untitled';
+                            var ccode = c.courseCode || c.code || '';
+                            var label = ccode ? ccode + ' — ' + cname : cname;
+                            return '<option value="' + cid + '">' + label + '</option>';
+                        }).join('');
+                    document.getElementById('available-count').textContent = fallbackItems.length + ' course' + (fallbackItems.length > 1 ? 's' : '');
+                } else {
+                    sel.innerHTML = '<option value="">No courses available</option>';
+                }
+            } catch (_2) {
+                sel.innerHTML = '<option value="">Failed to load courses</option>';
+            }
+        }
+
+        /* Restore previously selected course */
+        var storedId = localStorage.getItem('selectedCourseId') || getQueryParam('courseId');
+        if (storedId) {
+            for (var i = 0; i < sel.options.length; i++) {
+                if (sel.options[i].value === storedId) {
+                    sel.value = storedId;
+                    activeCourseId = storedId;
+                    break;
+                }
+            }
+        }
+        if (activeCourseId) {
+            loadCourseData(activeCourseId);
+        }
+    }
+
+    function getQueryParam(name) {
+        var params = new URLSearchParams(window.location.search);
+        return params.get(name);
+    }
+
+    /* ── Course Data Loading ─────────────────────────── */
+
+    async function loadCourseData(courseId) {
         if (!courseId) {
-            document.getElementById('detail-course-title').textContent = 'No course selected';
-            document.getElementById('crumb-course-name').textContent = 'No course';
-            document.getElementById('project-list').innerHTML = '<div class="detail-empty"><i class="fa-solid fa-circle-exclamation"></i><p>No course selected. Go back to Courses.</p></div>';
-            document.getElementById('review-list').innerHTML = '';
+            showEmpty();
             return;
         }
 
+        activeCourseId = courseId;
+        localStorage.setItem('selectedCourseId', courseId);
+        updateBreadcrumb(courseId);
+        showLoading();
+
         try {
-            courseData = await S.backendCoursesService.getById(courseId);
-            var data = courseData && (courseData.data || courseData);
-            if (data) {
-                var title = data.title || data.name || 'Course';
-                var code = data.courseCode || data.code || '';
-                document.getElementById('detail-course-title').textContent = title;
-                document.getElementById('crumb-course-name').textContent = title;
-                document.getElementById('detail-course-meta').textContent = code ? code + ' — ' + (data.level || '') : 'Loading...';
-            }
+            activeCourseData = await S.backendCoursesService.getById(courseId);
         } catch (_) {
-            document.getElementById('detail-course-title').textContent = 'Course';
-            document.getElementById('crumb-course-name').textContent = 'Course';
+            activeCourseData = null;
         }
 
-        await Promise.all([loadProjects(), loadSubmissions()]);
+        await Promise.all([loadProjects(courseId), loadSubmissions(courseId)]);
         updateStats();
     }
 
-    async function loadProjects() {
+    function updateBreadcrumb(courseId) {
+        var crumbEl = document.getElementById('crumb-course-name');
+        if (!crumbEl) return;
+        for (var i = 0; i < allCourses.length; i++) {
+            var c = allCourses[i];
+            if ((c._id || c.id) === courseId) {
+                crumbEl.textContent = c.title || c.name || 'Projects';
+                return;
+            }
+        }
+        crumbEl.textContent = 'Projects';
+    }
+
+    function showLoading() {
+        document.getElementById('project-list').innerHTML = '<div class="inst-proj-loading">Loading projects...</div>';
+        document.getElementById('review-list').innerHTML = '<div class="inst-proj-loading">Loading submissions...</div>';
+    }
+
+    function showEmpty() {
+        document.getElementById('project-list').innerHTML = '<div class="inst-proj-empty"><i class="fa-solid fa-diagram-project"></i><p>Select a course to view its projects.</p></div>';
+        document.getElementById('review-list').innerHTML = '<div class="inst-proj-empty"><i class="fa-regular fa-circle-check"></i><p>Select a course to view submissions.</p></div>';
+    }
+
+    async function loadProjects(courseId) {
         var listEl = document.getElementById('project-list');
         try {
             var resp = await S.backendCoursesService.getAssignments(courseId);
@@ -117,14 +230,15 @@
             projects = Array.isArray(raw) ? raw : (raw && Array.isArray(raw.items) ? raw.items : []);
             renderProjects();
         } catch (err) {
-            listEl.innerHTML = '<div class="detail-empty"><i class="fa-solid fa-diagram-project"></i><p>Could not load projects. ' + (err.message || '') + '</p></div>';
+            projects = [];
+            listEl.innerHTML = '<div class="inst-proj-empty"><i class="fa-solid fa-circle-exclamation"></i><p>Could not load projects.</p></div>';
         }
     }
 
-    async function loadSubmissions() {
+    async function loadSubmissions(courseId) {
         var listEl = document.getElementById('review-list');
         try {
-            var resp = await S.instructorDashboardService.getRecentSubmissions({ courseId: courseId, limit: 20 });
+            var resp = await S.instructorDashboardService.getRecentSubmissions({ courseId: courseId, limit: 50 });
             var raw = resp && (resp.data || resp);
             submissions = Array.isArray(raw) ? raw : (raw && Array.isArray(raw.items) ? raw.items : []);
         } catch (_) {
@@ -134,12 +248,14 @@
         renderSubmissionsTable();
     }
 
+    /* ── Rendering ───────────────────────────────────── */
+
     function renderProjects() {
         var listEl = document.getElementById('project-list');
         var countEl = document.getElementById('project-count');
 
         if (!projects.length) {
-            listEl.innerHTML = '<div class="detail-empty"><i class="fa-solid fa-diagram-project"></i><p>No projects yet. Create your first project!</p></div>';
+            listEl.innerHTML = '<div class="inst-proj-empty"><i class="fa-solid fa-diagram-project"></i><p>No projects yet. Create your first project!</p></div>';
             if (countEl) countEl.textContent = '0 total';
             return;
         }
@@ -151,22 +267,22 @@
             var ptitle = p.title || 'Untitled';
             var pstatus = (p.status || 'draft').toLowerCase();
             var dueDate = p.dueDate ? formatDate(p.dueDate) : 'No due date';
-            var maxScore = p.maxScore || p.maxScore || 100;
+            var maxScore = p.maxScore || 100;
             var deliveryMode = p.deliveryMode || 'individual';
             var statusClass = getStatusClass(pstatus);
 
-            return '<div class="project-row" data-id="' + pid + '">'
-                + '<span class="project-status-badge ' + statusClass + '">' + pstatus + '</span>'
-                + '<div class="project-info">'
+            return '<div class="inst-proj-row" data-id="' + pid + '">'
+                + '<span class="inst-proj-status-badge ' + statusClass + '">' + pstatus + '</span>'
+                + '<div class="inst-proj-info">'
                 + '<strong>' + ptitle + '</strong>'
-                + '<div class="project-meta">'
+                + '<div class="inst-proj-meta">'
                 + '<span><i class="fa-regular fa-calendar"></i> ' + dueDate + '</span>'
                 + '<span><i class="fa-solid fa-star"></i> ' + maxScore + ' pts</span>'
                 + '<span><i class="fa-solid fa-user"></i> ' + deliveryMode + '</span>'
                 + '</div></div>'
-                + '<div class="project-actions">'
-                + '<button class="project-action-btn" data-action="edit" data-id="' + pid + '" title="Edit project"><i class="fa-solid fa-pen"></i></button>'
-                + '<button class="project-action-btn danger" data-action="delete" data-id="' + pid + '" title="Delete project"><i class="fa-solid fa-trash-can"></i></button>'
+                + '<div class="inst-proj-actions">'
+                + '<button class="inst-proj-action-btn" data-action="edit" data-id="' + pid + '" title="Edit"><i class="fa-solid fa-pen"></i></button>'
+                + '<button class="inst-proj-action-btn danger" data-action="delete" data-id="' + pid + '" title="Delete"><i class="fa-solid fa-trash-can"></i></button>'
                 + '</div></div>';
         }).join('');
     }
@@ -179,7 +295,7 @@
         });
 
         if (!pending.length) {
-            listEl.innerHTML = '<div class="review-empty"><i class="fa-regular fa-circle-check"></i><p style="margin-top:0.5rem;">No pending submissions!</p></div>';
+            listEl.innerHTML = '<div class="inst-proj-review-empty"><i class="fa-regular fa-circle-check"></i><p style="margin-top:0.5rem;">No pending submissions!</p></div>';
             return;
         }
 
@@ -188,12 +304,12 @@
             var sname = s.studentName || s.name || s.student?.name || 'Student';
             var ptitle = s.projectTitle || s.assignmentTitle || s.title || 'Project';
             var stime = formatTimeAgo(s.submittedAt || s.createdAt || s.submissionDate);
-            return '<div class="review-item" data-id="' + sid + '">'
+            return '<div class="inst-proj-review-item" data-id="' + sid + '">'
                 + '<div class="review-item-info">'
                 + '<strong>' + sname + '</strong>'
                 + '<div class="review-item-meta"><span>' + ptitle + '</span><span>' + stime + '</span></div>'
                 + '</div>'
-                + '<button class="review-btn" data-action="review" data-id="' + sid + '">Review</button>'
+                + '<button class="inst-proj-review-btn" data-action="review" data-id="' + sid + '">Review</button>'
                 + '</div>';
         }).join('');
     }
@@ -204,7 +320,6 @@
             tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-secondary);">No submissions yet.</td></tr>';
             return;
         }
-
         tbody.innerHTML = submissions.map(function (s) {
             var sid = s._id || s.id || '';
             var sname = s.studentName || s.name || s.student?.name || 'Student';
@@ -213,14 +328,13 @@
             var grade = s.grade != null ? s.grade + '/100' : '—';
             var stime = formatTimeAgo(s.submittedAt || s.createdAt || s.submissionDate);
             var statusClass = getStatusClass(sstatus);
-
             return '<tr data-id="' + sid + '">'
                 + '<td class="sub-student">' + sname + '</td>'
                 + '<td>' + ptitle + '</td>'
-                + '<td><span class="project-status-badge ' + statusClass + '">' + sstatus.replace('_', ' ') + '</span></td>'
+                + '<td><span class="inst-proj-status-badge ' + statusClass + '">' + sstatus.replace('_', ' ') + '</span></td>'
                 + '<td>' + grade + '</td>'
                 + '<td class="sub-mono">' + stime + '</td>'
-                + '<td><button class="review-btn" data-action="review" data-id="' + sid + '">Review</button></td>'
+                + '<td><button class="inst-proj-review-btn" data-action="review" data-id="' + sid + '">Review</button></td>'
                 + '</tr>';
         }).join('');
     }
@@ -248,7 +362,18 @@
         document.getElementById('stat-approved').textContent = approved;
     }
 
-    /* ── Create Project Modal ──────────────────────────── */
+    function filterSubmissionsTable(filter) {
+        var rows = document.querySelectorAll('#submissions-tbody tr');
+        for (var i = 0; i < rows.length; i++) {
+            var sid = rows[i].getAttribute('data-id');
+            var s = findSubmission(sid);
+            if (!s) continue;
+            var st = (s.status || '').toLowerCase();
+            rows[i].style.display = (filter === 'all' || st === filter) ? '' : 'none';
+        }
+    }
+
+    /* ── Create Project ─────────────────────────────── */
 
     function openCreateModal() {
         document.getElementById('create-project-modal').style.display = 'flex';
@@ -258,24 +383,16 @@
     function closeCreateModal() {
         document.getElementById('create-project-modal').style.display = 'none';
         document.getElementById('create-project-form').reset();
-        resetDynamicRows('milestones-container');
-        resetDynamicRows('rubric-container');
-        resetDynamicRows('resources-container');
-    }
-
-    function resetDynamicRows(containerId) {
-        var container = document.getElementById(containerId);
-        if (!container) return;
-        container.innerHTML = '';
+        document.getElementById('milestones-container').innerHTML = '';
+        document.getElementById('rubric-container').innerHTML = '';
+        document.getElementById('resources-container').innerHTML = '';
     }
 
     function addMilestoneRow() {
         var container = document.getElementById('milestones-container');
         if (!container) return;
-        var idx = container.children.length;
         var div = document.createElement('div');
         div.className = 'dynamic-row';
-        div.dataset.index = idx;
         div.innerHTML = '<input type="text" class="milestone-title" placeholder="Milestone title" style="flex:2;">'
             + '<input type="date" class="milestone-due" style="flex:1;">'
             + '<label class="milestone-final-label"><input type="checkbox" class="milestone-final"> Final</label>'
@@ -288,10 +405,10 @@
         if (!container) return;
         var div = document.createElement('div');
         div.className = 'dynamic-row';
-        div.innerHTML = '<input type="text" class="rubric-criterion" placeholder="Criterion description" style="flex:2;">'
-            + '<input type="number" class="rubric-score" placeholder="Max score" value="10" min="0" style="flex:0 0 100px;">'
+        div.innerHTML = '<input type="text" class="rubric-criterion" placeholder="Criterion" style="flex:2;">'
+            + '<input type="number" class="rubric-score" placeholder="Score" value="10" min="0" style="flex:0 0 100px;">'
             + '<span class="dynamic-row-unit">pts</span>'
-            + '<button type="button" class="btn-remove-row" title="Remove criterion">&times;</button>';
+            + '<button type="button" class="btn-remove-row" title="Remove">&times;</button>';
         container.appendChild(div);
     }
 
@@ -302,7 +419,7 @@
         div.className = 'dynamic-row';
         div.innerHTML = '<input type="text" class="resource-label" placeholder="Label" style="flex:1;">'
             + '<input type="url" class="resource-url" placeholder="https://..." style="flex:2;">'
-            + '<button type="button" class="btn-remove-row" title="Remove resource">&times;</button>';
+            + '<button type="button" class="btn-remove-row" title="Remove">&times;</button>';
         container.appendChild(div);
     }
 
@@ -316,6 +433,11 @@
 
         if (!title) {
             errorEl.textContent = 'Project title is required.';
+            errorEl.style.display = '';
+            return;
+        }
+        if (!activeCourseId) {
+            errorEl.textContent = 'No course selected.';
             errorEl.style.display = '';
             return;
         }
@@ -354,9 +476,7 @@
         for (var k = 0; k < resourceLabels.length; k++) {
             var rl = resourceLabels[k].value.trim();
             var ru = resourceUrls[k]?.value.trim();
-            if (rl && ru) {
-                resources.push({ label: rl, url: ru });
-            }
+            if (rl && ru) resources.push({ label: rl, url: ru });
         }
 
         var submitBtn = document.getElementById('submit-create-btn');
@@ -365,24 +485,22 @@
         errorEl.style.display = 'none';
 
         try {
-            var body = {
-                title: title,
-                courseId: courseId,
-                description: description || undefined,
-                dueDate: dueDate || undefined,
-                maxScore: maxScore,
-                sectionId: null,
-            };
-
-            var resp = await apiFetch('/assignments', {
+            await apiFetch('/assignments', {
                 service: 'admin',
                 method: 'POST',
                 auth: true,
-                body: body,
+                body: {
+                    title: title,
+                    courseId: activeCourseId,
+                    description: description || undefined,
+                    dueDate: dueDate || undefined,
+                    maxScore: maxScore,
+                },
             });
 
             closeCreateModal();
-            await loadProjects();
+            await loadProjects(activeCourseId);
+            updateStats();
         } catch (err) {
             errorEl.textContent = err.message || 'Failed to create project.';
             errorEl.style.display = '';
@@ -392,7 +510,7 @@
         }
     }
 
-    /* ── Delete Project ────────────────────────────────── */
+    /* ── Delete Project ─────────────────────────────── */
 
     async function handleDeleteProject(projectId) {
         if (!confirm('Delete this project? This cannot be undone.')) return;
@@ -402,25 +520,33 @@
                 method: 'DELETE',
                 auth: true,
             });
-            await loadProjects();
+            await loadProjects(activeCourseId);
+            updateStats();
         } catch (err) {
             alert('Failed to delete: ' + (err.message || 'Unknown error'));
         }
     }
 
-    /* ── Review Modal ───────────────────────────────────── */
+    /* ── Review Modal ───────────────────────────────── */
 
     var activeReviewSubmission = null;
+
+    function findSubmission(id) {
+        for (var i = 0; i < submissions.length; i++) {
+            if ((submissions[i]._id || submissions[i].id) === id) return submissions[i];
+        }
+        return null;
+    }
 
     function openReviewModal(submissionId) {
         var s = findSubmission(submissionId);
         if (!s) return;
-
         activeReviewSubmission = s;
 
         document.getElementById('review-student-name').textContent = s.studentName || s.name || s.student?.name || 'Student';
         document.getElementById('review-project-name').textContent = s.projectTitle || s.assignmentTitle || s.title || 'Project';
         document.getElementById('review-submitted-at').textContent = formatDate(s.submittedAt || s.createdAt || s.submissionDate);
+
         var githubLink = s.githubLink || s.repoUrl || s.githubUrl || '';
         var githubEl = document.getElementById('review-github-link');
         if (githubLink) {
@@ -436,9 +562,7 @@
         var statusRadios = document.querySelectorAll('input[name="review-status"]');
         var currentStatus = (s.status || 'pending').toLowerCase();
         for (var i = 0; i < statusRadios.length; i++) {
-            if (statusRadios[i].value === currentStatus) {
-                statusRadios[i].checked = true;
-            }
+            if (statusRadios[i].value === currentStatus) statusRadios[i].checked = true;
         }
 
         document.getElementById('review-feedback').value = s.feedback || s.instructorNotes || '';
@@ -449,13 +573,6 @@
     function closeReviewModal() {
         document.getElementById('review-modal').style.display = 'none';
         activeReviewSubmission = null;
-    }
-
-    function findSubmission(id) {
-        for (var i = 0; i < submissions.length; i++) {
-            if ((submissions[i]._id || submissions[i].id) === id) return submissions[i];
-        }
-        return null;
     }
 
     async function handleReviewSubmit() {
@@ -483,9 +600,9 @@
                     feedback: feedback || undefined,
                 },
             });
-
             closeReviewModal();
-            await loadSubmissions();
+            await loadSubmissions(activeCourseId);
+            updateStats();
         } catch (err) {
             errorEl.textContent = err.message || 'Failed to submit review.';
             errorEl.style.display = '';
@@ -495,53 +612,27 @@
         }
     }
 
-    /* ── apiFetch helper (for direct calls) ────────────── */
-
-    function apiFetch(path, options) {
-        options = options || {};
-        var service = options.service || 'admin';
-        var method = options.method || 'GET';
-        var auth = options.auth !== false;
-
-        var baseUrl = (window.NibrasApiConfig && window.NibrasApiConfig.getServiceUrl)
-            ? window.NibrasApiConfig.getServiceUrl(service)
-            : window.NIBRAS_API_URL || 'https://nibras-backend.up.railway.app/api';
-        baseUrl = String(baseUrl).replace(/\/+$/, '');
-        var url = baseUrl + path;
-
-        var headers = { 'Content-Type': 'application/json' };
-        if (auth) {
-            var token = window.localStorage.getItem('token');
-            if (token) headers['Authorization'] = 'Bearer ' + token;
-        }
-
-        var fetchOptions = {
-            method: method,
-            headers: headers,
-        };
-        if (options.body) {
-            fetchOptions.body = JSON.stringify(options.body);
-        }
-
-        return fetch(url, fetchOptions).then(async function (response) {
-            if (!response.ok) {
-                var body = null;
-                try { body = await response.json(); } catch (_) {}
-                var err = new Error((body && (body.message || body.error)) || 'Request failed (' + response.status + ')');
-                err.status = response.status;
-                err.payload = body;
-                throw err;
-            }
-            return response.json();
-        });
-    }
-
-    /* ── Event Delegation ───────────────────────────────── */
+    /* ── Events ──────────────────────────────────────── */
 
     function setupEvents() {
+        /* Course selector */
+        var courseSelect = document.getElementById('course-select');
+        if (courseSelect) {
+            courseSelect.addEventListener('change', function () {
+                var val = this.value;
+                if (val) {
+                    loadCourseData(val);
+                } else {
+                    activeCourseId = null;
+                    showEmpty();
+                }
+            });
+        }
+
         document.addEventListener('click', function (e) {
-            /* Create project */
+            /* New project */
             if (e.target.closest('#btn-new-project')) {
+                if (!activeCourseId) { alert('Select a course first.'); return; }
                 openCreateModal();
                 return;
             }
@@ -555,8 +646,6 @@
                 closeReviewModal();
                 return;
             }
-
-            /* Click overlay to close */
             if (e.target.classList.contains('modal-overlay')) {
                 if (e.target.id === 'create-project-modal') closeCreateModal();
                 if (e.target.id === 'review-modal') closeReviewModal();
@@ -569,7 +658,7 @@
                 var action = actionBtn.getAttribute('data-action');
                 var id = actionBtn.getAttribute('data-id');
                 if (action === 'edit') {
-                    alert('Edit functionality coming soon. You can delete and recreate for now.');
+                    alert('Edit coming soon. You can delete and recreate for now.');
                     return;
                 }
                 if (action === 'delete' && id) {
@@ -582,41 +671,19 @@
                 }
             }
 
-            /* Dynamic row add */
-            if (e.target.closest('#add-milestone-row')) {
-                e.preventDefault();
-                addMilestoneRow();
-                return;
-            }
-            if (e.target.closest('#add-rubric-row')) {
-                e.preventDefault();
-                addRubricRow();
-                return;
-            }
-            if (e.target.closest('#add-resource-row')) {
-                e.preventDefault();
-                addResourceRow();
-                return;
-            }
-
-            /* Remove dynamic row */
+            /* Dynamic rows */
+            if (e.target.closest('#add-milestone-row')) { e.preventDefault(); addMilestoneRow(); return; }
+            if (e.target.closest('#add-rubric-row')) { e.preventDefault(); addRubricRow(); return; }
+            if (e.target.closest('#add-resource-row')) { e.preventDefault(); addResourceRow(); return; }
             if (e.target.closest('.btn-remove-row')) {
                 var row = e.target.closest('.dynamic-row');
                 if (row) row.remove();
                 return;
             }
 
-            /* Create submit */
-            if (e.target.closest('#submit-create-btn')) {
-                handleCreateProject();
-                return;
-            }
-
-            /* Review submit */
-            if (e.target.closest('#submit-review-btn')) {
-                handleReviewSubmit();
-                return;
-            }
+            /* Submit buttons */
+            if (e.target.closest('#submit-create-btn')) { handleCreateProject(); return; }
+            if (e.target.closest('#submit-review-btn')) { handleReviewSubmit(); return; }
 
             /* View all submissions toggle */
             if (e.target.closest('#btn-view-all-submissions')) {
@@ -625,7 +692,7 @@
                 return;
             }
 
-            /* Submission filter buttons */
+            /* Submission filters */
             var sfilterBtn = e.target.closest('[data-sfilter]');
             if (sfilterBtn) {
                 var filter = sfilterBtn.getAttribute('data-sfilter');
@@ -635,35 +702,15 @@
                 return;
             }
 
-            /* Manage buttons */
+            /* Templates */
             if (e.target.closest('#btn-manage-templates')) {
                 alert('Templates page coming soon.');
-                return;
-            }
-            if (e.target.closest('#btn-manage-members')) {
-                alert('Members page coming soon.');
                 return;
             }
         });
     }
 
-    function filterSubmissionsTable(filter) {
-        var rows = document.querySelectorAll('#submissions-tbody tr');
-        var rowData = submissions;
-        for (var i = 0; i < rows.length; i++) {
-            var sid = rows[i].getAttribute('data-id');
-            var s = findSubmission(sid);
-            if (!s) continue;
-            var st = (s.status || '').toLowerCase();
-            if (filter === 'all' || st === filter) {
-                rows[i].style.display = '';
-            } else {
-                rows[i].style.display = 'none';
-            }
-        }
-    }
-
-    /* ── Init ───────────────────────────────────────────── */
+    /* ── Init ────────────────────────────────────────── */
 
     async function init() {
         var user = getUser();
@@ -680,7 +727,7 @@
 
         setupEvents();
         seedDefaultRows();
-        await loadData();
+        await loadCourses();
     }
 
     function seedDefaultRows() {
@@ -688,7 +735,6 @@
         if (milestones && !milestones.children.length) {
             var div = document.createElement('div');
             div.className = 'dynamic-row';
-            div.dataset.index = 0;
             div.innerHTML = '<input type="text" class="milestone-title" placeholder="Milestone title" style="flex:2;">'
                 + '<input type="date" class="milestone-due" style="flex:1;">'
                 + '<label class="milestone-final-label"><input type="checkbox" class="milestone-final"> Final</label>'
@@ -699,7 +745,6 @@
         if (rubric && !rubric.children.length) {
             var div2 = document.createElement('div');
             div2.className = 'dynamic-row';
-            div2.dataset.index = 0;
             div2.innerHTML = '<input type="text" class="rubric-criterion" placeholder="Criterion description" style="flex:2;">'
                 + '<input type="number" class="rubric-score" placeholder="Max score" value="10" min="0" style="flex:0 0 100px;">'
                 + '<span class="dynamic-row-unit">pts</span>'

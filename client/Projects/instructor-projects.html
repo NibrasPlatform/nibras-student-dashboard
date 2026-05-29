@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nibras - Course Detail</title>
+    <title>Nibras - Instructor Projects</title>
     <script src="../services/auth-guard.js" data-login="../Login/loginPage/login.html" data-api="https://nibras-backend.up.railway.app/api"></script>
     <script>
     (function () {
@@ -17,9 +17,8 @@
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="./courses.css">
-    <link rel="stylesheet" href="./instructor-courses.css">
-    <link rel="stylesheet" href="./instructor-course-detail.css">
+    <link rel="stylesheet" href="./projects.css">
+    <link rel="stylesheet" href="./instructor-projects.css">
 </head>
 <body>
     <div id="app-root" hidden></div>
@@ -30,7 +29,8 @@
         </div>
         <ul class="nav-menu">
             <li class="nav-item"><a href="../Dashboard/instructor-dashboard.html" class="nav-link"><i class="fa-solid fa-house"></i> Dashboard</a></li>
-            <li class="nav-item"><a href="./instructor-courses.html" class="nav-link active"><i class="fa-solid fa-book-open"></i> Courses</a></li>
+            <li class="nav-item"><a href="../Courses/instructor-courses.html" class="nav-link"><i class="fa-solid fa-book-open"></i> Courses</a></li>
+            <li class="nav-item"><a href="./instructor-projects.html" class="nav-link active"><i class="fa-solid fa-diagram-project"></i> Projects</a></li>
             <li class="nav-item"><a href="../Community/community.html" class="nav-link"><i class="fa-solid fa-users"></i> Community</a></li>
             <li class="nav-item"><a href="../Analytics/Overview/overview.html" class="nav-link"><i class="fa-solid fa-chart-simple"></i> Analytics</a></li>
             <li class="nav-item"><a href="../Settings/settings.html" class="nav-link"><i class="fa-solid fa-gear"></i> Settings</a></li>
@@ -66,73 +66,79 @@
 
         <div class="content-wrapper">
             <!-- Breadcrumb -->
-            <div class="detail-breadcrumb">
-                <a href="./instructor-courses.html">Courses</a>
+            <div class="inst-proj-breadcrumb">
+                <a href="../Courses/instructor-courses.html">Courses</a>
                 <span class="breadcrumb-sep">/</span>
-                <span id="crumb-course-name">Course</span>
+                <span id="crumb-course-name">Projects</span>
             </div>
 
             <!-- Page Header -->
-            <div class="detail-header">
+            <div class="inst-proj-header">
                 <div>
-                    <h1 id="detail-course-title">Course Detail</h1>
-                    <p id="detail-course-meta" class="detail-subtitle">Loading...</p>
+                    <h1>Projects</h1>
+                    <p class="inst-proj-subtitle">Manage projects, milestones, and review submissions</p>
                 </div>
-                <div class="detail-header-actions">
+                <div class="inst-proj-header-actions">
                     <button class="inst-primary-btn" id="btn-manage-templates"><i class="fa-solid fa-file"></i> Templates</button>
-                    <button class="inst-primary-btn" id="btn-manage-members"><i class="fa-solid fa-users-gear"></i> Members</button>
                     <button class="inst-primary-btn" id="btn-new-project"><i class="fa-solid fa-plus"></i> New Project</button>
                 </div>
             </div>
 
+            <!-- Course Selector Bar -->
+            <div class="inst-proj-selector-bar">
+                <label>COURSE</label>
+                <select id="course-select">
+                    <option value="">Loading courses...</option>
+                </select>
+                <span id="available-count"></span>
+            </div>
+
             <!-- Stats Row -->
-            <div class="detail-stats" id="detail-stats">
-                <div class="detail-stat-card">
-                    <span class="detail-stat-value" id="stat-projects">0</span>
-                    <span class="detail-stat-label">Projects</span>
+            <div class="inst-proj-stats" id="inst-proj-stats">
+                <div class="inst-proj-stat-card">
+                    <span class="inst-proj-stat-value" id="stat-projects">0</span>
+                    <span class="inst-proj-stat-label">Projects</span>
                 </div>
-                <div class="detail-stat-card">
-                    <span class="detail-stat-value" id="stat-students">0</span>
-                    <span class="detail-stat-label">Students</span>
+                <div class="inst-proj-stat-card">
+                    <span class="inst-proj-stat-value" id="stat-students">0</span>
+                    <span class="inst-proj-stat-label">Students</span>
                 </div>
-                <div class="detail-stat-card">
-                    <span class="detail-stat-value" id="stat-pending">0</span>
-                    <span class="detail-stat-label">Pending Reviews</span>
+                <div class="inst-proj-stat-card">
+                    <span class="inst-proj-stat-value" id="stat-pending">0</span>
+                    <span class="inst-proj-stat-label">Pending Reviews</span>
                 </div>
-                <div class="detail-stat-card">
-                    <span class="detail-stat-value" id="stat-approved">0</span>
-                    <span class="detail-stat-label">Approved</span>
+                <div class="inst-proj-stat-card">
+                    <span class="inst-proj-stat-value" id="stat-approved">0</span>
+                    <span class="inst-proj-stat-label">Approved</span>
                 </div>
             </div>
 
             <!-- Two-Column Grid -->
-            <div class="detail-grid">
-                <!-- LEFT: Project List -->
-                <section class="detail-panel" id="panel-projects">
-                    <div class="panel-header">
+            <div class="inst-proj-grid">
+                <section class="inst-proj-panel" id="panel-projects">
+                    <div class="inst-proj-panel-header">
                         <h2>Projects</h2>
-                        <span class="panel-count" id="project-count">0 total</span>
+                        <span class="inst-proj-panel-count" id="project-count">0 total</span>
                     </div>
-                    <div class="project-list" id="project-list">
-                        <div class="detail-loading">Loading projects...</div>
+                    <div class="inst-proj-list" id="project-list">
+                        <div class="inst-proj-loading">Select a course to view projects.</div>
                     </div>
                 </section>
 
-                <!-- RIGHT: Review Queue -->
-                <section class="detail-panel" id="panel-review">
-                    <div class="panel-header">
+                <section class="inst-proj-panel" id="panel-review">
+                    <div class="inst-proj-panel-header">
                         <h2>Review Queue</h2>
-                        <button class="panel-link" id="btn-view-all-submissions">See all</button>
+                        <button class="inst-proj-panel-link" id="btn-view-all-submissions">See all</button>
                     </div>
-                    <div class="review-list" id="review-list">
-                        <div class="detail-loading">Loading submissions...</div>
+                    <div class="inst-proj-review-list" id="review-list">
+                        <div class="inst-proj-loading">Select a course to view submissions.</div>
                     </div>
                 </section>
             </div>
 
-            <!-- Submissions Table (full view) -->
-            <section class="detail-panel" id="panel-submissions" style="display:none;">
-                <div class="panel-header">
+            <!-- All Submissions Table -->
+            <section class="inst-proj-panel" id="panel-submissions" style="display:none;">
+                <div class="inst-proj-panel-header">
                     <h2>All Submissions</h2>
                     <div>
                         <button class="inst-filter-btn inst-filter-active" data-sfilter="all">All</button>
@@ -141,8 +147,8 @@
                         <button class="inst-filter-btn" data-sfilter="needs_changes">Needs Changes</button>
                     </div>
                 </div>
-                <div class="submissions-table-wrapper">
-                    <table class="submissions-table" id="submissions-table">
+                <div class="inst-proj-table-wrapper">
+                    <table class="inst-proj-table">
                         <thead>
                             <tr>
                                 <th>Student</th>
@@ -199,39 +205,22 @@
                         </div>
                     </div>
 
-                    <!-- Milestones -->
                     <div class="dynamic-section">
                         <div class="dynamic-section-header">
                             <span class="dynamic-section-label">Milestones</span>
                             <button type="button" class="btn-add-row" id="add-milestone-row">+ Add milestone</button>
                         </div>
-                        <div id="milestones-container">
-                            <div class="dynamic-row" data-index="0">
-                                <input type="text" class="milestone-title" placeholder="Milestone title" style="flex:2;">
-                                <input type="date" class="milestone-due" placeholder="Due date" style="flex:1;">
-                                <label class="milestone-final-label"><input type="checkbox" class="milestone-final"> Final</label>
-                                <button type="button" class="btn-remove-row" title="Remove milestone">&times;</button>
-                            </div>
-                        </div>
+                        <div id="milestones-container"></div>
                     </div>
 
-                    <!-- Grading Rubric -->
                     <div class="dynamic-section">
                         <div class="dynamic-section-header">
                             <span class="dynamic-section-label">Grading Rubric</span>
                             <button type="button" class="btn-add-row" id="add-rubric-row">+ Add criterion</button>
                         </div>
-                        <div id="rubric-container">
-                            <div class="dynamic-row" data-index="0">
-                                <input type="text" class="rubric-criterion" placeholder="Criterion description" style="flex:2;">
-                                <input type="number" class="rubric-score" placeholder="Max score" value="10" min="0" style="flex:0 0 100px;">
-                                <span class="dynamic-row-unit">pts</span>
-                                <button type="button" class="btn-remove-row" title="Remove criterion">&times;</button>
-                            </div>
-                        </div>
+                        <div id="rubric-container"></div>
                     </div>
 
-                    <!-- Resources -->
                     <div class="dynamic-section">
                         <div class="dynamic-section-header">
                             <span class="dynamic-section-label">Resources</span>
@@ -341,6 +330,6 @@
     <script src="../config.js"></script>
     <script src="../services/api.js"></script>
     <script src="../services/gamification-ui.js"></script>
-    <script src="./instructor-course-detail.js"></script>
+    <script src="./instructor-projects.js"></script>
 </body>
 </html>

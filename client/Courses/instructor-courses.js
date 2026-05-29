@@ -224,7 +224,7 @@
                 var courseId = btn.getAttribute('data-id');
                 if (courseId) {
                     localStorage.setItem('selectedCourseId', courseId);
-                    window.location.href = './instructor-course-detail.html?courseId=' + encodeURIComponent(courseId);
+                    window.location.href = '../Projects/instructor-projects.html?courseId=' + encodeURIComponent(courseId);
                 }
             }
 
