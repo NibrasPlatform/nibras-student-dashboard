@@ -624,3 +624,262 @@
     font-size: 0.85rem;
     margin: 0;
 }
+
+/* ── Enhanced UI: Search Bar ─────────────────────────── */
+.inst-proj-header-actions + * .search-bar-global,
+.main-content .top-header .search-bar-global {
+    position: relative;
+    width: 400px;
+    transition: width 0.25s ease;
+}
+.main-content .top-header .search-bar-global:focus-within {
+    width: 440px;
+}
+.main-content .top-header .search-bar-global i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-tertiary);
+    font-size: 0.9rem;
+    transition: color 0.2s;
+    pointer-events: none;
+    z-index: 1;
+}
+.main-content .top-header .search-bar-global:focus-within i {
+    color: var(--accent-blue);
+}
+.main-content .top-header .search-bar-global input {
+    width: 100%;
+    padding: 0.6rem 1rem 0.6rem 2.4rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--bg-input);
+    color: var(--text-primary);
+    outline: none;
+    font-size: 0.85rem;
+    transition: all 0.25s ease;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+.main-content .top-header .search-bar-global input:hover {
+    border-color: var(--text-tertiary);
+    background-color: var(--bg-card);
+}
+.main-content .top-header .search-bar-global input:focus {
+    border-color: var(--accent-blue);
+    background-color: var(--bg-card);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12), 0 2px 8px rgba(0,0,0,0.06);
+}
+.main-content .top-header .search-bar-global input::placeholder {
+    color: var(--text-tertiary);
+    font-weight: 400;
+    transition: color 0.2s;
+}
+.main-content .top-header .search-bar-global input:focus::placeholder {
+    color: var(--text-secondary);
+}
+
+/* ── Enhanced UI: Buttons ────────────────────────────── */
+.inst-proj-header-actions .inst-primary-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 1.25rem;
+    border: none;
+    background: var(--accent-blue);
+    color: #fff;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    box-shadow: 0 1px 3px rgba(37, 99, 235, 0.15);
+    letter-spacing: 0.01em;
+    position: relative;
+    overflow: hidden;
+}
+.inst-proj-header-actions .inst-primary-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 50%);
+    pointer-events: none;
+}
+.inst-proj-header-actions .inst-primary-btn:hover {
+    background: var(--accent-blue-hover, #1d4ed8);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+}
+.inst-proj-header-actions .inst-primary-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 4px rgba(37, 99, 235, 0.2);
+    transition-duration: 0.05s;
+}
+.inst-proj-header-actions .inst-primary-btn i {
+    font-size: 0.9rem;
+    transition: transform 0.2s ease;
+}
+.inst-proj-header-actions .inst-primary-btn:hover i {
+    transform: scale(1.1);
+}
+
+/* Templates secondary button */
+#btn-manage-templates {
+    background: transparent;
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    box-shadow: none;
+    font-weight: 500;
+}
+#btn-manage-templates::after {
+    display: none;
+}
+#btn-manage-templates:hover {
+    background: var(--tag-bg);
+    border-color: var(--text-tertiary);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+#btn-manage-templates i {
+    color: var(--accent-blue);
+}
+
+/* Modal primary button */
+.modal-footer .inst-primary-btn {
+    padding: 0.5rem 1.25rem;
+    border: none;
+    background: var(--accent-blue);
+    color: #fff;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(37, 99, 235, 0.15);
+}
+.modal-footer .inst-primary-btn:hover {
+    background: var(--accent-blue-hover, #1d4ed8);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+.modal-footer .inst-primary-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+.modal-footer .inst-view-btn {
+    padding: 0.5rem 1.1rem;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-secondary);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.modal-footer .inst-view-btn:hover {
+    background: var(--tag-bg);
+    border-color: var(--text-tertiary);
+    color: var(--text-primary);
+}
+
+/* Review button in queue */
+.inst-proj-review-btn {
+    padding: 0.4rem 0.85rem;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--accent-blue);
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+.inst-proj-review-btn:hover {
+    background: var(--accent-blue);
+    color: #fff;
+    border-color: var(--accent-blue);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+}
+
+/* Project action buttons */
+.inst-proj-action-btn {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-secondary);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.18s ease;
+}
+.inst-proj-action-btn:hover {
+    background: var(--tag-bg);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+    transform: translateY(-1px);
+}
+.inst-proj-action-btn.danger:hover {
+    background: rgba(239, 68, 68, 0.08);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.2);
+}
+
+/* Course selector bar */
+.inst-proj-selector-bar select {
+    transition: all 0.2s ease;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 30px;
+}
+.inst-proj-selector-bar select:hover {
+    border-color: var(--text-tertiary);
+    background-color: var(--bg-card);
+}
+.inst-proj-selector-bar select:focus {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+/* Filter buttons */
+.modal-body .inst-filter-btn,
+.inst-proj-panel .inst-filter-btn {
+    padding: 0.35rem 0.85rem;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-secondary);
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.modal-body .inst-filter-btn:hover,
+.inst-proj-panel .inst-filter-btn:hover {
+    background: var(--tag-bg);
+    color: var(--text-primary);
+    border-color: var(--text-tertiary);
+}
+.modal-body .inst-filter-active,
+.inst-proj-panel .inst-filter-active {
+    background: var(--accent-blue);
+    color: #fff;
+    border-color: var(--accent-blue);
+}
+.modal-body .inst-filter-active:hover,
+.inst-proj-panel .inst-filter-active:hover {
+    background: var(--accent-blue-hover, #1d4ed8);
+    color: #fff;
+}
