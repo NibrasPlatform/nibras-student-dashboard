@@ -3343,6 +3343,266 @@
     };
 
     // ============================================================
+    // Phase 6 — Assignment Admin Service
+    // ============================================================
+    const assignmentAdminService = {
+        async create(data) {
+            return apiFetch('/assignments', {
+                service: 'courses',
+                method: 'POST',
+                auth: true,
+                body: data,
+            });
+        },
+
+        async update(id, data) {
+            return apiFetch(`/assignments/${encodeURIComponent(String(id))}`, {
+                service: 'courses',
+                method: 'PUT',
+                auth: true,
+                body: data,
+            });
+        },
+
+        async delete(id) {
+            return apiFetch(`/assignments/${encodeURIComponent(String(id))}`, {
+                service: 'courses',
+                method: 'DELETE',
+                auth: true,
+            });
+        },
+
+        async listByCourse(courseId) {
+            return apiFetch(`/assignments/course/${encodeURIComponent(String(courseId))}`, {
+                service: 'courses',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        async getById(id) {
+            return apiFetch(`/assignments/${encodeURIComponent(String(id))}`, {
+                service: 'courses',
+                method: 'GET',
+                auth: true,
+            });
+        },
+    };
+
+    // ============================================================
+    // Phase 6 — Test Case Service
+    // ============================================================
+    const testCaseService = {
+        async create(assignmentId, data) {
+            return apiFetch(`/assignments/${encodeURIComponent(String(assignmentId))}/test-cases`, {
+                service: 'courses',
+                method: 'POST',
+                auth: true,
+                body: data,
+            });
+        },
+
+        async update(id, data) {
+            return apiFetch(`/test-cases/${encodeURIComponent(String(id))}`, {
+                service: 'courses',
+                method: 'PATCH',
+                auth: true,
+                body: data,
+            });
+        },
+
+        async delete(id) {
+            return apiFetch(`/test-cases/${encodeURIComponent(String(id))}`, {
+                service: 'courses',
+                method: 'DELETE',
+                auth: true,
+            });
+        },
+
+        async listByAssignment(assignmentId) {
+            return apiFetch(`/assignments/${encodeURIComponent(String(assignmentId))}/test-cases`, {
+                service: 'courses',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        async batchImport(assignmentId, testCases) {
+            return apiFetch(`/assignments/${encodeURIComponent(String(assignmentId))}/test-cases/batch`, {
+                service: 'courses',
+                method: 'POST',
+                auth: true,
+                body: { testCases },
+            });
+        },
+    };
+
+    // ============================================================
+    // Phase 6 — Rubric Service
+    // ============================================================
+    const rubricService = {
+        async create(assignmentId, data) {
+            return apiFetch(`/assignments/${encodeURIComponent(String(assignmentId))}/rubric`, {
+                service: 'courses',
+                method: 'POST',
+                auth: true,
+                body: data,
+            });
+        },
+
+        async update(assignmentId, data) {
+            return apiFetch(`/assignments/${encodeURIComponent(String(assignmentId))}/rubric`, {
+                service: 'courses',
+                method: 'PUT',
+                auth: true,
+                body: data,
+            });
+        },
+
+        async getByAssignment(assignmentId) {
+            return apiFetch(`/assignments/${encodeURIComponent(String(assignmentId))}/rubric`, {
+                service: 'courses',
+                method: 'GET',
+                auth: true,
+            });
+        },
+    };
+
+    // ============================================================
+    // Phase 6 — Evaluation Service
+    // ============================================================
+    const evaluationService = {
+        async submit(assignmentId, data) {
+            return apiFetch(`/assignments/${encodeURIComponent(String(assignmentId))}/submit`, {
+                service: 'courses',
+                method: 'POST',
+                auth: true,
+                body: data,
+            });
+        },
+
+        async evaluate(submissionId) {
+            return apiFetch(`/assignments/${encodeURIComponent(String(submissionId))}/evaluate`, {
+                service: 'courses',
+                method: 'POST',
+                auth: true,
+            });
+        },
+
+        async getResults(submissionId) {
+            return apiFetch(`/submissions/${encodeURIComponent(String(submissionId))}/results`, {
+                service: 'courses',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        async getStyleReport(submissionId) {
+            return apiFetch(`/submissions/${encodeURIComponent(String(submissionId))}/style-report`, {
+                service: 'courses',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        async getBenchmark(submissionId) {
+            return apiFetch(`/submissions/${encodeURIComponent(String(submissionId))}/benchmark`, {
+                service: 'courses',
+                method: 'GET',
+                auth: true,
+            });
+        },
+    };
+
+    // ============================================================
+    // Phase 6 — Plagiarism Service
+    // ============================================================
+    const plagiarismService = {
+        async triggerCheck(assignmentId) {
+            return apiFetch(`/assignments/${encodeURIComponent(String(assignmentId))}/plagiarism-check`, {
+                service: 'courses',
+                method: 'POST',
+                auth: true,
+            });
+        },
+
+        async getResults(assignmentId) {
+            return apiFetch(`/assignments/${encodeURIComponent(String(assignmentId))}/plagiarism-report`, {
+                service: 'courses',
+                method: 'GET',
+                auth: true,
+            });
+        },
+    };
+
+    // ============================================================
+    // Phase 6 — Feedback Service
+    // ============================================================
+    const feedbackService = {
+        async submitGrade(submissionId, data) {
+            return apiFetch(`/submissions/${encodeURIComponent(String(submissionId))}/grade`, {
+                service: 'courses',
+                method: 'POST',
+                auth: true,
+                body: data,
+            });
+        },
+
+        async addTextFeedback(submissionId, data) {
+            return apiFetch(`/submissions/${encodeURIComponent(String(submissionId))}/feedback`, {
+                service: 'courses',
+                method: 'POST',
+                auth: true,
+                body: data,
+            });
+        },
+
+        async attachVideoFeedback(submissionId, data) {
+            return apiFetch(`/submissions/${encodeURIComponent(String(submissionId))}/feedback/video`, {
+                service: 'courses',
+                method: 'POST',
+                auth: true,
+                body: data,
+            });
+        },
+
+        async assignPeerReview(assignmentId, data) {
+            return apiFetch(`/assignments/${encodeURIComponent(String(assignmentId))}/peer-reviews`, {
+                service: 'courses',
+                method: 'POST',
+                auth: true,
+                body: data,
+            });
+        },
+
+        async submitPeerReview(reviewId, data) {
+            return apiFetch(`/peer-reviews/${encodeURIComponent(String(reviewId))}`, {
+                service: 'courses',
+                method: 'POST',
+                auth: true,
+                body: data,
+            });
+        },
+
+        async getPeerReviews(assignmentId) {
+            return apiFetch(`/assignments/${encodeURIComponent(String(assignmentId))}/peer-reviews`, {
+                service: 'courses',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        async batchDistribute(submissionId, data) {
+            return apiFetch(`/submissions/${encodeURIComponent(String(submissionId))}/feedback/batch`, {
+                service: 'courses',
+                method: 'POST',
+                auth: true,
+                body: data,
+            });
+        },
+    };
+
+    // ============================================================
     // Expose on window
     // ============================================================
     window.NibrasServices = Object.freeze({
@@ -3380,6 +3640,12 @@
         instructorCourseManagementService,
         flagService,
         teamService,
+        assignmentAdminService,
+        testCaseService,
+        rubricService,
+        evaluationService,
+        plagiarismService,
+        feedbackService,
     });
 
     console.log('[NibrasServices] Initialized. Available as window.NibrasServices');
