@@ -1053,4 +1053,25 @@
         apiRequest: request,
         apiFetch,
     };
+
+    (function () {
+        var raw = safeStorageGet(window.localStorage, 'user');
+        if (!raw) return;
+        var parsed = tryParseJson(raw);
+        if (!parsed.ok || !parsed.value) return;
+        var user = parsed.value;
+        var role = String(user?.role?.name || user?.role || '').toLowerCase();
+        var isStaff = role === 'instructor' || role === 'admin' || role === 'super admin' || role === 'ta';
+        if (isStaff) return;
+        onReady(function () {
+            var items = document.querySelectorAll('.nav-item');
+            for (var i = 0; i < items.length; i++) {
+                var link = items[i].querySelector('a');
+                if (link && link.textContent.trim() === 'Analytics') {
+                    items[i].style.display = 'none';
+                    break;
+                }
+            }
+        });
+    })();
 })();
