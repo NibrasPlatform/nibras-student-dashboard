@@ -3512,6 +3512,14 @@
                 auth: true,
             });
         },
+
+        async listByAssignment(assignmentId) {
+            return apiFetch(`/assignments/${encodeURIComponent(String(assignmentId))}/submissions`, {
+                service: 'courses',
+                method: 'GET',
+                auth: true,
+            });
+        },
     };
 
     // ============================================================
