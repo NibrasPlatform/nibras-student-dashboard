@@ -1062,14 +1062,29 @@
         var user = parsed.value;
         var role = String(user?.role?.name || user?.role || '').toLowerCase();
         var isStaff = role === 'instructor' || role === 'admin' || role === 'super admin' || role === 'ta';
-        if (isStaff) return;
+
+        if (isStaff && window.location.pathname.includes('/Projects/projects.html')) {
+            window.location.replace(window.location.pathname.replace('projects.html', 'instructor-projects.html'));
+            return;
+        }
+
         onReady(function () {
             var items = document.querySelectorAll('.nav-item');
             for (var i = 0; i < items.length; i++) {
                 var link = items[i].querySelector('a');
-                if (link && link.textContent.trim() === 'Analytics') {
+                if (!link) continue;
+                var text = link.textContent.trim();
+
+                if (!isStaff && text === 'Analytics') {
                     items[i].style.display = 'none';
-                    break;
+                    continue;
+                }
+
+                if (isStaff && text === 'Projects') {
+                    var href = link.getAttribute('href');
+                    if (href && href.endsWith('projects.html')) {
+                        link.setAttribute('href', href.replace('projects.html', 'instructor-projects.html'));
+                    }
                 }
             }
         });
