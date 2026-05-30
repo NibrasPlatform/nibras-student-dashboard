@@ -1,12 +1,33 @@
 console.log('[DASHBOARD.JS] Script started (direct execution)');
 
-// Redirect instructors to instructor dashboard
+// Role-based routing and sidebar gating
 (function () {
     try {
         var _user = JSON.parse(localStorage.getItem('user') || '{}');
         var _role = String(_user?.role?.name || _user?.role || '').toLowerCase();
         if (_role === 'instructor') {
             window.location.replace('./instructor-dashboard.html');
+        }
+    } catch (_) {}
+})();
+
+// Gate sidebar nav items based on user role
+(function () {
+    try {
+        var _user = JSON.parse(localStorage.getItem('user') || '{}');
+        var _role = String(_user?.role?.name || _user?.role || '').toLowerCase();
+        var adminOnlySelectors = [
+            'a[href*="/Admin/"]',
+            'a[href*="admin-"]',
+        ];
+        var isAdmin = _role === 'super-admin' || _role === 'admin';
+        if (!isAdmin) {
+            adminOnlySelectors.forEach(function (selector) {
+                document.querySelectorAll(selector).forEach(function (el) {
+                    var li = el.closest('.nav-item');
+                    if (li) li.style.display = 'none';
+                });
+            });
         }
     } catch (_) {}
 })();

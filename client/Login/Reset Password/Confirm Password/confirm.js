@@ -89,15 +89,9 @@ window.NibrasReact.run(() => {
             }
 
             try {
-                const res = await fetch('https://nibras-backend.up.railway.app/api/auth/reset-password', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: resetEmail, otp, newPassword: newPass })
-                });
-                const data = await res.json();
-
-                if (!res.ok) {
-                    alert(data.message || 'Failed to reset password.');
+                const authService = window.NibrasServices?.authService;
+                if (!authService) {
+                    alert('Auth service not available. Please try again later.');
                     if (resetBtn) {
                         resetBtn.textContent = originalText;
                         resetBtn.style.opacity = '';
@@ -105,6 +99,7 @@ window.NibrasReact.run(() => {
                     }
                     return;
                 }
+                await authService.resetPassword({ email: resetEmail, otp, newPassword: newPass });
 
                 localStorage.removeItem('resetEmail');
                 window.location.href = '../Message/message.html';

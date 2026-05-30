@@ -225,6 +225,9 @@
         if (status === 403) {
             return 'You do not have permission to perform this action.';
         }
+        if (status === 429) {
+            return 'Too many attempts. Please wait a moment before trying again.';
+        }
 
         const candidates = [
             payload?.message,
@@ -249,6 +252,7 @@
     const AUTH_ERROR_CODES = Object.freeze({
         401: 'UNAUTHORIZED',
         403: 'FORBIDDEN',
+        429: 'RATE_LIMITED',
     });
     const COMPETITIONS_REQUEST_TIMEOUT_MS = 15000;
 
@@ -647,6 +651,63 @@
                 auth: true,
                 retryAuth: false,
                 body: { refreshToken },
+            });
+        },
+
+        /**
+         * Send forgot password email
+         * @param {string} email
+         * @returns {Promise<object>}
+         */
+        async forgotPassword(email) {
+            return apiFetch('/auth/forgot-password', {
+                service: 'admin',
+                method: 'POST',
+                auth: false,
+                retryAuth: false,
+                body: { email },
+            });
+        },
+
+        /**
+         * Reset password with token or OTP
+         * @param {object} data - { token, password } or { email, otp, newPassword }
+         * @returns {Promise<object>}
+         */
+        async resetPassword(data) {
+            return apiFetch('/auth/reset-password', {
+                service: 'admin',
+                method: 'POST',
+                auth: false,
+                retryAuth: false,
+                body: data,
+            });
+        },
+
+        /**
+         * Update current user profile
+         * @param {object} data - { name?, avatarUrl?, preferences? }
+         * @returns {Promise<object>}
+         */
+        async updateProfile(data) {
+            return apiFetch('/users/me', {
+                service: 'admin',
+                method: 'PATCH',
+                auth: true,
+                body: data,
+            });
+        },
+
+        /**
+         * Get user by ID (admin only)
+         * @param {string} id
+         * @returns {Promise<object>}
+         */
+        async getUserById(id) {
+            return apiFetch(`/users/${id}`, {
+                service: 'admin',
+                method: 'GET',
+                auth: true,
             });
         },
     };

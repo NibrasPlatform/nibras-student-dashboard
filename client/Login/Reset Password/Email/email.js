@@ -49,20 +49,15 @@ window.NibrasReact.run(() => {
             }
 
             try {
-                const res = await fetch('https://nibras-backend.up.railway.app/api/auth/forgot-password', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email })
-                });
-                const data = await res.json();
-
-                if (!res.ok) {
-                    alert(data.message || 'Failed to send reset OTP.');
+                const authService = window.NibrasServices?.authService;
+                if (!authService) {
+                    alert('Auth service not available. Please try again later.');
                     submitBtn.textContent = originalText;
                     submitBtn.style.opacity = '';
                     submitBtn.disabled = false;
                     return;
                 }
+                await authService.forgotPassword(email);
 
                 localStorage.setItem('resetEmail', email);
                 window.location.href = '../Confirm%20Password/confirm.html';
