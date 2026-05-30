@@ -1633,7 +1633,7 @@
                 action: score !== null ? "View Details" : status === "submitted" ? "View Submission" : "Submit",
                 milestoneId: `${meta.id}-milestone-${assignmentNumber}`,
                 projectKey: `${meta.id}-project-${Math.min(assignmentNumber, 2)}`,
-                page: assignmentNumber === 1 ? "./Assignments Content/AssignmentContent.html" : null,
+                page: "./Assignments Content/AssignmentContent.html",
             };
         });
     }
