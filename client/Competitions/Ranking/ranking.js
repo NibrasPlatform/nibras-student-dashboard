@@ -91,15 +91,19 @@
 
         const cfHandle = linkedAccounts.codeforces || null;
         const lcUsername = linkedAccounts.leetcode || null;
+        const hrHandle = linkedAccounts.hackerrank || null;
 
         const cfVerify = verification.codeforces?.status || 'unverified';
         const lcVerify = verification.leetcode?.status || 'unverified';
+        const hrVerify = verification.hackerrank?.status || 'unverified';
 
         const rows = [
             { label: 'Codeforces Handle', value: cfHandle || 'Not linked' },
             { label: 'LeetCode Username', value: lcUsername || 'Not linked' },
+            { label: 'HackerRank Handle', value: hrHandle || 'Not linked' },
             { label: 'Codeforces Verification', value: cfVerify },
             { label: 'LeetCode Verification', value: lcVerify },
+            { label: 'HackerRank Verification', value: hrVerify },
         ];
         rankContainer.innerHTML = '';
         rows.forEach((item) => {
@@ -117,19 +121,25 @@
     const updatePlatformCards = (linkedAccounts, verification) => {
         const cfHandle = linkedAccounts.codeforces || null;
         const lcUsername = linkedAccounts.leetcode || null;
+        const hrHandle = linkedAccounts.hackerrank || null;
         const cfVerify = verification.codeforces?.status || 'unverified';
         const lcVerify = verification.leetcode?.status || 'unverified';
+        const hrVerify = verification.hackerrank?.status || 'unverified';
 
         const cfHandleEl = document.getElementById('cf-handle-display');
         const cfStatusEl = document.getElementById('cf-status-display');
         const lcHandleEl = document.getElementById('lc-handle-display');
         const lcStatusEl = document.getElementById('lc-status-display');
+        const hrHandleEl = document.getElementById('hr-handle-display');
+        const hrStatusEl = document.getElementById('hr-status-display');
 
         if (cfHandleEl) cfHandleEl.textContent = cfHandle || 'Not linked';
         if (lcHandleEl) lcHandleEl.textContent = lcUsername || 'Not linked';
+        if (hrHandleEl) hrHandleEl.textContent = hrHandle || 'Not linked';
 
         if (cfStatusEl) cfStatusEl.innerHTML = getStatusBadgeHTML(cfVerify);
         if (lcStatusEl) lcStatusEl.innerHTML = getStatusBadgeHTML(lcVerify);
+        if (hrStatusEl) hrStatusEl.innerHTML = getStatusBadgeHTML(hrVerify);
     };
 
     const getStatusBadgeHTML = (status) => {
@@ -149,7 +159,8 @@
         const linkedAccounts = state.profile?.linkedAccounts || {};
         const hasCf = !!linkedAccounts.codeforces;
         const hasLc = !!linkedAccounts.leetcode;
-        const linkedCount = [hasCf, hasLc].filter(Boolean).length;
+        const hasHr = !!linkedAccounts.hackerrank;
+        const linkedCount = [hasCf, hasLc, hasHr].filter(Boolean).length;
 
         container.innerHTML = `
             <div class="rating-progress-row">
@@ -539,7 +550,7 @@
     const accountLinkStatus = document.getElementById('account-link-status');
 
     const linkAccountSimple = async (platform) => {
-        const platformName = platform === 'codeforces' ? 'Codeforces' : 'LeetCode';
+        const platformName = platform === 'codeforces' ? 'Codeforces' : (platform === 'leetcode' ? 'LeetCode' : 'HackerRank');
         const username = prompt(`Enter your ${platformName} username:`);
         if (!username || !username.trim()) {
             if (accountLinkStatus) accountLinkStatus.innerHTML = '<span class="status-msg-error">Username is required.</span>';
@@ -549,7 +560,9 @@
             if (competitionsService?.linkAccounts) {
                 const body = platform === 'codeforces'
                     ? { codeforcesHandle: username.trim() }
-                    : { leetcodeUsername: username.trim() };
+                    : platform === 'leetcode'
+                        ? { leetcodeUsername: username.trim() }
+                        : { hackerrankHandle: username.trim() };
                 console.log('[Link Account] Sending request with body:', JSON.stringify(body));
                 const result = await competitionsService.linkAccounts(body);
                 console.log('[Link Account] Response:', result);

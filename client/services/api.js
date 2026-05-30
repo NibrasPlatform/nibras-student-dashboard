@@ -2222,6 +2222,17 @@
                 });
                 results.push({ platform: 'leetcode', data: unwrapApiData(payload) });
             }
+            if (accounts.hackerrankHandle) {
+                const payload = await requestCompetitionsWithCompatibility([
+                    '/contests/accounts/link',
+                ], {
+                    method: 'POST',
+                    auth: true,
+                    body: { platform: 'hackerrank', handle: accounts.hackerrankHandle },
+                    timeoutMs: 60000,
+                });
+                results.push({ platform: 'hackerrank', data: unwrapApiData(payload) });
+            }
             return {
                 message: results.length > 0 ? 'Accounts linked successfully' : 'No accounts to link',
                 data: results,
