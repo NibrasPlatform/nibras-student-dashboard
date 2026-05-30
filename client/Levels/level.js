@@ -99,7 +99,7 @@ window.NibrasReact.run(function () {
         if (completionData) {
             var prevLevelName = levelOrder[levelId - 2];
             var prev = completionData[prevLevelName];
-            if (prev) return prev.completed;
+            if (prev && prev.total > 0) return prev.completed;
         }
 
         if (levelId === 2) return overallProgress >= 25;
