@@ -2,6 +2,14 @@ window.NibrasReact.run(function () {
 
     var STORAGE_KEY = 'nibras_earned_badges';
 
+    var BACKEND_BADGES = [
+        { name: 'First Steps', description: 'Solve your first problem or gain reputation.', points: 10, badgeIcon: '' },
+        { name: 'Problem Solver', description: 'Solve 10 coding problems.', points: 25, badgeIcon: '' },
+        { name: '7-Day Streak', description: 'Maintain a 7-day study streak.', points: 30, badgeIcon: '' },
+        { name: 'Team Player', description: 'Help 5 classmates with answers.', points: 20, badgeIcon: '' },
+        { name: 'Top Contributor', description: 'Post 10 answers or reach 100 reputation.', points: 50, badgeIcon: '' },
+    ];
+
     var statsEl = document.getElementById('stats-container');
     var sectionsEl = document.getElementById('badge-sections');
 
@@ -50,10 +58,11 @@ window.NibrasReact.run(function () {
             ? services.gamificationService.getAllBadges()
                 .then(function (r) {
                     var data = r?.data || r || [];
-                    return Array.isArray(data) ? data : [];
+                    if (Array.isArray(data) && data.length > 0) return data;
+                    return BACKEND_BADGES;
                 })
-                .catch(function () { return []; })
-            : Promise.resolve([]);
+                .catch(function () { return BACKEND_BADGES; })
+            : Promise.resolve(BACKEND_BADGES);
 
         var awardPromise = services.gamificationService
             ? services.gamificationService.checkAwardBadges()
