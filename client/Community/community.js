@@ -638,8 +638,10 @@ window.NibrasReact.run(() => {
 
             const qId = q._id || q.id; 
             if (qId) renderedQuestionIds.push(String(qId));
-            const authorName = q.author?.name || q.author || 'Anonymous';
-            const authorInitials = authorName.substring(0, 2).toUpperCase();
+            const isAnonymous = q.isAnonymous === true;
+            const authorName = isAnonymous ? 'Anonymous' : (q.author?.name || q.author || 'Anonymous');
+            const authorInitials = isAnonymous ? 'AN' : authorName.substring(0, 2).toUpperCase();
+            const anonymousBadge = isAnonymous ? ' <span class="anonymous-badge"><i class="fa-solid fa-user-secret"></i> Anonymous</span>' : '';
             const answersCount = q.answersCount ?? q.commentsCount ?? (Array.isArray(q.answers) ? q.answers.length : (Number(q.answers) || 0));
             const questionVotes = q.votesCount ?? q.votes ?? 0;
             const safeTitle = escapeHtml(q.title || 'Untitled question');
@@ -668,12 +670,15 @@ window.NibrasReact.run(() => {
                         <div class="q-tags">${tagHtml}</div>                        
                         <div class="q-meta">
                             <div class="author-av">${authorInitials}</div>
-                            <span>${safeAuthor}</span>
+                            <span>${safeAuthor}${anonymousBadge}</span>
                             <span>•</span>
                             <span>${answersCount} answers</span>
                             <span>•</span>
                             <span>${q.views || 0} views</span>
-                            <span style="margin-left:auto">${safeDate}</span>
+                            <span style="margin-left:auto">
+                                <button type="button" class="fa-regular fa-flag report-list-btn" data-target-id="${qId}" data-target-type="question" title="Report this question" aria-label="Report this question" style="background:none; border:none; cursor: pointer; font-size: 0.85rem; color: var(--text-secondary); opacity: 0.5; transition: 0.2s; margin-right: 8px;"></button>
+                                ${safeDate}
+                            </span>
                         </div>
                     </div>
                 </article>
@@ -786,6 +791,29 @@ window.NibrasReact.run(() => {
                 handleVote(e.target, 'up');
             } else if (e.target.classList.contains('downvote-btn')) {
                 handleVote(e.target, 'down');
+            } else if (e.target.classList.contains('report-list-btn')) {
+                const targetId = e.target.dataset.targetId;
+                const targetType = e.target.dataset.targetType;
+                if (!targetId) return;
+                const reason = prompt('Why are you reporting this? (spam, inappropriate, off-topic, or describe the issue):');
+                if (!reason || !reason.trim()) return;
+                (async () => {
+                    try {
+                        const flagService = window.NibrasServices?.flagService;
+                        if (flagService) {
+                            await flagService.create({ targetId, targetType, reason: reason.trim() });
+                        } else {
+                            await requestLegacyApi('/flags', {
+                                method: 'POST',
+                                body: { targetId, targetType, reason: reason.trim() },
+                            });
+                        }
+                        showToast('Thank you. Your report has been submitted for review.');
+                    } catch (error) {
+                        console.error('Flag error:', error);
+                        showToast(error.message || 'Failed to submit report.', 'error');
+                    }
+                })();
             }
         });
     }
@@ -1040,7 +1068,10 @@ window.NibrasReact.run(() => {
 
         const tags =[...selectedModalTags];
 
-        const payload = { title, body };
+        const anonymousCheckbox = document.getElementById('question-anonymous');
+        const isAnonymous = anonymousCheckbox?.checked || false;
+
+        const payload = { title, body, isAnonymous };
         if (tags.length > 0) payload.tags = tags;
 
         const postBtn = document.getElementById('postQuestionBtn');

@@ -807,6 +807,27 @@
                 auth: true,
             });
         },
+
+        /**
+         * Full-text search questions
+         * @param {string} query - Search query
+         * @param {object} filters - { page, limit, tag }
+         * @returns {Promise<object>}
+         */
+        async search(query, filters = {}) {
+            const params = new URLSearchParams();
+            params.append('q', query);
+            Object.keys(filters).forEach((key) => {
+                if (filters[key] != null && filters[key] !== '') {
+                    params.append(key, filters[key]);
+                }
+            });
+            return apiFetch(`/questions/search?${params.toString()}`, {
+                service: 'admin',
+                method: 'GET',
+                auth: false,
+            });
+        },
     };
 
     // ============================================================
@@ -1004,6 +1025,75 @@
                 service: 'legacyCommunity',
                 method: 'GET',
                 auth: false,
+            });
+        },
+
+        /**
+         * Get tag suggestions for autocomplete
+         * @param {string} partial - Partial tag name input
+         * @returns {Promise<Array>}
+         */
+        async suggest(partial) {
+            const params = new URLSearchParams();
+            if (partial) params.append('search', partial);
+            return apiFetch(`/tags?${params.toString()}`, {
+                service: 'admin',
+                method: 'GET',
+                auth: false,
+            });
+        },
+    };
+
+    // ============================================================
+    // Flag Service (content moderation)
+    // ============================================================
+    const flagService = {
+        /**
+         * Flag content as inappropriate
+         * @param {object} data - { targetId, targetType: 'question'|'answer', reason: string }
+         * @returns {Promise<object>}
+         */
+        async create(data) {
+            return apiFetch('/flags', {
+                service: 'admin',
+                method: 'POST',
+                auth: true,
+                body: data,
+            });
+        },
+
+        /**
+         * Get moderation queue (admin only)
+         * @param {object} filters - { status, page, limit }
+         * @returns {Promise<object>}
+         */
+        async getQueue(filters = {}) {
+            const params = new URLSearchParams();
+            Object.keys(filters).forEach((key) => {
+                if (filters[key] != null && filters[key] !== '') {
+                    params.append(key, filters[key]);
+                }
+            });
+            const query = params.toString();
+            return apiFetch(`/moderation/queue${query ? '?' + query : ''}`, {
+                service: 'admin',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        /**
+         * Resolve a flag (admin only)
+         * @param {string} flagId - Flag MongoDB ObjectId
+         * @param {object} data - { action: 'dismiss'|'remove'|'ban', note?: string }
+         * @returns {Promise<object>}
+         */
+        async resolve(flagId, data) {
+            return apiFetch(`/moderation/flags/${flagId}/resolve`, {
+                service: 'admin',
+                method: 'PATCH',
+                auth: true,
+                body: data,
             });
         },
     };
@@ -3028,6 +3118,7 @@
         mentorshipService,
         instructorDashboardService,
         instructorCourseManagementService,
+        flagService,
     });
 
     console.log('[NibrasServices] Initialized. Available as window.NibrasServices');

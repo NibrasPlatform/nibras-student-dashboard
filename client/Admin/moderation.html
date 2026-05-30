@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nibras - Moderation Queue</title>
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../Community/QuestionID/question.css">
+    <link rel="stylesheet" href="../Dashboard/dashboard.css">
+    <link rel="stylesheet" href="./moderation.css">
+</head>
+<body>
+    <header class="dashboard-header">
+        <div class="header-left">
+            <img src="/Assets/images/logo-light.png" alt="Nibras Logo" class="header-logo" id="app-logo">
+            <span class="header-title">Moderation Queue</span>
+        </div>
+        <div class="header-right">
+            <button class="theme-toggle-btn" id="themeBtn" aria-label="Toggle theme">
+                <i class="fa-regular fa-moon"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="dashboard-main">
+        <div class="dashboard-content" style="max-width: 1100px; margin: 0 auto; padding: 2rem;">
+            <div class="mod-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <div>
+                    <h1 style="margin: 0 0 0.5rem;">Moderation Queue</h1>
+                    <p style="margin: 0; color: var(--text-secondary);" id="queue-count">Loading...</p>
+                </div>
+                <div class="mod-filters" style="display: flex; gap: 8px;">
+                    <button class="filter-btn active" data-status="pending" style="padding: 8px 16px; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; background: var(--accent-blue); color: #fff;">Pending</button>
+                    <button class="filter-btn" data-status="resolved" style="padding: 8px 16px; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; background: transparent; color: var(--text-secondary);">Resolved</button>
+                    <button class="filter-btn" data-status="all" style="padding: 8px 16px; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; background: transparent; color: var(--text-secondary);">All</button>
+                </div>
+            </div>
+
+            <div id="mod-queue-container">
+                <div class="loading-state" style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+                    <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                    <p>Loading moderation queue...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../react-bootstrap.js"></script>
+    <script src="../react-page-utils.js"></script>
+    <script src="../services/api.js"></script>
+    <script src="./moderation.js"></script>
+</body>
+</html>

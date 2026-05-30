@@ -566,6 +566,8 @@ window.NibrasReact.run(() => {
                 return;
             }
 
+            const acceptedAnswerId = question.acceptedAnswer?._id || question.acceptedAnswerId || null;
+
             currentQuestionData = {
                 id: question._id,
                 title: question.title,
@@ -580,6 +582,7 @@ window.NibrasReact.run(() => {
                 tags: question.tags ||[],
                 authorRole: normalizeRole(question.author?.role) || 'student',
                 authorRep: question.author?.reputation?.total ?? question.author?.reputation ?? 0,
+                acceptedAnswerId,
                 replies: comments.map(comment => {
                     const rawBody = String(comment.body || '');
                     const normalizedBody = stripAiTutorMarker(rawBody);
@@ -683,6 +686,7 @@ window.NibrasReact.run(() => {
                         <span style="margin: 0 -4px;">•</span>
                         <span>${q.views} views</span>
                         <button type="button" class="fa-solid fa-share-nodes share-q-btn" title="Copy link" aria-label="Copy question link" style="background:none; border:none; cursor: pointer; font-size: 1.15rem; color: var(--accent-blue); transition: 0.2s;"></button>
+                        <button type="button" class="fa-regular fa-flag report-btn" data-target-id="${q.id}" data-target-type="question" title="Report this question" aria-label="Report this question" style="background:none; border:none; cursor: pointer; font-size: 1.1rem; color: var(--text-secondary); transition: 0.2s;"></button>
                         ${actionMenuHtml}
                     </div>
                     <div class="detail-author-box">
@@ -701,10 +705,23 @@ window.NibrasReact.run(() => {
         const ansContainer = document.getElementById('answers-container');
         let answersHtml = '';
 
-        q.replies.forEach(ans => {
+        // Sort: accepted answer first, then by creation date
+        const sortedReplies = [...q.replies].sort((a, b) => {
+            if (q.acceptedAnswerId && a.id === q.acceptedAnswerId) return -1;
+            if (q.acceptedAnswerId && b.id === q.acceptedAnswerId) return 1;
+            return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+        });
+
+        sortedReplies.forEach(ans => {
+            const isAccepted = q.acceptedAnswerId && String(ans.id) === String(q.acceptedAnswerId);
+            const isAnon = ans.isAnonymous === true;
             let roleBadge = '';
             let roleColor = 'bg-blue';
-            if (ans.isFromAI) {
+            if (isAccepted) {
+                roleBadge = `<span class="contrib-badge bg-green"><i class="fa-solid fa-check-circle"></i> Accepted</span>`;
+            } else if (isAnon) {
+                roleBadge = `<span class="contrib-badge" style="background:#a855f7;color:#fff;">Anonymous</span>`;
+            } else if (ans.isFromAI) {
                 roleColor = 'bg-purple';
                 roleBadge = `<span class="contrib-badge ${roleColor}">AI Tutor</span>`;
             } else if (ans.authorRole === 'instructor') {
@@ -714,6 +731,10 @@ window.NibrasReact.run(() => {
                 roleColor = 'bg-purple';
                 roleBadge = `<span class="contrib-badge ${roleColor}">Admin</span>`;
             }
+
+            const acceptButton = isQuestionAuthor && !isAccepted && !ans.isFromAI
+                ? `<button type="button" class="accept-answer-btn" data-comment-id="${ans.id}" title="Accept this answer" aria-label="Accept this answer"><i class="fa-regular fa-circle-check"></i> Accept</button>`
+                : '';
 
             const pinnedBadge = ans.isPinned ? `<span class="contrib-badge bg-green" style="margin-left:8px;"><i class="fa-solid fa-thumbtack"></i> Pinned</span>` : '';
 
@@ -757,6 +778,8 @@ window.NibrasReact.run(() => {
                         <div class="detail-footer" style="display:flex; justify-content:space-between; align-items:center;">
                             <div class="detail-actions" style="display:flex; align-items:center; gap:14px;">
                                 <span>${ans.time}</span>
+                                ${acceptButton}
+                                <button type="button" class="fa-regular fa-flag report-btn" data-target-id="${ans.id}" data-target-type="answer" title="Report this answer" aria-label="Report this answer" style="background:none; border:none; cursor: pointer; font-size: 1rem; color: var(--text-secondary); transition: 0.2s;"></button>
                                 ${commentActionMenuHtml}
                             </div>
                             <div class="detail-author-box">
@@ -929,6 +952,56 @@ window.NibrasReact.run(() => {
                     console.error("Deletion error:", error);
                     showToast(error.message || 'An error occurred while deleting the answer.', 'error');
                 }
+            }
+            return;
+        }
+
+        // ------------------------------------
+        // ACCEPT ANSWER
+        // ------------------------------------
+        const acceptBtn = e.target.closest('.accept-answer-btn');
+        if (acceptBtn) {
+            const commentId = acceptBtn.dataset.commentId;
+            if (!commentId) return;
+            try {
+                await requestLegacyApi(`/answers/${currentQuestionId}/${commentId}/accept`, {
+                    method: 'POST',
+                });
+                showToast('Answer accepted!');
+                await loadQuestion(currentQuestionId);
+            } catch (error) {
+                console.error('Accept error:', error);
+                showToast(error.message || 'Failed to accept answer.', 'error');
+            }
+            return;
+        }
+
+        // ------------------------------------
+        // REPORT / FLAG CONTENT
+        // ------------------------------------
+        const reportBtn = e.target.closest('.report-btn');
+        if (reportBtn) {
+            const targetId = reportBtn.dataset.targetId;
+            const targetType = reportBtn.dataset.targetType;
+            if (!targetId || !targetType) return;
+
+            const reason = prompt('Why are you reporting this? (spam, inappropriate, off-topic, or describe the issue):');
+            if (!reason || !reason.trim()) return;
+
+            try {
+                const flagService = window.NibrasServices?.flagService;
+                if (flagService) {
+                    await flagService.create({ targetId, targetType, reason: reason.trim() });
+                } else {
+                    await requestLegacyApi('/flags', {
+                        method: 'POST',
+                        body: { targetId, targetType, reason: reason.trim() },
+                    });
+                }
+                showToast('Thank you. Your report has been submitted for review.');
+            } catch (error) {
+                console.error('Flag error:', error);
+                showToast(error.message || 'Failed to submit report.', 'error');
             }
             return;
         }
@@ -1228,10 +1301,13 @@ window.NibrasReact.run(() => {
         postBtn.disabled = true;
         postBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Posting...';
 
+        const anonymousCheckbox = document.getElementById('answer-anonymous');
+        const isAnonymous = anonymousCheckbox?.checked || false;
+
         try {
             await requestLegacyApi(`/answers/${currentQuestionId}`, {
                 method: 'POST',
-                body: { body },
+                body: { body, isAnonymous },
             });
 
             if (answerEditor) answerEditor.value('');
