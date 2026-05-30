@@ -58,6 +58,20 @@
         return '';
     };
 
+    const getSolveButton = (p) => {
+        if (p.status === 'solved') return '<span style="color:#16a34a;font-weight:600;font-size:0.85rem;"><i class="fa-regular fa-circle-check"></i> Solved</span>';
+        var href;
+        var label;
+        if (p.url) {
+            href = p.url;
+            label = 'Open';
+        } else {
+            href = '../ContestDetail/contestDetail.html?id=' + encodeURIComponent(p.id) + '&mode=practice';
+            label = 'Code';
+        }
+        return '<a href="' + href + '" target="_blank" rel="noopener noreferrer" class="btn-solve-link" style="padding:5px 14px;border-radius:6px;background:var(--accent-blue);color:#fff;text-decoration:none;font-size:0.82rem;font-weight:500;display:inline-flex;align-items:center;gap:5px;border:none;cursor:pointer;"><i class="fa-solid fa-code"></i> ' + label + '</a>';
+    };
+
     const filterProblems = () => {
         let list = allProblems;
 
@@ -108,7 +122,7 @@
             const msg = allProblems.length === 0
                 ? 'Sign in to view practice problems.'
                 : 'No problems match your filters.';
-            tbody.innerHTML = `<tr><td colspan="4" style="padding:2rem;text-align:center;color:var(--text-secondary);font-size:0.9rem;">${msg}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" style="padding:2rem;text-align:center;color:var(--text-secondary);font-size:0.9rem;">${msg}</td></tr>`;
         } else {
             tbody.innerHTML = page.map((p) => {
                 const pid = getProblemIdFromUrl(p.url) || p.id;
@@ -120,6 +134,7 @@
                     <td><span class="problem-rating">${p.rating != null ? p.rating : '—'}</span></td>
                     <td>${tagHtml}</td>
                     <td>${getStatusIcon(p.status)}</td>
+                    <td>${getSolveButton(p)}</td>
                 </tr>`;
             }).join('');
         }
@@ -180,16 +195,16 @@
 
     const loadPracticeData = async () => {
         if (!competitionsService) {
-            if (tbody) tbody.innerHTML = `<tr><td colspan="4" style="padding:2rem;text-align:center;color:var(--text-secondary);">Competitions service is unavailable.</td></tr>`;
+            if (tbody) tbody.innerHTML = `<tr><td colspan="5" style="padding:2rem;text-align:center;color:var(--text-secondary);">Competitions service is unavailable.</td></tr>`;
             return;
         }
 
         if (!token) {
-            if (tbody) tbody.innerHTML = `<tr><td colspan="4" style="padding:2rem;text-align:center;color:var(--text-secondary);">Sign in to view practice problems.</td></tr>`;
+            if (tbody) tbody.innerHTML = `<tr><td colspan="5" style="padding:2rem;text-align:center;color:var(--text-secondary);">Sign in to view practice problems.</td></tr>`;
             return;
         }
 
-        if (tbody) tbody.innerHTML = `<tr><td colspan="4" style="padding:2rem;text-align:center;color:var(--text-secondary);">Loading problems...</td></tr>`;
+        if (tbody) tbody.innerHTML = `<tr><td colspan="5" style="padding:2rem;text-align:center;color:var(--text-secondary);">Loading problems...</td></tr>`;
 
         try {
             const [problems] = await Promise.all([
@@ -199,7 +214,7 @@
             refreshView();
         } catch (error) {
             const msg = error?.message || 'Could not load practice data.';
-            if (tbody) tbody.innerHTML = `<tr><td colspan="4" style="padding:2rem;text-align:center;color:var(--text-secondary);">${msg}</td></tr>`;
+            if (tbody) tbody.innerHTML = `<tr><td colspan="5" style="padding:2rem;text-align:center;color:var(--text-secondary);">${msg}</td></tr>`;
         }
     };
 

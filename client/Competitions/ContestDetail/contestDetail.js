@@ -12,6 +12,7 @@ window.NibrasReact.run(function () {
     var socket = null;
     var contestId = getQueryParam('id');
     var currentUserId = null;
+    var isPracticeMode = getQueryParam('mode') === 'practice';
 
     var els = {
         title: document.getElementById('contest-title'),
@@ -92,7 +93,12 @@ window.NibrasReact.run(function () {
             return;
         }
 
-        els.title.textContent = 'Loading contest...';
+        els.title.textContent = 'Loading...';
+
+        if (isPracticeMode) {
+            loadPracticeProblem();
+            return;
+        }
 
         competitionsService.getContestById(contestId).then(function (data) {
             contestData = data;
@@ -109,6 +115,57 @@ window.NibrasReact.run(function () {
             console.error('Failed to load contest:', err);
             els.title.textContent = 'Failed to load contest';
             els.title.parentElement.innerHTML += '<p style="color:var(--text-secondary);">' + esc(err.message || 'Could not load contest details.') + '</p>';
+        });
+    }
+
+    function loadPracticeProblem() {
+        competitionsService.listProblems({}).then(function (problemsData) {
+            var all = Array.isArray(problemsData) ? problemsData : [];
+            var problem = all.find(function (p) {
+                return (p._id || p.id) === contestId;
+            });
+
+            if (!problem) {
+                els.title.textContent = 'Problem not found';
+                els.problemsList.innerHTML = '<div class="loading-state">Problem not found.</div>';
+                return;
+            }
+
+            problems = [problem];
+            contestData = { name: problem.title || 'Practice', platform: 'Practice' };
+            currentUserId = getUserId();
+
+            hideContestTabs();
+            els.timer.parentElement.style.display = 'none';
+            els.solvedCount.parentElement.parentElement.style.display = 'none';
+            els.title.textContent = problem.title || 'Untitled Problem';
+            els.platform.textContent = 'Practice';
+            els.status.textContent = 'practice';
+            els.status.className = 'contest-status-badge ended';
+            els.scoring.textContent = '';
+            els.description.textContent = problem.description || '';
+
+            renderProblemsList();
+
+            var backLink = document.querySelector('.back-link');
+            if (backLink) backLink.href = '../Practice/practice.html';
+        }).catch(function (err) {
+            console.error('Failed to load practice problem:', err);
+            els.title.textContent = 'Failed to load problem';
+            els.title.parentElement.innerHTML += '<p style="color:var(--text-secondary);">' + esc(err.message || 'Could not load problem.') + '</p>';
+        });
+    }
+
+    function hideContestTabs() {
+        document.querySelectorAll('.contest-tab').forEach(function (tab) {
+            if (tab.dataset.tab !== 'problems') {
+                tab.style.display = 'none';
+            }
+        });
+        document.querySelectorAll('.tab-content').forEach(function (content) {
+            if (content.id !== 'tab-problems') {
+                content.style.display = 'none';
+            }
         });
     }
 
@@ -369,7 +426,12 @@ window.NibrasReact.run(function () {
             return;
         }
 
-        var url = apiUrl.replace(/\/+$/, '') + '/contests/' + encodeURIComponent(contestId) + '/submissions';
+        var url;
+        if (isPracticeMode) {
+            url = apiUrl.replace(/\/+$/, '') + '/submissions';
+        } else {
+            url = apiUrl.replace(/\/+$/, '') + '/contests/' + encodeURIComponent(contestId) + '/submissions';
+        }
 
         fetch(url, {
             method: 'POST',
@@ -431,7 +493,7 @@ window.NibrasReact.run(function () {
                     els.submissionStatus.style.color = '#16a34a';
                     updateProblemStatus(selectedProblemIndex, 'solved');
                     loadSubmissions();
-                    loadLeaderboard();
+                    if (!isPracticeMode) loadLeaderboard();
                     return;
                 }
 
@@ -486,6 +548,13 @@ window.NibrasReact.run(function () {
             problems[index].userStatus = status;
             renderProblemsList();
             selectProblem(selectedProblemIndex);
+        }
+        if (isPracticeMode && status === 'solved') {
+            try {
+                var solved = JSON.parse(localStorage.getItem('practice_solved') || '[]');
+                if (solved.indexOf(contestId) === -1) solved.push(contestId);
+                localStorage.setItem('practice_solved', JSON.stringify(solved));
+            } catch (_) {}
         }
     }
 

@@ -395,6 +395,8 @@ a {
     color: var(--text-secondary);
 }
 
+.btn-solve-link:hover { opacity: 0.85; }
+
 @media (max-width: 1024px) {
     .sidebar { display: none; }
     .main-content { margin-left: 0; }
