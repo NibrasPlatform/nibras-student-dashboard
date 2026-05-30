@@ -95,17 +95,24 @@
                 <a href="../Reputation/reputation.html" class="seg-btn">Reputation</a>
             </div>
 
+            <!-- Leaderboard Type Tabs -->
+            <div class="segment-tabs" style="margin-top: 1rem;">
+                <button class="seg-btn type-btn active" data-type="overall">Overall</button>
+                <button class="seg-btn type-btn" data-type="academic">Academic</button>
+                <button class="seg-btn type-btn" data-type="competitive">Competitive</button>
+                <button class="seg-btn type-btn" data-type="community">Community</button>
+            </div>
+
             <!-- Filter Pills -->
             <div class="filter-pills">
-                <button class="pill-btn active">Overall</button>
-                <button class="pill-btn">This Week</button>
-                <button class="pill-btn">By Course</button>
-                <button class="pill-btn">Achievements</button>
+                <button class="pill-btn active" id="overall-btn">All Time</button>
+                <button class="pill-btn" id="week-btn">This Week</button>
+                <button class="pill-btn" id="month-btn">This Month</button>
             </div>
 
             <!-- Leaderboard Table Section -->
             <section class="leaderboard-section">
-                <h3 class="lb-title"><i class="fa-solid fa-trophy"></i> Overall Leaderboard</h3>
+                <h3 class="lb-title"><i class="fa-solid fa-trophy"></i> <span id="lb-type-label">Overall</span> Leaderboard</h3>
                 <p class="lb-subtitle">Top performers ranked on activities</p>
                 
                 <div class="leaderboard-list" id="leaderboard-container">

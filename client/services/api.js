@@ -2942,6 +2942,20 @@
                 body: updates,
             });
         },
+
+        /**
+         * Update privacy settings (leaderboard opt-out, etc.)
+         * @param {object} privacy - { showOnLeaderboard?: boolean }
+         * @returns {Promise<object>}
+         */
+        async updatePrivacy(privacy) {
+            return apiFetch('/users/me/privacy', {
+                service: 'admin',
+                method: 'PATCH',
+                auth: true,
+                body: privacy,
+            });
+        },
     };
 
     // ============================================================
@@ -2975,6 +2989,51 @@
         async getLeaderboardConfig() {
             return apiFetch('/gamification/leaderboards/config', { service: 'admin', method: 'GET', auth: true });
         },
+
+        async getMyStats() {
+            return apiFetch('/gamification/my-stats', { service: 'admin', method: 'GET', auth: true });
+        },
+
+        async getBadges() {
+            return apiFetch('/badges', { service: 'admin', method: 'GET', auth: true });
+        },
+
+        async createBadge(data) {
+            return apiFetch('/gamification/badges', { service: 'admin', method: 'POST', auth: true, body: data });
+        },
+
+        async updateBadge(badgeId, data) {
+            return apiFetch('/gamification/badges/' + encodeURIComponent(String(badgeId)), { service: 'admin', method: 'PUT', auth: true, body: data });
+        },
+
+        async deleteBadge(badgeId) {
+            return apiFetch('/gamification/badges/' + encodeURIComponent(String(badgeId)), { service: 'admin', method: 'DELETE', auth: true });
+        },
+
+        async getAcademicLeaderboard(filters = {}) {
+            const { period, page, limit } = filters;
+            const params = {};
+            if (period) params.period = period;
+            if (page) params.page = page;
+            if (limit) params.limit = limit;
+            return apiFetch(`/leaderboards/academic${toQueryString(params)}`, { service: 'admin', method: 'GET', auth: true });
+        },
+        async getCompetitiveLeaderboard(filters = {}) {
+            const { period, page, limit } = filters;
+            const params = {};
+            if (period) params.period = period;
+            if (page) params.page = page;
+            if (limit) params.limit = limit;
+            return apiFetch(`/leaderboards/competitive${toQueryString(params)}`, { service: 'admin', method: 'GET', auth: true });
+        },
+        async getCommunityLeaderboard(filters = {}) {
+            const { period, page, limit } = filters;
+            const params = {};
+            if (period) params.period = period;
+            if (page) params.page = page;
+            if (limit) params.limit = limit;
+            return apiFetch(`/leaderboards/community${toQueryString(params)}`, { service: 'admin', method: 'GET', auth: true });
+        },
     };
 
     // ============================================================
@@ -2983,6 +3042,12 @@
     const reputationService = {
         async getMyReputation() {
             return apiFetch('/reputation/me', { service: 'admin', method: 'GET', auth: true });
+        },
+
+        async getActivityFeed(limit) {
+            const params = {};
+            if (limit) params.limit = limit;
+            return apiFetch(`/reputation/activity${toQueryString(params)}`, { service: 'admin', method: 'GET', auth: true });
         },
     };
 
@@ -3013,6 +3078,9 @@
         },
         async updateProfile(data) {
             return apiFetch('/mentorship/profile/me', { service: 'admin', method: 'PUT', auth: true, body: data });
+        },
+        async requestMentor(mentorId, message) {
+            return apiFetch('/mentorship/request', { service: 'admin', method: 'POST', auth: true, body: { mentorId, message } });
         },
         async listProfiles(status) {
             var params = {};

@@ -8,7 +8,7 @@ window.NibrasReact.run(function () {
         });
     });
 
-    var currentState = { period: 'all-time', scope: 'global', page: 1 };
+    var currentState = { type: 'overall', period: 'all-time', scope: 'global', page: 1 };
     var userContainer = document.getElementById('user-rank-container');
     var listContainer = document.getElementById('leaderboard-container');
 
@@ -19,16 +19,37 @@ window.NibrasReact.run(function () {
         return item.score || 0;
     }
 
+    function getLeaderboardFn(type) {
+        if (type === 'academic') return services.gamificationService.getAcademicLeaderboard;
+        if (type === 'competitive') return services.gamificationService.getCompetitiveLeaderboard;
+        if (type === 'community') return services.gamificationService.getCommunityLeaderboard;
+        return services.gamificationService.getLeaderboard;
+    }
+
+    function getMyRankFn(type) {
+        if (type === 'overall' || !type) return services.gamificationService.getMyLeaderboardRank;
+        return null;
+    }
+
     function loadLeaderboard() {
+        var type = currentState.type;
         var period = currentState.period;
         var scope = currentState.scope;
         var page = currentState.page;
 
-        Promise.all([
-            services.gamificationService.getLeaderboard({ period: period, scope: scope, page: page, limit: 20 }).catch(function (err) { console.error('[Leaderboard] Error fetching leaderboard:', err?.message || err); return null; }),
-            services.gamificationService.getMyLeaderboardRank({ period: period, scope: scope }).catch(function () { return null; }),
-            services.reputationService.getMyReputation().catch(function () { return null; }),
-        ]).then(async function (results) {
+        var lbFn = getLeaderboardFn(type);
+        var myFn = getMyRankFn(type);
+
+        var promises = [lbFn({ period: period, scope: scope, page: page, limit: 20 }).catch(function (err) { console.error('[Leaderboard] Error fetching:', err?.message || err); return null; })];
+
+        if (myFn) {
+            promises.push(myFn({ period: period, scope: scope }).catch(function () { return null; }));
+        } else {
+            promises.push(Promise.resolve(null));
+        }
+        promises.push(services.reputationService.getMyReputation().catch(function () { return null; }));
+
+        Promise.all(promises).then(async function (results) {
             var lbRes = results[0];
             var myRes = results[1];
             var repRes = results[2];
@@ -38,10 +59,10 @@ window.NibrasReact.run(function () {
 
             var entries = (lbData && lbData.entries) || [];
 
-            // Fallback: retry without pagination params if first attempt failed
             if (!entries.length && services.gamificationService) {
                 try {
-                    var fbRes = await services.gamificationService.getLeaderboard({ period: period, scope: scope });
+                    var fbFn = getLeaderboardFn(type);
+                    var fbRes = await fbFn({ period: period, scope: scope });
                     var fbData = (fbRes && (fbRes.data || fbRes)) || null;
                     if (fbData && fbData.entries) entries = fbData.entries;
                 } catch (_) {}
@@ -73,7 +94,6 @@ window.NibrasReact.run(function () {
 
             if (userContainer) {
                 var uRank = currentUser && currentUser.rank != null ? currentUser.rank : '-';
-
                 userContainer.innerHTML = [
                     '<div class="ur-left">',
                     '<div class="ur-avatar">' + escapeHtml(userInitials) + '</div>',
@@ -162,7 +182,7 @@ window.NibrasReact.run(function () {
 
     loadLeaderboard();
 
-    var pills = document.querySelectorAll('.pill-btn');
+    var pills = document.querySelectorAll('.pill-btn:not(.type-btn)');
     pills.forEach(function (p) {
         p.addEventListener('click', function () {
             var text = this.textContent.trim().toLowerCase();
@@ -172,6 +192,32 @@ window.NibrasReact.run(function () {
 
             pills.forEach(function (btn) { btn.classList.remove('active'); });
             this.classList.add('active');
+            currentState.page = 1;
+            loadLeaderboard();
+        });
+    });
+
+    var typeTabs = document.querySelectorAll('.type-btn');
+    typeTabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+            var type = this.dataset.type || 'overall';
+            currentState.type = type;
+
+            typeTabs.forEach(function (t) { t.classList.remove('active'); });
+            this.classList.add('active');
+            currentState.page = 1;
+            loadLeaderboard();
+        });
+    });
+
+    var segTabs = document.querySelectorAll('.seg-btn');
+    segTabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+            var scope = this.dataset.scope || 'global';
+            currentState.scope = scope;
+
+            segTabs.forEach(function (t) { t.classList.remove('active'); });
+            tab.classList.add('active');
             currentState.page = 1;
             loadLeaderboard();
         });
@@ -211,12 +257,4 @@ window.NibrasReact.run(function () {
             if (appLogo) appLogo.src = next === 'dark' ? '/Assets/images/logo-dark.png' : '/Assets/images/logo-light.png';
         });
     }
-
-    var segTabs = document.querySelectorAll('.seg-btn');
-    segTabs.forEach(function (tab) {
-        tab.addEventListener('click', function () {
-            segTabs.forEach(function (t) { t.classList.remove('active'); });
-            tab.classList.add('active');
-        });
-    });
 });

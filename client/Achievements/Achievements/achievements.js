@@ -43,49 +43,8 @@ window.NibrasReact.run(function () {
         if (statsEl) statsEl.innerHTML = '<div class="loading-skeleton" aria-hidden="true"><div class="loading-skeleton-stats loading-shimmer"></div></div>';
     }
 
-    function init() {
-        showLoading();
-        var services = window.NibrasServices;
-        if (!services) return;
-
-        var repPromise = services.reputationService
-            ? services.reputationService.getMyReputation()
-                .then(function (r) { return r?.data?.total ?? r?.total ?? 0; })
-                .catch(function () { return 0; })
-            : Promise.resolve(0);
-
-        var badgesPromise = services.gamificationService
-            ? services.gamificationService.getAllBadges()
-                .then(function (r) {
-                    var data = r?.data || r || [];
-                    if (Array.isArray(data) && data.length > 0) return data;
-                    return BACKEND_BADGES;
-                })
-                .catch(function () { return BACKEND_BADGES; })
-            : Promise.resolve(BACKEND_BADGES);
-
-        var userPromise = services.usersService
-            ? services.usersService.getMe()
-                .then(function (r) { return r?.user || r || {}; })
-                .catch(function () { return {}; })
-            : Promise.resolve({});
-
-        Promise.all([repPromise, userPromise, badgesPromise]).then(function (results) {
-            var repTotal = results[0];
-            var user = results[1];
-            var allBadges = results[2];
-
-            var newIds = checkBadgesLocally(allBadges, user);
-            var earnedIds = addStoredEarnedIds(newIds);
-
-            renderStats(repTotal, allBadges.length, earnedIds);
-            annotateBadges(allBadges, earnedIds);
-        });
-    }
-
-    function renderStats(repTotal, totalBadges, earnedIds) {
+    function renderStats(repTotal, totalBadges, earnedCount) {
         if (!statsEl) return;
-        var earnedCount = earnedIds.length;
         var completionPct = totalBadges > 0 ? Math.round((earnedCount / totalBadges) * 100) : 0;
         statsEl.innerHTML = [
             renderStatTile({ icon: 'fa-solid fa-trophy', value: earnedCount, caption: 'of ' + totalBadges, label: 'Badges Earned' }),
@@ -331,9 +290,95 @@ window.NibrasReact.run(function () {
         ].join('');
     }
 
-    init();
+    function loadBadges() {
+        showLoading();
+        var services = window.NibrasServices;
+        if (!services) return;
 
-    // ── Theme toggle ──
+        var repPromise = services.reputationService
+            ? services.reputationService.getMyReputation()
+                .then(function (r) { return r?.data?.total ?? r?.total ?? 0; })
+                .catch(function () { return 0; })
+            : Promise.resolve(0);
+
+        var badgesPromise = services.gamificationService
+            ? services.gamificationService.getBadges()
+                .then(function (r) {
+                    var data = r?.data || r || [];
+                    if (Array.isArray(data) && data.length > 0) return data;
+                    return services.gamificationService.getAllBadges()
+                        .then(function (r2) {
+                            var data2 = r2?.data || r2 || [];
+                            return Array.isArray(data2) && data2.length > 0 ? data2 : BACKEND_BADGES;
+                        })
+                        .catch(function () { return BACKEND_BADGES; });
+                })
+                .catch(function () {
+                    return services.gamificationService.getAllBadges()
+                        .then(function (r2) {
+                            var data2 = r2?.data || r2 || [];
+                            return Array.isArray(data2) && data2.length > 0 ? data2 : BACKEND_BADGES;
+                        })
+                        .catch(function () { return BACKEND_BADGES; });
+                })
+            : Promise.resolve(BACKEND_BADGES);
+
+        var userPromise = services.usersService
+            ? services.usersService.getMe()
+                .then(function (r) { return r?.user || r || {}; })
+                .catch(function () { return {}; })
+            : Promise.resolve({});
+
+        Promise.all([repPromise, userPromise, badgesPromise]).then(function (results) {
+            var repTotal = results[0];
+            var user = results[1];
+            var allBadges = results[2];
+
+            var earnedIds;
+            var serverEarned = [];
+            if (allBadges.length > 0 && allBadges[0].earned !== undefined) {
+                allBadges.forEach(function (b) {
+                    if (b.earned && b._id) serverEarned.push(b._id.toString());
+                });
+                earnedIds = serverEarned;
+            } else {
+                var newIds = checkBadgesLocally(allBadges, user);
+                earnedIds = addStoredEarnedIds(newIds);
+            }
+
+            renderStats(repTotal, allBadges.length, earnedIds.length);
+            annotateBadges(allBadges, earnedIds);
+        });
+    }
+
+    function initSocketBadgeListener() {
+        if (typeof io === 'undefined' || typeof window.NIBRAS_BACKEND_URL === 'undefined') return;
+        try {
+            var backendUrl = window.NIBRAS_BACKEND_URL || window.NIBRAS_API_URL || '';
+            var baseUrl = backendUrl.replace(/\/api\/?$/, '').replace(/\/+$/, '');
+            if (!baseUrl) return;
+            var socket = io(baseUrl, { transports: ['websocket', 'polling'] });
+            socket.on('badge:earned', function (data) {
+                var badgeName = data?.badge?.name || data?.name || 'New badge';
+                var toast = document.createElement('div');
+                toast.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:99999;background:linear-gradient(135deg,#6c5ce7,#a855f7);color:#fff;padding:16px 24px;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.3);font-family:sans-serif;display:flex;align-items:center;gap:12px;animation:slideIn 0.3s ease;max-width:380px;';
+                toast.innerHTML = '<i class="fa-solid fa-trophy" style="font-size:1.5rem;"></i><div><strong style="font-size:1rem;display:block;">Badge Unlocked!</strong><span style="opacity:0.9;font-size:0.9rem;">' + badgeName + '</span></div>';
+                document.body.appendChild(toast);
+                setTimeout(function () {
+                    toast.style.transition = 'opacity 0.3s, transform 0.3s';
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateX(100px)';
+                    setTimeout(function () { toast.remove(); }, 300);
+                }, 4000);
+                loadBadges();
+            });
+            socket.on('connect_error', function () {});
+        } catch (e) {}
+    }
+
+    loadBadges();
+    initSocketBadgeListener();
+
     var themeBtn = document.getElementById('themeBtn');
     var themeIcon = themeBtn ? themeBtn.querySelector('i') : null;
     var appLogo = document.getElementById('app-logo');

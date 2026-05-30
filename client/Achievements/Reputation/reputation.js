@@ -83,7 +83,55 @@ window.NibrasReact.run(function () {
 
     function renderActivity() {
         if (!actContainer) return;
-        actContainer.innerHTML = '<div class="act-item" style="justify-content:center;padding:2rem;"><p style="color:var(--text-secondary);">Activity feed will appear here once backend endpoints are connected.</p></div>';
+
+        var services = window.NibrasServices;
+        if (!services || !services.reputationService) {
+            actContainer.innerHTML = '<div class="act-item" style="justify-content:center;padding:2rem;"><p style="color:var(--text-secondary);">Activity feed will appear here once backend endpoints are connected.</p></div>';
+            return;
+        }
+
+        services.reputationService.getActivityFeed(20)
+            .then(function (result) {
+                var data = result?.data || result?.activities || result || [];
+                var activities = Array.isArray(data) ? data : [];
+
+                if (activities.length === 0) {
+                    actContainer.innerHTML = '<div class="act-item" style="justify-content:center;padding:2rem;"><p style="color:var(--text-secondary);">No recent activity. Start earning points!</p></div>';
+                    return;
+                }
+
+                actContainer.innerHTML = '';
+                activities.forEach(function (act) {
+                    var desc = act.description || act.activityType || act.action || 'Activity';
+                    var pts = act.points;
+                    var ptsHtml = pts != null ? '<span class="rule-pts ' + (pts > 0 ? 'pos' : 'neg') + '">' + (pts > 0 ? '+' : '') + pts + '</span>' : '';
+                    var timeHtml = '';
+                    if (act.createdAt) {
+                        var d = new Date(act.createdAt);
+                        var now = new Date();
+                        var diff = now - d;
+                        var mins = Math.floor(diff / 60000);
+                        var hours = Math.floor(diff / 3600000);
+                        var days = Math.floor(diff / 86400000);
+                        if (mins < 1) timeHtml = 'Just now';
+                        else if (mins < 60) timeHtml = mins + 'm ago';
+                        else if (hours < 24) timeHtml = hours + 'h ago';
+                        else if (days < 7) timeHtml = days + 'd ago';
+                        else timeHtml = d.toLocaleDateString();
+                    }
+
+                    actContainer.innerHTML += '<div class="act-item" style="display:flex;justify-content:space-between;align-items:center;padding:0.75rem 0;border-bottom:1px solid var(--border-color);">' +
+                        '<div style="display:flex;align-items:center;gap:8px;">' +
+                        '<span style="font-size:0.9rem;">' + escapeHtml(desc) + '</span>' +
+                        (timeHtml ? '<span style="font-size:0.75rem;color:var(--text-muted);">' + timeHtml + '</span>' : '') +
+                        '</div>' +
+                        (ptsHtml || '') +
+                        '</div>';
+                });
+            })
+            .catch(function () {
+                actContainer.innerHTML = '<div class="act-item" style="justify-content:center;padding:2rem;"><p style="color:var(--text-secondary);">Could not load activity feed.</p></div>';
+            });
     }
 
     function renderBreakdown(breakdown) {
