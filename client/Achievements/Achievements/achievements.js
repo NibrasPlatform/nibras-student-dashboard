@@ -64,25 +64,18 @@ window.NibrasReact.run(function () {
                 .catch(function () { return BACKEND_BADGES; })
             : Promise.resolve(BACKEND_BADGES);
 
-        var awardPromise = services.gamificationService
-            ? services.gamificationService.checkAwardBadges()
-                .then(function (r) {
-                    var data = r?.data || r || [];
-                    return Array.isArray(data) ? data : [];
-                })
-                .catch(function () { return []; })
-            : Promise.resolve([]);
+        var userPromise = services.usersService
+            ? services.usersService.getMe()
+                .then(function (r) { return r?.user || r || {}; })
+                .catch(function () { return {}; })
+            : Promise.resolve({});
 
-        Promise.all([repPromise, badgesPromise, awardPromise]).then(function (results) {
+        Promise.all([repPromise, userPromise, badgesPromise]).then(function (results) {
             var repTotal = results[0];
-            var allBadges = results[1];
-            var newlyAwarded = results[2];
+            var user = results[1];
+            var allBadges = results[2];
 
-            var newIds = [];
-            newlyAwarded.forEach(function (b) {
-                var id = b._id ? b._id.toString() : '';
-                if (id) newIds.push(id);
-            });
+            var newIds = checkBadgesLocally(allBadges, user);
             var earnedIds = addStoredEarnedIds(newIds);
 
             renderStats(repTotal, allBadges.length, earnedIds);
@@ -285,6 +278,30 @@ window.NibrasReact.run(function () {
 
         if (earnedMeta) earnedMeta.textContent = earnedCount + ' unlocked';
         if (lockedMeta) lockedMeta.textContent = lockedCount + ' to go';
+    }
+
+    function checkBadgesLocally(badges, user) {
+        var stats = {
+            problemsSolved: Number(user.problemsSolved || 0),
+            answers: Number(user.answers || 0),
+            studyStreak: Number(user.studyStreak || 0),
+            reputationScore: Number(user.reputationScore || 0),
+        };
+        var existingIds = getStoredEarnedIds();
+        var newIds = [];
+        badges.forEach(function(b) {
+            var name = (b.name || '').trim().toLowerCase();
+            var id = b._id ? b._id.toString() : name;
+            if (!id || existingIds.indexOf(id) >= 0) return;
+            var earned = false;
+            if (name === 'first steps') earned = stats.problemsSolved > 0 || stats.reputationScore > 0;
+            else if (name === 'problem solver') earned = stats.problemsSolved >= 10;
+            else if (name === '7-day streak') earned = stats.studyStreak >= 7;
+            else if (name === 'team player') earned = stats.answers >= 5;
+            else if (name === 'top contributor') earned = stats.answers >= 10 || stats.reputationScore >= 100;
+            if (earned) newIds.push(id);
+        });
+        return newIds;
     }
 
     function renderIcon(icon) {
