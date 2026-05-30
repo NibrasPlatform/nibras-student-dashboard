@@ -664,7 +664,7 @@ window.NibrasReact.run(() => {
         document.getElementById('meta-time').textContent = data.dueTime || '';
         document.getElementById('meta-type').textContent = data.submissionType || 'Code';
 
-        if (scoreEarned > 0 || (data.feedback && data.feedback.comment && data.feedback.comment !== '...') || isInstructor) {
+        if (scoreEarned > 0 || isInstructor) {
             const submitSection = document.getElementById('submit-section');
             if (submitSection) submitSection.style.display = 'none';
         }
