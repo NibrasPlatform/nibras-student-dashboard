@@ -85,17 +85,16 @@
 
     const renderRankings = () => {
         if (!rankContainer) return;
-        
+
         const linkedAccounts = state.profile?.linkedAccounts || {};
         const verification = state.profile?.verification || {};
-        
+
         const cfHandle = linkedAccounts.codeforces || null;
         const lcUsername = linkedAccounts.leetcode || null;
-        
-        // Get verification status
+
         const cfVerify = verification.codeforces?.status || 'unverified';
         const lcVerify = verification.leetcode?.status || 'unverified';
-        
+
         const rows = [
             { label: 'Codeforces Handle', value: cfHandle || 'Not linked' },
             { label: 'LeetCode Username', value: lcUsername || 'Not linked' },
@@ -111,15 +110,42 @@
                 </div>
             `;
         });
+
+        updatePlatformCards(linkedAccounts, verification);
+    };
+
+    const updatePlatformCards = (linkedAccounts, verification) => {
+        const cfHandle = linkedAccounts.codeforces || null;
+        const lcUsername = linkedAccounts.leetcode || null;
+        const cfVerify = verification.codeforces?.status || 'unverified';
+        const lcVerify = verification.leetcode?.status || 'unverified';
+
+        const cfHandleEl = document.getElementById('cf-handle-display');
+        const cfStatusEl = document.getElementById('cf-status-display');
+        const lcHandleEl = document.getElementById('lc-handle-display');
+        const lcStatusEl = document.getElementById('lc-status-display');
+
+        if (cfHandleEl) cfHandleEl.textContent = cfHandle || 'Not linked';
+        if (lcHandleEl) lcHandleEl.textContent = lcUsername || 'Not linked';
+
+        if (cfStatusEl) cfStatusEl.innerHTML = getStatusBadgeHTML(cfVerify);
+        if (lcStatusEl) lcStatusEl.innerHTML = getStatusBadgeHTML(lcVerify);
+    };
+
+    const getStatusBadgeHTML = (status) => {
+        const s = String(status || '').toLowerCase();
+        if (s === 'verified') return '<span class="status-dot status-verified"></span> Verified';
+        if (s === 'pending') return '<span class="status-dot status-pending"></span> Pending';
+        return '<span class="status-dot status-unverified"></span> Unverified';
     };
 
     const renderProgress = (message = '') => {
         let container = rateContainer || document.getElementById('rating-content-container');
         if (!container) return;
-        
+
         const totals = getProgressTotals();
         const percent = totals.total ? Math.round((totals.solved / totals.total) * 100) : 0;
-        
+
         const linkedAccounts = state.profile?.linkedAccounts || {};
         const hasCf = !!linkedAccounts.codeforces;
         const hasLc = !!linkedAccounts.leetcode;
@@ -143,15 +169,9 @@
                 <div class="rating-badge">${linkedCount ? 'Connected' : 'Connect Accounts'}</div>
             </div>
             ${message ? `<p class="section-sub" style="margin-top: 12px;">${message}</p>` : ''}
-            <div class="rating-progress-row" style="margin-top: 12px; gap: 8px; flex-wrap: wrap;">
-                <button class="btn-register-full" id="btn-link-accounts">Link Accounts</button>
-                <button class="btn-register-full" id="btn-sync-profile">Sync Profile</button>
-            </div>
-            <div style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
-                <button class="btn-register-full" data-action="verify-account" data-platform="codeforces" style="flex: 1;">Verify Codeforces</button>
-                <button class="btn-register-full" data-action="check-verification" data-platform="codeforces" style="flex: 1;">Check Codeforces</button>
-                <button class="btn-register-full" data-action="verify-account" data-platform="leetcode" style="flex: 1;">Verify LeetCode</button>
-                <button class="btn-register-full" data-action="check-verification" data-platform="leetcode" style="flex: 1;">Check LeetCode</button>
+            <div class="progress-actions">
+                <button class="btn-progress" id="btn-link-accounts"><i class="fa-solid fa-link"></i> Link Accounts</button>
+                <button class="btn-progress-secondary" id="btn-sync-profile"><i class="fa-solid fa-arrows-rotate"></i> Sync Profile</button>
             </div>
         `;
     };
@@ -160,20 +180,20 @@
         try {
             const currentUser = await competitionsService.getMe();
             const userId = currentUser?._id || currentUser?.id;
-            
+
             if (!userId) {
                 renderProgress('Please login to view rankings');
                 return;
             }
-            
+
             const [profile, progress] = await Promise.all([
                 competitionsService.getAggregatedProfile(userId).catch(() => ({})),
                 competitionsService.getProgress().catch(() => ({}))
             ]);
-            
+
             console.log('[loadRankingData] Profile:', profile);
             console.log('[loadRankingData] Progress:', progress);
-            
+
             state.profile = profile || {};
             state.progress = progress || {};
             renderStats();
@@ -242,7 +262,7 @@
             console.log('[Verification] Start result:', result);
             const data = result?.data;
             const platformName = platform === 'codeforces' ? 'Codeforces' : 'LeetCode';
-            
+
             if (data?.token) {
                 renderVerificationStarted(platform, platformName, data);
                 return data;
@@ -283,7 +303,7 @@
             console.log('[Verification] Check result:', result);
             const data = result?.data;
             const platformName = platform === 'codeforces' ? 'Codeforces' : 'LeetCode';
-            
+
             if (data?.verified) {
                 renderVerificationResult(platform, platformName, data);
                 await loadRankingData();
@@ -311,35 +331,37 @@
     const renderVerificationStarted = (platform, platformName, data) => {
         const container = document.getElementById('rating-content-container') || rateContainer;
         if (!container) return;
-        
+
         const expiresDate = data.expiresAt ? new Date(data.expiresAt).toLocaleString() : 'N/A';
-        
+
         container.innerHTML = `
-            <div class="verification-info" style="background: var(--card-bg); padding: 20px; border-radius: 8px; margin-bottom: 16px; border: 1px solid var(--border-color);">
-                <h4 style="margin: 0 0 16px 0; color: var(--primary-color);">
-                    <i class="fa-solid fa-circle-check" style="color: var(--primary-color);"></i> 
-                    ${platformName} Verification Started
-                </h4>
-                <div style="margin-bottom: 12px;">
-                    <strong style="display: block; margin-bottom: 4px; color: var(--text-secondary);">Your Token:</strong>
-                    <code style="background: var(--code-bg); padding: 8px 12px; border-radius: 4px; font-size: 16px; display: block; word-break: break-all; color: var(--accent-color);">${data.token || 'N/A'}</code>
+            <div class="verify-panel verify-started">
+                <div class="verify-panel-header">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>${platformName} Verification Started</span>
                 </div>
-                <div style="margin-bottom: 12px;">
-                    <strong style="display: block; margin-bottom: 4px; color: var(--text-secondary);">Expires At:</strong>
-                    <span style="color: var(--text-primary);">${expiresDate}</span>
+                <div class="verify-panel-body">
+                    <div class="verify-info-row">
+                        <span class="verify-info-label">Your Token:</span>
+                        <code class="verify-token">${data.token || 'N/A'}</code>
+                    </div>
+                    <div class="verify-info-row">
+                        <span class="verify-info-label">Expires At:</span>
+                        <span class="verify-info-value">${expiresDate}</span>
+                    </div>
+                    <div class="verify-info-row">
+                        <span class="verify-info-label">Instructions:</span>
+                        <p class="verify-instruction">${data.instruction || 'Submit code and get a COMPILATION_ERROR verdict between start and expiry time.'}</p>
+                    </div>
+                    <div class="verify-notice">
+                        <i class="fa-solid fa-info-circle"></i>
+                        After completing the verification step, click "Check Verification" to verify your account.
+                    </div>
                 </div>
-                <div style="margin-bottom: 12px;">
-                    <strong style="display: block; margin-bottom: 8px; color: var(--text-secondary);">Instructions:</strong>
-                    <p style="margin: 0; color: var(--text-primary); line-height: 1.5;">${data.instruction || 'Submit code and get a COMPILATION_ERROR verdict between start and expiry time.'}</p>
+                <div class="verify-actions">
+                    <button class="btn-account btn-verify" data-action="check-verification" data-platform="${platform}"><i class="fa-solid fa-rotate"></i> Check Verification</button>
+                    <button class="btn-account btn-check" data-action="restart-verification" data-platform="${platform}"><i class="fa-solid fa-arrow-rotate-right"></i> Start New</button>
                 </div>
-                <p style="margin: 16px 0 0 0; padding: 12px; background: var(--warning-bg); border-radius: 6px; font-size: 13px; color: var(--warning-text);">
-                    <i class="fa-solid fa-info-circle"></i> 
-                    After completing the verification step, click "Check Verification" to verify your account.
-                </p>
-            </div>
-            <div class="rating-progress-row" style="margin-top: 12px;">
-                <button class="btn-register-full" data-action="check-verification" data-platform="${platform}">Check Verification</button>
-                <button class="btn-register-full" data-action="restart-verification" data-platform="${platform}">Start New Verification</button>
             </div>
         `;
     };
@@ -347,45 +369,39 @@
     const renderVerificationResult = (platform, platformName, data) => {
         const container = document.getElementById('rating-content-container') || rateContainer;
         if (!container) return;
-        
+
         const verifiedDate = data.verifiedAt ? new Date(data.verifiedAt).toLocaleString() : 'N/A';
         const expiresDate = data.expiresAt ? new Date(data.expiresAt).toLocaleString() : 'N/A';
         const evidence = data.evidence || {};
-        
+
         container.innerHTML = `
-            <div class="verification-success" style="background: var(--success-bg); padding: 20px; border-radius: 8px; margin-bottom: 16px; border: 1px solid var(--success-border);">
-                <h4 style="margin: 0 0 16px 0; color: var(--success-text);">
-                    <i class="fa-solid fa-shield-halved" style="color: var(--success-text);"></i> 
-                    ${platformName} Account Verified!
-                </h4>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
-                    <div>
-                        <strong style="display: block; margin-bottom: 4px; color: var(--text-secondary);">Verified At:</strong>
-                        <span style="color: var(--text-primary);">${verifiedDate}</span>
-                    </div>
-                    <div>
-                        <strong style="display: block; margin-bottom: 4px; color: var(--text-secondary);">Valid Until:</strong>
-                        <span style="color: var(--text-primary);">${expiresDate}</span>
-                    </div>
+            <div class="verify-panel verify-success">
+                <div class="verify-panel-header">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>${platformName} Account Verified!</span>
                 </div>
-                ${evidence.submissionId ? `
-                <div style="background: var(--card-bg); padding: 12px; border-radius: 6px;">
-                    <strong style="display: block; margin-bottom: 8px; color: var(--text-secondary);">Verification Evidence:</strong>
-                    <p style="margin: 4px 0; color: var(--text-primary); font-size: 14px;">
-                        <strong>Problem:</strong> <a href="${evidence.problemUrl || '#'}" target="_blank" style="color: var(--primary-color);">${evidence.contestId}${evidence.problemIndex}</a>
-                    </p>
-                    <p style="margin: 4px 0; color: var(--text-primary); font-size: 14px;">
-                        <strong>Verdict:</strong> <span style="color: var(--warning-text);">${evidence.verdict}</span>
-                    </p>
-                    <p style="margin: 4px 0; color: var(--text-primary); font-size: 14px;">
-                        <strong>Rule:</strong> ${evidence.matchedRule}
-                    </p>
+                <div class="verify-panel-body">
+                    <div class="verify-info-row">
+                        <span class="verify-info-label">Verified At:</span>
+                        <span class="verify-info-value">${verifiedDate}</span>
+                    </div>
+                    <div class="verify-info-row">
+                        <span class="verify-info-label">Valid Until:</span>
+                        <span class="verify-info-value">${expiresDate}</span>
+                    </div>
+                    ${evidence.submissionId ? `
+                    <div class="verify-evidence">
+                        <span class="verify-info-label">Verification Evidence:</span>
+                        <p><strong>Problem:</strong> <a href="${evidence.problemUrl || '#'}" target="_blank" rel="noopener">${evidence.contestId}${evidence.problemIndex}</a></p>
+                        <p><strong>Verdict:</strong> <span class="verify-verdict">${evidence.verdict}</span></p>
+                        <p><strong>Rule:</strong> ${evidence.matchedRule}</p>
+                    </div>
+                    ` : ''}
                 </div>
-                ` : ''}
-            </div>
-            <div class="rating-progress-row" style="margin-top: 12px;">
-                <button class="btn-register-full" data-action="check-verification" data-platform="${platform}">Re-check Verification</button>
-                <button class="btn-register-full" data-action="restart-verification" data-platform="${platform}">Start New Verification</button>
+                <div class="verify-actions">
+                    <button class="btn-account btn-verify" data-action="check-verification" data-platform="${platform}"><i class="fa-solid fa-rotate"></i> Re-check</button>
+                    <button class="btn-account btn-check" data-action="restart-verification" data-platform="${platform}"><i class="fa-solid fa-arrow-rotate-right"></i> New Verification</button>
+                </div>
             </div>
         `;
     };
@@ -393,29 +409,31 @@
     const renderVerificationPending = (platform, platformName, data) => {
         const container = document.getElementById('rating-content-container') || rateContainer;
         if (!container) return;
-        
+
         const expiresDate = data.expiresAt ? new Date(data.expiresAt).toLocaleString() : 'N/A';
-        
+
         container.innerHTML = `
-            <div class="verification-pending" style="background: var(--warning-bg); padding: 20px; border-radius: 8px; margin-bottom: 16px; border: 1px solid var(--warning-border);">
-                <h4 style="margin: 0 0 16px 0; color: var(--warning-text);">
-                    <i class="fa-solid fa-clock" style="color: var(--warning-text);"></i> 
-                    ${platformName} Verification Pending
-                </h4>
-                ${data.token ? `
-                <div style="margin-bottom: 12px;">
-                    <strong style="display: block; margin-bottom: 4px; color: var(--text-secondary);">Your Token:</strong>
-                    <code style="background: var(--code-bg); padding: 8px 12px; border-radius: 4px; font-size: 16px; display: block; word-break: break-all; color: var(--accent-color);">${data.token}</code>
+            <div class="verify-panel verify-pending">
+                <div class="verify-panel-header">
+                    <i class="fa-solid fa-clock"></i>
+                    <span>${platformName} Verification Pending</span>
                 </div>
-                ` : ''}
-                <p style="margin: 0; color: var(--warning-text);">
-                    <i class="fa-solid fa-info-circle"></i> 
-                    Verification still pending. Complete the verification step and check again.
-                </p>
-            </div>
-            <div class="rating-progress-row" style="margin-top: 12px;">
-                <button class="btn-register-full" data-action="check-verification" data-platform="${platform}">Check Verification</button>
-                <button class="btn-register-full" data-action="restart-verification" data-platform="${platform}">Start New Verification</button>
+                <div class="verify-panel-body">
+                    ${data.token ? `
+                    <div class="verify-info-row">
+                        <span class="verify-info-label">Your Token:</span>
+                        <code class="verify-token">${data.token}</code>
+                    </div>
+                    ` : ''}
+                    <div class="verify-notice">
+                        <i class="fa-solid fa-info-circle"></i>
+                        Verification still pending. Complete the verification step and check again.
+                    </div>
+                </div>
+                <div class="verify-actions">
+                    <button class="btn-account btn-verify" data-action="check-verification" data-platform="${platform}"><i class="fa-solid fa-rotate"></i> Check Verification</button>
+                    <button class="btn-account btn-check" data-action="restart-verification" data-platform="${platform}"><i class="fa-solid fa-arrow-rotate-right"></i> Start New</button>
+                </div>
             </div>
         `;
     };
@@ -457,24 +475,16 @@
         });
     });
 
-    rateContainer?.addEventListener('click', (event) => {
-        const target = event.target;
-        if (!(target instanceof HTMLElement)) return;
-        
-        console.log('[RateContainer] Clicked target:', target.id, target.dataset);
-        
+    const handleProgressBtnClick = (target) => {
         if (target.id === 'btn-link-accounts') {
             void promptLinkAccounts();
         } else if (target.id === 'btn-sync-profile') {
             void triggerSync();
         } else {
             const actionBtn = target.closest('[data-action]');
-            console.log('[RateContainer] ActionButton:', actionBtn);
             if (!actionBtn) return;
-            
             const action = actionBtn.dataset.action;
             const platform = actionBtn.dataset.platform;
-            console.log('[RateContainer] Action:', action, 'Platform:', platform);
 
             if (action === 'verify-account') {
                 void startVerification(platform);
@@ -484,18 +494,21 @@
                 void startVerification(platform);
             }
         }
+    };
+
+    rateContainer?.addEventListener('click', (event) => {
+        handleProgressBtnClick(event.target);
     });
 
     document.addEventListener('click', (event) => {
         const target = event.target;
         if (!(target instanceof HTMLElement)) return;
-        
+
         const actionBtn = target.closest('[data-action]');
         if (!actionBtn) return;
-        
+
         const action = actionBtn.dataset.action;
         const platform = actionBtn.dataset.platform;
-        console.log('[Document] Action:', action, 'Platform:', platform);
 
         if (action === 'check-verification') {
             void checkVerification(platform);
@@ -506,45 +519,49 @@
         }
     });
 
+    // Account linking in platform cards
+    document.addEventListener('click', (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) return;
+
+        const actionBtn = target.closest('[data-action="link-account"]');
+        if (!actionBtn) return;
+
+        const platform = actionBtn.dataset.platform;
+        linkAccountSimple(platform);
+    });
+
     renderStats();
     renderRankings();
     renderProgress('Loading data...');
     loadRankingData();
 
-    const accountLinksContainer = document.getElementById('account-links-container');
     const accountLinkStatus = document.getElementById('account-link-status');
 
     const linkAccountSimple = async (platform) => {
         const platformName = platform === 'codeforces' ? 'Codeforces' : 'LeetCode';
         const username = prompt(`Enter your ${platformName} username:`);
         if (!username || !username.trim()) {
-            accountLinkStatus.innerHTML = '<span style="color:var(--status-error-text);">Username is required.</span>';
+            if (accountLinkStatus) accountLinkStatus.innerHTML = '<span class="status-msg-error">Username is required.</span>';
             return;
         }
         try {
             if (competitionsService?.linkAccounts) {
-                const body = platform === 'codeforces' 
+                const body = platform === 'codeforces'
                     ? { codeforcesHandle: username.trim() }
                     : { leetcodeUsername: username.trim() };
                 console.log('[Link Account] Sending request with body:', JSON.stringify(body));
                 const result = await competitionsService.linkAccounts(body);
                 console.log('[Link Account] Response:', result);
-                accountLinkStatus.innerHTML = `<span style="color:var(--status-success-text);">${platformName} account linked! Reloading profile...</span>`;
+                if (accountLinkStatus) accountLinkStatus.innerHTML = `<span class="status-msg-success">${platformName} account linked! Reloading profile...</span>`;
                 await loadRankingData();
                 console.log('[Link Account] Profile after reload:', state.profile);
             } else {
-                accountLinkStatus.innerHTML = '<span style="color:var(--status-error-text);">Link service not available.</span>';
+                if (accountLinkStatus) accountLinkStatus.innerHTML = '<span class="status-msg-error">Link service not available.</span>';
             }
         } catch (error) {
             console.error('[Link Account] Error:', error);
-            accountLinkStatus.innerHTML = `<span style="color:var(--status-error-text);">Failed to link: ${error?.message || 'Unknown error'}</span>`;
+            if (accountLinkStatus) accountLinkStatus.innerHTML = `<span class="status-msg-error">Failed to link: ${error?.message || 'Unknown error'}</span>`;
         }
     };
-
-    accountLinksContainer?.addEventListener('click', (event) => {
-        const target = event.target.closest('[data-action="link-account"]');
-        if (!target) return;
-        const platform = target.dataset.platform;
-        linkAccountSimple(platform);
-    });
 });

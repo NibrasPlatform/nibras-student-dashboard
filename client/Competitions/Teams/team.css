@@ -2,6 +2,21 @@
 /* TEAMS PAGE                    */
 /* ============================= */
 
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+    text-decoration: none;
+    transition: 0.2s;
+}
+
+.back-link:hover {
+    color: var(--accent-blue);
+}
+
 .teams-actions-bar {
     display: flex;
     align-items: center;

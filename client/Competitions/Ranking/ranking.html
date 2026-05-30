@@ -125,20 +125,61 @@
             </div>
 
             <!-- Account Linking Section -->
-            <section class="card" style="margin-top: 20px;">
+            <section class="card account-links-section" style="margin-top: 20px;">
                 <div class="section-header">
                     <h3>Link Accounts</h3>
                     <p class="section-sub">Connect your competitive programming accounts to track progress</p>
                 </div>
-                <div class="account-links-container" id="account-links-container" style="display: flex; gap: 16px; flex-wrap: wrap;">
-                    <button class="btn-register-full" data-action="link-account" data-platform="codeforces" style="display: flex; align-items: center; gap: 8px;">
-                        <i class="fa-solid fa-link"></i> Link Codeforces
-                    </button>
-                    <button class="btn-register-full" data-action="link-account" data-platform="leetcode" style="display: flex; align-items: center; gap: 8px;">
-                        <i class="fa-solid fa-link"></i> Link LeetCode
-                    </button>
+
+                <div class="account-platforms" id="account-platforms">
+                    <!-- Codeforces -->
+                    <div class="account-platform" data-platform="codeforces">
+                        <div class="platform-header codeforces-header">
+                            <i class="fa-brands fa-codepen"></i>
+                            <span>Codeforces</span>
+                        </div>
+                        <div class="platform-body">
+                            <div class="platform-info-row">
+                                <span class="platform-label">Handle:</span>
+                                <span class="platform-value" id="cf-handle-display">Not linked</span>
+                            </div>
+                            <div class="platform-info-row">
+                                <span class="platform-label">Status:</span>
+                                <span class="platform-status" id="cf-status-display"><span class="status-dot status-unverified"></span> Unverified</span>
+                            </div>
+                            <div class="platform-actions">
+                                <button class="btn-account btn-link-account" data-action="link-account" data-platform="codeforces"><i class="fa-solid fa-link"></i> Link</button>
+                                <button class="btn-account btn-verify" data-action="verify-account" data-platform="codeforces"><i class="fa-solid fa-shield-halved"></i> Verify</button>
+                                <button class="btn-account btn-check" data-action="check-verification" data-platform="codeforces"><i class="fa-solid fa-rotate"></i> Check</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LeetCode -->
+                    <div class="account-platform" data-platform="leetcode">
+                        <div class="platform-header leetcode-header">
+                            <i class="fa-solid fa-laptop-code"></i>
+                            <span>LeetCode</span>
+                        </div>
+                        <div class="platform-body">
+                            <div class="platform-info-row">
+                                <span class="platform-label">Username:</span>
+                                <span class="platform-value" id="lc-handle-display">Not linked</span>
+                            </div>
+                            <div class="platform-info-row">
+                                <span class="platform-label">Status:</span>
+                                <span class="platform-status" id="lc-status-display"><span class="status-dot status-unverified"></span> Unverified</span>
+                            </div>
+                            <div class="platform-actions">
+                                <button class="btn-account btn-link-account" data-action="link-account" data-platform="leetcode"><i class="fa-solid fa-link"></i> Link</button>
+                                <button class="btn-account btn-verify" data-action="verify-account" data-platform="leetcode"><i class="fa-solid fa-shield-halved"></i> Verify</button>
+                                <button class="btn-account btn-check" data-action="check-verification" data-platform="leetcode"><i class="fa-solid fa-rotate"></i> Check</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div id="account-link-status" style="margin-top: 12px; font-size: 14px;"></div>
+
+                <div id="account-link-status" class="account-link-status"></div>
             </section>
 
         </div>
