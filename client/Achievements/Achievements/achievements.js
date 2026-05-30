@@ -48,9 +48,9 @@ window.NibrasReact.run(function () {
         var services = window.NibrasServices;
         if (!services) return;
 
-        var repPromise = services.usersService
-            ? services.usersService.getMe()
-                .then(function (r) { return r?.user?.reputationScore ?? 0; })
+        var repPromise = services.reputationService
+            ? services.reputationService.getMyReputation()
+                .then(function (r) { return r?.data?.total ?? r?.total ?? 0; })
                 .catch(function () { return 0; })
             : Promise.resolve(0);
 
