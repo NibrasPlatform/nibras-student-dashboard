@@ -204,6 +204,13 @@ window.NibrasReact.run(function () {
 
         updateSectionCounts(earnedBlock, lockedBlock, earnedIds, allBackendBadges.length);
 
+        if (earnedBlock && earnedBlock.querySelectorAll('.badge-card--earned').length === 0) {
+            earnedBlock.style.display = 'none';
+        }
+        if (lockedBlock && lockedBlock.querySelectorAll('.badge-card--locked').length === 0) {
+            lockedBlock.style.display = 'none';
+        }
+
         sectionsEl.insertAdjacentHTML('beforeend', comingSoonHtml());
     }
 
