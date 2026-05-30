@@ -368,6 +368,36 @@ input:focus { border-color: var(--input-focus); }
     margin-bottom: 0.4rem;
 }
 
+/* OAuth Divider + Buttons */
+.oauth-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 1.25rem 0 1rem;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+.oauth-divider::before,
+.oauth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--input-border);
+}
+
+.oauth-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.oauth-buttons + .oauth-buttons {
+    margin-top: 0;
+}
+
 /* RESPONSIVE */
 @media (max-width: 768px) {
     html, body { height: auto; }

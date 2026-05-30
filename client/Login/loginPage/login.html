@@ -18,10 +18,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- CSS -->
     <link rel="stylesheet" href="./login.css">
-    <!-- Google OAuth Client ID -->
+    <!-- OAuth Client IDs -->
     <script>
         window.NibrasApiConfig = {
-            googleClientId: '809028632276-sgttn83goo7em2anm7t0t5ar37m4v8nm.apps.googleusercontent.com'
+            googleClientId: '809028632276-sgttn83goo7em2anm7t0t5ar37m4v8nm.apps.googleusercontent.com',
+            microsoftClientId: '347c6c6f-1234-5678-9abc-def012345678'
         };
     </script>
 </head>
@@ -100,7 +101,11 @@
                     </div>
                 </form>
 
-                
+                <!-- OAuth Buttons -->
+                <div class="oauth-divider"><span>or continue with</span></div>
+                <div class="oauth-buttons" id="googleSignInContainer"></div>
+                <div class="oauth-buttons" id="microsoftSignInContainer"></div>
+                <p id="microsoftAuthStatus" class="auth-notice" hidden></p>
             </div>
 
         </div>

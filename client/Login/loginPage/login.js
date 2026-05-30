@@ -61,6 +61,59 @@ window.NibrasReact.run(() => {
         })();
     })();
 
+    (function handleMicrosoftRedirectCallback() {
+        const hash = window.location.hash;
+        if (!hash || !hash.includes('access_token=')) return;
+
+        const params = new URLSearchParams(hash.replace('#', ''));
+        const accessToken = params.get('access_token');
+        const state = params.get('state');
+        const error = params.get('error');
+        const savedState = sessionStorage.getItem('microsoft_oauth_state');
+
+        if (error || !accessToken || !state || state !== savedState) {
+            sessionStorage.removeItem('microsoft_oauth_state');
+            window.location.hash = '';
+            return;
+        }
+
+        sessionStorage.removeItem('microsoft_oauth_state');
+        sessionStorage.setItem('microsoft_access_token', accessToken);
+        window.location.hash = '';
+
+        (async () => {
+            try {
+                const apiBase = window.NibrasApiConfig?.getServiceUrl?.('admin')
+                    || window.NIBRAS_API_URL
+                    || window.NIBRAS_BACKEND_URL
+                    || window.location.origin;
+                const response = await fetch(`${apiBase}/auth/microsoft`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ access_token: accessToken }),
+                });
+                const payload = await response.json();
+                if (payload.tokens?.access?.token || payload.data?.token || payload.token) {
+                    const authResult = { accessToken: null, refreshToken: null, user: null };
+                    const data = payload.data || payload;
+                    const tokens = payload.tokens || {};
+                    authResult.accessToken = data.token || data.accessToken || payload.token || tokens?.access?.token || tokens?.accessToken || null;
+                    authResult.refreshToken = data.refreshToken || payload.refreshToken || tokens?.refresh?.token || tokens?.refreshToken || null;
+                    authResult.user = data.user || payload.user || data;
+                    setAuthData(authResult);
+                    sessionStorage.removeItem('microsoft_access_token');
+                    (function () {
+                        try { var _u = JSON.parse(localStorage.getItem('user')); var _r = String(_u?.role?.name || _u?.role || '').toLowerCase(); window.location.href = _r === 'instructor' ? '../../Dashboard/instructor-dashboard.html' : '../../Dashboard/dashboard.html'; } catch (_) { window.location.href = '../../Dashboard/dashboard.html'; }
+                    })();
+                    return;
+                }
+            } catch (e) {
+                console.error('Microsoft auth failed:', e);
+            }
+            window.location.href = 'login.html?error=microsoft_auth_failed';
+        })();
+    })();
+
     const shared = window.NibrasShared || {};
     const adminApiBase =
         (typeof shared.resolveServiceUrl === 'function' ? shared.resolveServiceUrl('admin') : null) ||
@@ -427,5 +480,82 @@ window.NibrasReact.run(() => {
         setGoogleStatus('');
     };
 
+    const resolveMicrosoftClientId = () => {
+        return String(
+            window.NibrasApiConfig?.microsoftClientId ||
+            new URLSearchParams(window.location.search).get('microsoftClientId') ||
+            localStorage.getItem('nibras_microsoft_client_id') ||
+            window.NIBRAS_MICROSOFT_CLIENT_ID ||
+            ''
+        ).trim();
+    };
+
+    const setMicrosoftStatus = (message, tone = 'info') => {
+        const msStatus = document.getElementById('microsoftAuthStatus');
+        if (!msStatus) return;
+        if (!message) {
+            msStatus.hidden = true;
+            msStatus.textContent = '';
+            msStatus.style.color = '';
+            return;
+        }
+        msStatus.hidden = false;
+        msStatus.textContent = String(message);
+        if (tone === 'error') {
+            msStatus.style.color = '#ef4444';
+            return;
+        }
+        if (tone === 'success') {
+            msStatus.style.color = '#10b981';
+            return;
+        }
+        msStatus.style.color = '';
+    };
+
+    const initializeMicrosoftAuth = () => {
+        const msContainer = document.getElementById('microsoftSignInContainer');
+        if (!msContainer) return;
+
+        const microsoftClientId = resolveMicrosoftClientId();
+        if (!microsoftClientId) {
+            msContainer.hidden = true;
+            setMicrosoftStatus('Microsoft sign-in is unavailable: missing Client ID.', 'error');
+            return;
+        }
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'microsoft-btn';
+        btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 23 23"><rect x="1" y="1" width="10" height="10" fill="#f25022"/><rect x="12" y="1" width="10" height="10" fill="#7fba00"/><rect x="1" y="12" width="10" height="10" fill="#00a4ef"/><rect x="12" y="12" width="10" height="10" fill="#ffb900"/></svg> Continue with Microsoft';
+        btn.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:12px;padding:12px 24px;background:#fff;border:1px solid #dadce0;border-radius:4px;font-family:Roboto,Helvetica,Arial,sans-serif;font-size:14px;font-weight:500;color:#3c4043;cursor:pointer;width:100%;max-width:320px;transition:background .2s,box-shadow .2s;';
+        btn.onmouseenter = () => btn.style.boxShadow = '0 1px 3px rgba(0,0,0,0.12)';
+        btn.onmouseleave = () => btn.style.boxShadow = 'none';
+        btn.onclick = () => {
+            const state = Math.random().toString(36).substring(2) + Date.now().toString(36);
+            sessionStorage.setItem('microsoft_oauth_state', state);
+
+            const redirectUri = `${window.location.origin}${window.location.pathname}`;
+            const params = new URLSearchParams({
+                client_id: microsoftClientId,
+                redirect_uri: redirectUri,
+                response_type: 'token',
+                scope: 'openid email profile',
+                state: state,
+            });
+
+            window.location.href = `https://login.microsoftonline.com/common/oauth2/v2.0/authorize?${params.toString()}`;
+        };
+        msContainer.appendChild(btn);
+
+        if (sessionStorage.getItem('microsoft_auth_error')) {
+            const err = sessionStorage.getItem('microsoft_auth_error');
+            sessionStorage.removeItem('microsoft_auth_error');
+            setNotice(err, 'error');
+        }
+
+        setMicrosoftStatus('');
+    };
+
     initializeGoogleAuth();
+    initializeMicrosoftAuth();
 });
