@@ -11,7 +11,6 @@ window.NibrasReact.run(function () {
     var bdContainer = document.getElementById('breakdown-container');
     var lvContainer = document.getElementById('levels-container');
     var posContainer = document.getElementById('rules-pos-container');
-    var negContainer = document.getElementById('rules-neg-container');
     var actContainer = document.getElementById('activity-container');
 
     var levels = [
@@ -24,21 +23,23 @@ window.NibrasReact.run(function () {
     ];
 
     var rulesPos = [
-        { action: 'Answer accepted by question author', points: '+15' },
-        { action: 'Assignment completed with 90%', points: '+10' },
-        { action: 'Help peer with code review', points: '+5' },
-        { action: 'Question upvoted', points: '+3' },
-        { action: 'Contest participation', points: '+5' },
-        { action: 'Contest Top 10 finish', points: '+25' },
+        { action: 'Solve a beginner problem', points: '+10' },
+        { action: 'Solve a newbie problem', points: '+20' },
+        { action: 'Solve an intermediate problem', points: '+35' },
+        { action: 'Solve an advanced problem', points: '+50' },
+        { action: 'Join a contest', points: '+15' },
+        { action: 'Top 25% in contest', points: '+25' },
+        { action: 'Top 10% in contest', points: '+50' },
+        { action: 'Contest rating gain (per +10 Elo)', points: '+1', note: 'cap 30' },
+        { action: 'Create a question', points: '+5' },
+        { action: 'Create an answer', points: '+15' },
+        { action: 'Have answer accepted', points: '+25' },
+        { action: 'Receive question upvote', points: '+2', note: '20 pts/day max' },
+        { action: 'Receive answer upvote', points: '+3', note: '30 pts/day max' },
+        { action: 'Create a discussion thread', points: '+5' },
+        { action: 'Earn a badge', points: '+15' },
     ];
 
-    var rulesNeg = [
-        { action: 'Answer downvoted', points: '-2' },
-        { action: 'Question downvoted', points: '-1' },
-        { action: 'Late assignment submission', points: '-5' },
-        { action: 'Inappropriate Content flagged', points: '-10' },
-        { action: 'Academic Integrity violation', points: '-50' },
-    ];
 
     var levelThresholds = [0, 100, 500, 1000, 2000, 2500, 5000];
 
@@ -75,13 +76,8 @@ window.NibrasReact.run(function () {
         if (posContainer) {
             posContainer.innerHTML = '';
             rulesPos.forEach(function (r) {
-                posContainer.innerHTML += '<div class="rule-row"><span>' + r.action + '</span><span class="rule-pts pos">' + r.points + '</span></div>';
-            });
-        }
-        if (negContainer) {
-            negContainer.innerHTML = '';
-            rulesNeg.forEach(function (r) {
-                negContainer.innerHTML += '<div class="rule-row"><span>' + r.action + '</span><span class="rule-pts neg">' + r.points + '</span></div>';
+                var noteHtml = r.note ? ' <span style="color:var(--text-muted);font-size:0.7rem;">(' + r.note + ')</span>' : '';
+                posContainer.innerHTML += '<div class="rule-row"><span>' + r.action + noteHtml + '</span><span class="rule-pts pos">' + r.points + '</span></div>';
             });
         }
     }
