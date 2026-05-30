@@ -14,12 +14,12 @@ window.NibrasReact.run(function () {
     var actContainer = document.getElementById('activity-container');
 
     var levels = [
-        { name: 'Novice', range: '0 - 100 points', desc: 'Ask questions &bull; Submit assignments', dotColor: '#10b981' },
-        { name: 'Learner', range: '100 - 500 points', desc: 'Vote on answers &bull; Comment on posts', dotColor: '#3b82f6' },
-        { name: 'Contributor', range: '500 - 1000 points', desc: 'Edit community posts &bull; Flag irrelevant content', dotColor: '#9333ea' },
-        { name: 'Expert', range: '1000 - 2000 points', desc: 'Contest &bull; Moderate Discussions &bull; Create Study Groups', dotColor: '#ec4899' },
-        { name: 'Master', range: '2500 - 5000 points', desc: 'Edit community posts &bull; Moderate content', dotColor: '#f59e0b' },
-        { name: 'Legend', range: '5000+ points', desc: 'All privileges &bull; Mentor credential', dotColor: '#ef4444' },
+        { name: 'Novice', range: '0 - 100 points', dotColor: '#10b981' },
+        { name: 'Learner', range: '100 - 500 points', dotColor: '#3b82f6' },
+        { name: 'Contributor', range: '500 - 1000 points', dotColor: '#9333ea' },
+        { name: 'Expert', range: '1000 - 2500 points', dotColor: '#ec4899' },
+        { name: 'Master', range: '2500 - 5000 points', dotColor: '#f59e0b' },
+        { name: 'Legend', range: '5000+ points', dotColor: '#ef4444' },
     ];
 
     var rulesPos = [
@@ -41,7 +41,7 @@ window.NibrasReact.run(function () {
     ];
 
 
-    var levelThresholds = [0, 100, 500, 1000, 2000, 2500, 5000];
+    var levelThresholds = [0, 100, 500, 1000, 2500, 5000];
 
     function getLevelIndex(score) {
         for (var i = levelThresholds.length - 1; i >= 0; i--) {
@@ -66,7 +66,6 @@ window.NibrasReact.run(function () {
                 '<div class="lvl-title"><div class="status-dot" style="background-color:' + lvl.dotColor + '"></div>' + lvl.name + ' ' + liveBadge + '</div>',
                 '<span class="lvl-points">' + lvl.range + '</span>',
                 '</div>',
-                '<div class="lvl-desc">' + lvl.desc + '</div>',
                 '</div>',
             ].join('');
         });
