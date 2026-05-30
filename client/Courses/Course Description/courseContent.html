@@ -23,22 +23,25 @@
             localStorage.setItem('selectedCourseId', courseId);
         }
 
-        function updateLinks() {
-            const storedCourseId = localStorage.getItem('selectedCourseId');
-            if (!storedCourseId) return;
+            function updateLinks() {
+                var isInstructor = false;
+                try { var _u = JSON.parse(localStorage.getItem('user') || '{}'); var _r = String(_u?.role?.name || _u?.role || '').toLowerCase(); isInstructor = _r === 'instructor'; } catch (_) {}
 
-            function withCourseId(path) {
-                if (path.includes('courseId=')) return path;
-                const separator = path.includes('?') ? '&' : '?';
-                return `${path}${separator}courseId=${encodeURIComponent(storedCourseId)}`;
-            }
+                const storedCourseId = localStorage.getItem('selectedCourseId');
+                if (!storedCourseId) return;
 
-            const navLinks = [
-                { key: "courseContent", path: "./courseContent.html" },
-                { key: "videos", path: "../Videos/videos.html" },
-                { key: "assignments", path: "../Assignments/Assignments.html" },
-                { key: "grades", path: "../Grades/grades.html" },
-            ];
+                function withCourseId(path) {
+                    if (path.includes('courseId=')) return path;
+                    const separator = path.includes('?') ? '&' : '?';
+                    return `${path}${separator}courseId=${encodeURIComponent(storedCourseId)}`;
+                }
+
+                var navLinks = [
+                    { key: "courseContent", path: "./courseContent.html" },
+                    { key: "videos", path: isInstructor ? '' : "../Videos/videos.html" },
+                    { key: "assignments", path: isInstructor ? "../../Admin/AssignmentBuilder/assignment-builder.html" : "../Assignments/Assignments.html" },
+                    { key: "grades", path: isInstructor ? "../../Admin/InstructorGrades/instructor-grades.html" : "../Grades/grades.html" },
+                ];
 
             navLinks.forEach(({ key, path }) => {
                 const el = document.querySelector(`[data-nav-link="${key}"]`);

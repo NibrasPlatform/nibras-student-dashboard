@@ -74,13 +74,15 @@ window.NibrasReact.run(async () => {
     });
 
     function setCourseLinks() {
-        // Update data-nav-link elements
-        const navLinks = [
+        var _role = '';
+        try { var _u = JSON.parse(localStorage.getItem('user') || '{}'); _role = String(_u?.role?.name || _u?.role || '').toLowerCase(); } catch (_) {}
+        var isInstructor = _role === 'instructor';
+
+        var navLinks = [
             { key: "courseContent", path: "./courseContent.html" },
-            { key: "videos", path: "../Videos/videos.html" },
-            { key: "assignments", path: "../Assignments/Assignments.html" },
-            
-{ key: "grades", path: "../Grades/grades.html" },
+            { key: "videos", path: isInstructor ? '' : "../Videos/videos.html" },
+            { key: "assignments", path: isInstructor ? "../../Admin/AssignmentBuilder/assignment-builder.html" : "../Assignments/Assignments.html" },
+            { key: "grades", path: isInstructor ? "../../Admin/InstructorGrades/instructor-grades.html" : "../Grades/grades.html" },
         ];
 
         navLinks.forEach(({ key, path }) => {
