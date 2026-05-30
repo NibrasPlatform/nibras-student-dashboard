@@ -259,6 +259,7 @@
                         <span><i class="fa-regular fa-file-lines"></i> ${formatDuration(contest.duration)}</span>
                     </div>
                     <button class="btn-continue" data-action="open" data-id="${contestId}">Open Contest</button>
+                    <button class="btn-continue" data-action="solve" data-id="${contestId}" style="background:var(--accent-blue);margin-top:8px;"><i class="fa-solid fa-code"></i> Solve</button>
                 </div>
             `;
         });
@@ -297,7 +298,7 @@
                         </div>
                     </div>
                     <div class="uc-meta-row" style="margin-top: 10px; gap: 8px;">
-                        <button class="btn-register-full" data-action="join" data-id="${contestId}" data-url="${getJoinUrl(contest)}">Join</button>
+                        <button class="btn-register-full" data-action="join" data-id="${contestId}" data-url="${getJoinUrl(contest)}">Register</button>
                         <button class="btn-register-full" data-action="bookmark" data-id="${contestId}">
                             ${isBookmarked ? '<i class="fa-solid fa-bookmark"></i> Bookmarked' : '<i class="fa-regular fa-bookmark"></i> Bookmark'}
                         </button>
@@ -305,6 +306,7 @@
                             ${hasReminder ? '<i class="fa-solid fa-bell"></i> Remove' : '<i class="fa-regular fa-bell"></i> Set Reminder'}
                         </button>
                         <button class="btn-register-full" data-action="open" data-id="${contestId}" ${contest.status === 'upcoming' ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}>Open</button>
+                        <button class="btn-register-full" data-action="solve" data-id="${contestId}" ${contest.status === 'upcoming' ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}><i class="fa-solid fa-code"></i> Solve</button>
                     </div>
                 </div>
             `;
@@ -737,6 +739,10 @@
     const handleContestAction = async (action, contestId) => {
         if (!contestId || !competitionsService) return;
         const contest = findContestById(contestId);
+        if (action === 'solve') {
+            window.location.href = '../ContestDetail/contestDetail.html?id=' + encodeURIComponent(contestId);
+            return;
+        }
         if (action === 'open') {
             if (contest?.status === 'upcoming') {
                 showFeedback('This contest has not started yet. You can join when it begins.', 'info');
