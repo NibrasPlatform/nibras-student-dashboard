@@ -2319,6 +2319,187 @@
     };
 
     // ============================================================
+    // Team Service (competitions backend)
+    // ============================================================
+    const teamService = {
+        async listTeams(filters = {}) {
+            const query = buildQueryString({
+                page: filters.page,
+                limit: filters.limit,
+                contestId: filters.contestId,
+                search: filters.search,
+            });
+            const payload = await requestCompetitionsWithCompatibility([
+                `/teams${query}`,
+            ], {
+                method: 'GET',
+                auth: false,
+            });
+            const data = unwrapApiData(payload) || {};
+            return {
+                teams: Array.isArray(data.teams) ? data.teams : Array.isArray(data) ? data : [],
+                pagination: data.pagination || payload?.pagination || null,
+            };
+        },
+
+        async getTeamById(id) {
+            const payload = await requestCompetitionsWithCompatibility([
+                `/teams/${encodeURIComponent(String(id || ''))}`,
+            ], {
+                method: 'GET',
+                auth: true,
+            });
+            return unwrapApiData(payload);
+        },
+
+        async createTeam(data) {
+            const payload = await requestCompetitionsWithCompatibility([
+                '/teams',
+            ], {
+                method: 'POST',
+                auth: true,
+                body: data,
+            });
+            return {
+                message: payload?.message || 'Team created successfully',
+                data: unwrapApiData(payload),
+            };
+        },
+
+        async updateTeam(id, data) {
+            const payload = await requestCompetitionsWithCompatibility([
+                `/teams/${encodeURIComponent(String(id || ''))}`,
+            ], {
+                method: 'PUT',
+                auth: true,
+                body: data,
+            });
+            return {
+                message: payload?.message || 'Team updated successfully',
+                data: unwrapApiData(payload),
+            };
+        },
+
+        async deleteTeam(id) {
+            const payload = await requestCompetitionsWithCompatibility([
+                `/teams/${encodeURIComponent(String(id || ''))}`,
+            ], {
+                method: 'DELETE',
+                auth: true,
+            });
+            return {
+                message: payload?.message || 'Team deleted successfully',
+                data: unwrapApiData(payload),
+            };
+        },
+
+        async joinTeam(id) {
+            const payload = await requestCompetitionsWithCompatibility([
+                `/teams/${encodeURIComponent(String(id || ''))}/join`,
+                `/user/teams/${encodeURIComponent(String(id || ''))}/join`,
+            ], {
+                method: 'POST',
+                auth: true,
+                body: {},
+            });
+            return {
+                message: payload?.message || 'Joined team successfully',
+                data: unwrapApiData(payload),
+            };
+        },
+
+        async leaveTeam(id) {
+            const payload = await requestCompetitionsWithCompatibility([
+                `/teams/${encodeURIComponent(String(id || ''))}/leave`,
+                `/user/teams/${encodeURIComponent(String(id || ''))}/leave`,
+            ], {
+                method: 'POST',
+                auth: true,
+                body: {},
+            });
+            return {
+                message: payload?.message || 'Left team successfully',
+                data: unwrapApiData(payload),
+            };
+        },
+
+        async listMyTeams(filters = {}) {
+            const query = buildQueryString({ page: filters.page, limit: filters.limit });
+            const payload = await requestCompetitionsWithCompatibility([
+                `/user/teams${query}`,
+                `/teams/mine${query}`,
+            ], {
+                method: 'GET',
+                auth: true,
+            });
+            const data = unwrapApiData(payload) || {};
+            return {
+                teams: Array.isArray(data.teams) ? data.teams : Array.isArray(data) ? data : [],
+                pagination: data.pagination || payload?.pagination || null,
+            };
+        },
+
+        async inviteToTeam(teamId, userId) {
+            const payload = await requestCompetitionsWithCompatibility([
+                `/teams/${encodeURIComponent(String(teamId || ''))}/invite`,
+            ], {
+                method: 'POST',
+                auth: true,
+                body: { userId },
+            });
+            return {
+                message: payload?.message || 'Invitation sent',
+                data: unwrapApiData(payload),
+            };
+        },
+
+        async respondToInvite(teamId, accept) {
+            const payload = await requestCompetitionsWithCompatibility([
+                `/teams/${encodeURIComponent(String(teamId || ''))}/invite/respond`,
+            ], {
+                method: 'POST',
+                auth: true,
+                body: { accept },
+            });
+            return {
+                message: payload?.message || 'Response recorded',
+                data: unwrapApiData(payload),
+            };
+        },
+
+        async listTeamMembers(teamId, filters = {}) {
+            const query = buildQueryString({ page: filters.page, limit: filters.limit });
+            const payload = await requestCompetitionsWithCompatibility([
+                `/teams/${encodeURIComponent(String(teamId || ''))}/members${query}`,
+            ], {
+                method: 'GET',
+                auth: true,
+            });
+            const data = unwrapApiData(payload) || {};
+            return {
+                members: Array.isArray(data.members) ? data.members : Array.isArray(data) ? data : [],
+                pagination: data.pagination || payload?.pagination || null,
+            };
+        },
+
+        async listMyInvitations(filters = {}) {
+            const query = buildQueryString({ page: filters.page, limit: filters.limit });
+            const payload = await requestCompetitionsWithCompatibility([
+                `/user/teams/invitations${query}`,
+                `/teams/invitations/mine${query}`,
+            ], {
+                method: 'GET',
+                auth: true,
+            });
+            const data = unwrapApiData(payload) || {};
+            return {
+                invitations: Array.isArray(data.invitations) ? data.invitations : Array.isArray(data) ? data : [],
+                pagination: data.pagination || payload?.pagination || null,
+            };
+        },
+    };
+
+    // ============================================================
     // Tracking Session Service (new backend - port 4848)
     // ============================================================
     const sessionService = {
@@ -3187,6 +3368,7 @@
         instructorDashboardService,
         instructorCourseManagementService,
         flagService,
+        teamService,
     });
 
     console.log('[NibrasServices] Initialized. Available as window.NibrasServices');
