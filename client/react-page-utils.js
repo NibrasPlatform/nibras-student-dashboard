@@ -1082,7 +1082,7 @@
 
                 if (isStaff && text === 'Projects') {
                     var href = link.getAttribute('href');
-                    if (href && href.endsWith('projects.html')) {
+                    if (href && href.split('/').pop() === 'projects.html') {
                         link.setAttribute('href', href.replace('projects.html', 'instructor-projects.html'));
                     }
                 }
