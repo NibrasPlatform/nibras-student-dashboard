@@ -7,6 +7,9 @@
     var activeCourseData = null;
     var projects = [];
     var submissions = [];
+    var demoProjects = [];
+    var demoProjectIdCounter = 0;
+    var editingProjectId = null;
 
     /* ── Helpers ─────────────────────────────────────── */
 
@@ -224,15 +227,29 @@
 
     async function loadProjects(courseId) {
         var listEl = document.getElementById('project-list');
+        // Load from backend (existing assignments)
         try {
             var resp = await S.backendCoursesService.getAssignments(courseId);
             var raw = resp && (resp.data || resp);
             projects = Array.isArray(raw) ? raw : (raw && Array.isArray(raw.items) ? raw.items : []);
-            renderProjects();
         } catch (err) {
             projects = [];
-            listEl.innerHTML = '<div class="inst-proj-empty"><i class="fa-solid fa-circle-exclamation"></i><p>Could not load projects.</p></div>';
         }
+        // Merge with locally-stored Phase 7 demo projects
+        var courseDemo = demoProjects.filter(function (p) { return p.courseId === courseId; });
+        if (courseDemo.length) {
+            // Prepend demo projects (newest first)
+            courseDemo.reverse();
+            courseDemo.forEach(function (dp) {
+                // Avoid duplicates by id
+                var dup = false;
+                for (var i = 0; i < projects.length; i++) {
+                    if ((projects[i]._id || projects[i].id) === (dp._id || dp.id)) { dup = true; break; }
+                }
+                if (!dup) projects.unshift(dp);
+            });
+        }
+        renderProjects();
     }
 
     async function loadSubmissions(courseId) {
@@ -266,9 +283,9 @@
             var pid = p._id || p.id || '';
             var ptitle = p.title || 'Untitled';
             var pstatus = (p.status || 'draft').toLowerCase();
-            var dueDate = p.dueDate ? formatDate(p.dueDate) : 'No due date';
-            var maxScore = p.maxScore || 100;
-            var deliveryMode = p.deliveryMode || 'individual';
+            var dueDate = p.dueDate ? formatDate(p.dueDate) : (p.endDate ? formatDate(p.endDate) : 'No due date');
+            var maxScore = p.maxScore || p.points || 100;
+            var teamSize = p.teamSize || 0;
             var statusClass = getStatusClass(pstatus);
 
             return '<div class="inst-proj-row" data-id="' + pid + '">'
@@ -278,7 +295,7 @@
                 + '<div class="inst-proj-meta">'
                 + '<span><i class="fa-regular fa-calendar"></i> ' + dueDate + '</span>'
                 + '<span><i class="fa-solid fa-star"></i> ' + maxScore + ' pts</span>'
-                + '<span><i class="fa-solid fa-user"></i> ' + deliveryMode + '</span>'
+                + '<span><i class="fa-solid fa-user"></i> ' + (teamSize > 0 ? 'Team: ' + teamSize : 'Individual') + '</span>'
                 + '</div></div>'
                 + '<div class="inst-proj-actions">'
                 + '<button class="inst-proj-action-btn" data-action="edit" data-id="' + pid + '" title="Edit"><i class="fa-solid fa-pen"></i></button>'
@@ -373,29 +390,75 @@
         }
     }
 
-    /* ── Create Project ─────────────────────────────── */
+    /* ── Create / Edit Project ──────────────────────── */
 
     function openCreateModal() {
+        editingProjectId = null;
+        document.getElementById('project-modal-title').textContent = 'Create Project';
+        document.getElementById('submit-create-btn').textContent = 'Create Project';
+        resetProjectForm();
         document.getElementById('create-project-modal').style.display = 'flex';
         document.getElementById('create-project-error').style.display = 'none';
     }
 
-    function closeCreateModal() {
-        document.getElementById('create-project-modal').style.display = 'none';
+    function openEditModal(projectId) {
+        var p = findDemoProject(projectId) || projects.find(function (x) { return (x._id || x.id) === projectId; });
+        if (!p) { alert('Project not found.'); return; }
+
+        editingProjectId = projectId;
+        document.getElementById('project-modal-title').textContent = 'Edit Project';
+        document.getElementById('submit-create-btn').textContent = 'Update Project';
+        document.getElementById('create-project-error').style.display = 'none';
+
+        document.getElementById('edit-project-id').value = projectId;
+        document.getElementById('project-title').value = p.title || '';
+        document.getElementById('project-description').value = p.description || '';
+        document.getElementById('project-start').value = p.startDate ? p.startDate.slice(0, 10) : '';
+        document.getElementById('project-end').value = p.endDate ? p.endDate.slice(0, 10) : '';
+        document.getElementById('project-status').value = p.status || 'active';
+        document.getElementById('project-max-score').value = p.maxScore || p.points || 100;
+        document.getElementById('project-team-size').value = p.teamSize || 0;
+        document.getElementById('project-repo-url').value = p.repoUrl || '';
+
+        var milestoneContainer = document.getElementById('milestones-container');
+        milestoneContainer.innerHTML = '';
+        var ms = p.milestones || [];
+        if (ms.length) {
+            ms.forEach(function (m) { addMilestoneRow(m); });
+        } else {
+            addMilestoneRow();
+        }
+
+        document.getElementById('create-project-modal').style.display = 'flex';
+    }
+
+    function resetProjectForm() {
+        editingProjectId = null;
+        document.getElementById('edit-project-id').value = '';
         document.getElementById('create-project-form').reset();
+        document.getElementById('project-status').value = 'active';
+        document.getElementById('project-max-score').value = 100;
+        document.getElementById('project-team-size').value = 0;
         document.getElementById('milestones-container').innerHTML = '';
         document.getElementById('rubric-container').innerHTML = '';
         document.getElementById('resources-container').innerHTML = '';
     }
 
-    function addMilestoneRow() {
+    function closeCreateModal() {
+        document.getElementById('create-project-modal').style.display = 'none';
+        resetProjectForm();
+    }
+
+    function addMilestoneRow(data) {
         var container = document.getElementById('milestones-container');
         if (!container) return;
         var div = document.createElement('div');
-        div.className = 'dynamic-row';
-        div.innerHTML = '<input type="text" class="milestone-title" placeholder="Milestone title" style="flex:2;">'
-            + '<input type="date" class="milestone-due" style="flex:1;">'
-            + '<label class="milestone-final-label"><input type="checkbox" class="milestone-final"> Final</label>'
+        div.className = 'dynamic-row ms-row-full';
+        div.innerHTML = '<input type="text" class="milestone-title" placeholder="Title" value="' + escapeHtml(data?.title || '') + '" style="flex:2;min-width:100px;">'
+            + '<input type="text" class="milestone-desc" placeholder="Description" value="' + escapeHtml(data?.description || '') + '" style="flex:2;min-width:100px;">'
+            + '<input type="number" class="milestone-weight" placeholder="Wt %" value="' + (data?.weight || 0) + '" min="0" max="100" style="width:55px;">'
+            + '<input type="date" class="milestone-due" value="' + (data?.dueDate ? data.dueDate.slice(0, 10) : '') + '" style="flex:0 0 130px;">'
+            + '<label class="milestone-final-label"><input type="checkbox" class="milestone-final"' + (data?.isFinal ? ' checked' : '') + '> Final</label>'
             + '<button type="button" class="btn-remove-row" title="Remove milestone">&times;</button>';
         container.appendChild(div);
     }
@@ -423,12 +486,22 @@
         container.appendChild(div);
     }
 
+    function findDemoProject(id) {
+        for (var i = 0; i < demoProjects.length; i++) {
+            if ((demoProjects[i]._id || demoProjects[i].id) === id) return demoProjects[i];
+        }
+        return null;
+    }
+
     async function handleCreateProject() {
         var title = document.getElementById('project-title').value.trim();
         var description = document.getElementById('project-description').value.trim();
-        var dueDate = document.getElementById('project-due').value;
+        var startDate = document.getElementById('project-start').value;
+        var endDate = document.getElementById('project-end').value;
+        var status = document.getElementById('project-status').value;
         var maxScore = parseInt(document.getElementById('project-max-score').value) || 100;
-        var deliveryMode = document.getElementById('project-delivery').value;
+        var teamSize = parseInt(document.getElementById('project-team-size').value) || 0;
+        var repoUrl = document.getElementById('project-repo-url').value.trim();
         var errorEl = document.getElementById('create-project-error');
 
         if (!title) {
@@ -442,20 +515,20 @@
             return;
         }
 
-        var milestoneTitles = document.querySelectorAll('.milestone-title');
-        var milestoneDues = document.querySelectorAll('.milestone-due');
-        var milestoneFinals = document.querySelectorAll('.milestone-final');
+        var milestoneRows = document.querySelectorAll('#milestones-container .dynamic-row');
         var milestones = [];
-        for (var i = 0; i < milestoneTitles.length; i++) {
-            var mt = milestoneTitles[i].value.trim();
+        milestoneRows.forEach(function (row) {
+            var mt = row.querySelector('.milestone-title')?.value?.trim();
             if (mt) {
                 milestones.push({
                     title: mt,
-                    dueAt: milestoneDues[i] ? milestoneDues[i].value || null : null,
-                    isFinal: milestoneFinals[i] ? milestoneFinals[i].checked : false,
+                    description: row.querySelector('.milestone-desc')?.value?.trim() || '',
+                    weight: parseFloat(row.querySelector('.milestone-weight')?.value) || 0,
+                    dueDate: row.querySelector('.milestone-due')?.value || null,
+                    isFinal: row.querySelector('.milestone-final')?.checked || false,
                 });
             }
-        }
+        });
 
         var rubricCriteria = document.querySelectorAll('.rubric-criterion');
         var rubricScores = document.querySelectorAll('.rubric-score');
@@ -481,9 +554,50 @@
 
         var submitBtn = document.getElementById('submit-create-btn');
         submitBtn.disabled = true;
-        submitBtn.textContent = 'Creating...';
         errorEl.style.display = 'none';
 
+        var isEditing = editingProjectId !== null;
+
+        // Store locally as demo Phase 7 data
+        var now = new Date().toISOString();
+        if (isEditing) {
+            var existing = findDemoProject(editingProjectId);
+            if (existing) {
+                existing.title = title;
+                existing.description = description;
+                existing.startDate = startDate || null;
+                existing.endDate = endDate || null;
+                existing.status = status;
+                existing.maxScore = maxScore;
+                existing.teamSize = teamSize;
+                existing.repoUrl = repoUrl || '';
+                existing.milestones = milestones;
+                existing.updatedAt = now;
+            }
+        } else {
+            var newProject = {
+                _id: 'demo-pj-' + (++demoProjectIdCounter),
+                id: 'demo-pj-' + demoProjectIdCounter,
+                courseId: activeCourseId,
+                title: title,
+                description: description,
+                startDate: startDate || null,
+                endDate: endDate || null,
+                status: status,
+                maxScore: maxScore,
+                teamSize: teamSize,
+                repoUrl: repoUrl || '',
+                milestones: milestones,
+                createdBy: (getUser()._id || getUser().id) || 'unknown',
+                createdAt: now,
+                updatedAt: now,
+            };
+            demoProjects.push(newProject);
+        }
+
+        submitBtn.textContent = isEditing ? 'Updating...' : 'Creating...';
+
+        // Try existing backend (old /assignments endpoint) for backward compatibility
         try {
             await apiFetch('/assignments', {
                 service: 'admin',
@@ -493,38 +607,43 @@
                     title: title,
                     courseId: activeCourseId,
                     description: description || undefined,
-                    dueDate: dueDate || undefined,
+                    dueDate: endDate || undefined,
                     maxScore: maxScore,
                 },
             });
-
-            closeCreateModal();
-            await loadProjects(activeCourseId);
-            updateStats();
-        } catch (err) {
-            errorEl.textContent = err.message || 'Failed to create project.';
-            errorEl.style.display = '';
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Create Project';
+        } catch (_) {
+            // Old backend may not be running — not an error
         }
-    }
 
-    /* ── Delete Project ─────────────────────────────── */
+        closeCreateModal();
+        await loadProjects(activeCourseId);
+        updateStats();
+
+        submitBtn.disabled = false;
+        submitBtn.textContent = isEditing ? 'Update Project' : 'Create Project';
+    }
 
     async function handleDeleteProject(projectId) {
         if (!confirm('Delete this project? This cannot be undone.')) return;
+
+        // Remove from demo data
+        var idx = -1;
+        for (var i = 0; i < demoProjects.length; i++) {
+            if ((demoProjects[i]._id || demoProjects[i].id) === projectId) { idx = i; break; }
+        }
+        if (idx !== -1) demoProjects.splice(idx, 1);
+
+        // Try existing backend
         try {
             await apiFetch('/assignments/' + encodeURIComponent(projectId), {
                 service: 'admin',
                 method: 'DELETE',
                 auth: true,
             });
-            await loadProjects(activeCourseId);
-            updateStats();
-        } catch (err) {
-            alert('Failed to delete: ' + (err.message || 'Unknown error'));
-        }
+        } catch (_) {}
+
+        await loadProjects(activeCourseId);
+        updateStats();
     }
 
     /* ── Review Modal ───────────────────────────────── */
@@ -657,8 +776,9 @@
             if (actionBtn) {
                 var action = actionBtn.getAttribute('data-action');
                 var id = actionBtn.getAttribute('data-id');
-                if (action === 'edit') {
-                    alert('Edit coming soon. You can delete and recreate for now.');
+                if (action === 'edit' && id) {
+                    if (!activeCourseId) { alert('Select a course first.'); return; }
+                    openEditModal(id);
                     return;
                 }
                 if (action === 'delete' && id) {
@@ -1225,13 +1345,7 @@
     function seedDefaultRows() {
         var milestones = document.getElementById('milestones-container');
         if (milestones && !milestones.children.length) {
-            var div = document.createElement('div');
-            div.className = 'dynamic-row';
-            div.innerHTML = '<input type="text" class="milestone-title" placeholder="Milestone title" style="flex:2;">'
-                + '<input type="date" class="milestone-due" style="flex:1;">'
-                + '<label class="milestone-final-label"><input type="checkbox" class="milestone-final"> Final</label>'
-                + '<button type="button" class="btn-remove-row" title="Remove milestone">&times;</button>';
-            milestones.appendChild(div);
+            addMilestoneRow();
         }
         var rubric = document.getElementById('rubric-container');
         if (rubric && !rubric.children.length) {

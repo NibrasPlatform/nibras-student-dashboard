@@ -223,15 +223,17 @@
         </div>
     </main>
 
-    <!-- Create Project Modal -->
+    <!-- Create / Edit Project Modal -->
     <div class="modal-overlay" id="create-project-modal" style="display:none;">
         <div class="modal-container modal-lg">
             <div class="modal-header">
-                <h2>Create Project</h2>
+                <h2 id="project-modal-title">Create Project</h2>
                 <button class="modal-close" id="close-create-modal">&times;</button>
             </div>
             <div class="modal-body">
                 <form id="create-project-form">
+                    <input type="hidden" id="edit-project-id">
+
                     <div class="form-section">
                         <div class="form-group">
                             <label for="project-title">Project Title</label>
@@ -243,19 +245,34 @@
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="project-due">Due Date</label>
-                                <input type="date" id="project-due">
+                                <label for="project-start">Start Date</label>
+                                <input type="date" id="project-start">
                             </div>
+                            <div class="form-group">
+                                <label for="project-end">End Date</label>
+                                <input type="date" id="project-end">
+                            </div>
+                            <div class="form-group">
+                                <label for="project-status">Status</label>
+                                <select id="project-status">
+                                    <option value="active">Active</option>
+                                    <option value="draft">Draft</option>
+                                    <option value="archived">Archived</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
                             <div class="form-group">
                                 <label for="project-max-score">Max Score</label>
                                 <input type="number" id="project-max-score" value="100" min="1" max="1000">
                             </div>
                             <div class="form-group">
-                                <label for="project-delivery">Delivery Mode</label>
-                                <select id="project-delivery">
-                                    <option value="individual">Individual</option>
-                                    <option value="team">Team</option>
-                                </select>
+                                <label for="project-team-size">Team Size</label>
+                                <input type="number" id="project-team-size" value="0" min="0" max="20" placeholder="0 = individual">
+                            </div>
+                            <div class="form-group">
+                                <label for="project-repo-url">GitHub Repo URL</label>
+                                <input type="url" id="project-repo-url" placeholder="https://github.com/org/repo">
                             </div>
                         </div>
                     </div>
