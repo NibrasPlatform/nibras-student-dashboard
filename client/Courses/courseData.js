@@ -84,6 +84,7 @@
         { code: "MATH 109", title: "Groups and Symmetry", category: "core" },
         { code: "MATH 110", title: "Number Theory for Cryptography", category: "core" },
         { code: "MATH 113", title: "Linear Algebra and Matrix Theory", category: "core" },
+        { code: "EE 102", title: "Introduction to Signals & Systems", category: "core" },
         { code: "ENGR 40M", title: "Making: Integrated Engineering", category: "elective" },
         { code: "ENGR 76", title: "Information Science & Engineering", category: "elective" },
         { code: "PHIL 251", title: "Metalogic (PHIL 251)", category: "core" },
@@ -255,6 +256,78 @@
         { title: "Power Series", videos: [{ title: "Lecture 29", youtubeId: "GJOJl47l2_4" }] },
         { title: "Taylor and Maclaurin Series", videos: [{ title: "Lecture 30", youtubeId: "BDmlottZVd4" }] },
         { title: "Parametric Equations and Polar Coordinates", videos: [{ title: "Lecture 31", youtubeId: "5Yuw1jCBq-0" }] },
+    ];
+
+    const engr40mMultiVideoLectures = [
+        { title: "Introduction and Lumped Abstraction", videos: [{ title: "Lecture 1", youtubeId: "AfQxyVuLeCs" }] },
+        { title: "Basic Circuit Analysis Method", videos: [{ title: "Lecture 2", youtubeId: "2vHGYdepKLw" }] },
+        { title: "Superposition, Thévenin and Norton", videos: [{ title: "Lecture 3", youtubeId: "RsJ1eg7XNVs" }] },
+        { title: "The Digital Abstraction", videos: [{ title: "Lecture 4", youtubeId: "4TCnYYpZxEc" }] },
+        { title: "Inside the Digital Gate", videos: [{ title: "Lecture 5", youtubeId: "v6vqWasIHaw" }] },
+        { title: "Nonlinear Analysis", videos: [{ title: "Lecture 6", youtubeId: "OGtElTMJidE" }] },
+        { title: "Incremental Analysis", videos: [{ title: "Lecture 7", youtubeId: "JqvKtMNz3RQ" }] },
+        { title: "Dependent Sources and Amplifiers", videos: [{ title: "Lecture 8", youtubeId: "bEJ0-8pANA9" }] },
+        { title: "MOSFET Amplifier Large Signal", videos: [{ title: "Part 1", youtubeId: "Nijya-QJ45Y" }, { title: "Part 2", youtubeId: "jURSAKBlIZA" }] },
+        { title: "Amplifiers - Small Signal Model", videos: [{ title: "Lecture 10", youtubeId: "9RqFFlZgf60" }] },
+        { title: "Small Signal Circuits", videos: [{ title: "Lecture 11", youtubeId: "R4KxlqsuZ0A" }] },
+        { title: "Capacitors and First-Order Systems", videos: [{ title: "Lecture 12", youtubeId: "COdQmA9g9S8" }] },
+        { title: "Digital Circuit Speed", videos: [{ title: "Lecture 13", youtubeId: "TXJIhDHtHSI" }] },
+        { title: "State and Memory", videos: [{ title: "Lecture 14", youtubeId: "bX8i2yECWaU" }] },
+        { title: "Second-Order Systems", videos: [{ title: "Part 1", youtubeId: "ypX20WnHNQw" }, { title: "Part 2", youtubeId: "-gRXU-O1FY4" }] },
+        { title: "Sinusoidal Steady State", videos: [{ title: "Lecture 16", youtubeId: "3GdMaDzIUeQ" }] },
+        { title: "The Impedance Model", videos: [{ title: "Lecture 17", youtubeId: "Km9YIdkc2Oo" }] },
+        { title: "Filters", videos: [{ title: "Lecture 18", youtubeId: "WT-qzgaKeGI" }] },
+        { title: "The Operational Amplifier Abstraction", videos: [{ title: "Lecture 19", youtubeId: "V0z_f7qxLcY" }] },
+        { title: "Operational Amplifier Circuits", videos: [{ title: "Lecture 20", youtubeId: "2SwT6JnfCq8" }] },
+        { title: "Op Amps Positive Feedback", videos: [{ title: "Lecture 21", youtubeId: "ke3SL_R92ys" }] },
+        { title: "Energy and Power", videos: [{ title: "Lecture 22", youtubeId: "wNuBD4PYWvs" }] },
+        { title: "Energy, CMOS", videos: [{ title: "Lecture 23", youtubeId: "JB2HgohNHYQ" }] },
+        { title: "Violating the Abstraction Barrier", videos: [{ title: "Lecture 25", youtubeId: "dyxcCoUgETU" }] },
+    ];
+
+    const engr76MultiVideoLectures = [
+        { title: "Bits and Codes", videos: [{ title: "Bits and Codes", bilibiliId: "BV1g64y1M7zR", page: 1 }] },
+        { title: "Compression", videos: [{ title: "Compression", bilibiliId: "BV1g64y1M7zR", page: 2 }] },
+        { title: "Noise and Errors", videos: [{ title: "Noise and Errors", bilibiliId: "BV1g64y1M7zR", page: 3 }] },
+        { title: "Probability 1", videos: [{ title: "Probability 1", bilibiliId: "BV1g64y1M7zR", page: 4 }] },
+        { title: "Probability 2", videos: [{ title: "Probability 2", bilibiliId: "BV1g64y1M7zR", page: 5 }] },
+        { title: "Communications 1", videos: [{ title: "Communications 1", bilibiliId: "BV1g64y1M7zR", page: 6 }] },
+        { title: "Communications 2", videos: [{ title: "Communications 2", bilibiliId: "BV1g64y1M7zR", page: 7 }] },
+        { title: "Processes", videos: [{ title: "Processes", bilibiliId: "BV1g64y1M7zR", page: 8 }] },
+        { title: "Inference 1", videos: [{ title: "Inference 1", bilibiliId: "BV1g64y1M7zR", page: 9 }] },
+        { title: "Inference 2", videos: [{ title: "Inference 2", bilibiliId: "BV1g64y1M7zR", page: 10 }] },
+        { title: "Maximum Entropy 1", videos: [{ title: "Maximum Entropy 1", bilibiliId: "BV1g64y1M7zR", page: 11 }] },
+        { title: "Maximum Entropy 2", videos: [{ title: "Maximum Entropy 2", bilibiliId: "BV1g64y1M7zR", page: 12 }] },
+        { title: "Physical Systems", videos: [{ title: "Physical Systems", bilibiliId: "BV1g64y1M7zR", page: 13 }] },
+        { title: "Energy 1", videos: [{ title: "Energy 1", bilibiliId: "BV1g64y1M7zR", page: 14 }] },
+        { title: "Energy 2", videos: [{ title: "Energy 2", bilibiliId: "BV1g64y1M7zR", page: 15 }] },
+        { title: "Temperature 1", videos: [{ title: "Temperature 1", bilibiliId: "BV1g64y1M7zR", page: 16 }] },
+        { title: "Temperature 2", videos: [{ title: "Temperature 2", bilibiliId: "BV1g64y1M7zR", page: 17 }] },
+        { title: "Quantum Information", videos: [{ title: "Quantum Information", bilibiliId: "BV1g64y1M7zR", page: 18 }] },
+    ];
+
+    const ee102MultiVideoLectures = [
+        { title: "Lecture 1", videos: [{ title: "Lecture 1", youtubeId: "9gPuUVYImiQ" }] },
+        { title: "Lecture 2", videos: [{ title: "Lecture 2", youtubeId: "IVGPGQ8WRoo" }] },
+        { title: "Lecture 3", videos: [{ title: "Lecture 3", youtubeId: "dBu6dSWXeGk" }] },
+        { title: "Lecture 4", videos: [{ title: "Lecture 4", youtubeId: "re7NLEqYjHA" }] },
+        { title: "Lecture 5", videos: [{ title: "Lecture 5", youtubeId: "b8Xz9CRJ-es" }] },
+        { title: "Lecture 7", videos: [{ title: "Lecture 7", youtubeId: "ymr7950ygdM" }] },
+        { title: "Lecture 9", videos: [{ title: "Lecture 9", youtubeId: "88mup0b5c0U" }] },
+        { title: "Lecture 10", videos: [{ title: "Lecture 10", youtubeId: "I3DZM0rarTA" }] },
+        { title: "Lecture 11", videos: [{ title: "Lecture 11", youtubeId: "moAzNZo4bAE" }] },
+        { title: "Lecture 12", videos: [{ title: "Lecture 12", youtubeId: "TlFmw0kjQ3c" }] },
+        { title: "Lecture 13", videos: [{ title: "Lecture 13", youtubeId: "b7MGTr1R_Sk" }] },
+        { title: "Lecture 14", videos: [{ title: "Lecture 14", youtubeId: "TutXtjvzgh0" }] },
+        { title: "Lecture 16", videos: [{ title: "Lecture 16", youtubeId: "f3PbDgLOIpk" }] },
+        { title: "Lecture 17", videos: [{ title: "Lecture 17", youtubeId: "-nDH8aSWaUM" }] },
+        { title: "Lecture 18", videos: [{ title: "Lecture 18", youtubeId: "mtOf7vYK8YU" }] },
+        { title: "Lecture 19", videos: [{ title: "Lecture 19", youtubeId: "XANTFFndQRY" }] },
+        { title: "Lecture 20", videos: [{ title: "Lecture 20", youtubeId: "NBIFWCbfZQ4" }] },
+        { title: "Lecture 23", videos: [{ title: "Lecture 23", youtubeId: "A90nje5JJuA" }] },
+        { title: "Lecture 24", videos: [{ title: "Lecture 24", youtubeId: "csL9VxDHPMg" }] },
+        { title: "Lecture 25", videos: [{ title: "Lecture 25", youtubeId: "QZEmtRdf6ww" }] },
+        { title: "Lecture 26", videos: [{ title: "Lecture 26", youtubeId: "GKYFFofkELA" }] },
     ];
 
     const math19MultiVideoLectures = [
@@ -1087,6 +1160,100 @@
         });
     }
 
+    function buildEngr40mLessons(meta, completedLessons) {
+        return engr40mMultiVideoLectures.map((lecture, lectureIndex) => {
+            const lectureNumber = lectureIndex + 1;
+            const lessonId = `${meta.id}-lecture-${lectureNumber}`;
+            const isCompleted = false;
+            const isOpen = lectureNumber <= Math.max(completedLessons + 1, 3);
+            const videoItems = lecture.videos.map((video, videoIndex) => ({
+                id: `${lessonId}-video-${videoIndex + 1}`,
+                title: video.title,
+                duration: `${50 + ((lectureIndex + videoIndex) % 20)}:00`,
+                sourceType: "youtube",
+                youtube: `https://www.youtube.com/embed/${video.youtubeId}`,
+            }));
+
+            return {
+                id: lessonId,
+                title: `Lecture ${lectureNumber}: ${lecture.title}`,
+                duration: `${videoItems.length} video`,
+                completed: isCompleted,
+                locked: !isOpen,
+                videoItems,
+                activeVideoItemId: videoItems[0]?.id || "",
+                videoSources: {
+                    youtube: videoItems[0]?.youtube || "",
+                    html5: "",
+                },
+                captions: { en: null },
+            };
+        });
+    }
+
+    function buildEngr76Lessons(meta, completedLessons) {
+        return engr76MultiVideoLectures.map((lecture, lectureIndex) => {
+            const lectureNumber = lectureIndex + 1;
+            const lessonId = `${meta.id}-lecture-${lectureNumber}`;
+            const isCompleted = false;
+            const isOpen = lectureNumber <= Math.max(completedLessons + 1, 3);
+            const videoItems = lecture.videos.map((video, videoIndex) => ({
+                id: `${lessonId}-video-${videoIndex + 1}`,
+                title: video.title,
+                duration: `${45 + ((lectureIndex + videoIndex) % 10)}:00`,
+                sourceType: "bilibili",
+                bilibili: `https://player.bilibili.com/player.html?bvid=${video.bilibiliId}&page=${video.page}`,
+            }));
+
+            return {
+                id: lessonId,
+                title: `Lecture ${lectureNumber}: ${lecture.title}`,
+                duration: `${videoItems.length} video`,
+                completed: isCompleted,
+                locked: !isOpen,
+                videoItems,
+                activeVideoItemId: videoItems[0]?.id || "",
+                videoSources: {
+                    youtube: "",
+                    html5: "",
+                    bilibili: videoItems[0]?.bilibili || "",
+                },
+                captions: { en: null },
+            };
+        });
+    }
+
+    function buildEe102Lessons(meta, completedLessons) {
+        return ee102MultiVideoLectures.map((lecture, lectureIndex) => {
+            const lectureNumber = lectureIndex + 1;
+            const lessonId = `${meta.id}-lecture-${lectureNumber}`;
+            const isCompleted = false;
+            const isOpen = lectureNumber <= Math.max(completedLessons + 1, 3);
+            const videoItems = lecture.videos.map((video, videoIndex) => ({
+                id: `${lessonId}-video-${videoIndex + 1}`,
+                title: video.title,
+                duration: `${45 + ((lectureIndex + videoIndex) % 10)}:00`,
+                sourceType: "youtube",
+                youtube: `https://www.youtube.com/embed/${video.youtubeId}`,
+            }));
+
+            return {
+                id: lessonId,
+                title: `Lecture ${lectureNumber}: ${lecture.title}`,
+                duration: `${videoItems.length} video`,
+                completed: isCompleted,
+                locked: !isOpen,
+                videoItems,
+                activeVideoItemId: videoItems[0]?.id || "",
+                videoSources: {
+                    youtube: videoItems[0]?.youtube || "",
+                    html5: "",
+                },
+                captions: { en: null },
+            };
+        });
+    }
+
     function buildMath19Lessons(meta, completedLessons) {
         return math19MultiVideoLectures.map((lecture, lectureIndex) => {
             const lectureNumber = lectureIndex + 1;
@@ -1708,6 +1875,9 @@
             "cs-161-design-analysis-of-algorithms": cs161PlaylistA_BlackboardLectures.length,
             "cs-294-research-project-in-computer-science": cs294MultiVideoLectures.length,
             "cs-109-probability-for-computer-scientists-theory-of-probability": cs109MultiVideoLectures.length,
+            "engr-40m-making-integrated-engineering": engr40mMultiVideoLectures.length,
+            "engr-76-information-science-engineering": engr76MultiVideoLectures.length,
+            "ee-102-introduction-to-signals-systems": ee102MultiVideoLectures.length,
             "phys-41-introductory-mechanics-course-classical-mechanics": phys41MultiVideoLectures.length,
             "phys-43-electricity-and-magnetism": phys43MultiVideoLectures.length,
             "bio-biology": bioMultiVideoLectures.length,
@@ -1752,7 +1922,13 @@
                                                                 ? buildCS161LessonsPlaylistA(meta, completedLectures)
                                                                 : meta.id === "cs-109-probability-for-computer-scientists-theory-of-probability"
                                                                     ? buildCs109Lessons(meta, completedLectures)
-                                                                    : meta.id === "phys-41-introductory-mechanics-course-classical-mechanics"
+                                                                     : meta.id === "engr-40m-making-integrated-engineering"
+                                                                        ? buildEngr40mLessons(meta, completedLectures)
+                                                                      : meta.id === "engr-76-information-science-engineering"
+                                                                         ? buildEngr76Lessons(meta, completedLectures)
+                                                                      : meta.id === "ee-102-introduction-to-signals-systems"
+                                                                         ? buildEe102Lessons(meta, completedLectures)
+                                                                     : meta.id === "phys-41-introductory-mechanics-course-classical-mechanics"
                                                                         ? buildPhys41Lessons(meta, completedLectures)
                                                                         : meta.id === "phys-43-electricity-and-magnetism"
                                                                             ? buildPhys43Lessons(meta, completedLectures)
