@@ -224,7 +224,11 @@
                 var courseId = btn.getAttribute('data-id');
                 if (courseId) {
                     localStorage.setItem('selectedCourseId', courseId);
-                    window.location.href = '../Courses/Course%20Description/courseContent.html?courseId=' + encodeURIComponent(courseId);
+                    var isGradeBtn = btn.classList.contains('inst-grade-btn');
+                    var target = isGradeBtn
+                        ? '../Admin/Grading/grading.html?courseId=' + encodeURIComponent(courseId)
+                        : '../Courses/Course%20Description/courseContent.html?courseId=' + encodeURIComponent(courseId);
+                    window.location.href = target;
                 }
             }
 
