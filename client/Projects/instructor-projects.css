@@ -883,3 +883,528 @@
     background: var(--accent-blue-hover, #1d4ed8);
     color: #fff;
 }
+
+/* ── Tab Bar ──────────────────────────────────────────── */
+.tab-bar {
+    display: flex;
+    gap: 0;
+    margin-bottom: 1.25rem;
+    border-bottom: 2px solid var(--border-color);
+    background: var(--bg-card);
+    border-radius: 8px 8px 0 0;
+    overflow: hidden;
+}
+.tab-btn {
+    padding: 0.7rem 1.5rem;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.tab-btn:hover {
+    color: var(--text-primary);
+    background: var(--tag-bg);
+}
+.tab-btn.active {
+    color: var(--accent-blue);
+    border-bottom-color: var(--accent-blue);
+    background: transparent;
+}
+.tab-panel {
+    display: none;
+}
+.tab-panel.active {
+    display: block;
+}
+
+/* ── Grading Tab Overrides ──────────────────────────── */
+#tab-grading .selector-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+    padding: 0.75rem 1rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+}
+#tab-grading .selector-bar label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+#tab-grading .selector-bar select {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    outline: none;
+}
+#tab-grading .selector-bar select:focus {
+    border-color: var(--accent-blue);
+}
+#tab-grading .course-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+#tab-grading .grade-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+#tab-grading .grade-stats .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+#tab-grading .grade-stats .stat-label {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+#tab-grading .grade-stats .stat-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+#tab-grading .table-wrapper {
+    overflow-x: auto;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0;
+    margin-bottom: 1rem;
+}
+#tab-grading .submissions-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+#tab-grading .submissions-table th {
+    text-align: left;
+    padding: 0.65rem 0.75rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-body);
+}
+#tab-grading .submissions-table td {
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+}
+#tab-grading .submissions-table tr:last-child td {
+    border-bottom: none;
+}
+#tab-grading .team-name {
+    font-weight: 600;
+}
+
+#tab-grading .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 3rem 1rem;
+    text-align: center;
+    color: var(--text-secondary);
+}
+#tab-grading .empty-state i {
+    font-size: 2.5rem;
+    color: var(--text-tertiary);
+}
+
+/* ── Grading Modal (within projects page) ────────────── */
+#grade-detail-modal .modal-wide {
+    max-width: 800px;
+}
+#grade-detail-modal .detail-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: 1.25rem;
+}
+#grade-detail-modal .detail-tab {
+    padding: 0.6rem 1.25rem;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.2s ease;
+}
+#grade-detail-modal .detail-tab:hover {
+    color: var(--text-primary);
+    background: var(--tag-bg);
+}
+#grade-detail-modal .detail-tab.active {
+    color: var(--accent-blue);
+    border-bottom-color: var(--accent-blue);
+}
+#grade-detail-modal .detail-panel {
+    display: none;
+}
+#grade-detail-modal .detail-panel.active {
+    display: block;
+}
+
+#grade-detail-modal .milestone-progress {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+}
+#grade-detail-modal .milestone-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+#grade-detail-modal .milestone-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--bg-body);
+}
+#grade-detail-modal .milestone-item.ms-complete {
+    border-color: rgba(52, 211, 153, 0.25);
+}
+#grade-detail-modal .milestone-item.ms-pending {
+    opacity: 0.7;
+}
+#grade-detail-modal .ms-icon {
+    font-size: 1rem;
+    color: var(--text-secondary);
+}
+#grade-detail-modal .ms-complete .ms-icon {
+    color: #16a34a;
+}
+#grade-detail-modal .ms-info {
+    flex: 1;
+}
+#grade-detail-modal .ms-info strong {
+    display: block;
+    font-size: 0.85rem;
+}
+#grade-detail-modal .ms-weight {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+#grade-detail-modal .ms-score {
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+#grade-detail-modal .panel-hint {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+}
+#grade-detail-modal .contrib-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+#grade-detail-modal .contrib-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+#grade-detail-modal .contrib-name {
+    width: 120px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    flex-shrink: 0;
+}
+#grade-detail-modal .contrib-bar-track {
+    flex: 1;
+    height: 20px;
+    background: var(--progress-bg);
+    border-radius: 10px;
+    overflow: hidden;
+}
+#grade-detail-modal .contrib-bar-fill {
+    height: 100%;
+    background: var(--accent-blue);
+    border-radius: 10px;
+    transition: width 0.3s ease;
+}
+#grade-detail-modal .contrib-pct {
+    width: 40px;
+    text-align: right;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+#grade-detail-modal .contrib-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+}
+#grade-detail-modal .contrib-table th,
+#grade-detail-modal .contrib-table td {
+    padding: 0.4rem 0.6rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+#grade-detail-modal .contrib-table th {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+}
+#grade-detail-modal .adjust-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+#grade-detail-modal .adjust-row label {
+    width: 120px;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+}
+#grade-detail-modal .adjust-slider {
+    flex: 1;
+}
+#grade-detail-modal .adjust-input {
+    width: 60px;
+}
+#grade-detail-modal .adjust-pct {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+#grade-detail-modal .team-members {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+#grade-detail-modal .team-member-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.75rem;
+    background: var(--tag-bg);
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+#grade-detail-modal .github-link {
+    font-size: 0.85rem;
+}
+#grade-detail-modal .github-link a {
+    color: var(--accent-blue);
+    text-decoration: none;
+}
+#grade-detail-modal .github-link a:hover {
+    text-decoration: underline;
+}
+#grade-detail-modal .commit-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+#grade-detail-modal .commit-item {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+}
+#grade-detail-modal .commit-message {
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 0.15rem;
+}
+#grade-detail-modal .commit-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+#grade-detail-modal .panel-section-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+#grade-detail-modal .weighted-row {
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+#grade-detail-modal .weighted-top {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.35rem;
+}
+#grade-detail-modal .weighted-name {
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+#grade-detail-modal .weighted-pct {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+#grade-detail-modal .weighted-input-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+#grade-detail-modal .weighted-input-row label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+#grade-detail-modal .weighted-score-input {
+    width: 70px;
+    padding: 0.3rem 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    text-align: center;
+    outline: none;
+}
+#grade-detail-modal .weighted-score-input:focus {
+    border-color: var(--accent-blue);
+}
+#grade-detail-modal .weighted-max {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+#grade-detail-modal .weighted-contribution {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-left: auto;
+}
+#grade-detail-modal .grade-total {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 2px solid var(--border-color);
+}
+#grade-detail-modal .feedback-textarea {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    resize: vertical;
+    outline: none;
+    font-family: inherit;
+}
+#grade-detail-modal .feedback-textarea:focus {
+    border-color: var(--accent-blue);
+}
+#grade-detail-modal .primary-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 1.25rem;
+    border: none;
+    background: var(--accent-blue);
+    color: #fff;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+#grade-detail-modal .primary-btn:hover {
+    background: var(--accent-blue-hover, #1d4ed8);
+}
+#grade-detail-modal .form-status {
+    display: inline-block;
+    margin-left: 0.75rem;
+    font-size: 0.8rem;
+}
+#grade-detail-modal .form-status-success {
+    color: #16a34a;
+}
+#grade-detail-modal .form-status-error {
+    color: #dc2626;
+}
+#grade-detail-modal .form-status-info {
+    color: var(--accent-blue);
+}
+#grade-detail-modal .empty-hint {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    padding: 0.5rem 0;
+}
+
+/* ── Status Badges (for grading tab) ─────────────────── */
+#tab-grading .status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+#tab-grading .status-badge.status-pending {
+    background: rgba(251, 191, 36, 0.12);
+    border: 1px solid rgba(251, 191, 36, 0.25);
+    color: #b45309;
+}
+#tab-grading .status-badge.status-evaluated {
+    background: rgba(52, 211, 153, 0.12);
+    border: 1px solid rgba(52, 211, 153, 0.25);
+    color: #16a34a;
+}
+#tab-grading .status-badge.status-graded {
+    background: rgba(37, 99, 235, 0.12);
+    border: 1px solid rgba(37, 99, 235, 0.25);
+    color: #2563eb;
+}
+
+#tab-grading .grade-action-btn {
+    padding: 0.35rem 0.75rem;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--accent-blue);
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+#tab-grading .grade-action-btn:hover {
+    background: var(--accent-blue);
+    color: #fff;
+    border-color: var(--accent-blue);
+}

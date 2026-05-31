@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="./projects.css">
     <link rel="stylesheet" href="./instructor-projects.css">
+    <link rel="stylesheet" href="../Admin/ProjectGrading/project-grading.css">
 </head>
 <body>
     <div id="app-root" hidden></div>
@@ -83,6 +84,15 @@
                     <button class="inst-primary-btn" id="btn-new-project"><i class="fa-solid fa-plus"></i> New Project</button>
                 </div>
             </div>
+
+            <!-- Tab Bar -->
+            <div class="tab-bar">
+                <button class="tab-btn active" data-tab="projects"><i class="fa-solid fa-diagram-project"></i> Projects</button>
+                <button class="tab-btn" data-tab="grading"><i class="fa-solid fa-check-double"></i> Grading</button>
+            </div>
+
+            <!-- Projects Tab -->
+            <div id="tab-projects" class="tab-panel active">
 
             <!-- Course Selector Bar -->
             <div class="inst-proj-selector-bar">
@@ -165,6 +175,51 @@
                     </table>
                 </div>
             </section>
+            </div><!-- /tab-projects -->
+
+            <!-- Grading Tab -->
+            <div id="tab-grading" class="tab-panel">
+
+                <!-- Project Selector -->
+                <div class="selector-bar">
+                    <label for="grade-project-select">Project:</label>
+                    <select id="grade-project-select" class="assignment-select">
+                        <option value="">— Select a project —</option>
+                    </select>
+                    <span id="grade-course-subtitle" class="course-label">Select a course on the Projects tab first.</span>
+                </div>
+
+                <!-- Stats -->
+                <div class="grade-stats" id="grade-stats" style="display:none">
+                    <div class="stat-card"><span class="stat-label">Total Teams</span><span class="stat-value" id="stat-total">0</span></div>
+                    <div class="stat-card"><span class="stat-label">Graded</span><span class="stat-value" id="stat-graded">0</span></div>
+                    <div class="stat-card"><span class="stat-label">Pending</span><span class="stat-value" id="stat-pending">0</span></div>
+                    <div class="stat-card"><span class="stat-label">Avg Score</span><span class="stat-value" id="stat-avg">--</span></div>
+                </div>
+
+                <!-- Submissions Table -->
+                <div class="table-wrapper" id="grade-table-wrapper" style="display:none">
+                    <table class="submissions-table">
+                        <thead>
+                            <tr>
+                                <th>Team / Student</th>
+                                <th>Members</th>
+                                <th>Milestones</th>
+                                <th>Status</th>
+                                <th>Score</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="grade-submissions-body"></tbody>
+                    </table>
+                </div>
+
+                <div id="grade-empty-state" class="empty-state" style="display:block">
+                    <i class="fa-solid fa-diagram-project"></i>
+                    <p>Select a project to view submissions.</p>
+                </div>
+            </div><!-- /tab-grading -->
+
         </div>
     </main>
 
@@ -285,6 +340,63 @@
             <div class="modal-footer">
                 <button class="inst-action-btn inst-view-btn" id="cancel-review-btn">Cancel</button>
                 <button class="inst-primary-btn" id="submit-review-btn">Submit Review</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grading Detail Modal -->
+    <div id="grade-detail-modal" class="modal-overlay" style="display:none">
+        <div class="modal-content modal-wide">
+            <div class="modal-header">
+                <h2 id="detail-team-name">Submission</h2>
+                <button class="modal-close" id="grade-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-tabs">
+                    <button class="detail-tab active" data-tab="milestones"><i class="fa-solid fa-flag-checkered"></i> Milestones</button>
+                    <button class="detail-tab" data-tab="contribution"><i class="fa-solid fa-chart-pie"></i> Contribution</button>
+                    <button class="detail-tab" data-tab="team"><i class="fa-solid fa-users"></i> Team</button>
+                    <button class="detail-tab" data-tab="grade"><i class="fa-solid fa-star"></i> Grade</button>
+                </div>
+
+                <div class="detail-panel active" id="grade-panel-milestones">
+                    <div class="milestone-progress" id="grade-milestone-progress">
+                        <span id="grade-ms-completed">0</span> / <span id="grade-ms-total">0</span> milestones completed
+                    </div>
+                    <div id="grade-milestone-list" class="milestone-list"></div>
+                </div>
+
+                <div class="detail-panel" id="grade-panel-contribution">
+                    <p class="panel-hint">Estimated contribution breakdown based on commit activity and milestone submissions.</p>
+                    <div id="grade-contribution-chart" class="contribution-chart"></div>
+                    <div id="grade-contribution-table" class="contribution-table-wrapper"></div>
+                    <div class="panel-actions" style="margin-top:1rem">
+                        <label class="adjust-label"><i class="fa-solid fa-sliders"></i> Adjust individual scores</label>
+                        <div id="grade-adjustment-inputs" class="adjustment-inputs"></div>
+                    </div>
+                </div>
+
+                <div class="detail-panel" id="grade-panel-team">
+                    <div id="grade-team-members" class="team-members"></div>
+                    <div class="panel-section-title" style="margin-top:1.5rem"><i class="fa-solid fa-code-branch"></i> GitHub Repo</div>
+                    <p id="grade-team-github-repo" class="github-link">No repo connected</p>
+                    <div class="panel-section-title" style="margin-top:1.5rem"><i class="fa-regular fa-clock"></i> Recent Commits</div>
+                    <div id="grade-team-commits" class="commit-list">
+                        <p class="empty-hint">No commits yet.</p>
+                    </div>
+                </div>
+
+                <div class="detail-panel" id="grade-panel-grade">
+                    <h3 class="panel-section-title"><i class="fa-solid fa-calculator"></i> Weighted Score</h3>
+                    <div id="grade-weighted-score-breakdown"></div>
+                    <div class="grade-total" id="grade-grade-total">Overall: 0 / 0 (0%)</div>
+
+                    <h3 class="panel-section-title" style="margin-top:1.5rem"><i class="fa-regular fa-comment"></i> Feedback</h3>
+                    <textarea id="grade-feedback-text" class="feedback-textarea" rows="4" placeholder="Write your feedback here..."></textarea>
+
+                    <button id="grade-btn-submit-grade" class="primary-btn" style="margin-top:1rem"><i class="fa-solid fa-floppy-disk"></i> Submit Grade</button>
+                    <span id="grade-grade-status" class="form-status"></span>
+                </div>
             </div>
         </div>
     </div>
