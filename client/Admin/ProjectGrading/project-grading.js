@@ -37,8 +37,6 @@
     function fixNavLinks() {
         var navCourse = document.querySelector('[data-nav-link="courseContent"]');
         if (navCourse && courseId) navCourse.href = '../../Courses/Course%20Description/courseContent.html?courseId=' + encodeURIComponent(courseId);
-        var navProjects = document.querySelector('[data-nav-link="projects"]');
-        if (navProjects && courseId) navProjects.href = '../ProjectBuilder/project-builder.html?courseId=' + encodeURIComponent(courseId);
         var navGrades = document.querySelector('[data-nav-link="grades"]');
         if (navGrades && courseId) navGrades.href = '../InstructorGrades/instructor-grades.html?courseId=' + encodeURIComponent(courseId);
     }
