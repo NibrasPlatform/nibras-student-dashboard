@@ -10,8 +10,17 @@ window.NibrasReact.run(function () {
 
     var statsContainer = document.getElementById('stats-container');
     var courseContainer = document.getElementById('courses-container');
+    var listView = document.getElementById('courses-list-view');
+    var detailView = document.getElementById('course-detail-view');
 
     var services = window.NibrasServices;
+    var coursesSummary = [];
+    var activeCharts = [];
+
+    function destroyCharts() {
+        activeCharts.forEach(function (c) { try { c.destroy(); } catch (_) {} });
+        activeCharts = [];
+    }
 
     function getUserId() {
         try {
@@ -27,7 +36,7 @@ window.NibrasReact.run(function () {
             var data = res && (res.data || res);
             if (!data) return;
 
-            var coursesSummary = data.coursesGradeSummary || [];
+            coursesSummary = data.coursesGradeSummary || [];
             var submissionSum = data.submissionSummary || {};
 
             var enrolled = coursesSummary.length;
@@ -66,8 +75,9 @@ window.NibrasReact.run(function () {
                     var status = c.status || 'not_started';
                     var statusLabel = status.replace('_', ' ').replace(/\b\w/g, function (l) { return l.toUpperCase(); });
 
-                    courseContainer.innerHTML += [
-                        '<div class="cm-item">',
+                    var item = document.createElement('div');
+                    item.className = 'cm-item cm-clickable';
+                    item.innerHTML = [
                         '<div class="cm-header">',
                         '<span class="cm-title">' + escapeHtml(title) + '</span>',
                         '<span class="cm-badge">' + escapeHtml(c.level || '') + '</span>',
@@ -77,14 +87,283 @@ window.NibrasReact.run(function () {
                         '<div class="cm-stat"><span class="cm-label">Grade</span><span class="cm-val">' + grade + '%</span></div>',
                         '<div class="cm-stat"><span class="cm-label">Status</span><span class="cm-val">' + statusLabel + '</span></div>',
                         '</div>',
-                        '</div>',
                     ].join('');
+                    item.addEventListener('click', function () { openCourseDetail(c); });
+                    courseContainer.appendChild(item);
                 });
             }
         }).catch(function () {
             statsContainer.innerHTML = '<p style="color:var(--text-secondary);padding:2rem;text-align:center;">Failed to load course data.</p>';
         });
     }
+
+    function openCourseDetail(course) {
+        if (!detailView || !listView) return;
+        destroyCharts();
+
+        listView.style.display = 'none';
+        detailView.style.display = 'block';
+
+        var title = course.title || course.courseCode || 'Course';
+        document.getElementById('detail-course-title').textContent = title;
+        document.getElementById('detail-course-subtitle').textContent = 'Detailed analytics for ' + title;
+
+        // Reset and show loading in all tabs
+        document.getElementById('detail-stats-container').innerHTML = '<p style="color:var(--text-secondary);padding:1rem;">Loading metrics...</p>';
+        document.getElementById('sections-container').innerHTML = '<p style="color:var(--text-secondary);padding:1rem;">Loading sections...</p>';
+        document.getElementById('assignments-container').innerHTML = '<tr><td colspan="4" style="color:var(--text-secondary);padding:1rem;text-align:center;">Loading assignments...</td></r>';
+
+        // Switch to overview tab
+        document.querySelectorAll('.detail-tab').forEach(function (t) { t.classList.remove('active'); });
+        document.querySelectorAll('.detail-tab-content').forEach(function (c) { c.classList.remove('active'); });
+        var firstTab = document.querySelector('.detail-tab[data-tab="overview"]');
+        if (firstTab) firstTab.classList.add('active');
+        var firstContent = document.getElementById('detail-tab-overview');
+        if (firstContent) firstContent.classList.add('active');
+
+        var courseId = course._id || course.courseId || course.courseCode;
+        if (!courseId || !services || !services.backendAnalyticsService) return;
+
+        services.backendAnalyticsService.getCourseMetrics(courseId).then(function (res) {
+            var metrics = res && (res.data || res);
+            renderDetailStats(metrics);
+            renderGradeChart(metrics);
+            renderCompletionChart(metrics);
+        }).catch(function () {
+            document.getElementById('detail-stats-container').innerHTML = '<p style="color:var(--text-secondary);padding:1rem;">Metrics unavailable (Phase 9 API not ready).</p>';
+        });
+
+        services.backendAnalyticsService.getCourseSections(courseId).then(function (res) {
+            var sections = res && (res.data || res);
+            renderSections(sections);
+        }).catch(function () {
+            document.getElementById('sections-container').innerHTML = '<p style="color:var(--text-secondary);padding:1rem;">Sections data unavailable (Phase 9 API not ready).</p>';
+        });
+
+        services.backendAnalyticsService.getCourseAssignments(courseId).then(function (res) {
+            var assignments = res && (res.data || res);
+            renderAssignments(assignments);
+        }).catch(function () {
+            document.getElementById('assignments-container').innerHTML = '<tr><td colspan="4" style="color:var(--text-secondary);padding:1rem;text-align:center;">Assignments data unavailable (Phase 9 API not ready).</td></tr>';
+        });
+    }
+
+    function renderDetailStats(metrics) {
+        var container = document.getElementById('detail-stats-container');
+        if (!container) return;
+        if (!metrics) {
+            container.innerHTML = '<p style="color:var(--text-secondary);padding:1rem;">No metrics available.</p>';
+            return;
+        }
+
+        var completionRate = metrics.completionRate || metrics.completion || 0;
+        var avgGrade = metrics.averageGrade || metrics.avgGrade || 0;
+        var enrollmentCount = metrics.enrollmentCount || metrics.enrolled || 0;
+        var engagementScore = metrics.engagementScore || metrics.engagement || 0;
+
+        var detailStats = [
+            { label: 'Completion Rate', value: Math.round(completionRate) + '%', change: 'of students completed', isPos: completionRate >= 50, icon: 'fa-solid fa-check-circle' },
+            { label: 'Average Grade', value: Math.round(avgGrade) + '%', change: 'class average', isPos: avgGrade >= 60, icon: 'fa-solid fa-graduation-cap' },
+            { label: 'Enrolled', value: String(enrollmentCount), change: 'total students', isPos: true, icon: 'fa-solid fa-users' },
+            { label: 'Engagement', value: Math.round(engagementScore) + '%', change: 'participation rate', isPos: engagementScore >= 50, icon: 'fa-solid fa-chart-simple' },
+        ];
+
+        container.innerHTML = '';
+        detailStats.forEach(function (s) {
+            var changeClass = s.isPos ? 'pos' : 'neg';
+            container.innerHTML += [
+                '<div class="ana-stat-card">',
+                '<div class="as-label"><i class="' + s.icon + '"></i> ' + s.label + '</div>',
+                '<div class="as-val">' + s.value + '</div>',
+                '<div class="as-change ' + changeClass + '">' + s.change + '</div>',
+                '</div>',
+            ].join('');
+        });
+    }
+
+    function renderGradeChart(metrics) {
+        var canvas = document.getElementById('gradeDistributionChart');
+        if (!canvas || typeof Chart === 'undefined') return;
+
+        var dist = metrics && (metrics.gradeDistribution || metrics.grades);
+        if (!dist || !Array.isArray(dist) || dist.length === 0) {
+            canvas.parentElement.innerHTML = '<div class="chart-empty"><i class="fa-solid fa-chart-pie"></i><span>Grade distribution data not available</span></div>';
+            return;
+        }
+
+        var labels = dist.map(function (d) { return d.label || d.range || ''; });
+        var values = dist.map(function (d) { return d.count || d.value || 0; });
+        var colors = ['#10b981', '#3b82f6', '#eab308', '#f97316', '#ef4444', '#a855f7'];
+
+        activeCharts.push(new Chart(canvas.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{ data: values, backgroundColor: colors.slice(0, labels.length), borderWidth: 1 }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { position: 'right', labels: { font: { family: 'Inter', size: 11 } } }
+                }
+            }
+        }));
+    }
+
+    function renderCompletionChart(metrics) {
+        var canvas = document.getElementById('completionRateChart');
+        if (!canvas || typeof Chart === 'undefined') return;
+
+        var completed = (metrics && (metrics.completedCount || metrics.completed)) || 0;
+        var notCompleted = (metrics && (metrics.notCompletedCount || metrics.notCompleted || metrics.enrollmentCount)) || 0;
+        var total = completed + notCompleted;
+        if (total === 0) {
+            canvas.parentElement.innerHTML = '<div class="chart-empty"><i class="fa-solid fa-chart-simple"></i><span>Completion data not available</span></div>';
+            return;
+        }
+        var completionPct = Math.round((completed / total) * 100);
+
+        activeCharts.push(new Chart(canvas.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Completed (' + completionPct + '%)', 'Remaining (' + (100 - completionPct) + '%)'],
+                datasets: [{
+                    data: [completed, notCompleted],
+                    backgroundColor: ['#10b981', '#e5e7eb'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                cutout: '65%',
+                plugins: {
+                    legend: { position: 'bottom', labels: { font: { family: 'Inter', size: 11 } } }
+                }
+            }
+        }));
+    }
+
+    function renderSections(sections) {
+        var container = document.getElementById('sections-container');
+        if (!container) return;
+
+        var sectionsList = Array.isArray(sections) ? sections : (sections && sections.sections) || [];
+        if (sectionsList.length === 0) {
+            container.innerHTML = '<p style="color:var(--text-secondary);padding:1rem;">No section data available.</p>';
+            return;
+        }
+
+        container.innerHTML = '';
+        sectionsList.forEach(function (s) {
+            var name = s.name || s.title || s.section || 'Section';
+            var avgScore = s.averageScore || s.avgScore || s.score || 0;
+            var completionRate = s.completionRate || s.completion || 0;
+
+            container.innerHTML += [
+                '<div class="section-item">',
+                '<div class="section-head">',
+                '<span class="section-name">' + escapeHtml(name) + '</span>',
+                '<span class="section-score">' + Math.round(avgScore) + '%</span>',
+                '</div>',
+                '<div class="section-track">',
+                '<div class="section-fill" style="width:' + avgScore + '%;background-color:var(--accent-blue);"></div>',
+                '</div>',
+                '<span class="section-completion">' + Math.round(completionRate) + '% completion</span>',
+                '</div>',
+            ].join('');
+        });
+
+        // Chart
+        var canvas = document.getElementById('sectionsChart');
+        if (canvas && typeof Chart !== 'undefined') {
+            var labels = sectionsList.map(function (s) { return s.name || s.title || s.section || ''; });
+            var scores = sectionsList.map(function (s) { return s.averageScore || s.avgScore || s.score || 0; });
+            var colors = scores.map(function (s) {
+                if (s >= 80) return '#10b981';
+                if (s >= 60) return '#3b82f6';
+                if (s >= 40) return '#eab308';
+                return '#ef4444';
+            });
+
+            activeCharts.push(new Chart(canvas.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Average Score',
+                        data: scores,
+                        backgroundColor: colors,
+                        borderColor: colors,
+                        borderWidth: 1,
+                        borderRadius: 4,
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { beginAtZero: true, max: 100, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'Inter' } } },
+                        y: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 11 } } }
+                    }
+                }
+            }));
+        }
+    }
+
+    function renderAssignments(assignments) {
+        var container = document.getElementById('assignments-container');
+        if (!container) return;
+
+        var list = Array.isArray(assignments) ? assignments : (assignments && assignments.assignments) || [];
+        if (list.length === 0) {
+            container.innerHTML = '<tr><td colspan="4" style="color:var(--text-secondary);padding:1rem;text-align:center;">No assignment data available.</td></tr>';
+            return;
+        }
+
+        container.innerHTML = '';
+        list.forEach(function (a) {
+            var name = a.name || a.title || 'Assignment';
+            var score = a.averageScore || a.avgScore || a.score || 0;
+            var subRate = a.submissionRate || a.submission || 0;
+            var status = a.status || (score >= 60 ? 'passed' : 'needs review');
+            var statusClass = status === 'passed' ? 'status-passed' : (status === 'needs review' ? 'status-review' : 'status-pending');
+
+            container.innerHTML += [
+                '<tr>',
+                '<td class="assign-name">' + escapeHtml(name) + '</td>',
+                '<td class="assign-score">' + Math.round(score) + '%</td>',
+                '<td class="assign-rate">' + Math.round(subRate) + '%</td>',
+                '<td><span class="assign-status ' + statusClass + '">' + escapeHtml(status) + '</span></td>',
+                '</tr>',
+            ].join('');
+        });
+    }
+
+    // Back button
+    var backBtn = document.getElementById('back-to-list');
+    if (backBtn) {
+        backBtn.addEventListener('click', function () {
+            destroyCharts();
+            if (detailView) detailView.style.display = 'none';
+            if (listView) listView.style.display = 'block';
+        });
+    }
+
+    // Sub-tab switching
+    document.querySelectorAll('.detail-tab').forEach(function (tab) {
+        tab.addEventListener('click', function () {
+            document.querySelectorAll('.detail-tab').forEach(function (t) { t.classList.remove('active'); });
+            tab.classList.add('active');
+            document.querySelectorAll('.detail-tab-content').forEach(function (c) { c.classList.remove('active'); });
+            var contentId = 'detail-tab-' + tab.getAttribute('data-tab');
+            var content = document.getElementById(contentId);
+            if (content) content.classList.add('active');
+        });
+    });
 
     function escapeHtml(str) {
         if (!str) return '';

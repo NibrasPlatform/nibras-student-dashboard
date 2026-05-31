@@ -16,6 +16,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="./courses.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 </head>
 <body>
     <div id="app-root" hidden></div>
@@ -103,14 +104,87 @@
             </div>
 
             <!-- Course Performance Metrics -->
-            <section class="card course-metrics-card">
+            <section class="card course-metrics-card" id="courses-list-view">
                 <div class="card-header-simple">
                     <h3>Course Performance Metrics</h3>
-                    <p class="section-desc">Detailed analytics for each course</p>
+                    <p class="section-desc">Detailed analytics for each course — click a course to drill down</p>
                 </div>
-                
                 <div class="course-metrics-list" id="courses-container">
                     <!-- JS Injected -->
+                </div>
+            </section>
+
+            <!-- Course Detail Drilldown Panel -->
+            <section class="card course-detail-card" id="course-detail-view" style="display:none;">
+                <div class="detail-nav">
+                    <button class="btn-outline" id="back-to-list"><i class="fa-solid fa-arrow-left"></i> Back to Courses</button>
+                </div>
+                <div class="detail-header" id="detail-header">
+                    <h2 id="detail-course-title">Course Name</h2>
+                    <p class="section-desc" id="detail-course-subtitle">Course analytics overview</p>
+                </div>
+
+                <!-- Sub-tabs -->
+                <div class="detail-tabs">
+                    <button class="detail-tab active" data-tab="overview">Overview</button>
+                    <button class="detail-tab" data-tab="sections">Sections</button>
+                    <button class="detail-tab" data-tab="assignments">Assignments</button>
+                </div>
+
+                <!-- Overview Tab -->
+                <div class="detail-tab-content active" id="detail-tab-overview">
+                    <div class="stats-overview-grid" id="detail-stats-container">
+                        <!-- JS Injected -->
+                    </div>
+                    <div class="charts-layout" style="margin-top:1.5rem;">
+                        <section class="card" style="padding:1rem;">
+                            <div class="card-header-simple">
+                                <h3>Grade Distribution</h3>
+                                <p class="section-desc">Spread of student grades</p>
+                            </div>
+                            <div class="chart-wrapper">
+                                <canvas id="gradeDistributionChart"></canvas>
+                            </div>
+                        </section>
+                        <section class="card" style="padding:1rem;">
+                            <div class="card-header-simple">
+                                <h3>Completion Rate</h3>
+                                <p class="section-desc">Overall course completion</p>
+                            </div>
+                            <div class="chart-wrapper">
+                                <canvas id="completionRateChart"></canvas>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+
+                <!-- Sections Tab -->
+                <div class="detail-tab-content" id="detail-tab-sections">
+                    <div class="chart-wrapper" style="height:300px;">
+                        <canvas id="sectionsChart"></canvas>
+                    </div>
+                    <div class="sections-list" id="sections-container">
+                        <!-- JS Injected -->
+                    </div>
+                </div>
+
+                <!-- Assignments Tab -->
+                <div class="detail-tab-content" id="detail-tab-assignments">
+                    <div class="assignments-table-wrapper">
+                        <table class="assignments-table" id="assignments-table">
+                            <thead>
+                                <tr>
+                                    <th>Assignment</th>
+                                    <th>Avg Score</th>
+                                    <th>Submission Rate</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="assignments-container">
+                                <!-- JS Injected -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </section>
 
