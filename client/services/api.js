@@ -3611,6 +3611,138 @@
     };
 
     // ============================================================
+    // Phase 7 — Project Service
+    // ============================================================
+    const projectService = {
+        async create(data) {
+            return apiFetch('/projects', {
+                service: 'courses',
+                method: 'POST',
+                auth: true,
+                body: data,
+            });
+        },
+
+        async update(id, data) {
+            return apiFetch(`/projects/${encodeURIComponent(String(id))}`, {
+                service: 'courses',
+                method: 'PUT',
+                auth: true,
+                body: data,
+            });
+        },
+
+        async delete(id) {
+            return apiFetch(`/projects/${encodeURIComponent(String(id))}`, {
+                service: 'courses',
+                method: 'DELETE',
+                auth: true,
+            });
+        },
+
+        async listByCourse(courseId) {
+            return apiFetch(`/projects/course/${encodeURIComponent(String(courseId))}`, {
+                service: 'courses',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        async getById(id) {
+            return apiFetch(`/projects/${encodeURIComponent(String(id))}`, {
+                service: 'courses',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        async addMilestone(projectId, data) {
+            return apiFetch(`/projects/${encodeURIComponent(String(projectId))}/milestones`, {
+                service: 'courses',
+                method: 'POST',
+                auth: true,
+                body: data,
+            });
+        },
+
+        async updateMilestone(milestoneId, data) {
+            return apiFetch(`/milestones/${encodeURIComponent(String(milestoneId))}`, {
+                service: 'courses',
+                method: 'PUT',
+                auth: true,
+                body: data,
+            });
+        },
+
+        async deleteMilestone(milestoneId) {
+            return apiFetch(`/milestones/${encodeURIComponent(String(milestoneId))}`, {
+                service: 'courses',
+                method: 'DELETE',
+                auth: true,
+            });
+        },
+
+        async submitMilestone(projectId, milestoneId, data) {
+            return apiFetch(`/projects/${encodeURIComponent(String(projectId))}/milestones/${encodeURIComponent(String(milestoneId))}/submit`, {
+                service: 'courses',
+                method: 'POST',
+                auth: true,
+                body: data,
+            });
+        },
+
+        async getSubmissions(projectId) {
+            return apiFetch(`/projects/${encodeURIComponent(String(projectId))}/submissions`, {
+                service: 'courses',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        async getFeedback(submissionId) {
+            return apiFetch(`/submissions/${encodeURIComponent(String(submissionId))}/feedback`, {
+                service: 'courses',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        async getTeamDetails(projectId) {
+            return apiFetch(`/projects/${encodeURIComponent(String(projectId))}/team`, {
+                service: 'courses',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        async gradeSubmission(submissionId, data) {
+            return apiFetch(`/submissions/${encodeURIComponent(String(submissionId))}/grade`, {
+                service: 'courses',
+                method: 'POST',
+                auth: true,
+                body: data,
+            });
+        },
+
+        async listByInstructor(filters = {}) {
+            return apiFetch(`/projects/instructor${toQueryString(filters)}`, {
+                service: 'courses',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        async batchCreateMilestones(projectId, milestones) {
+            return apiFetch(`/projects/${encodeURIComponent(String(projectId))}/milestones/batch`, {
+                service: 'courses',
+                method: 'POST',
+                auth: true,
+                body: { milestones },
+            });
+        },
+    };
+
+    // ============================================================
     // Expose on window
     // ============================================================
     window.NibrasServices = Object.freeze({
@@ -3654,6 +3786,7 @@
         evaluationService,
         plagiarismService,
         feedbackService,
+        projectService,
     });
 
     console.log('[NibrasServices] Initialized. Available as window.NibrasServices');

@@ -139,6 +139,11 @@ function mergeOverviewToState(payload) {
                 title: String(project.title || `Project ${index + 1}`),
                 description: String(project.description || ''),
             },
+            teamMembers: Array.isArray(project.teamMembers || project.members) ? (project.teamMembers || project.members) : [],
+            githubRepo: String(project.githubRepo || project.githubUrl || ''),
+            commits: Array.isArray(project.commits) ? project.commits : [],
+            contribution: Array.isArray(project.contribution) ? project.contribution : [],
+            grade: project.grade != null ? project.grade : null,
             milestones: Array.isArray(project.milestones) ? project.milestones : [],
             stats: {
                 completion: Number(project.stats?.completion || 0),
@@ -215,6 +220,9 @@ function renderProjectDetails() {
         return;
     }
 
+    // Fetch additional details for this project
+    loadProjectExtraDetails(project);
+
     host.innerHTML = `
         <div class="project-details active">
             <div class="two-col-grid">
@@ -231,6 +239,7 @@ function renderProjectDetails() {
                     </div>
                 </div>
                 <div class="right-col">
+                    ${renderTeamPanel(project)}
                     <div class="card progress-widget">
                         <h4>Overall Progress: ${Math.max(0, Math.min(100, Math.round(project.stats.completion || 0)))}%</h4>
                         <div class="progress-bar-container">
@@ -240,11 +249,133 @@ function renderProjectDetails() {
                         <div class="stat-row"><span>In Review</span><span class="stat-val">${project.stats.in_review}</span></div>
                         <div class="stat-row"><span>Total Milestones</span><span class="stat-val">${project.stats.total}</span></div>
                     </div>
+                    ${renderGitHubPanel(project)}
+                    ${renderGradePanel(project)}
                     ${createCliQuickstartCard(project)}
                 </div>
             </div>
         </div>
     `;
+}
+
+function loadProjectExtraDetails(project) {
+    if (!project || !window.NibrasServices || !window.NibrasServices.projectService) return;
+    var apiId = project.apiProjectId || project._id || project.id;
+    if (!apiId) return;
+    if (project._extraLoaded) return;
+
+    window.NibrasServices.projectService.getById(apiId).then(function (res) {
+        var data = res?.data || res;
+        if (!data || typeof data !== 'object') return;
+        project._extraLoaded = true;
+        if (data.teamMembers && Array.isArray(data.teamMembers)) {
+            project.teamMembers = data.teamMembers;
+        } else if (data.members && Array.isArray(data.members)) {
+            project.teamMembers = data.members;
+        }
+        if (data.githubRepo) project.githubRepo = data.githubRepo;
+        if (data.contribution && Array.isArray(data.contribution)) {
+            project.contribution = data.contribution;
+        }
+        if (data.grade != null) project.grade = data.grade;
+        if (data.milestones && Array.isArray(data.milestones)) {
+            data.milestones.forEach(function (ms, idx) {
+                if (project.milestones[idx]) {
+                    if (ms.score != null) project.milestones[idx].score = ms.score;
+                    if (ms.weight != null) project.milestones[idx].weight = ms.weight;
+                    if (ms.status) project.milestones[idx].status = ms.status;
+                }
+            });
+        }
+        renderProjectDetails();
+    }).catch(function () {});
+}
+
+function renderTeamPanel(project) {
+    var members = project.teamMembers || [];
+    if (!members || !members.length) return '';
+
+    var memberHtml = members.map(function (m) {
+        var name = m.name || m.username || m.email || 'Member';
+        var initials = name.split(/\s+/).map(function (s) { return s[0]; }).join('').toUpperCase().slice(0, 2);
+        var role = m.role || '';
+        var contribText = '';
+        if (m.contributionPercent != null) contribText = 'Contrib: ' + m.contributionPercent + '%';
+        else if (m.commits != null) contribText = m.commits + ' commits';
+        return '<div class="team-member-row">'
+            + '<div class="team-member-avatar">' + escapeHtml(initials) + '</div>'
+            + '<div class="team-member-info">'
+            + '<span class="team-member-name">' + escapeHtml(name) + '</span>'
+            + (role ? '<span class="team-member-role">' + escapeHtml(role) + '</span>' : '')
+            + (contribText ? '<span class="team-member-contrib">' + escapeHtml(contribText) + '</span>' : '')
+            + '</div></div>';
+    }).join('');
+
+    return '<div class="card team-panel">'
+        + '<div class="card-header"><div class="card-title">Team Members</div></div>'
+        + memberHtml
+        + '</div>';
+}
+
+function renderGitHubPanel(project) {
+    var repo = project.githubRepo || '';
+    var commits = project.commits || [];
+
+    var repoHtml = repo
+        ? '<div class="github-repo-link"><i class="fa-brands fa-github"></i><a href="' + escapeHtml(repo) + '" target="_blank">' + escapeHtml(repo) + '</a></div>'
+        : '<button class="github-connect-btn" onclick="openCliHelpModal()"><i class="fa-brands fa-github"></i> Connect GitHub Repository</button>';
+
+    var statusHtml = '';
+    if (commits.length) {
+        var latestCommit = commits[0];
+        var commitCount = commits.length;
+        statusHtml = '<div class="github-status-row"><span class="label">Commits</span><span class="value">' + commitCount + '</span></div>'
+            + '<div class="github-status-row"><span class="label">Latest</span><span class="value">' + escapeHtml(latestCommit.message || '') + '</span></div>';
+    } else if (repo) {
+        statusHtml = '<div class="github-status-row"><span class="label">Status</span><span class="value">Connected</span></div>';
+    }
+
+    if (!repo && !commits.length) return '';
+
+    return '<div class="card github-panel">'
+        + '<div class="card-header"><div class="card-title"><i class="fa-brands fa-github"></i> GitHub</div></div>'
+        + repoHtml
+        + statusHtml
+        + '</div>';
+}
+
+function renderGradePanel(project) {
+    var milestones = project.milestones || [];
+    var hasScores = milestones.some(function (m) { return m.score != null || m.status === 'approved' || m.status === 'complete'; });
+    if (!hasScores) return '';
+
+    var totalWeighted = 0;
+    var totalMaxWeighted = 0;
+    var msRows = milestones.map(function (ms) {
+        var weight = ms.weight || 0;
+        var score = ms.score || 0;
+        var maxScore = ms.maxScore || 100;
+        var weighted = score * weight / 100;
+        var maxWeighted = maxScore * weight / 100;
+        totalWeighted += weighted;
+        totalMaxWeighted += maxWeighted;
+        return '<div class="grade-milestone-row">'
+            + '<span class="grade-milestone-name">' + escapeHtml(ms.name || ms.title || 'Milestone') + '</span>'
+            + '<span class="grade-milestone-weight">(' + weight + '%)</span>'
+            + '<span class="grade-milestone-score">' + weighted.toFixed(1) + ' / ' + maxWeighted.toFixed(1) + '</span>'
+            + '</div>';
+    }).join('');
+
+    var overallPct = totalMaxWeighted > 0 ? Math.round((totalWeighted / totalMaxWeighted) * 100) : 0;
+    var overall = project.grade != null ? project.grade : (totalWeighted.toFixed(1) + ' / ' + totalMaxWeighted.toFixed(1));
+
+    return '<div class="card grade-panel">'
+        + '<div class="card-header"><div class="card-title">Grading Breakdown</div></div>'
+        + msRows
+        + '<div class="grade-total-row">'
+        + '<span class="grade-total-label">Overall</span>'
+        + '<span class="grade-total-value">' + overall + ' (' + overallPct + '%)</span>'
+        + '</div></div>';
 }
 
 function createMilestoneRow(project, milestone) {

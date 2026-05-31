@@ -82,6 +82,7 @@ window.NibrasReact.run(async () => {
             { key: "courseContent", path: "./courseContent.html" },
             { key: "videos", path: isInstructor ? '' : "../Videos/videos.html" },
             { key: "assignments", path: isInstructor ? "../../Admin/AssignmentBuilder/assignment-builder.html" : "../Assignments/Assignments.html" },
+            { key: "projects", path: isInstructor ? "../../Admin/ProjectBuilder/project-builder.html" : "../Projects/Projects.html" },
             { key: "grades", path: isInstructor ? "../../Admin/InstructorGrades/instructor-grades.html" : "../Grades/grades.html" },
         ];
 

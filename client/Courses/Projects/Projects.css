@@ -276,6 +276,49 @@ select:focus-visible,
 .history-link { color: var(--accent-blue); font-weight: 500; text-decoration: none; transition: 0.2s;}
 .history-link:hover { text-decoration: underline; color: var(--accent-blue-hover); }
 
+/* GITHUB PANEL */
+.github-panel { margin-bottom: 1rem; }
+.github-repo-link { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: var(--bg-body); border-radius: 6px; font-size: 0.85rem; margin-bottom: 10px; }
+.github-repo-link i { color: var(--text-secondary); font-size: 1.1rem; }
+.github-repo-link a { color: var(--accent-blue); font-weight: 500; }
+.github-repo-link a:hover { text-decoration: underline; }
+.github-status-row { display: flex; justify-content: space-between; font-size: 0.8rem; padding: 8px 0; border-bottom: 1px solid var(--border-color); }
+.github-status-row:last-child { border-bottom: none; }
+.github-status-row .label { color: var(--text-secondary); }
+.github-status-row .value { color: var(--text-primary); font-weight: 500; }
+.github-connect-btn { display: flex; align-items: center; gap: 6px; justify-content: center; width: 100%; padding: 0.5rem; border: 1px dashed var(--border-color); border-radius: 6px; color: var(--text-secondary); font-size: 0.8rem; transition: 0.2s; cursor: pointer; }
+.github-connect-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); background: var(--accent-light); }
+
+/* TEAM SECTION */
+.team-panel { margin-bottom: 1rem; }
+.team-member-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--bg-body); border-radius: 6px; margin-bottom: 6px; }
+.team-member-row:last-child { margin-bottom: 0; }
+.team-member-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--accent-light); color: var(--accent-blue); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 600; flex-shrink: 0; }
+.team-member-info { flex: 1; }
+.team-member-name { font-size: 0.85rem; font-weight: 500; display: block; }
+.team-member-role { font-size: 0.75rem; color: var(--text-secondary); }
+.team-member-contrib { font-size: 0.78rem; color: var(--text-secondary); }
+.team-no-data { font-size: 0.85rem; color: var(--text-secondary); padding: 16px; text-align: center; }
+
+/* CONTRIBUTION BARS */
+.contrib-panel { margin-bottom: 1rem; }
+.contrib-bar-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; }
+.contrib-bar-name { width: 100px; font-size: 0.78rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.contrib-bar-track { flex: 1; height: 14px; background: var(--btn-secondary-bg); border-radius: 7px; overflow: hidden; }
+.contrib-bar-fill { height: 100%; background: var(--accent-blue); border-radius: 7px; transition: width 0.3s; }
+.contrib-bar-pct { width: 40px; text-align: right; font-size: 0.75rem; font-weight: 600; color: var(--text-primary); }
+
+/* GRADE CARD */
+.grade-panel { margin-bottom: 1rem; }
+.grade-milestone-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--bg-body); border-radius: 6px; margin-bottom: 4px; font-size: 0.8rem; }
+.grade-milestone-name { flex: 1; }
+.grade-milestone-weight { color: var(--text-secondary); font-size: 0.75rem; margin: 0 8px; }
+.grade-milestone-score { font-weight: 600; color: var(--accent-blue); }
+.grade-total-row { display: flex; justify-content: space-between; padding: 12px; margin-top: 8px; border-top: 1px solid var(--border-color); font-weight: 700; font-size: 0.9rem; }
+.grade-total-row .grade-total-label { color: var(--text-primary); }
+.grade-total-row .grade-total-value { color: var(--accent-blue); }
+.grade-no-data { font-size: 0.85rem; color: var(--text-secondary); padding: 16px; text-align: center; }
+
 /* Responsive */
 @media (max-width: 1024px) {
     .sidebar { display: none; }
