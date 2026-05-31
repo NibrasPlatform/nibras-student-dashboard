@@ -23,6 +23,9 @@ window.NibrasReact.run(function () {
     }
 
     var user = getUserId();
+    var userRole = String(user?.role?.name || user?.role || '').toLowerCase();
+    var isInstructor = userRole === 'instructor' || userRole === 'admin' || userRole === 'ta';
+
     if (user && user._id && services && services.backendAnalyticsService) {
         services.backendAnalyticsService.getStudentPerformance(user._id).then(function (res) {
             var data = res && (res.data || res);
@@ -112,6 +115,151 @@ window.NibrasReact.run(function () {
         }).catch(function () {
             statsContainer.innerHTML = '<p style="color:var(--text-secondary);padding:2rem;text-align:center;">Failed to load performance data.</p>';
         });
+
+        services.backendAnalyticsService.getStudentProgress(user._id).then(function (res) {
+            var progressData = res && (res.data || res);
+            renderStudentProgressChart(progressData);
+        }).catch(function () {
+            renderStudentProgressChart(null);
+        });
+
+        if (isInstructor) {
+            services.backendAnalyticsService.getAtRiskStudents().then(function (res) {
+                var atRiskData = res && (res.data || res);
+                renderAtRiskStudents(atRiskData);
+            }).catch(function () {
+                var container = document.getElementById('atrisk-container');
+                if (container) container.innerHTML = '<p style="color:var(--text-secondary);padding:1rem;">Failed to load at-risk data.</p>';
+            });
+        }
+    }
+
+    function renderStudentProgressChart(progressData) {
+        var canvas = document.getElementById('studentProgressChart');
+        if (!canvas || typeof Chart === 'undefined') return;
+
+        var hasData = progressData && progressData.progress && progressData.progress.length > 0;
+
+        if (!hasData) {
+            var wrapper = canvas.parentElement;
+            wrapper.innerHTML = '<div class="chart-empty"><i class="fa-solid fa-chart-line"></i><span>Progress data will appear once the backend aggregates your learning history</span></div>';
+            return;
+        }
+
+        var points = progressData.progress;
+        var labels = points.map(function (p) { return p.period || p.label || ''; });
+        var gradeData = points.map(function (p) { return p.grade || 0; });
+        var completionData = points.map(function (p) { return p.completion || p.completionRate || 0; });
+        var activityData = points.map(function (p) { return p.activity || p.submissions || 0; });
+
+        var datasets = [
+            {
+                label: 'Grade',
+                data: gradeData,
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: '#3b82f6',
+            },
+            {
+                label: 'Completion',
+                data: completionData,
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: '#10b981',
+            }
+        ];
+
+        if (activityData.some(function (v) { return v > 0; })) {
+            datasets.push({
+                label: 'Activity',
+                data: activityData,
+                borderColor: '#f59e0b',
+                backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: '#f59e0b',
+            });
+        }
+
+        new Chart(canvas.getContext('2d'), {
+            type: 'line',
+            data: { labels: labels, datasets: datasets },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                interaction: { intersect: false, mode: 'index' },
+                plugins: {
+                    legend: { position: 'top', labels: { font: { family: 'Inter', size: 12 } } }
+                },
+                scales: {
+                    y: { beginAtZero: true, max: 100, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'Inter' } } },
+                    x: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 11 } } }
+                }
+            }
+        });
+    }
+
+    function renderAtRiskStudents(atRiskData) {
+        var section = document.getElementById('atrisk-section');
+        var container = document.getElementById('atrisk-container');
+        if (!section || !container) return;
+
+        var students = Array.isArray(atRiskData) ? atRiskData : (atRiskData && atRiskData.students) || [];
+
+        if (students.length === 0) {
+            section.style.display = 'block';
+            container.innerHTML = '<p style="color:var(--text-secondary);padding:1rem;">No at-risk students identified at this time.</p>';
+            return;
+        }
+
+        section.style.display = 'block';
+        container.innerHTML = '';
+        students.sort(function (a, b) { return (b.riskScore || 0) - (a.riskScore || 0); });
+
+        students.forEach(function (s) {
+            var studentName = s.student?.name || s.name || 'Unknown';
+            var riskScore = s.riskScore || 0;
+            var riskFactors = s.riskFactors || [];
+            var lastActive = s.lastActive || s.lastActivity || '';
+            var lastActiveStr = lastActive ? timeSince(new Date(lastActive)) : 'Unknown';
+
+            var riskLevel = riskScore >= 70 ? 'high' : (riskScore >= 40 ? 'med' : 'low');
+            var riskColors = { high: 'var(--risk-high-bg)', med: '#d97706', low: 'var(--risk-med-bg)' };
+            var riskBg = riskColors[riskLevel] || 'var(--risk-high-bg)';
+
+            var factorsHtml = '';
+            if (riskFactors.length > 0) {
+                factorsHtml = '<div class="risk-factors">';
+                riskFactors.forEach(function (f) {
+                    factorsHtml += '<span class="risk-tag">' + escapeHtml(f) + '</span>';
+                });
+                factorsHtml += '</div>';
+            }
+
+            var trendIcon = riskScore >= 70 ? 'fa-arrow-down' : (riskScore >= 40 ? 'fa-minus' : 'fa-arrow-up');
+            var trendColor = riskScore >= 70 ? '#ef4444' : (riskScore >= 40 ? '#f59e0b' : '#10b981');
+
+            container.innerHTML += [
+                '<div class="risk-card-item">',
+                '<div class="risk-info" style="flex:1;">',
+                '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.25rem;">',
+                '<h4>' + escapeHtml(studentName) + '</h4>',
+                '<i class="fa-solid ' + trendIcon + '" style="color:' + trendColor + ';font-size:0.8rem;"></i>',
+                '</div>',
+                factorsHtml,
+                '<span class="risk-time">Last active: ' + lastActiveStr + '</span>',
+                '</div>',
+                '<span class="risk-badge" style="background-color:' + riskBg + ';">' + riskScore + '%</span>',
+                '</div>',
+            ].join('');
+        });
     }
 
     function escapeHtml(str) {
@@ -119,6 +267,19 @@ window.NibrasReact.run(function () {
         var d = document.createElement('div');
         d.appendChild(document.createTextNode(String(str)));
         return d.innerHTML;
+    }
+
+    function timeSince(date) {
+        var seconds = Math.floor((new Date() - date) / 1000);
+        var intervals = [
+            [31536000, 'year'], [2592000, 'month'], [604800, 'week'],
+            [86400, 'day'], [3600, 'hour'], [60, 'minute']
+        ];
+        for (var i = 0; i < intervals.length; i++) {
+            var val = Math.floor(seconds / intervals[i][0]);
+            if (val >= 1) return val + ' ' + intervals[i][1] + (val > 1 ? 's' : '') + ' ago';
+        }
+        return 'just now';
     }
 
     var themeBtn = document.getElementById('themeBtn');

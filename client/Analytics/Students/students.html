@@ -16,6 +16,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="./students.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 </head>
 <body>
     <div id="app-root" hidden></div>
@@ -94,6 +95,17 @@
                 <!-- JS Injected -->
             </div>
 
+            <!-- Progress Over Time -->
+            <section class="card progress-card" id="progress-section">
+                <div class="card-header-simple">
+                    <h3>Progress Over Time</h3>
+                    <p class="section-desc">Learning progress and grade trends</p>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="studentProgressChart"></canvas>
+                </div>
+            </section>
+
             <!-- Tabs -->
             <div class="analytics-tabs">
                 <a href="../Overview/overview.html" class="ana-tab">Overview</a>
@@ -128,6 +140,17 @@
                 </section>
 
             </div>
+
+            <!-- At-Risk Students (instructor only) -->
+            <section class="card atrisk-card" id="atrisk-section" style="display:none;">
+                <div class="card-header-simple">
+                    <h3>At-Risk Students</h3>
+                    <p class="section-desc">Students flagged for declining performance or reduced engagement</p>
+                </div>
+                <div class="risk-list" id="atrisk-container">
+                    <!-- JS Injected -->
+                </div>
+            </section>
 
         </div>
     </main>
