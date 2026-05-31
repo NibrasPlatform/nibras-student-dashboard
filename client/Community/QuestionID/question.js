@@ -182,6 +182,12 @@ window.NibrasReact.run(() => {
         return DOMPurify.sanitize(marked.parse(text));
     }
 
+    function escapeHtml(value) {
+        var div = document.createElement('div');
+        div.appendChild(document.createTextNode(String(value)));
+        return div.innerHTML;
+    }
+
     // --- HELPER FUNCTIONS ---
     function getToken() {
         return sharedAuth?.getToken?.() || window.NibrasApi?.getToken?.() || localStorage.getItem('token') || null;
@@ -611,6 +617,7 @@ window.NibrasReact.run(() => {
             };
 
             renderDetailView(currentQuestionData);
+            loadRoutingInfo(questionId);
             if (!socket) {
                 ensureSocketIoLoaded().then((isSocketReady) => {
                     if (isSocketReady && !socket) {
@@ -680,6 +687,7 @@ window.NibrasReact.run(() => {
                 <h1 class="detail-title">${q.title}</h1>
                 <div class="detail-body markdown-body">${renderMarkdown(q.body)}</div>
                 <div class="detail-tags">${tagHtml}</div>
+                <div class="routing-badge" id="routing-badge-${q.id}" style="display: none;"></div>
                 <div class="detail-footer" style="display: flex; justify-content: space-between; align-items: center;">
                     <div class="detail-actions" style="display: flex; align-items: center; gap: 14px;">
                         <span>Asked ${q.time}</span>
@@ -1419,6 +1427,31 @@ window.NibrasReact.run(() => {
             if (appLogo) appLogo.src = '/Assets/images/logo-light.png';
         }
     });
+
+    // --- ROUTING INDICATOR ---
+    async function loadRoutingInfo(questionId) {
+        var badge = document.getElementById('routing-badge-' + questionId);
+        if (!badge) return;
+        try {
+            var aiBaseUrl = BACKEND_URL.replace(/\/api\/?$/i, '').replace(/\/+$/, '') + '/api/ai';
+            var response = await fetch(aiBaseUrl + '/questions/' + encodeURIComponent(String(questionId)) + '/routing', {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + (getToken() || ''),
+                },
+            });
+            if (!response.ok) throw new Error('API unavailable');
+            var data = await response.json();
+            var mentorName = data?.mentor || data?.name || data?.assignedTo || data?.data?.mentor || '';
+            var responseTime = data?.responseTime || data?.eta || data?.data?.responseTime || '24h';
+            if (mentorName) {
+                badge.innerHTML = '<i class="fa-solid fa-user-check"></i> Routed to ' + escapeHtml(mentorName) + ' — responds within ' + escapeHtml(responseTime);
+                badge.style.display = 'flex';
+            }
+        } catch (_) {
+            /* silently hide */
+        }
+    }
 
     // Wire up Suggest AI button
     document.addEventListener('click', function (e) {
