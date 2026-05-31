@@ -328,4 +328,28 @@ window.NibrasReact.run(function () {
             tab.classList.add('active');
         });
     });
+
+    // Export
+    var exportBtn = document.getElementById('export-btn');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', function () {
+            downloadExport('/analytics/export/students?format=csv', 'student-report.csv');
+        });
+    }
 });
+
+function downloadExport(path, filename) {
+    var token = localStorage.getItem('token') || localStorage.getItem('nibras.webSession') || localStorage.getItem('accessToken') || '';
+    var baseUrl = window.NIBRAS_API_SERVICES?.admin || 'https://nibras-backend.up.railway.app/api';
+    fetch(baseUrl + path, { headers: { 'Authorization': 'Bearer ' + token } })
+        .then(function (r) { if (!r.ok) throw new Error(); return r.blob(); })
+        .then(function (blob) {
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a'); a.href = url; a.download = filename;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            setTimeout(function () { URL.revokeObjectURL(url); }, 10000);
+        })
+        .catch(function () {
+            window.open(baseUrl + path + '&token=' + encodeURIComponent(token), '_blank');
+        });
+}
