@@ -826,6 +826,7 @@ window.NibrasReact.run(() => {
                                 </div>
                             </div>
                         </div>
+                        ${ans.isFromAI ? '<div class="ai-feedback" data-answer-id="' + ans.id + '"><span class="ai-feedback-label">Was this helpful?</span><button type="button" class="ai-feedback-btn ai-feedback-up" data-answer-id="' + ans.id + '" title="Helpful" aria-label="Mark as helpful"><i class="fa-solid fa-thumbs-up"></i></button><button type="button" class="ai-feedback-btn ai-feedback-down" data-answer-id="' + ans.id + '" title="Not helpful" aria-label="Mark as not helpful"><i class="fa-solid fa-thumbs-down"></i></button><span class="ai-feedback-thanks" style="display:none;"><i class="fa-solid fa-check-circle"></i> Thanks for your feedback!</span></div>' : ''}
                     </div>
                 </div>
             `;
@@ -837,6 +838,7 @@ window.NibrasReact.run(() => {
         `;
 
         loadUserVotes();
+        restoreFeedbackState();
 
         setTimeout(() => {
             document.querySelectorAll('pre code').forEach((block) => {
@@ -1036,6 +1038,17 @@ window.NibrasReact.run(() => {
                 console.error('Flag error:', error);
                 showToast(error.message || 'Failed to submit report.', 'error');
             }
+            return;
+        }
+
+        // ------------------------------------
+        // AI FEEDBACK THUMBS
+        // ------------------------------------
+        var feedbackBtn = e.target.closest('.ai-feedback-btn');
+        if (feedbackBtn) {
+            var answerId = feedbackBtn.getAttribute('data-answer-id');
+            var helpful = feedbackBtn.classList.contains('ai-feedback-up');
+            if (answerId) sendAiFeedback(answerId, helpful, feedbackBtn);
             return;
         }
 
@@ -1451,6 +1464,56 @@ window.NibrasReact.run(() => {
         } catch (_) {
             /* silently hide */
         }
+    }
+
+    // --- AI FEEDBACK ---
+    var feedbackGiven = {};
+
+    function restoreFeedbackState() {
+        try {
+            var saved = JSON.parse(localStorage.getItem('nibras_ai_feedback_v1') || '{}');
+            feedbackGiven = saved;
+            Object.keys(saved).forEach(function (aid) {
+                var container = document.querySelector('.ai-feedback[data-answer-id="' + aid + '"]');
+                if (!container) return;
+                var up = container.querySelector('.ai-feedback-up');
+                var down = container.querySelector('.ai-feedback-down');
+                var thanks = container.querySelector('.ai-feedback-thanks');
+                if (up) up.style.display = 'none';
+                if (down) down.style.display = 'none';
+                if (thanks) { thanks.style.display = 'inline-flex'; thanks.style.color = saved[aid] === true ? 'var(--tag-green-text)' : '#ef4444'; }
+            });
+        } catch (_) {}
+    }
+
+    async function sendAiFeedback(answerId, helpful, btn) {
+        var container = btn.closest('.ai-feedback');
+        if (!container) return;
+        if (feedbackGiven[answerId] !== undefined) return;
+
+        feedbackGiven[answerId] = helpful;
+        try {
+            localStorage.setItem('nibras_ai_feedback_v1', JSON.stringify(feedbackGiven));
+        } catch (_) {}
+
+        var up = container.querySelector('.ai-feedback-up');
+        var down = container.querySelector('.ai-feedback-down');
+        var thanks = container.querySelector('.ai-feedback-thanks');
+        if (up) up.style.display = 'none';
+        if (down) down.style.display = 'none';
+        if (thanks) { thanks.style.display = 'inline-flex'; thanks.style.color = helpful ? 'var(--tag-green-text)' : '#ef4444'; }
+
+        try {
+            var aiBaseUrl = BACKEND_URL.replace(/\/api\/?$/i, '').replace(/\/+$/, '') + '/api/ai';
+            await fetch(aiBaseUrl + '/feedback', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + (getToken() || ''),
+                },
+                body: JSON.stringify({ answerId: answerId, helpful: helpful }),
+            });
+        } catch (_) {}
     }
 
     // Wire up Suggest AI button

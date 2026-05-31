@@ -329,6 +329,45 @@ textarea:focus-visible,
 }
 .btn-primary.btn-sm:hover { background: var(--accent-blue-hover); }
 
+/* AI FEEDBACK */
+.ai-feedback {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 0 0;
+    border-top: none;
+    margin-top: 8px;
+}
+.ai-feedback-label {
+    font-size: 0.78rem;
+    color: var(--text-tertiary);
+    margin-right: 4px;
+}
+.ai-feedback-btn {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    transition: 0.15s;
+}
+.ai-feedback-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+.ai-feedback-up:hover { border-color: var(--tag-green-text, #16a34a); color: var(--tag-green-text, #16a34a); }
+.ai-feedback-down:hover { border-color: #ef4444; color: #ef4444; }
+.ai-feedback-thanks {
+    font-size: 0.78rem;
+    color: var(--tag-green-text, #16a34a);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 4px;
+}
+
 /* ROUTING BADGE */
 .routing-badge {
     display: none;
