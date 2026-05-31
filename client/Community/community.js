@@ -357,6 +357,45 @@ window.NibrasReact.run(() => {
         }
     }
 
+    async function loadRecommendations() {
+        var container = document.getElementById('recommendations-container');
+        if (!container) return;
+        container.innerHTML = '<div class="rec-skeleton"><div class="rec-skel-line"></div><div class="rec-skel-line"></div><div class="rec-skel-line rec-skel-short"></div></div>';
+        try {
+            var aiBaseUrl = BACKEND_URL.replace(/\/api\/?$/i, '').replace(/\/+$/, '') + '/api/ai';
+            var response = await fetch(aiBaseUrl + '/recommendations', {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + (getToken() || ''),
+                },
+            });
+            if (!response.ok) throw new Error('API unavailable');
+            var data = await response.json();
+            var items = data?.recommendations || data?.items || data?.data || [];
+            if (!Array.isArray(items) || items.length === 0) {
+                container.innerHTML = '<div class="rec-empty">No recommendations yet — ask more questions to get personalized suggestions.</div>';
+                return;
+            }
+            container.innerHTML = '';
+            items.slice(0, 5).forEach(function (rec) {
+                var type = rec.type || 'resource';
+                var icon = type === 'practice' ? 'fa-solid fa-pen' : type === 'course' ? 'fa-solid fa-book-open' : 'fa-solid fa-link';
+                var typeLabel = type.charAt(0).toUpperCase() + type.slice(1);
+                var link = rec.url || rec.link || '#';
+                var item = document.createElement('a');
+                item.className = 'rec-item';
+                item.href = link;
+                item.target = '_blank';
+                item.innerHTML = '<div class="rec-item-icon"><i class="' + icon + '"></i></div><div class="rec-item-text"><div class="rec-item-title">' + escapeHtml(rec.title || 'Recommendation') + '</div><div class="rec-item-desc">' + escapeHtml(rec.description || rec.summary || '') + '</div></div><span class="rec-type-badge rec-type-' + type + '">' + typeLabel + '</span>';
+                container.appendChild(item);
+            });
+        } catch (_) {
+            container.innerHTML = '';
+            var widget = document.getElementById('recommendations-widget');
+            if (widget) widget.style.display = 'none';
+        }
+    }
+
     async function loadQuestions() {
         try {
             if(feedContainer && communityData.questions.length === 0) {
@@ -1286,7 +1325,8 @@ window.NibrasReact.run(() => {
     async function initPage() {
         await loadCurrentUser();
         await loadTags(); // Fetch tags from backend
-        await loadQuestions(); 
+        await loadQuestions();
+        loadRecommendations(); // Fire-and-forget, silent fail
     }
     initPage();
 });
