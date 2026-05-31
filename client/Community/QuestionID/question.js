@@ -723,7 +723,25 @@ window.NibrasReact.run(() => {
                 roleBadge = `<span class="contrib-badge" style="background:#a855f7;color:#fff;">Anonymous</span>`;
             } else if (ans.isFromAI) {
                 roleColor = 'bg-purple';
-                roleBadge = `<span class="contrib-badge ${roleColor}">AI Tutor</span>`;
+                var confidence = ans.confidence || ans.aiConfidence || '';
+                var confidenceBadge = '';
+                if (confidence === 'high') {
+                    confidenceBadge = '<span class="ai-confidence-badge conf-high"><i class="fa-solid fa-circle-check"></i> High confidence</span>';
+                } else if (confidence === 'medium') {
+                    confidenceBadge = '<span class="ai-confidence-badge conf-medium"><i class="fa-solid fa-circle-exclamation"></i> Medium confidence</span>';
+                } else if (confidence === 'low') {
+                    confidenceBadge = '<span class="ai-confidence-badge conf-low"><i class="fa-solid fa-triangle-exclamation"></i> Low confidence</span>';
+                }
+                var reviewStatus = ans.aiReviewStatus || '';
+                var reviewBadge = '';
+                if (reviewStatus === 'pending') {
+                    reviewBadge = '<span class="ai-review-badge review-pending">Pending review</span>';
+                } else if (reviewStatus === 'approved') {
+                    reviewBadge = '<span class="ai-review-badge review-approved"><i class="fa-solid fa-check-circle"></i> Approved</span>';
+                } else if (reviewStatus === 'rejected') {
+                    reviewBadge = '<span class="ai-review-badge review-rejected">Rejected</span>';
+                }
+                roleBadge = `<span class="contrib-badge ${roleColor}">AI Tutor</span>${confidenceBadge}${reviewBadge}`;
             } else if (ans.authorRole === 'instructor') {
                 roleColor = 'bg-blue';
                 roleBadge = `<span class="contrib-badge ${roleColor}">Instructor</span>`;
@@ -734,6 +752,12 @@ window.NibrasReact.run(() => {
 
             const acceptButton = isQuestionAuthor && !isAccepted && !ans.isFromAI
                 ? `<button type="button" class="accept-answer-btn" data-comment-id="${ans.id}" title="Accept this answer" aria-label="Accept this answer"><i class="fa-regular fa-circle-check"></i> Accept</button>`
+                : '';
+
+            var isInstructor = currentUserRole === 'instructor';
+            var isAiPending = ans.isFromAI && (ans.aiReviewStatus === 'pending' || !ans.aiReviewStatus);
+            var aiReviewButtons = isInstructor && isAiPending
+                ? '<span class="ai-review-actions"><button type="button" class="btn-ai-approve" data-comment-id="' + ans.id + '" title="Approve AI answer"><i class="fa-solid fa-check"></i></button><button type="button" class="btn-ai-reject" data-comment-id="' + ans.id + '" title="Reject AI answer"><i class="fa-solid fa-xmark"></i></button></span>'
                 : '';
 
             const pinnedBadge = ans.isPinned ? `<span class="contrib-badge bg-green" style="margin-left:8px;"><i class="fa-solid fa-thumbtack"></i> Pinned</span>` : '';
@@ -779,6 +803,7 @@ window.NibrasReact.run(() => {
                             <div class="detail-actions" style="display:flex; align-items:center; gap:14px;">
                                 <span>${ans.time}</span>
                                 ${acceptButton}
+                                ${aiReviewButtons}
                                 <button type="button" class="fa-regular fa-flag report-btn" data-target-id="${ans.id}" data-target-type="answer" title="Report this answer" aria-label="Report this answer" style="background:none; border:none; cursor: pointer; font-size: 1rem; color: var(--text-secondary); transition: 0.2s;"></button>
                                 ${commentActionMenuHtml}
                             </div>
@@ -1003,6 +1028,46 @@ window.NibrasReact.run(() => {
                 console.error('Flag error:', error);
                 showToast(error.message || 'Failed to submit report.', 'error');
             }
+            return;
+        }
+
+        // ------------------------------------
+        // AI ANSWER: APPROVE
+        // ------------------------------------
+        var approveBtn = e.target.closest('.btn-ai-approve');
+        if (approveBtn) {
+            var commentId = approveBtn.getAttribute('data-comment-id');
+            if (commentId) approveAiAnswer(commentId);
+            return;
+        }
+
+        // ------------------------------------
+        // AI ANSWER: REJECT
+        // ------------------------------------
+        var rejectBtn = e.target.closest('.btn-ai-reject');
+        if (rejectBtn) {
+            var commentId = rejectBtn.getAttribute('data-comment-id');
+            if (commentId) rejectAiAnswer(commentId);
+            return;
+        }
+
+        // ------------------------------------
+        // AI ANSWER: SUGGEST (from preview)
+        // ------------------------------------
+        var approveSuggBtn = e.target.closest('#approveSuggestionBtn');
+        if (approveSuggBtn) {
+            var preview = document.getElementById('aiSuggestionPreview');
+            if (preview) preview.style.display = 'none';
+            showToast('AI answer approved and published.', 'success');
+            if (currentQuestionId) loadQuestion(currentQuestionId);
+            return;
+        }
+
+        var rejectSuggBtn = e.target.closest('#rejectSuggestionBtn');
+        if (rejectSuggBtn) {
+            var preview = document.getElementById('aiSuggestionPreview');
+            if (preview) preview.style.display = 'none';
+            showToast('AI suggestion dismissed.', 'info');
             return;
         }
     });
@@ -1355,6 +1420,101 @@ window.NibrasReact.run(() => {
         }
     });
 
+    // Wire up Suggest AI button
+    document.addEventListener('click', function (e) {
+        var btn = e.target.closest('#suggestAiBtn');
+        if (btn) {
+            e.preventDefault();
+            suggestAiAnswer();
+        }
+    });
+
+    // --- AI ANSWER FUNCTIONS ---
+    async function suggestAiAnswer() {
+        if (!currentQuestionId) return;
+        var preview = document.getElementById('aiSuggestionPreview');
+        var loading = document.getElementById('aiSuggestionLoading');
+        var content = document.getElementById('aiSuggestionContent');
+        var body = document.getElementById('aiSuggestionBody');
+        var badge = document.getElementById('aiConfidenceBadge');
+        var btn = document.getElementById('suggestAiBtn');
+        if (!preview || !loading || !content) return;
+
+        preview.style.display = 'block';
+        loading.style.display = 'block';
+        content.style.display = 'none';
+        if (btn) btn.disabled = true;
+
+        try {
+            var aiBaseUrl = BACKEND_URL.replace(/\/api\/?$/i, '').replace(/\/+$/, '') + '/api/ai';
+            var response = await fetch(aiBaseUrl + '/suggest-answer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + (getToken() || ''),
+                },
+                body: JSON.stringify({ questionId: currentQuestionId }),
+            });
+            if (!response.ok) throw new Error('API unavailable');
+            var data = await response.json();
+            var suggestedAnswer = data?.suggestedAnswer || data?.answer || data?.data?.suggestedAnswer || '';
+            var confidence = data?.confidence || data?.data?.confidence || 'medium';
+
+            loading.style.display = 'none';
+            content.style.display = 'block';
+
+            if (body) body.innerHTML = renderMarkdown(suggestedAnswer);
+            if (badge) {
+                badge.className = 'ai-confidence-badge conf-' + confidence;
+                var label = confidence === 'high' ? 'High confidence' : confidence === 'medium' ? 'Medium confidence' : 'Low confidence';
+                badge.innerHTML = (confidence === 'high' ? '<i class="fa-solid fa-circle-check"></i> ' : confidence === 'medium' ? '<i class="fa-solid fa-circle-exclamation"></i> ' : '<i class="fa-solid fa-triangle-exclamation"></i> ') + label;
+            }
+        } catch (err) {
+            loading.style.display = 'none';
+            preview.style.display = 'none';
+            showToast('AI suggestion unavailable. Please try again later.', 'error');
+        } finally {
+            if (btn) btn.disabled = false;
+        }
+    }
+
+    async function approveAiAnswer(answerId) {
+        try {
+            var aiBaseUrl = BACKEND_URL.replace(/\/api\/?$/i, '').replace(/\/+$/, '') + '/api/ai';
+            var response = await fetch(aiBaseUrl + '/answers/' + encodeURIComponent(String(answerId)) + '/approve', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + (getToken() || ''),
+                },
+            });
+            if (!response.ok) throw new Error('API unavailable');
+            showToast('AI answer approved.', 'success');
+            if (currentQuestionId) loadQuestion(currentQuestionId);
+        } catch (err) {
+            showToast('Failed to approve. API may not be ready yet.', 'error');
+        }
+    }
+
+    async function rejectAiAnswer(answerId) {
+        try {
+            var aiBaseUrl = BACKEND_URL.replace(/\/api\/?$/i, '').replace(/\/+$/, '') + '/api/ai';
+            var response = await fetch(aiBaseUrl + '/answers/' + encodeURIComponent(String(answerId)) + '/reject', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + (getToken() || ''),
+                },
+                body: JSON.stringify({ reason: '' }),
+            });
+            if (!response.ok) throw new Error('API unavailable');
+            showToast('AI answer rejected.', 'success');
+            if (currentQuestionId) loadQuestion(currentQuestionId);
+        } catch (err) {
+            showToast('Failed to reject. API may not be ready yet.', 'error');
+        }
+    }
+
     // --- INITIALIZATION ---
     async function initPage() {
         await loadCurrentUser(); 
@@ -1364,6 +1524,12 @@ window.NibrasReact.run(() => {
             loadQuestion(questionId);
         } else {
             showError('No question ID provided. Please select a question from the community page.', 'empty');
+        }
+
+        // Show AI suggest section for instructors
+        if (currentUserRole === 'instructor') {
+            var section = document.getElementById('aiSuggestSection');
+            if (section) section.style.display = 'block';
         }
 
         // INIT ANSWER BOX EDITOR

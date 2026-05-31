@@ -182,4 +182,151 @@ textarea:focus-visible,
 .bg-green { background-color: var(--tag-green-text); }
 .bg-purple { background-color: var(--tag-purple-text); }
 
+/* AI CONFIDENCE BADGE */
+.ai-confidence-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+    margin-left: 6px;
+}
+.conf-high { background: var(--tag-green-bg, #dcfce7); color: var(--tag-green-text, #16a34a); }
+.conf-medium { background: var(--tag-yellow-bg, #fef3c7); color: var(--tag-yellow-text, #d97706); }
+.conf-low { background: var(--tag-red-bg, #fee2e2); color: var(--tag-red-text, #dc2626); }
+
+/* AI REVIEW BADGE */
+.ai-review-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+    margin-left: 6px;
+}
+.review-pending { background: var(--tag-yellow-bg, #fef3c7); color: var(--tag-yellow-text, #d97706); border: 1px solid var(--tag-yellow-text, #d97706); }
+.review-approved { background: var(--tag-green-bg, #dcfce7); color: var(--tag-green-text, #16a34a); }
+.review-rejected { background: var(--tag-bg); color: var(--text-tertiary); }
+
+/* AI REVIEW ACTIONS (approve/reject buttons on answer cards) */
+.ai-review-actions {
+    display: inline-flex;
+    gap: 4px;
+    margin-left: 8px;
+}
+.btn-ai-approve, .btn-ai-reject {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    transition: 0.15s;
+}
+.btn-ai-approve:hover { border-color: #16a34a; color: #16a34a; background: rgba(22,163,74,0.08); }
+.btn-ai-reject:hover { border-color: #dc2626; color: #dc2626; background: rgba(220,38,38,0.08); }
+
+/* AI SUGGEST SECTION */
+.ai-suggest-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow);
+}
+.ai-suggest-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+.ai-suggest-header h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.ai-suggest-header h3 i { color: var(--accent-blue); }
+
+.btn-outline {
+    padding: 0.5rem 1rem;
+    background: transparent;
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: 0.2s;
+}
+.btn-outline:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+.btn-sm { padding: 0.4rem 0.8rem; font-size: 0.8rem; }
+
+.ai-suggestion-preview {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--bg-secondary, #f9fafb);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+}
+[data-theme="dark"] .ai-suggestion-preview { background: #1e293b; }
+
+.ai-suggestion-loading {
+    text-align: center;
+    padding: 1.5rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+.ai-suggestion-loading i { margin-right: 8px; }
+
+.ai-suggestion-body {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 0.75rem;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.ai-suggestion-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 0.75rem;
+    font-size: 0.8rem;
+}
+.ai-suggestion-note { color: var(--text-tertiary); font-style: italic; }
+
+.ai-suggestion-actions {
+    display: flex;
+    gap: 8px;
+}
+.btn-primary.btn-sm {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    background: var(--accent-blue);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+    transition: 0.2s;
+}
+.btn-primary.btn-sm:hover { background: var(--accent-blue-hover); }
+
 @media (max-width: 1024px) { .sidebar { display: none; } .main-content { margin-left: 0; } }

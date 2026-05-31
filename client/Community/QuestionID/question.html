@@ -124,6 +124,36 @@
                     <!-- JS Injected -->
                 </div>
 
+                <!-- AI Suggestion Section (visible to instructors via JS) -->
+                <div class="ai-suggest-section" id="aiSuggestSection" style="display: none;">
+                    <div class="ai-suggest-header">
+                        <h3><i class="fa-solid fa-brain"></i> AI Answer Assistant</h3>
+                        <button class="btn-outline btn-sm" id="suggestAiBtn" type="button">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Suggest AI Answer
+                        </button>
+                    </div>
+                    <div class="ai-suggestion-preview" id="aiSuggestionPreview" style="display: none;">
+                        <div class="ai-suggestion-loading" id="aiSuggestionLoading">
+                            <i class="fa-solid fa-circle-notch fa-spin"></i> Generating AI suggestion...
+                        </div>
+                        <div class="ai-suggestion-content" id="aiSuggestionContent">
+                            <div class="ai-suggestion-body markdown-body" id="aiSuggestionBody"></div>
+                            <div class="ai-suggestion-meta">
+                                <span class="ai-confidence-badge" id="aiConfidenceBadge"></span>
+                                <span class="ai-suggestion-note">AI-generated — review before approving</span>
+                            </div>
+                            <div class="ai-suggestion-actions">
+                                <button class="btn-primary btn-sm" id="approveSuggestionBtn" type="button">
+                                    <i class="fa-solid fa-check"></i> Approve & Publish
+                                </button>
+                                <button class="btn-outline btn-sm" id="rejectSuggestionBtn" type="button">
+                                    <i class="fa-solid fa-xmark"></i> Dismiss
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Your Answer Input -->
                 <div class="your-answer-section">
                     <h3>Your Answer</h3>

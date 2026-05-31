@@ -3267,6 +3267,48 @@
         async checkDuplicates(title) {
             return apiFetch('/api/ai/check-duplicates', { service: 'admin', method: 'POST', auth: true, body: { title } });
         },
+
+        /**
+         * Generate an AI-suggested answer for a question.
+         * POST /api/ai/suggest-answer
+         * @param {string} questionId
+         * @returns {Promise<{suggestedAnswer: string, confidence: string}>}
+         */
+        async suggestAnswer(questionId) {
+            return apiFetch('/api/ai/suggest-answer', { service: 'admin', method: 'POST', auth: true, body: { questionId } });
+        },
+
+        /**
+         * Approve an AI-generated answer for publishing.
+         * POST /api/ai/answers/:id/approve
+         * @param {string} answerId
+         * @returns {Promise<{success: boolean}>}
+         */
+        async approveAnswer(answerId) {
+            return apiFetch('/api/ai/answers/' + encodeURIComponent(String(answerId)) + '/approve', { service: 'admin', method: 'POST', auth: true });
+        },
+
+        /**
+         * Reject an AI-generated answer and optionally provide a reason.
+         * POST /api/ai/answers/:id/reject
+         * @param {string} answerId
+         * @param {string} [reason]
+         * @returns {Promise<{success: boolean}>}
+         */
+        async rejectAnswer(answerId, reason) {
+            return apiFetch('/api/ai/answers/' + encodeURIComponent(String(answerId)) + '/reject', { service: 'admin', method: 'POST', auth: true, body: { reason: reason || '' } });
+        },
+
+        /**
+         * Send feedback on an AI-generated answer.
+         * POST /api/ai/feedback
+         * @param {string} answerId
+         * @param {boolean} helpful
+         * @returns {Promise<{success: boolean}>}
+         */
+        async sendFeedback(answerId, helpful) {
+            return apiFetch('/api/ai/feedback', { service: 'admin', method: 'POST', auth: true, body: { answerId, helpful } });
+        },
     };
 
     // ============================================================
