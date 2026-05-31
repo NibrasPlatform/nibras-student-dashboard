@@ -16,6 +16,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="./engagement.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 </head>
 <body>
     <div id="app-root" hidden></div>
@@ -101,6 +102,20 @@
                 <a href="../Courses/courses.html" class="ana-tab">Courses</a>
                 <a href="./engagement.html" class="ana-tab active">Engagement</a>
             </div>
+
+            <!-- Platform-Wide Trends -->
+            <section class="card platform-trends-card">
+                <div class="card-header-simple">
+                    <h3>Platform-Wide Trends</h3>
+                    <p class="section-desc">Aggregate engagement metrics across the platform</p>
+                </div>
+                <div class="trends-grid" id="platform-stats-container">
+                    <!-- JS Injected -->
+                </div>
+                <div class="chart-wrapper" style="margin-top:1rem;">
+                    <canvas id="engagementTrendChart"></canvas>
+                </div>
+            </section>
 
             <!-- Engagement Grid -->
             <div class="engagement-grid">

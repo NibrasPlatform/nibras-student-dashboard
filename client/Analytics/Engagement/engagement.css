@@ -31,6 +31,9 @@
     --change-pos: #16a34a;
     --change-neg: #dc2626;
     
+    --chart-placeholder-bg: #f9fafb;
+    --chart-border: #e5e7eb;
+    
     --metric-row-border: #f3f4f6; /* Very light separator */
 }
 
@@ -60,6 +63,9 @@
 
     --change-pos: #4ade80;
     --change-neg: #f87171;
+    
+    --chart-placeholder-bg: #162032;
+    --chart-border: #475569;
     
     --metric-row-border: #334155;
 }
@@ -124,6 +130,23 @@ body { background-color: var(--bg-body); color: var(--text-primary); display: fl
 .card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; box-shadow: var(--shadow); }
 .card-header-simple h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.25rem; }
 .section-desc { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.5rem; }
+
+/* CHART WRAPPER */
+.chart-wrapper { height: 250px; position: relative; }
+.chart-wrapper canvas { width: 100% !important; height: 100% !important; }
+.chart-empty { height: 250px; background-color: var(--chart-placeholder-bg); border: 2px dashed var(--chart-border); border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-tertiary); text-align: center; padding: 1rem; }
+.chart-empty i { font-size: 2.5rem; margin-bottom: 1rem; }
+.chart-empty span { font-size: 0.85rem; max-width: 280px; line-height: 1.4; }
+
+/* PLATFORM TRENDS */
+.platform-trends-card { margin-bottom: 2rem; }
+.trends-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; }
+.trend-stat { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--bg-body); }
+.trend-stat-icon { width: 36px; height: 36px; border-radius: 8px; background-color: var(--accent-blue); color: white; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+[data-theme="dark"] .trend-stat-icon { background-color: #1e40af; }
+.trend-stat-body { display: flex; flex-direction: column; }
+.trend-stat-val { font-size: 1.1rem; font-weight: 700; color: var(--text-primary); line-height: 1.2; }
+.trend-stat-label { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; }
 
 /* ENGAGEMENT LAYOUT */
 .engagement-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
