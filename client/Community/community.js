@@ -358,9 +358,13 @@ window.NibrasReact.run(() => {
     }
 
     async function loadRecommendations() {
+        var widget = document.getElementById('recommendations-widget');
         var container = document.getElementById('recommendations-container');
-        if (!container) return;
+        if (!container || !widget) return;
+
+        widget.style.display = 'block';
         container.innerHTML = '<div class="rec-skeleton"><div class="rec-skel-line"></div><div class="rec-skel-line"></div><div class="rec-skel-line rec-skel-short"></div></div>';
+
         try {
             var aiBaseUrl = BACKEND_URL.replace(/\/api\/?$/i, '').replace(/\/+$/, '') + '/api/ai';
             var response = await fetch(aiBaseUrl + '/recommendations', {
@@ -386,13 +390,12 @@ window.NibrasReact.run(() => {
                 item.className = 'rec-item';
                 item.href = link;
                 item.target = '_blank';
-                item.innerHTML = '<div class="rec-item-icon"><i class="' + icon + '"></i></div><div class="rec-item-text"><div class="rec-item-title">' + escapeHtml(rec.title || 'Recommendation') + '</div><div class="rec-item-desc">' + escapeHtml(rec.description || rec.summary || '') + '</div></div><span class="rec-type-badge rec-type-' + type + '">' + typeLabel + '</span>';
+                item.innerHTML = '<div class="rec-item-icon"><i class="' + icon + '"></i></div><div class="rec-item-text"><div class="rec-item-title">' + escapeHtml(rec.title || 'Recommendation') + '</div><div class="rec-item-desc">' + escapeHtml(rec.description || rec.summary || '') + '</div></span><span class="rec-type-badge rec-type-' + type + '">' + typeLabel + '</span>';
                 container.appendChild(item);
             });
         } catch (_) {
+            widget.style.display = 'none';
             container.innerHTML = '';
-            var widget = document.getElementById('recommendations-widget');
-            if (widget) widget.style.display = 'none';
         }
     }
 
