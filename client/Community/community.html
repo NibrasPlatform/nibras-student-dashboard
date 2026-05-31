@@ -204,6 +204,13 @@
                 <div class="form-group">
                     <label for="question-title">Question Title <span class="required">*</span></label>
                     <input type="text" id="question-title" placeholder="e.g., How to implement a binary search tree efficiently?">
+                    <div class="duplicate-banner" id="duplicate-banner" style="display: none;">
+                        <div class="duplicate-header">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                            <span class="duplicate-msg"></span>
+                        </div>
+                        <div class="duplicate-list" id="duplicate-list"></div>
+                    </div>
                 </div>
 
                 <div class="form-group" style="display:none;">

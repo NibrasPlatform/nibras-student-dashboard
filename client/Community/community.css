@@ -301,6 +301,90 @@ select:focus-visible,
 
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+    /* DUPLICATE DETECTION BANNER */
+    .duplicate-banner {
+        margin-top: 10px;
+        padding: 12px 14px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        background: var(--info-box-bg);
+        display: none;
+        animation: fadeIn 0.25s ease;
+    }
+
+    .duplicate-banner.has-results {
+        border-color: var(--tag-yellow-text, #d97706);
+        background: var(--tag-yellow-bg, #fef3c7);
+    }
+
+    .duplicate-banner.loading {
+        border-color: var(--border-color);
+    }
+
+    .duplicate-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+    }
+
+    .duplicate-header i {
+        color: var(--tag-orange-text, #ea580c);
+        font-size: 0.9rem;
+    }
+
+    .duplicate-banner.loading .duplicate-header i {
+        color: var(--text-tertiary);
+        animation: fa-spin 1s infinite linear;
+    }
+
+    .duplicate-list {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .duplicate-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px 10px;
+        border-radius: 6px;
+        text-decoration: none;
+        color: var(--text-primary);
+        font-size: 0.82rem;
+        transition: background 0.15s;
+    }
+
+    .duplicate-item:hover {
+        background: rgba(0,0,0,0.04);
+    }
+
+    [data-theme="dark"] .duplicate-item:hover {
+        background: rgba(255,255,255,0.06);
+    }
+
+    .duplicate-item-title {
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-right: 12px;
+    }
+
+    .duplicate-score {
+        flex-shrink: 0;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        background: var(--accent-blue);
+        color: #fff;
+    }
+
     @media (max-width: 1024px) {
         .sidebar { display: none; }
         .main-content { margin-left: 0; }

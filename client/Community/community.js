@@ -1125,6 +1125,91 @@ window.NibrasReact.run(() => {
     const postQuestionBtn = document.getElementById('postQuestionBtn');
     let lastFocusedElement = null;
 
+    // --- DUPLICATE DETECTION ---
+    let duplicateCheckTimeout = null;
+    const DUPLICATE_DEBOUNCE_MS = 800;
+
+    async function checkDuplicates(title) {
+        if (!title || title.length < 5) {
+            hideDuplicateBanner();
+            return;
+        }
+        showDuplicateBannerLoading();
+        try {
+            var aiBaseUrl = BACKEND_URL.replace(/\/api\/?$/i, '').replace(/\/+$/, '') + '/api/ai';
+            var response = await fetch(aiBaseUrl + '/check-duplicates', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + (getToken() || ''),
+                },
+                body: JSON.stringify({ title: title }),
+            });
+            if (!response.ok) throw new Error('API not available');
+            var data = await response.json();
+            var duplicates = data?.duplicates || data?.similar || data?.data || [];
+            if (Array.isArray(duplicates) && duplicates.length > 0) {
+                showDuplicateBanner(duplicates);
+            } else {
+                hideDuplicateBanner();
+            }
+        } catch (_) {
+            hideDuplicateBanner();
+        }
+    }
+
+    function showDuplicateBannerLoading() {
+        var banner = document.getElementById('duplicate-banner');
+        var msg = banner?.querySelector('.duplicate-msg');
+        if (!banner) return;
+        banner.className = 'duplicate-banner loading';
+        if (msg) msg.textContent = 'Checking for similar questions...';
+        banner.style.display = 'block';
+    }
+
+    function showDuplicateBanner(duplicates) {
+        var banner = document.getElementById('duplicate-banner');
+        var msg = banner?.querySelector('.duplicate-msg');
+        var list = document.getElementById('duplicate-list');
+        if (!banner || !list) return;
+        banner.className = 'duplicate-banner has-results';
+        if (msg) msg.textContent = duplicates.length + ' similar question' + (duplicates.length > 1 ? 's' : '') + ' found — your question may already have an answer';
+        list.innerHTML = '';
+        duplicates.forEach(function (d) {
+            var item = document.createElement('a');
+            item.className = 'duplicate-item';
+            item.href = '../Community/QuestionID/question.html?id=' + encodeURIComponent(d._id || d.id);
+            item.target = '_blank';
+            item.innerHTML = '<span class="duplicate-item-title">' + escapeHtml(d.title) + '</span>' +
+                '<span class="duplicate-score">' + Math.round((d.score || d.relevance || 0) * 100) + '% match</span>';
+            list.appendChild(item);
+        });
+        banner.style.display = 'block';
+    }
+
+    function hideDuplicateBanner() {
+        var banner = document.getElementById('duplicate-banner');
+        if (banner) banner.style.display = 'none';
+    }
+
+    // Wire up duplicate detection on title input
+    (function () {
+        var titleInput = document.getElementById('question-title');
+        if (titleInput) {
+            titleInput.addEventListener('input', function () {
+                clearTimeout(duplicateCheckTimeout);
+                var title = this.value.trim();
+                if (title.length < 5) {
+                    hideDuplicateBanner();
+                    return;
+                }
+                duplicateCheckTimeout = setTimeout(function () {
+                    checkDuplicates(title);
+                }, DUPLICATE_DEBOUNCE_MS);
+            });
+        }
+    })();
+
     const resetModalAndClose = () => {
         modal.style.display = 'none';
         modal.setAttribute('aria-hidden', 'true');
@@ -1132,6 +1217,7 @@ window.NibrasReact.run(() => {
         if (tagSearchInput) tagSearchInput.value = '';
         if (tagWarning) tagWarning.style.display = 'none';
         renderModalTags();
+        hideDuplicateBanner();
         if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
             lastFocusedElement.focus();
         }

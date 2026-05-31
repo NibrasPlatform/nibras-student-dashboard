@@ -3257,6 +3257,16 @@
         async getRecommendation() {
             return apiFetch('/ai/grades', { service: 'admin', method: 'GET', auth: true });
         },
+
+        /**
+         * Check for duplicate/similar questions before posting.
+         * POST /api/ai/check-duplicates
+         * @param {string} title - Question title to check
+         * @returns {Promise<{duplicates: Array<{_id: string, title: string, score: number}>}>}
+         */
+        async checkDuplicates(title) {
+            return apiFetch('/api/ai/check-duplicates', { service: 'admin', method: 'POST', auth: true, body: { title } });
+        },
     };
 
     // ============================================================
