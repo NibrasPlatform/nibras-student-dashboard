@@ -3102,6 +3102,145 @@
                 auth: true,
             });
         },
+
+        // ---- Phase 9: Analytics & Insights ----
+
+        /**
+         * Get individual student metrics (grades, progress, activity, contest performance)
+         * Backend: GET /api/analytics/students/:id
+         * @param {string} studentId
+         * @returns {Promise<{success: boolean, data: object}>}
+         */
+        async getStudentMetrics(studentId) {
+            return apiFetch(`/analytics/students/${encodeURIComponent(String(studentId))}`, {
+                service: 'admin',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        /**
+         * Get student progress over time with trend lines
+         * Backend: GET /api/analytics/students/:id/progress
+         * @param {string} studentId
+         * @returns {Promise<{success: boolean, data: object}>}
+         */
+        async getStudentProgress(studentId) {
+            return apiFetch(`/analytics/students/${encodeURIComponent(String(studentId))}/progress`, {
+                service: 'admin',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        /**
+         * Get list of at-risk students with risk factors and scores
+         * Backend: GET /api/analytics/students/at-risk
+         * @returns {Promise<{success: boolean, data: array}>}
+         */
+        async getAtRiskStudents() {
+            return apiFetch('/analytics/students/at-risk', {
+                service: 'admin',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        /**
+         * Get course-level metrics (completion rates, average grades, engagement)
+         * Backend: GET /api/analytics/courses/:id
+         * @param {string} courseId
+         * @returns {Promise<{success: boolean, data: object}>}
+         */
+        async getCourseMetrics(courseId) {
+            return apiFetch(`/analytics/courses/${encodeURIComponent(String(courseId))}`, {
+                service: 'admin',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        /**
+         * Get section-by-section comparison for a course
+         * Backend: GET /api/analytics/courses/:id/sections
+         * @param {string} courseId
+         * @returns {Promise<{success: boolean, data: array}>}
+         */
+        async getCourseSections(courseId) {
+            return apiFetch(`/analytics/courses/${encodeURIComponent(String(courseId))}/sections`, {
+                service: 'admin',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        /**
+         * Get per-assignment performance breakdown for a course
+         * Backend: GET /api/analytics/courses/:id/assignments
+         * @param {string} courseId
+         * @returns {Promise<{success: boolean, data: array}>}
+         */
+        async getCourseAssignments(courseId) {
+            return apiFetch(`/analytics/courses/${encodeURIComponent(String(courseId))}/assignments`, {
+                service: 'admin',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        /**
+         * Get platform-wide aggregate metrics (active users, questions asked, contests held)
+         * Backend: GET /api/analytics/platform
+         * @returns {Promise<{success: boolean, data: object}>}
+         */
+        async getPlatformMetrics() {
+            return apiFetch('/analytics/platform', {
+                service: 'admin',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        /**
+         * Get platform engagement trends over time
+         * Backend: GET /api/analytics/platform/engagement
+         * @returns {Promise<{success: boolean, data: array}>}
+         */
+        async getPlatformEngagement() {
+            return apiFetch('/analytics/platform/engagement', {
+                service: 'admin',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        /**
+         * Export student reports in specified format
+         * Backend: GET /api/analytics/export/students?format=csv|pdf
+         * @param {string} format - 'csv' or 'pdf'
+         * @returns {Promise<{success: boolean, data: blob}>}
+         */
+        async exportStudentsReport(format) {
+            return apiFetch(`/analytics/export/students?format=${encodeURIComponent(format)}`, {
+                service: 'admin',
+                method: 'GET',
+                auth: true,
+            });
+        },
+
+        /**
+         * Export course reports in specified format for accreditation
+         * Backend: GET /api/analytics/export/courses?format=pdf|csv
+         * @param {string} format - 'pdf' or 'csv'
+         * @returns {Promise<{success: boolean, data: blob}>}
+         */
+        async exportCoursesReport(format) {
+            return apiFetch(`/analytics/export/courses?format=${encodeURIComponent(format)}`, {
+                service: 'admin',
+                method: 'GET',
+                auth: true,
+            });
+        },
     };
 
     // ============================================================

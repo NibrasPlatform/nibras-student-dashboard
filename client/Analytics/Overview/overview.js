@@ -9,7 +9,6 @@ window.NibrasReact.run(function () {
     });
 
     var statsContainer = document.getElementById('stats-container');
-    var enContainer = document.getElementById('enrollment-container');
     var sumContainer = document.getElementById('summary-container');
 
     var services = window.NibrasServices;
@@ -32,14 +31,11 @@ window.NibrasReact.run(function () {
             var coursesSummary = data.coursesGradeSummary || [];
             var activities = data.recentActivities || [];
             var submissionSum = data.submissionSummary || {};
-            var problemProg = data.problemProgress || {};
 
             var enrolledCount = coursesSummary.length;
             var completedCourses = coursesSummary.filter(function (c) { return c.status === 'completed'; }).length;
             var grades = coursesSummary.map(function (c) { return c.weightedGrade || 0; }).filter(function (g) { return g > 0; });
             var avgGrade = grades.length > 0 ? Math.round(grades.reduce(function (a, b) { return a + b; }, 0) / grades.length) : 0;
-
-            var studentName = studentStats.name || (user && user.name) || 'Student';
 
             var stats = [
                 { label: 'Courses Enrolled', value: String(enrolledCount), change: completedCourses + ' completed', isPos: true, icon: 'fa-solid fa-book-open' },
@@ -60,21 +56,7 @@ window.NibrasReact.run(function () {
                 ].join('');
             });
 
-            enContainer.innerHTML = '';
-            if (coursesSummary.length === 0) {
-                enContainer.innerHTML = '<p style="color:var(--text-secondary);padding:1rem;">No courses enrolled yet.</p>';
-            } else {
-                coursesSummary.forEach(function (c) {
-                    var pct = c.percentage || 0;
-                    var title = c.title || c.courseCode || 'Course';
-                    enContainer.innerHTML += [
-                        '<div class="en-item">',
-                        '<div class="en-head"><span>' + escapeHtml(title) + '</span><span class="en-count">' + pct + '%</span></div>',
-                        '<div class="en-track"><div class="en-fill" style="width:' + pct + '%;background-color:var(--bar-orange)"></div></div>',
-                        '</div>',
-                    ].join('');
-                });
-            }
+            renderEnrollmentChart(coursesSummary);
 
             sumContainer.innerHTML = '';
             if (activities.length === 0) {
@@ -100,6 +82,116 @@ window.NibrasReact.run(function () {
             }
         }).catch(function () {
             statsContainer.innerHTML = '<p style="color:var(--text-secondary);padding:2rem;text-align:center;">Failed to load analytics data.</p>';
+        });
+
+        services.backendAnalyticsService.getStudentProgress(user._id).then(function (res) {
+            var progressData = res && (res.data || res);
+            renderProgressChart(progressData);
+        }).catch(function () {
+            renderProgressChart(null);
+        });
+    }
+
+    function renderEnrollmentChart(coursesSummary) {
+        var canvas = document.getElementById('enrollmentChart');
+        if (!canvas || typeof Chart === 'undefined') return;
+
+        if (!coursesSummary || coursesSummary.length === 0) {
+            canvas.style.display = 'none';
+            return;
+        }
+
+        var labels = coursesSummary.map(function (c) { return c.title || c.courseCode || 'Course'; });
+        var gradeData = coursesSummary.map(function (c) { return c.weightedGrade || 0; });
+        var bgColors = gradeData.map(function (g) {
+            if (g >= 90) return '#10b981';
+            if (g >= 75) return '#3b82f6';
+            if (g >= 60) return '#eab308';
+            if (g >= 45) return '#f97316';
+            return '#ef4444';
+        });
+
+        new Chart(canvas.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Grade (%)',
+                    data: gradeData,
+                    backgroundColor: bgColors,
+                    borderColor: bgColors,
+                    borderWidth: 1,
+                    borderRadius: 4,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, max: 100, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'Inter' } } },
+                    x: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 11 } } }
+                }
+            }
+        });
+    }
+
+    function renderProgressChart(progressData) {
+        var canvas = document.getElementById('progressTrendChart');
+        if (!canvas || typeof Chart === 'undefined') return;
+
+        var hasData = progressData && progressData.progress && progressData.progress.length > 0;
+
+        if (!hasData) {
+            var wrapper = canvas.parentElement;
+            wrapper.innerHTML = '<div class="chart-empty"><i class="fa-solid fa-chart-line"></i><span>Progress data will appear once the backend aggregates your learning history</span></div>';
+            return;
+        }
+
+        var points = progressData.progress;
+        var labels = points.map(function (p) { return p.period || p.label || ''; });
+        var gradeData = points.map(function (p) { return p.grade || 0; });
+        var completionData = points.map(function (p) { return p.completion || p.completionRate || 0; });
+
+        new Chart(canvas.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Grade',
+                        data: gradeData,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#3b82f6',
+                    },
+                    {
+                        label: 'Completion',
+                        data: completionData,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#10b981',
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                interaction: { intersect: false, mode: 'index' },
+                plugins: {
+                    legend: { position: 'top', labels: { font: { family: 'Inter', size: 12 } } }
+                },
+                scales: {
+                    y: { beginAtZero: true, max: 100, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'Inter' } } },
+                    x: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 11 } } }
+                }
+            }
         });
     }
 

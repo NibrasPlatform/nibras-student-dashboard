@@ -16,6 +16,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="./overview.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 </head>
 <body>
     <div id="app-root" hidden></div>
@@ -105,15 +106,14 @@
             <!-- Main Charts Grid -->
             <div class="charts-layout">
                 
-                <!-- Learning Progress Trends (Placeholder Chart) -->
+                <!-- Learning Progress Trends -->
                 <section class="card chart-card">
                     <div class="card-header-simple">
                         <h3>Learning Progress Trends</h3>
                         <p class="section-desc">Student progress over time</p>
                     </div>
-                    <div class="chart-placeholder">
-                        <i class="fa-solid fa-chart-line"></i>
-                        <span>Progress Chart Visualization</span>
+                    <div class="chart-wrapper">
+                        <canvas id="progressTrendChart"></canvas>
                     </div>
                 </section>
 
@@ -121,10 +121,10 @@
                 <section class="card distribution-card">
                     <div class="card-header-simple">
                         <h3>Course Enrollment Distribution</h3>
-                        <p class="section-desc">Students across different courses</p>
+                        <p class="section-desc">Grades across enrolled courses</p>
                     </div>
-                    <div class="enrollment-list" id="enrollment-container">
-                        <!-- JS Injected -->
+                    <div class="chart-wrapper">
+                        <canvas id="enrollmentChart"></canvas>
                     </div>
                 </section>
 
