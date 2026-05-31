@@ -319,6 +319,194 @@ select:focus-visible,
 .grade-total-row .grade-total-value { color: var(--accent-blue); }
 .grade-no-data { font-size: 0.85rem; color: var(--text-secondary); padding: 16px; text-align: center; }
 
+/* ── GITHUB CONNECT MODAL ──────────────────────────── */
+.gh-steps { display: flex; align-items: center; justify-content: center; margin-bottom: 24px; gap: 0; }
+.gh-step { display: flex; align-items: center; gap: 8px; opacity: 0.4; }
+.gh-step.active { opacity: 1; }
+.gh-step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--border-color); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; }
+.gh-step.active .gh-step-num { background: var(--accent-blue); color: white; }
+.gh-step-label { font-size: 0.8rem; font-weight: 500; color: var(--text-primary); }
+.gh-step-connector { width: 40px; height: 2px; background: var(--border-color); margin: 0 8px; }
+
+.gh-panel { padding: 8px 0; }
+.gh-panel-desc { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 16px; }
+.gh-hint { font-size: 0.75rem; color: var(--text-secondary); text-align: center; margin-top: 10px; }
+.gh-field-hint { font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; }
+.gh-status-info { font-size: 0.85rem; color: var(--text-secondary); padding: 12px; background: var(--bg-secondary); border-radius: 6px; display: flex; align-items: center; gap: 8px; }
+.gh-authenticated-badge { font-size: 0.85rem; color: var(--status-graded-text); padding: 10px 14px; background: var(--status-graded-bg); border-radius: 6px; display: flex; align-items: center; gap: 8px; font-weight: 500; }
+.gh-authenticated-badge i { font-size: 1rem; }
+.gh-connect-summary { background: var(--bg-secondary); border-radius: 8px; padding: 12px; margin-bottom: 16px; }
+.gh-connect-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; }
+.gh-connect-row:last-child { border-bottom: none; }
+.gh-connect-label { color: var(--text-secondary); }
+.gh-connect-value { color: var(--text-primary); font-weight: 600; word-break: break-all; }
+.gh-success-icon { text-align: center; font-size: 3rem; color: var(--status-graded-text); margin-bottom: 12px; }
+.gh-success-title { text-align: center; font-size: 1.1rem; font-weight: 600; margin-bottom: 8px; }
+.gh-success-desc { text-align: center; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 20px; }
+.gh-repo-name { color: var(--accent-blue); font-weight: 600; }
+.gh-error { padding: 10px 12px; background: var(--status-late-bg); color: var(--status-late-text); border-radius: 6px; font-size: 0.85rem; margin-top: 12px; }
+
+/* ── CACHE INDICATOR ─────────────────────────────── */
+.cache-indicator { font-size: 0.7rem; padding: 3px 10px; border-radius: 12px; font-weight: 500; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.cache-fresh { background: var(--status-graded-bg); color: var(--status-graded-text); }
+.cache-stale { background: var(--status-late-bg); color: var(--status-late-text); }
+
+/* ── CONTRIBUTION ANALYTICS MODAL ────────────────── */
+.analytics-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+.analytics-stat-card { background: var(--bg-secondary); border-radius: 8px; padding: 14px; text-align: center; }
+.analytics-stat-value { font-size: 1.3rem; font-weight: 700; color: var(--accent-blue); display: block; }
+.analytics-stat-label { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; display: block; }
+
+.analytics-tabs { display: flex; gap: 4px; background: var(--bg-secondary); padding: 4px; border-radius: 8px; margin-bottom: 16px; width: fit-content; }
+.analytics-tab { padding: 8px 16px; font-size: 0.8rem; font-weight: 500; border-radius: 6px; color: var(--text-secondary); background: transparent; border: none; cursor: pointer; }
+.analytics-tab.active { background: var(--bg-card); color: var(--accent-blue); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.analytics-tab-panel { display: none; }
+.analytics-tab-panel.active { display: block; }
+
+.analytics-chart-container { margin-bottom: 16px; }
+.analytics-bar-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
+.analytics-bar-label { width: 120px; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0; }
+.analytics-bar-track { flex: 1; height: 20px; background: var(--btn-secondary-bg); border-radius: 10px; overflow: hidden; position: relative; }
+.analytics-bar-fill { height: 100%; border-radius: 10px; transition: width 0.5s ease; min-width: 2px; }
+.analytics-bar-value { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 0.7rem; font-weight: 600; color: var(--text-primary); opacity: 0.8; }
+.analytics-bar-stat { width: 100px; text-align: right; font-size: 0.75rem; color: var(--text-secondary); flex-shrink: 0; }
+
+.analytics-table-container table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+.analytics-table-container th { padding: 10px 12px; border-bottom: 1px solid var(--border-color); color: var(--text-secondary); font-weight: 600; text-align: left; }
+.analytics-table-container td { padding: 10px 12px; border-bottom: 1px solid var(--border-color); }
+
+.analytics-frequency-item { display: flex; align-items: center; gap: 10px; padding: 6px 0; }
+.analytics-frequency-date { width: 100px; font-size: 0.75rem; color: var(--text-secondary); flex-shrink: 0; }
+.analytics-frequency-bar { flex: 1; height: 12px; background: var(--btn-secondary-bg); border-radius: 6px; overflow: hidden; }
+.analytics-frequency-fill { height: 100%; background: var(--accent-blue); border-radius: 6px; opacity: 0.7; }
+.analytics-frequency-count { width: 40px; text-align: right; font-size: 0.75rem; color: var(--text-primary); font-weight: 600; }
+
+/* ── TEAM MANAGEMENT MODAL ───────────────────────── */
+.team-section-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border-color); }
+.team-member-list { max-height: 240px; overflow-y: auto; }
+.team-member-card { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--bg-secondary); border-radius: 6px; margin-bottom: 6px; }
+.team-member-avatar-sm { width: 28px; height: 28px; border-radius: 50%; background: var(--accent-light); color: var(--accent-blue); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; flex-shrink: 0; }
+.team-member-card-info { flex: 1; min-width: 0; }
+.team-member-card-name { font-size: 0.85rem; font-weight: 500; color: var(--text-primary); }
+.team-member-card-role { font-size: 0.75rem; color: var(--text-secondary); }
+.team-member-card-actions { display: flex; gap: 4px; }
+.team-member-role-select { padding: 4px 6px; border-radius: 4px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary); font-size: 0.75rem; }
+.team-member-remove-btn { padding: 4px 8px; border: none; background: transparent; color: var(--status-late-text); font-size: 0.8rem; cursor: pointer; border-radius: 4px; }
+.team-member-remove-btn:hover { background: var(--status-late-bg); }
+.team-invite-row { display: flex; gap: 8px; align-items: center; }
+.team-invite-row input { padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-body); color: var(--text-primary); font-family: inherit; font-size: 0.9rem; }
+.gh-success-msg { padding: 12px; background: var(--status-graded-bg); color: var(--status-graded-text); border-radius: 6px; font-size: 0.85rem; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+/* ── COMMIT HISTORY MODAL ────────────────────────── */
+.commit-summary-bar { display: flex; gap: 16px; padding: 12px 16px; background: var(--bg-secondary); border-radius: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.commit-summary-item { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--text-secondary); }
+.commit-summary-item strong { color: var(--text-primary); font-size: 0.95rem; }
+.commit-contrib-breakdown { margin-bottom: 16px; }
+.commit-contrib-title { font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+.commit-contrib-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; }
+.commit-contrib-name { width: 120px; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.commit-contrib-track { flex: 1; height: 8px; background: var(--btn-secondary-bg); border-radius: 4px; overflow: hidden; }
+.commit-contrib-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
+.commit-contrib-pct { width: 36px; text-align: right; font-size: 0.75rem; font-weight: 600; color: var(--text-primary); }
+.commit-contrib-stat { font-size: 0.75rem; color: var(--text-secondary); min-width: 80px; text-align: right; }
+.commit-item { padding: 12px 14px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.commit-item:last-child { border-bottom: none; }
+.commit-item-left { flex: 1; min-width: 0; }
+.commit-item-msg { font-size: 0.85rem; font-weight: 500; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.commit-item-meta { display: flex; gap: 16px; font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; }
+.commit-item-meta i { margin-right: 3px; }
+.commit-item-sha { font-family: monospace; font-size: 0.75rem; color: var(--accent-blue); background: var(--accent-light); padding: 2px 8px; border-radius: 4px; white-space: nowrap; }
+
+/* ── PULSE TRACKER ─────────────────────────── */
+.pulse-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.pulse-step {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    opacity: 0.5;
+    transition: all 0.3s ease;
+}
+
+.pulse-step.step-active { opacity: 1; transform: translateX(10px); }
+.pulse-step.step-done { opacity: 1; color: var(--status-graded-text); }
+.pulse-step.step-failed { opacity: 1; color: #ef4444; }
+
+.pulse-step .step-icon {
+    width: 32px; height: 32px; border-radius: 50%; background-color: var(--border-color);
+    display: flex; align-items: center; justify-content: center; font-size: 0.9rem; flex-shrink: 0;
+}
+
+.pulse-step.step-active .step-icon { background-color: var(--accent-blue); color: white; box-shadow: 0 0 0 4px var(--accent-light); animation: pulse-animation 2s infinite; }
+.pulse-step.step-done .step-icon { background-color: var(--status-graded-bg); color: var(--status-graded-text); }
+.pulse-step.step-failed .step-icon { background-color: var(--status-late-bg); color: var(--status-late-text); }
+
+.pulse-step .step-text { flex: 1; }
+.pulse-step .step-title { font-weight: 600; font-size: 0.95rem; display: block; }
+.pulse-step .step-desc { font-size: 0.8rem; color: var(--text-secondary); }
+
+@keyframes pulse-animation {
+    0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(37, 99, 235, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+}
+
+/* ── PULSE RESULT DETAILS ──────────────────── */
+.pulse-result-details {
+    margin-top: 1.25rem;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    display: none;
+}
+
+.pulse-result-details.show { display: block; }
+
+.pulse-result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    font-size: 0.85rem;
+}
+
+.pulse-result-label { color: var(--text-secondary); }
+.pulse-result-value { font-weight: 600; color: var(--text-primary); }
+
+.pulse-result-pass { color: var(--status-graded-text); }
+.pulse-result-fail { color: var(--status-late-text); }
+
+.pulse-result-tests {
+    margin-top: 10px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 10px;
+}
+
+.pulse-test-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    font-size: 0.8rem;
+}
+
+.pulse-retry-btn {
+    margin-top: 12px;
+    width: 100%;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.pulse-retry-btn.show { display: flex; }
+
 /* Responsive */
 @media (max-width: 1024px) {
     .sidebar { display: none; }

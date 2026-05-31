@@ -189,6 +189,40 @@
                     <span id="grade-course-subtitle" class="course-label">Select a course on the Projects tab first.</span>
                 </div>
 
+                <!-- Final Grade Summary -->
+                <div id="grade-final-summary" class="grade-final-summary" style="display:none;margin-bottom:16px;">
+                    <div class="grade-final-header">
+                        <h3><i class="fa-solid fa-calculator"></i> Final Grade Summary</h3>
+                        <button class="inst-primary-btn" id="btn-finalize-all-grades" style="font-size:0.8rem;padding:0.5rem 1rem;">
+                            <i class="fa-solid fa-check-double"></i> Finalize All
+                        </button>
+                    </div>
+                    <div id="grade-final-breakdown" class="grade-final-breakdown">
+                        <div class="grade-final-stat">
+                            <span class="grade-final-stat-value" id="final-stat-teams">0</span>
+                            <span class="grade-final-stat-label">Teams</span>
+                        </div>
+                        <div class="grade-final-stat">
+                            <span class="grade-final-stat-value" id="final-stat-finalized">0</span>
+                            <span class="grade-final-stat-label">Finalized</span>
+                        </div>
+                        <div class="grade-final-stat">
+                            <span class="grade-final-stat-value" id="final-stat-not-finalized">0</span>
+                            <span class="grade-final-stat-label">Not Finalized</span>
+                        </div>
+                        <div class="grade-final-stat">
+                            <span class="grade-final-stat-value" id="final-stat-avg-grade">0%</span>
+                            <span class="grade-final-stat-label">Average</span>
+                        </div>
+                    </div>
+                    <div class="grade-final-member-adjustments" id="final-member-adjustments" style="display:none;">
+                        <p style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:8px;">
+                            <i class="fa-solid fa-sliders"></i> Per-member grade adjustments (based on contribution):
+                        </p>
+                        <div id="final-member-adjust-rows"></div>
+                    </div>
+                </div>
+
                 <!-- Stats -->
                 <div class="grade-stats" id="grade-stats" style="display:none">
                     <div class="stat-card"><span class="stat-label">Total Teams</span><span class="stat-value" id="stat-total">0</span></div>

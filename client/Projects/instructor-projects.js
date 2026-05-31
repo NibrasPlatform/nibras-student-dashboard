@@ -834,6 +834,12 @@
                 alert('Templates page coming soon.');
                 return;
             }
+
+            /* Finalize all grades */
+            if (e.target.closest('#btn-finalize-all-grades')) {
+                finalizeAllGrades();
+                return;
+            }
         });
     }
 
@@ -973,6 +979,7 @@
             generateDemoGradeSubmissions(projectId);
             renderGradeSubmissions();
         }
+        renderFinalGradeSummary();
     }
 
     function generateDemoGradeSubmissions(projectId) {
@@ -1326,6 +1333,105 @@
     function closeGradeModal() {
         document.getElementById('grade-detail-modal').style.display = 'none';
         gradeCurrentSubmission = null;
+    }
+
+    /* ── Final Grade Summary ─────────────────────────── */
+
+    function renderFinalGradeSummary() {
+        var container = document.getElementById('grade-final-summary');
+        if (!gradeSubmissions.length || !gradeCurrentProject) {
+            container.style.display = 'none';
+            return;
+        }
+
+        var total = gradeSubmissions.length;
+        var finalized = gradeSubmissions.filter(function (s) { return s.status === 'graded'; }).length;
+        var notFinalized = total - finalized;
+        var scores = gradeSubmissions.filter(function (s) { return s.score != null; }).map(function (s) { return s.score; });
+        var avg = scores.length ? Math.round(scores.reduce(function (a, b) { return a + b; }, 0) / scores.length) : 0;
+        var maxScore = gradeCurrentProject.points || 100;
+
+        document.getElementById('final-stat-teams').textContent = total;
+        document.getElementById('final-stat-finalized').textContent = finalized;
+        document.getElementById('final-stat-not-finalized').textContent = notFinalized;
+        document.getElementById('final-stat-avg-grade').textContent = avg + '/' + maxScore + ' (' + Math.round((avg / maxScore) * 100) + '%)';
+
+        var allMembers = [];
+        gradeSubmissions.forEach(function (s) {
+            if (s.contribution && s.contribution.length) {
+                s.contribution.forEach(function (c) {
+                    allMembers.push({ name: c.name, commits: c.commits || 0, pct: c.percentage || 0 });
+                });
+            }
+        });
+
+        var adjContainer = document.getElementById('final-member-adjustments');
+        var adjRows = document.getElementById('final-member-adjust-rows');
+        if (allMembers.length > 0) {
+            adjContainer.style.display = '';
+            var maxCommit = Math.max.apply(null, allMembers.map(function (m) { return m.commits; })) || 1;
+            adjRows.innerHTML = allMembers.map(function (m) {
+                var barPct = Math.round((m.commits / maxCommit) * 100);
+                return '<div class="final-adjust-row">'
+                    + '<span class="final-adjust-name">' + escapeHtml(m.name) + '</span>'
+                    + '<div class="final-adjust-track"><div class="final-adjust-fill" style="width:' + barPct + '%;"></div></div>'
+                    + '<span class="final-adjust-commits">' + m.commits + ' commits</span>'
+                    + '<span class="final-adjust-pct">' + m.pct + '%</span>'
+                    + '</div>';
+            }).join('');
+        } else {
+            adjContainer.style.display = 'none';
+        }
+
+        container.style.display = '';
+    }
+
+    function finalizeAllGrades() {
+        if (!gradeSubmissions.length) return;
+        if (!confirm('Finalize all grades? This will mark all pending submissions as graded based on their current milestone scores.')) return;
+
+        var pending = gradeSubmissions.filter(function (s) { return s.status !== 'graded'; });
+        if (!pending.length) {
+            alert('All submissions are already finalized.');
+            return;
+        }
+
+        var finalizedCount = 0;
+        var errors = 0;
+        var total = pending.length;
+
+        pending.forEach(function (s, idx) {
+            var msStatuses = s.milestoneStatuses || [];
+            var totalWeighted = 0;
+            var maxWeighted = 0;
+            msStatuses.forEach(function (ms) {
+                var score = ms.score || 0;
+                var max = ms.maxScore || 100;
+                totalWeighted += score * (ms.weight || 0) / 100;
+                maxWeighted += max * (ms.weight || 0) / 100;
+            });
+            var finalScore = maxWeighted > 0 ? Math.round((totalWeighted / maxWeighted) * (gradeCurrentProject.points || 100)) : 0;
+
+            s.status = 'graded';
+            s.score = finalScore;
+            s.gradedAt = new Date().toISOString();
+            finalizedCount++;
+
+            // Try backend
+            var submissionId = s._id || s.id;
+            if (S && S.projectService && S.projectService.gradeSubmission && submissionId) {
+                S.projectService.gradeSubmission(submissionId, {
+                    totalScore: finalScore,
+                    milestoneScores: msStatuses.map(function (ms) { return ms.score || 0; }),
+                    comment: 'Finalized automatically',
+                }).catch(function () { errors++; });
+            }
+        });
+
+        renderGradeSubmissions();
+        renderFinalGradeSummary();
+        updateStats();
+        alert('Finalized ' + finalizedCount + ' submission(s)' + (errors ? ' (' + errors + ' errors)' : '') + '.');
     }
 
     /* ── Init ────────────────────────────────────────── */
