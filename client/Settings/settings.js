@@ -368,6 +368,9 @@ window.NibrasReact.run(() => {
         'notif-grade': 'grade_posted',
         'notif-course': 'course_announcement',
         'notif-achieve': 'achievement',
+        'notif-contest': 'contest_starting',
+        'notif-badge': 'badge_earned',
+        'notif-atrisk': 'at_risk_alert',
         'notif-email': 'email_digest',
     };
     var notifLabels = [
@@ -375,18 +378,35 @@ window.NibrasReact.run(() => {
         { id: 'notif-grade', title: 'Grade Updates', desc: 'Receive notifications when new grades are posted' },
         { id: 'notif-course', title: 'Course Announcements', desc: 'Stay updated with course announcements from instructors' },
         { id: 'notif-achieve', title: 'Achievement Unlocked', desc: 'Get notified when you earn new badges and achievements' },
-        { id: 'notif-email', title: 'Email Notifications', desc: 'Send notifications to your email address' },
+        { id: 'notif-contest', title: 'Contest Reminders', desc: 'Get notified when a contest is about to start' },
+        { id: 'notif-badge', title: 'Badge Achievements', desc: 'Receive notifications when you earn new badges' },
     ];
 
     var notifDefaults = {
         'notif-assign': true, 'notif-grade': true, 'notif-course': true,
-        'notif-achieve': true, 'notif-email': false,
+        'notif-achieve': true, 'notif-contest': true, 'notif-badge': true,
+        'notif-atrisk': true, 'notif-email': false,
+    };
+
+    var channelLabels = [
+        { id: 'channel-email', title: 'Email', desc: 'Receive notification emails', icon: 'fa-solid fa-envelope' },
+        { id: 'channel-slack', title: 'Slack', desc: 'Send notifications to your Slack workspace', icon: 'fa-brands fa-slack' },
+        { id: 'channel-discord', title: 'Discord', desc: 'Send notifications to your Discord channel', icon: 'fa-brands fa-discord' },
+    ];
+    var channelDefaults = {
+        'channel-email': false, 'channel-slack': false, 'channel-discord': false,
     };
 
     function renderNotificationToggles(prefMap) {
         var container = document.getElementById('notification-container');
         if (!container) return;
         container.innerHTML = '';
+        var isInstructor = false;
+        try {
+            var _u = JSON.parse(localStorage.getItem('user') || '{}');
+            var _r = String(_u?.role?.name || _u?.role || '').toLowerCase();
+            isInstructor = _r === 'instructor';
+        } catch (_) {}
         notifLabels.forEach(function (n) {
             var checked = prefMap && prefMap[n.id] !== undefined ? prefMap[n.id] : notifDefaults[n.id];
             var isChecked = checked ? 'checked' : '';
@@ -400,6 +420,18 @@ window.NibrasReact.run(() => {
                 '</div>',
             ].join('');
         });
+        if (isInstructor) {
+            var atriskChecked = prefMap && prefMap['notif-atrisk'] !== undefined ? prefMap['notif-atrisk'] : notifDefaults['notif-atrisk'];
+            container.innerHTML += [
+                '<div class="toggle-row border-top">',
+                '<div class="toggle-info"><h4>At-Risk Alerts</h4><p>Get alerts about students who may need help</p></div>',
+                '<label class="switch">',
+                '<input type="checkbox" id="notif-atrisk" ' + (atriskChecked ? 'checked' : '') + '>',
+                '<span class="slider round"></span>',
+                '</label>',
+                '</div>',
+            ].join('');
+        }
     }
 
     function attachNotificationListeners() {
@@ -414,6 +446,88 @@ window.NibrasReact.run(() => {
                         .catch(function () { /* silent — keep UI state */ });
                 }
             });
+        });
+        var atriskBox = document.getElementById('notif-atrisk');
+        if (atriskBox) {
+            atriskBox.addEventListener('change', function () {
+                var type = notifTypeMap['notif-atrisk'];
+                var enabled = this.checked;
+                if (window.NibrasServices && window.NibrasServices.notificationService) {
+                    window.NibrasServices.notificationService.updatePreference(type, enabled)
+                        .catch(function () {});
+                }
+            });
+        }
+    }
+
+    function renderChannelToggles(prefMap) {
+        var container = document.getElementById('channel-container');
+        if (!container) return;
+        container.innerHTML = '';
+        channelLabels.forEach(function (c) {
+            var checked = prefMap && prefMap[c.id] !== undefined ? prefMap[c.id] : channelDefaults[c.id];
+            var isChecked = checked ? 'checked' : '';
+            container.innerHTML += [
+                '<div class="toggle-row">',
+                '<div class="toggle-info"><h4><i class="' + c.icon + '" style="width:18px;margin-right:6px;"></i>' + c.title + '</h4><p>' + c.desc + '</p></div>',
+                '<label class="switch">',
+                '<input type="checkbox" id="' + c.id + '" ' + isChecked + '>',
+                '<span class="slider round"></span>',
+                '</label>',
+                '</div>',
+            ].join('');
+        });
+        container.innerHTML += [
+            '<div class="toggle-row" style="border-bottom:none;padding-bottom:0;">',
+            '<p style="font-size:0.8rem;color:var(--text-tertiary);">',
+            '<i class="fa-solid fa-plug" style="margin-right:4px;"></i>',
+            'Configure Slack and Discord in <a href="../Integrations/integrations.html" style="color:var(--accent-blue);">Integrations</a>',
+            '</p>',
+            '</div>',
+        ].join('');
+    }
+
+    function attachChannelListeners() {
+        channelLabels.forEach(function (c) {
+            var checkbox = document.getElementById(c.id);
+            if (!checkbox) return;
+            checkbox.addEventListener('change', function () {
+                var enabled = this.checked;
+                if (window.NibrasServices && window.NibrasServices.notificationService) {
+                    window.NibrasServices.notificationService.updatePreference('channel_' + c.id.replace('channel-', ''), enabled)
+                        .catch(function () {});
+                }
+            });
+        });
+    }
+
+    function loadChannelPreferences() {
+        if (!window.NibrasServices || !window.NibrasServices.notificationService) {
+            renderChannelToggles(null);
+            attachChannelListeners();
+            return;
+        }
+        window.NibrasServices.notificationService.getPreferences().then(function (res) {
+            var prefs = Array.isArray(res) ? res : (res && (res.preferences || res.data)) || [];
+            var prefMap = {};
+            channelLabels.forEach(function (c) {
+                var channelKey = 'channel_' + c.id.replace('channel-', '');
+                var match = null;
+                if (Array.isArray(prefs)) {
+                    for (var i = 0; i < prefs.length; i++) {
+                        if (prefs[i].type === channelKey || prefs[i].id === channelKey) {
+                            match = prefs[i];
+                            break;
+                        }
+                    }
+                }
+                prefMap[c.id] = match ? match.enabled : channelDefaults[c.id];
+            });
+            renderChannelToggles(prefMap);
+            attachChannelListeners();
+        }).catch(function () {
+            renderChannelToggles(null);
+            attachChannelListeners();
         });
     }
 
@@ -459,6 +573,7 @@ window.NibrasReact.run(() => {
     document.getElementById('input-email').value = settingsData.profile.email;
 
     loadNotificationPreferences();
+    loadChannelPreferences();
 
     var savedLevel = loadLevel();
     document.getElementById('pref-level').value = savedLevel;

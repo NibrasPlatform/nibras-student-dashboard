@@ -957,9 +957,13 @@
                 var html = '<div class="notif-header">' + (data.pagination?.total || items.length) + ' Notifications</div><div class="dd-divider"></div><div class="notif-list">';
                 items.forEach(function (n) {
                     var icon = '📌';
-                    if (n.type === 'contest_reminder') icon = '🏆';
+                    if (n.type === 'contest_reminder' || n.type === 'contest_starting') icon = '🏆';
                     else if (n.type === 'question_answered') icon = '💬';
                     else if (n.type === 'question_vote' || n.type === 'answer_vote' || n.type === 'comment_vote') icon = '⬆️';
+                    else if (n.type === 'assignment_deadline' || n.type === 'assignment_due') icon = '📝';
+                    else if (n.type === 'badge_earned') icon = '🏅';
+                    else if (n.type === 'at_risk_alert') icon = '⚠️';
+                    else if (n.type === 'grade_posted') icon = '📊';
                     var time = '';
                     if (n.createdAt) {
                         var diff = Date.now() - new Date(n.createdAt).getTime();
@@ -993,10 +997,14 @@
                         var type = item.getAttribute('data-type') || '';
                         var related = item.getAttribute('data-related') || '';
                         var url = '';
-                        if (type === 'contest_reminder') url = '/Competitions/Contests/contest.html';
+                        if (type === 'contest_reminder' || type === 'contest_starting') url = '/Competitions/Contests/contest.html';
                         else if (type === 'question_vote' || type === 'question_answered') url = related ? '/Community/QuestionID/question.html?questionId=' + encodeURIComponent(related) : '';
                         else if (type === 'answer_vote') url = related ? '/Community/QuestionID/question.html?questionId=' + encodeURIComponent(related) : '';
                         else if (type === 'comment_vote') url = '/Community/CourseDiscussions/discussions.html';
+                        else if (type === 'assignment_deadline' || type === 'assignment_due') url = '/Courses/Assignments/Assignments.html';
+                        else if (type === 'badge_earned') url = '/Achievements/Achievements/achievements.html';
+                        else if (type === 'grade_posted') url = '/Courses/Grades/grades.html';
+                        else if (type === 'at_risk_alert') url = '/Analytics/Students/students.html';
                         if (url) { dd.classList.remove('show'); window.location.href = url; }
                     });
                 }
