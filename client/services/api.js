@@ -1166,6 +1166,7 @@
          */
         async ask(question) {
             return apiFetch('/api/ask', {
+                baseUrl: 'https://web-production-b343c.up.railway.app',
                 method: 'POST',
                 auth: true,
                 body: { question },
