@@ -1165,8 +1165,8 @@
          * @returns {Promise<{question: string, hints: Array, tags: Array, finalAnswer: string}>}
          */
         async ask(question) {
-            return apiFetch('/community/chatbot/ask', {
-                service: 'legacyCommunity',
+            return apiFetch('/api/ask', {
+                baseUrl: 'https://web-production-b343c.up.railway.app',
                 method: 'POST',
                 auth: true,
                 body: { question },
