@@ -50,7 +50,7 @@ window.NibrasReact.run(() => {
                     setAuthData(authResult);
                     sessionStorage.removeItem('google_access_token');
                     (function () {
-                        try { var _u = JSON.parse(localStorage.getItem('user')); var _r = String(_u?.role?.name || _u?.role || '').toLowerCase(); window.location.href = _r === 'instructor' ? '../../Dashboard/instructor-dashboard.html' : '../../Dashboard/dashboard.html'; } catch (_) { window.location.href = '../../Dashboard/dashboard.html'; }
+                        try { var _u = JSON.parse(localStorage.getItem('user')); var _r = String(_u?.role?.name || _u?.role || '').toLowerCase(); window.location.href = _r === 'instructor' ? '../../Dashboard/instructor-dashboard.html' : _r === 'admin' || _r === 'super-admin' ? '../../Admin/Dashboard/dashboard.html' : '../../Dashboard/dashboard.html'; } catch (_) { window.location.href = '../../Dashboard/dashboard.html'; }
                     })();
                     return;
                 }
@@ -103,7 +103,7 @@ window.NibrasReact.run(() => {
                     setAuthData(authResult);
                     sessionStorage.removeItem('microsoft_access_token');
                     (function () {
-                        try { var _u = JSON.parse(localStorage.getItem('user')); var _r = String(_u?.role?.name || _u?.role || '').toLowerCase(); window.location.href = _r === 'instructor' ? '../../Dashboard/instructor-dashboard.html' : '../../Dashboard/dashboard.html'; } catch (_) { window.location.href = '../../Dashboard/dashboard.html'; }
+                        try { var _u = JSON.parse(localStorage.getItem('user')); var _r = String(_u?.role?.name || _u?.role || '').toLowerCase(); window.location.href = _r === 'instructor' ? '../../Dashboard/instructor-dashboard.html' : _r === 'admin' || _r === 'super-admin' ? '../../Admin/Dashboard/dashboard.html' : '../../Dashboard/dashboard.html'; } catch (_) { window.location.href = '../../Dashboard/dashboard.html'; }
                     })();
                     return;
                 }
@@ -351,9 +351,12 @@ window.NibrasReact.run(() => {
         try {
             var u = JSON.parse(localStorage.getItem('user'));
             var role = String(u?.role?.name || u?.role || '').toLowerCase();
-            window.location.href = role === 'instructor'
-                ? '../../Dashboard/instructor-dashboard.html'
-                : '../../Dashboard/dashboard.html';
+            if (role === 'instructor')
+                window.location.href = '../../Dashboard/instructor-dashboard.html';
+            else if (role === 'admin' || role === 'super-admin')
+                window.location.href = '../../Admin/Dashboard/dashboard.html';
+            else
+                window.location.href = '../../Dashboard/dashboard.html';
         } catch (_) {
             window.location.href = '../../Dashboard/dashboard.html';
         }

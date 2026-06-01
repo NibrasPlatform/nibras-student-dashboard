@@ -8,6 +8,9 @@ console.log('[DASHBOARD.JS] Script started (direct execution)');
         if (_role === 'instructor') {
             window.location.replace('./instructor-dashboard.html');
         }
+        if (_role === 'admin' || _role === 'super-admin') {
+            window.location.replace('../Admin/Dashboard/dashboard.html');
+        }
     } catch (_) {}
 })();
 
