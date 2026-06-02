@@ -249,31 +249,6 @@ window.NibrasReact.run(function () {
         });
     });
 
-    var themeBtn = document.getElementById('themeBtn');
-    var themeIcon = themeBtn && themeBtn.querySelector('i');
-    var appLogo = document.getElementById('app-logo');
-
-    var savedTheme = localStorage.getItem('theme');
-    if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
-    var curTheme = document.documentElement.getAttribute('data-theme') || 'light';
-    if (curTheme === 'dark') {
-        if (themeIcon) themeIcon.className = 'fa-solid fa-sun';
-        if (appLogo) appLogo.src = '/Assets/images/logo-dark.png';
-    } else {
-        if (themeIcon) themeIcon.className = 'fa-regular fa-moon';
-        if (appLogo) appLogo.src = '/Assets/images/logo-light.png';
-    }
-
-    themeBtn.addEventListener('click', function () {
-        var html = document.documentElement;
-        var cur = html.getAttribute('data-theme');
-        var next = cur === 'light' ? 'dark' : 'light';
-        html.setAttribute('data-theme', next);
-        localStorage.setItem('theme', next);
-        if (themeIcon) themeIcon.className = next === 'dark' ? 'fa-solid fa-sun' : 'fa-regular fa-moon';
-        if (appLogo) appLogo.src = next === 'dark' ? '/Assets/images/logo-dark.png' : '/Assets/images/logo-light.png';
-    });
-
     renderIconPicker();
     loadBadges();
 });

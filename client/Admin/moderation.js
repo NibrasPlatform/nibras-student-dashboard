@@ -156,18 +156,5 @@ window.NibrasReact.run(() => {
         });
     });
 
-    const themeBtn = document.getElementById('themeBtn');
-    const themeIcon = themeBtn?.querySelector('i');
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark' && themeIcon) themeIcon.className = 'fa-solid fa-sun';
-    themeBtn?.addEventListener('click', function () {
-        const html = document.documentElement;
-        const current = html.getAttribute('data-theme');
-        const next = current === 'light' ? 'dark' : 'light';
-        html.setAttribute('data-theme', next);
-        localStorage.setItem('theme', next);
-        if (themeIcon) themeIcon.className = next === 'dark' ? 'fa-solid fa-sun' : 'fa-regular fa-moon';
-    });
-
     loadQueue(currentFilter);
 });
