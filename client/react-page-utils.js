@@ -1158,6 +1158,60 @@
     })();
     observeWebVitals();
 
+    // --- Check feature flags for maintenance/beta mode ---
+    (function () {
+        try {
+            var _flagsUrl = joinUrl(resolveServiceUrl('admin'), '/admin/config');
+            var _flagsHeaders = buildAuthHeaders({}, { auth: true });
+            fetch(_flagsUrl, { headers: _flagsHeaders })
+                .then(function (_r) { return _r.json().catch(function () { return null; }); })
+                .then(function (_cfg) {
+                    if (!_cfg) return;
+                    var _flags = _cfg.featureFlags || _cfg.flags || {};
+                    var _isMaintenance = _flags.maintenanceMode === true;
+                    var _isBeta = _flags.betaMode === true;
+                    if (!_isMaintenance && !_isBeta) return;
+
+                    var _ov = document.createElement('div');
+                    _ov.id = 'nibras-feature-overlay';
+                    _ov.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;z-index:9999;backdrop-filter:blur(3px);';
+
+                    var _card = document.createElement('div');
+                    _card.style.cssText = 'background:var(--bg-card,#fff);color:var(--text-primary,#333);border-radius:16px;padding:2.5rem;max-width:480px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);';
+
+                    var _icon = document.createElement('div');
+                    _icon.innerHTML = _isMaintenance
+                        ? '<i class="fa-solid fa-wrench" style="font-size:3rem;color:var(--accent-blue,#2563eb);margin-bottom:1rem;"></i>'
+                        : '<i class="fa-solid fa-flask" style="font-size:3rem;color:var(--accent-blue,#2563eb);margin-bottom:1rem;"></i>';
+                    _card.appendChild(_icon);
+
+                    var _title = document.createElement('h2');
+                    _title.style.cssText = 'font-size:1.5rem;font-weight:700;margin:0 0 0.75rem;';
+                    _title.textContent = _isMaintenance ? 'Under Maintenance' : 'Beta Preview';
+                    _card.appendChild(_title);
+
+                    var _desc = document.createElement('p');
+                    _desc.style.cssText = 'font-size:0.95rem;line-height:1.6;color:var(--text-secondary,#666);margin:0 0 1.5rem;';
+                    _desc.textContent = _isMaintenance
+                        ? 'The platform is currently undergoing scheduled maintenance. We will be back shortly.'
+                        : 'You are viewing a beta version of the platform. Some features may be unstable or incomplete.';
+                    _card.appendChild(_desc);
+
+                    if (!_isMaintenance) {
+                        var _btn = document.createElement('button');
+                        _btn.className = 'btn-primary';
+                        _btn.textContent = 'Got it';
+                        _btn.onclick = function () { _ov.remove(); };
+                        _card.appendChild(_btn);
+                    }
+
+                    _ov.appendChild(_card);
+                    document.body.appendChild(_ov);
+                })
+                .catch(function () {});
+        } catch (_) {}
+    })();
+
     // --- Auto-init dropdown on all pages ---
     (function () {
         try {
