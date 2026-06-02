@@ -40,24 +40,24 @@
         .loading-state i { font-size: 2rem; margin-bottom: 1rem; display: block; }
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
         .modal-overlay.active { display: flex; }
-        .modal-box { background: var(--card-bg, #ffffff); border-radius: 16px; padding: 2rem; width: 90%; max-width: 520px; box-shadow: 0 25px 60px rgba(0,0,0,0.25); max-height: 85vh; overflow-y: auto; }
-        .modal-box h2 { margin: 0 0 0.25rem; font-size: 1.3rem; font-weight: 700; color: var(--text-primary, #1e293b); }
-        .modal-box .modal-subtitle { margin: 0 0 1.5rem; font-size: 0.88rem; color: var(--text-secondary, #64748b); }
+        .modal-box { background: var(--card-bg); border-radius: 16px; padding: 2rem; width: 90%; max-width: 520px; box-shadow: 0 25px 60px rgba(0,0,0,0.25); max-height: 85vh; overflow-y: auto; }
+        .modal-box h2 { margin: 0 0 0.25rem; font-size: 1.3rem; font-weight: 700; color: var(--text-primary); }
+        .modal-box .modal-subtitle { margin: 0 0 1.5rem; font-size: 0.88rem; color: var(--text-secondary); }
         .form-group { margin-bottom: 1.25rem; }
-        .form-group label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-primary, #1e293b); }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border-color, #e2e8f0); border-radius: 8px; background: var(--bg-input, #f8fafc); color: inherit; font-family: inherit; font-size: 0.9rem; box-sizing: border-box; transition: border-color 0.2s, box-shadow 0.2s; }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--accent-blue, #3b82f6); box-shadow: 0 0 0 3px rgba(59,130,246,0.12); }
-        .form-group input::placeholder, .form-group textarea::placeholder { color: var(--text-tertiary, #94a3b8); }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-primary); }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-input); color: inherit; font-family: inherit; font-size: 0.9rem; box-sizing: border-box; transition: border-color 0.2s, box-shadow 0.2s; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
+        .form-group input::placeholder, .form-group textarea::placeholder { color: var(--text-tertiary); }
         .form-group textarea { min-height: 80px; resize: vertical; }
         .form-group .icon-picker { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
-        .form-group .icon-option { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color, #e2e8f0); border-radius: 8px; cursor: pointer; font-size: 1.1rem; transition: all 0.2s; background: var(--bg-input, #f8fafc); }
-        .form-group .icon-option:hover { border-color: var(--accent-blue, #3b82f6); background: rgba(59,130,246,0.06); }
-        .form-group .icon-option.selected { border-color: var(--accent-blue, #3b82f6); background: var(--accent-blue, #3b82f6); color: #fff; }
-        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border-color, #e2e8f0); }
-        .modal-footer button { padding: 10px 24px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; font-size: 0.88rem; transition: opacity 0.2s; }
-        .modal-footer .btn-cancel { background: var(--bg-secondary, #f1f5f9); border: 1px solid var(--border-color, #e2e8f0); color: var(--text-secondary, #64748b); }
-        .modal-footer .btn-cancel:hover { background: var(--border-color, #e2e8f0); }
-        .modal-footer .btn-submit { background: var(--accent-blue, #3b82f6); color: #fff; }
+        .form-group .icon-option { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; font-size: 1.1rem; transition: all 0.2s; background: var(--bg-input); }
+        .form-group .icon-option:hover { border-color: var(--accent-blue); background: color-mix(in srgb, var(--accent-blue) 10%, transparent); }
+        .form-group .icon-option.selected { border-color: var(--accent-blue); background: var(--accent-blue); color: #fff; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border-color); }
+        .modal-footer button { padding: 10px 24px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; font-size: 0.88rem; }
+        .modal-footer .btn-cancel { background: var(--tag-bg); border: 1px solid var(--border-color); color: var(--text-secondary); }
+        .modal-footer .btn-cancel:hover { background: var(--border-color); }
+        .modal-footer .btn-submit { background: var(--accent-blue); color: #fff; }
         .modal-footer .btn-submit:hover:not(:disabled) { opacity: 0.9; }
         .modal-footer .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
         .modal-footer .btn-submit:not(:disabled):active { transform: scale(0.97); }
