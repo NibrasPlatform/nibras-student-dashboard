@@ -421,16 +421,22 @@ window.NibrasReact.run(() => {
         let questions = data?.data?.questions || data?.questions || (Array.isArray(data?.data) ? data.data : []);
         const pagination = data?.data?.pagination || data?.pagination || {};
 
-        const serverHadFilter = (param) => params.has(param);
+        if (filterType === 'Popular') {
+            questions.sort((a, b) => {
+                const votesA = a.votesCount ?? a.votes ?? 0;
+                const votesB = b.votesCount ?? b.votes ?? 0;
+                return votesB - votesA;
+            });
+        }
 
-        if (filterType === 'Unanswered' && !serverHadFilter('unanswered')) {
+        if (filterType === 'Unanswered') {
             questions = questions.filter(q => {
                 const count = q.answersCount ?? q.commentsCount ?? (Array.isArray(q.answers) ? q.answers.length : (Number(q.answers) || 0));
                 return count === 0;
             });
         }
 
-        if (filterType === 'My Questions' && !serverHadFilter('author')) {
+        if (filterType === 'My Questions') {
             const userId = currentUserId || localStorage.getItem('userId');
             if (userId) {
                 questions = questions.filter(q => {
@@ -440,7 +446,7 @@ window.NibrasReact.run(() => {
             }
         }
 
-        if (searchQuery && !serverHadFilter('search')) {
+        if (searchQuery) {
             const q = searchQuery.toLowerCase();
             questions = questions.filter(qs => {
                 const titleMatch = qs.title?.toLowerCase().includes(q);
@@ -452,7 +458,7 @@ window.NibrasReact.run(() => {
             });
         }
 
-        if (tag && !serverHadFilter('tag')) {
+        if (tag) {
             questions = questions.filter(q => {
                 if (!q.tags || !Array.isArray(q.tags)) return false;
                 return q.tags.some(t => t.toLowerCase() === tag.toLowerCase());
