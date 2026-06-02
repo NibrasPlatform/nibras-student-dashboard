@@ -412,8 +412,21 @@ window.NibrasReact.run(() => {
 
     async function loadQuestions(page = 1, filterType = 'Recent', searchQuery = '', tag = '') {
         const params = new URLSearchParams();
-        params.set('page', String(page));
-        params.set('limit', String(QUESTIONS_PER_PAGE));
+
+        const needsClientPagination =
+            filterType === 'Unanswered' ||
+            filterType === 'My Questions' ||
+            filterType === 'Popular' ||
+            !!searchQuery ||
+            !!tag;
+
+        if (needsClientPagination) {
+            params.set('limit', '100');
+            params.set('page', '1');
+        } else {
+            params.set('page', String(page));
+            params.set('limit', String(QUESTIONS_PER_PAGE));
+        }
 
         if (filterType === 'Popular') {
             params.set('sort', '-votes');
@@ -430,7 +443,7 @@ window.NibrasReact.run(() => {
         const data = await requestLegacyApi(`/questions?${params.toString()}`, { auth: false });
 
         let questions = data?.data?.questions || data?.questions || (Array.isArray(data?.data) ? data.data : []);
-        const pagination = data?.data?.pagination || data?.pagination || {};
+        const serverPagination = data?.data?.pagination || data?.pagination || {};
 
         if (filterType === 'Popular') {
             questions.sort((a, b) => {
@@ -476,8 +489,21 @@ window.NibrasReact.run(() => {
             });
         }
 
-        communityData.questions = questions;
-        communityData.pagination = pagination;
+        const totalFiltered = questions.length;
+        const totalPages = needsClientPagination
+            ? Math.max(1, Math.ceil(totalFiltered / QUESTIONS_PER_PAGE))
+            : (serverPagination.totalPages || Math.max(1, Math.ceil(totalFiltered / QUESTIONS_PER_PAGE)));
+        const validPage = Math.min(page, totalPages);
+        const start = (validPage - 1) * QUESTIONS_PER_PAGE;
+        const paginatedQuestions = questions.slice(start, start + QUESTIONS_PER_PAGE);
+
+        communityData.questions = paginatedQuestions;
+        communityData.pagination = {
+            total: totalFiltered,
+            totalPages,
+            page: validPage,
+            limit: QUESTIONS_PER_PAGE,
+        };
     }
 
     // --- 3. RENDER FEED LOGIC ---
