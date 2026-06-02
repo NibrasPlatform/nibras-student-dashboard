@@ -249,6 +249,21 @@ window.NibrasReact.run(function () {
         });
     });
 
+    function initTheme() {
+        var btn = document.getElementById('themeBtn'), icon = btn?.querySelector('i'), logo = document.getElementById('app-logo');
+        var cur = document.documentElement.getAttribute('data-theme')||'light';
+        if(cur==='dark'){if(icon)icon.className='fa-solid fa-sun';if(logo)logo.src='../Assets/images/logo-dark.png';}
+        else{if(icon)icon.className='fa-regular fa-moon';if(logo)logo.src='../Assets/images/logo-light.png';}
+        if(btn)btn.addEventListener('click',function(){
+            btn.style.transform='scale(1.2)';setTimeout(function(){btn.style.transform='scale(1)'},200);
+            var h=document.documentElement,c=h.getAttribute('data-theme'),n=c==='light'?'dark':'light';
+            h.setAttribute('data-theme',n);localStorage.setItem('theme',n);
+            if(n==='dark'){if(icon)icon.className='fa-solid fa-sun';if(logo)logo.src='../Assets/images/logo-dark.png';}
+            else{if(icon)icon.className='fa-regular fa-moon';if(logo)logo.src='../Assets/images/logo-light.png';}
+        });
+    }
+
+    initTheme();
     renderIconPicker();
     loadBadges();
 });
