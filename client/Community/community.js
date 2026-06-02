@@ -1272,6 +1272,8 @@ window.NibrasReact.run(() => {
     const appLogo = document.getElementById('app-logo');
 
     if(themeBtn) {
+        themeBtn.classList.remove('rotating');
+        void themeBtn.offsetWidth;
         if(document.documentElement.getAttribute('data-theme') === 'dark') {
             if(themeIcon) themeIcon.className = 'fa-regular fa-sun';
             if(appLogo) appLogo.src = '/Assets/images/logo-dark.png';
@@ -1280,6 +1282,8 @@ window.NibrasReact.run(() => {
         }
 
         themeBtn.addEventListener('click', () => {
+            themeBtn.classList.add('rotating');
+            setTimeout(() => { themeBtn.classList.remove('rotating'); }, 500);
             const html = document.documentElement;
             const current = html.getAttribute('data-theme');
             if (current === 'light') {
