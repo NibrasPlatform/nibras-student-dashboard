@@ -306,6 +306,8 @@ body {
 }
 
 .top-header {
+    position: relative;
+    z-index: 1;
     height: 70px;
     display: flex;
     justify-content: space-between;
