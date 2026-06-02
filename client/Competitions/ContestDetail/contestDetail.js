@@ -120,7 +120,7 @@ window.NibrasReact.run(function () {
 
     function loadPracticeProblem() {
         competitionsService.listProblems({}).then(function (problemsData) {
-            var all = Array.isArray(problemsData) ? problemsData : [];
+            var all = Array.isArray(problemsData) ? problemsData : (Array.isArray(problemsData?.problems) ? problemsData.problems : []);
             var problem = all.find(function (p) {
                 return (p._id || p.id) === contestId;
             });

@@ -31,6 +31,8 @@
     let maxRating = '';
     let currentPage = 1;
     let pageSize = 50;
+    let totalItems = 0;
+    let totalPages = 1;
 
     const normalizeProblem = (problem) => {
         const tags = Array.isArray(problem?.tags) ? problem.tags : [];
@@ -58,59 +60,17 @@
         return '';
     };
 
-    const filterProblems = () => {
-        let list = allProblems;
-
-        if (selectedPlatform !== 'all') {
-            list = list.filter((p) => p.platform === selectedPlatform);
-        }
-
-        if (searchTerm) {
-            const q = searchTerm.toLowerCase();
-            list = list.filter((p) => p.title.toLowerCase().includes(q));
-        }
-
-        if (tagsFilter) {
-            const required = tagsFilter.toLowerCase().split(',').map((t) => t.trim()).filter(Boolean);
-            if (required.length) {
-                list = list.filter((p) =>
-                    required.every((tag) => p.tags.some((t) => t.toLowerCase().includes(tag)))
-                );
-            }
-        }
-
-        if (minRating !== '') {
-            const mr = Number(minRating);
-            if (!Number.isNaN(mr)) list = list.filter((p) => p.rating != null && p.rating >= mr);
-        }
-        if (maxRating !== '') {
-            const mr = Number(maxRating);
-            if (!Number.isNaN(mr)) list = list.filter((p) => p.rating != null && p.rating <= mr);
-        }
-
-        if (solvedFilter === 'solved') list = list.filter((p) => p.status === 'solved');
-        else if (solvedFilter === 'unsolved') list = list.filter((p) => p.status === 'unsolved');
-
-        return list;
-    };
-
     const renderTable = () => {
         if (!tbody) return;
-        const filtered = filterProblems();
         const totalSolved = allProblems.filter((p) => p.status === 'solved').length;
 
-        const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-        if (currentPage > totalPages) currentPage = totalPages;
-        const start = (currentPage - 1) * pageSize;
-        const page = filtered.slice(start, start + pageSize);
-
-        if (!page.length) {
-            const msg = allProblems.length === 0
+        if (!allProblems.length) {
+            const msg = totalItems === 0
                 ? 'Sign in to view practice problems.'
                 : 'No problems match your filters.';
             tbody.innerHTML = `<tr><td colspan="4" style="padding:2rem;text-align:center;color:var(--text-secondary);font-size:0.9rem;">${shared.safeHtml(msg)}</td></tr>`;
         } else {
-            tbody.innerHTML = page.map((p) => {
+            tbody.innerHTML = allProblems.map((p) => {
                 const pid = getProblemIdFromUrl(p.url) || p.id;
                 const safeTitle = shared.safeHtml(p.title);
                 const safeUrl = shared.safeHtml(p.url || '#');
@@ -128,14 +88,12 @@
         }
 
         if (statsLine) {
-            statsLine.textContent = `${filtered.length} matching · ${totalSolved} solved overall`;
+            statsLine.textContent = `${totalItems} matching · ${totalSolved} solved overall`;
         }
     };
 
     const renderPagination = () => {
         if (!pagination) return;
-        const filtered = filterProblems();
-        const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
         if (currentPage > totalPages) currentPage = totalPages;
         pagination.innerHTML = `
             <button class="pagination-btn" id="prev-page" ${currentPage <= 1 ? 'disabled' : ''}>Previous</button>
@@ -146,8 +104,7 @@
             if (currentPage > 1) { currentPage--; void loadPracticeData(); }
         });
         document.getElementById('next-page')?.addEventListener('click', () => {
-            const total = Math.ceil(filterProblems().length / pageSize);
-            if (currentPage < total) { currentPage++; void loadPracticeData(); }
+            if (currentPage < totalPages) { currentPage++; void loadPracticeData(); }
         });
     };
 
@@ -206,7 +163,10 @@
             };
             if (selectedPlatform !== 'all') params.platform = selectedPlatform;
             const response = await competitionsService.listProblems(params);
-            allProblems = (Array.isArray(response) ? response : []).map(normalizeProblem);
+            const rawProblems = Array.isArray(response) ? response : (Array.isArray(response?.problems) ? response.problems : []);
+            allProblems = rawProblems.map(normalizeProblem);
+            totalItems = response?.total ?? rawProblems.length;
+            totalPages = response?.pages ?? Math.max(1, Math.ceil(totalItems / pageSize));
             refreshView();
         } catch (error) {
             const msg = error?.message || 'Could not load practice data.';
@@ -258,25 +218,25 @@
     document.getElementById('filter-search')?.addEventListener('input', (e) => {
         searchTerm = e.target.value;
         currentPage = 1;
-        refreshView();
+        void loadPracticeData();
     });
 
     document.getElementById('filter-tags')?.addEventListener('input', (e) => {
         tagsFilter = e.target.value;
         currentPage = 1;
-        refreshView();
+        void loadPracticeData();
     });
 
     document.getElementById('filter-min-rating')?.addEventListener('input', (e) => {
         minRating = e.target.value;
         currentPage = 1;
-        refreshView();
+        void loadPracticeData();
     });
 
     document.getElementById('filter-max-rating')?.addEventListener('input', (e) => {
         maxRating = e.target.value;
         currentPage = 1;
-        refreshView();
+        void loadPracticeData();
     });
 
     updateTitle();

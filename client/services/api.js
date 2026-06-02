@@ -2310,7 +2310,15 @@
                 auth: true,
             });
             const data = unwrapApiData(payload);
-            return Array.isArray(data) ? data : [];
+            const problems = Array.isArray(data) ? data : [];
+            const meta = payload?.meta || payload?.pagination || null;
+            return {
+                problems,
+                total: meta?.total ?? problems.length,
+                page: meta?.page ?? (filters.page || 1),
+                limit: meta?.limit ?? (filters.limit || problems.length),
+                pages: meta?.pages ?? (meta?.total ? Math.ceil(meta.total / (meta?.limit || filters.limit || problems.length || 1)) : 1),
+            };
         },
 
         async getRoadmap() {
