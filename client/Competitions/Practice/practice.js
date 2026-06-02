@@ -63,14 +63,25 @@
     const renderTable = () => {
         if (!tbody) return;
         const totalSolved = allProblems.filter((p) => p.status === 'solved').length;
+        const displayProblems = solvedFilter === 'all'
+            ? allProblems
+            : allProblems.filter((p) => p.status === solvedFilter);
+        const displayCount = displayProblems.length;
 
-        if (!allProblems.length) {
-            const msg = totalItems === 0
-                ? 'Sign in to view practice problems.'
-                : 'No problems match your filters.';
+        if (!displayProblems.length) {
+            let msg;
+            if (allProblems.length === 0) {
+                msg = totalItems === 0
+                    ? 'Sign in to view practice problems.'
+                    : 'No problems match your filters.';
+            } else if (solvedFilter === 'solved') {
+                msg = 'No solved problems match your filters.';
+            } else {
+                msg = 'No unsolved problems match your filters.';
+            }
             tbody.innerHTML = `<tr><td colspan="4" style="padding:2rem;text-align:center;color:var(--text-secondary);font-size:0.9rem;">${shared.safeHtml(msg)}</td></tr>`;
         } else {
-            tbody.innerHTML = allProblems.map((p) => {
+            tbody.innerHTML = displayProblems.map((p) => {
                 const pid = getProblemIdFromUrl(p.url) || p.id;
                 const safeTitle = shared.safeHtml(p.title);
                 const safeUrl = shared.safeHtml(p.url || '#');
@@ -88,7 +99,7 @@
         }
 
         if (statsLine) {
-            statsLine.textContent = `${totalItems} matching · ${totalSolved} solved overall`;
+            statsLine.textContent = `${displayCount} matching · ${totalSolved} solved overall`;
         }
     };
 
@@ -159,14 +170,16 @@
                 tags: tagsFilter || undefined,
                 minRating: minRating || undefined,
                 maxRating: maxRating || undefined,
-                solved: solvedFilter !== 'all' ? solvedFilter : undefined,
             };
             if (selectedPlatform !== 'all') params.platform = selectedPlatform;
             const response = await competitionsService.listProblems(params);
             const rawProblems = Array.isArray(response) ? response : (Array.isArray(response?.problems) ? response.problems : []);
             allProblems = rawProblems.map(normalizeProblem);
-            totalItems = response?.total ?? rawProblems.length;
-            totalPages = response?.pages ?? Math.max(1, Math.ceil(totalItems / pageSize));
+            const filteredProblems = solvedFilter === 'all'
+                ? allProblems
+                : allProblems.filter((p) => p.status === solvedFilter);
+            totalItems = filteredProblems.length;
+            totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
             refreshView();
         } catch (error) {
             const msg = error?.message || 'Could not load practice data.';
