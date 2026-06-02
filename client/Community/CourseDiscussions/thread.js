@@ -266,6 +266,8 @@ window.NibrasReact.run(() => {
             var initials = u.name.split(' ').map(function(n) { return n.charAt(0); }).join('').toUpperCase().slice(0, 2);
             var avatars = document.querySelectorAll('.avatar-circle, .profile-circle-small');
             avatars.forEach(function(el) { el.textContent = initials || 'U'; });
+            var repEl = document.querySelector('.rep-badge');
+            if (repEl) repEl.textContent = u.reputation || u.rep || 0;
         } catch (_) {}
     }
 
