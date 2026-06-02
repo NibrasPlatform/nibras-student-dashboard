@@ -201,7 +201,7 @@
         return 'Request failed';
     };
 
-    const normalizeError = ({ status = 0, statusText = '', payload = null, rawText = '', service = 'admin', url = '', code = null }) => {
+    const normalizeError = ({ status = 0, statusText = '', payload = null, rawText = '', service = 'admin', url = '', code = null, correlationId = currentCorrelationId }) => {
         const message = getErrorMessage(payload, status, statusText, rawText);
         return {
             message,
@@ -213,6 +213,7 @@
             rawText: rawText || '',
             service,
             url,
+            correlationId,
         };
     };
 
@@ -226,7 +227,95 @@
         err.service = normalizedError?.service || 'admin';
         err.url = normalizedError?.url || '';
         err.rawText = normalizedError?.rawText || '';
+        err.correlationId = normalizedError?.correlationId || null;
         return err;
+    };
+
+    const logClientError = (error, context = {}) => {
+        try {
+            const monitoringUrl = joinUrl(resolveServiceUrl('admin'), '/monitoring/client-error');
+            const correlationId = error?.correlationId || currentCorrelationId;
+            const payload = {
+                message: error?.message || String(error),
+                stack: error?.stack || '',
+                url: window.location.href,
+                userAgent: navigator.userAgent,
+                timestamp: new Date().toISOString(),
+                correlationId,
+                ...(context.userId ? { userId: context.userId } : {}),
+            };
+            if (correlationId) payload.correlationId = correlationId;
+            fetch(monitoringUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            }).catch(() => {});
+        } catch (_e) {
+        }
+    };
+
+    const observeWebVitals = () => {
+        if (typeof PerformanceObserver === 'undefined') return;
+        try {
+            if (navigator?.webdriver) return;
+        } catch (_e) { return; }
+
+        const report = (metrics) => {
+            try {
+                const vitalsUrl = joinUrl(resolveServiceUrl('admin'), '/monitoring/web-vitals');
+                fetch(vitalsUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        metrics,
+                        url: window.location.href,
+                        userAgent: navigator.userAgent,
+                        timestamp: new Date().toISOString(),
+                        correlationId: currentCorrelationId,
+                    }),
+                    keepalive: true,
+                }).catch(() => {});
+            } catch (_e) {}
+        };
+
+        const vitals = {};
+
+        try {
+            const lcpObs = new PerformanceObserver((list) => {
+                const entries = list.getEntries();
+                if (entries.length) {
+                    vitals.lcp = entries[entries.length - 1].startTime;
+                }
+            });
+            lcpObs.observe({ type: 'largest-contentful-paint', buffered: true });
+        } catch (_e) {}
+
+        try {
+            const fidObs = new PerformanceObserver((list) => {
+                const entries = list.getEntries();
+                if (entries.length) {
+                    vitals.fid = entries[0].processingStart - entries[0].startTime;
+                }
+            });
+            fidObs.observe({ type: 'first-input', buffered: true });
+        } catch (_e) {}
+
+        try {
+            let clsValue = 0;
+            const clsObs = new PerformanceObserver((list) => {
+                for (const entry of list.getEntries()) {
+                    if (!entry.hadRecentInput) clsValue += entry.value;
+                }
+                vitals.cls = clsValue;
+            });
+            clsObs.observe({ type: 'layout-shift', buffered: true });
+        } catch (_e) {}
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden' && Object.keys(vitals).length) {
+                report(vitals);
+            }
+        });
     };
 
     const UI_STATE_MAP = Object.freeze({
@@ -418,6 +507,8 @@
         }
     };
 
+    let currentCorrelationId = null;
+
     const request = async (path, options = {}) => {
         const settings = Object.assign({}, options);
         const service = settings.service || 'admin';
@@ -454,6 +545,10 @@
         const baseUrl = explicitBaseUrl || resolveServiceUrl(service);
         const requestUrl = joinUrl(baseUrl, path);
 
+        if (currentCorrelationId && !hasHeader(headers, 'x-correlation-id') && !hasHeader(headers, 'x-request-id')) {
+            headers['X-Correlation-Id'] = currentCorrelationId;
+        }
+
         const controller = typeof AbortController === 'function' ? new AbortController() : null;
         const timeoutId = timeoutMs > 0 && controller
             ? window.setTimeout(() => controller.abort(), timeoutMs)
@@ -469,6 +564,9 @@
             const payload = parsed.payload;
             const data = parsed.isJson ? payload : (parsed.rawText || null);
 
+            const correlationId = response.headers.get('X-Request-Id') || response.headers.get('X-Correlation-Id') || currentCorrelationId;
+            if (correlationId) currentCorrelationId = correlationId;
+
             const result = {
                 ok: response.ok,
                 status: response.status,
@@ -480,6 +578,7 @@
                 rawText: parsed.rawText || '',
                 error: null,
                 response,
+                correlationId,
             };
 
             if (!response.ok) {
@@ -490,6 +589,7 @@
                     rawText: parsed.rawText,
                     service,
                     url: requestUrl,
+                    correlationId,
                 });
                 if (throwOnError) throw toError(result.error);
             }
@@ -507,6 +607,7 @@
                 service,
                 url: requestUrl,
                 code: isAbort ? 'TIMEOUT' : 'NETWORK_ERROR',
+                correlationId: currentCorrelationId,
             });
             normalizedError.message = isAbort
                 ? `Request timeout after ${timeoutMs}ms`
@@ -525,6 +626,7 @@
                 rawText: '',
                 error: normalizedError,
                 response: null,
+                correlationId: currentCorrelationId,
             };
         } finally {
             if (timeoutId) window.clearTimeout(timeoutId);
@@ -608,7 +710,9 @@
         }
 
         if (!result.ok) {
-            throw toError(result.error || normalizeError({ status: result.status, service, url: result.url }));
+            const errorObj = result.error || normalizeError({ status: result.status, service, url: result.url });
+            logClientError(errorObj, { userId: (getUser() || {}).id });
+            throw toError(errorObj);
         }
 
         return result.data;
@@ -1029,6 +1133,21 @@
             }
         });
     }
+
+    // --- Global monitoring: error logging + web vitals ---
+    (function () {
+        try {
+            window.addEventListener('error', function (e) {
+                logClientError(e.error || e.message, { userId: (getUser() || {}).id });
+            });
+        } catch (_) {}
+        try {
+            window.addEventListener('unhandledrejection', function (e) {
+                logClientError(e.reason || e, { userId: (getUser() || {}).id });
+            });
+        } catch (_) {}
+    })();
+    observeWebVitals();
 
     // --- Auto-init dropdown on all pages ---
     (function () {
