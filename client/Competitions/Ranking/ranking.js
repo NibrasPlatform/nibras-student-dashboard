@@ -70,7 +70,7 @@
             if (stat.color === 'blue') { bgVar = 'var(--stat-blue-bg)'; textVar = 'var(--stat-blue-text)'; }
             if (stat.color === 'purple') { bgVar = 'var(--stat-purple-bg)'; textVar = 'var(--stat-purple-text)'; }
             statsContainer.innerHTML += `
-                <div class="stat-card">
+                <div class="stat-card" data-color="${stat.color}">
                     <div class="stat-info">
                         <span>${stat.label}</span>
                         <h2>${stat.value}</h2>
@@ -82,6 +82,35 @@
             `;
         });
     };
+
+    function animateCounter(el, duration) {
+        if (!el) return;
+        var text = el.textContent.trim();
+        var num = Number(text);
+        if (isNaN(num) || text.indexOf('/') !== -1 || text.indexOf('days') !== -1) return;
+        if (num === 0) return;
+
+        var isInt = Number.isInteger(num);
+        var startTime = performance.now();
+
+        function update(now) {
+            var elapsed = now - startTime;
+            var progress = Math.min(elapsed / duration, 1);
+            var eased = 1 - Math.pow(1 - progress, 3);
+            var current = num * eased;
+
+            el.textContent = isInt ? Math.round(current).toString() : current.toFixed(1);
+
+            if (progress < 1) {
+                requestAnimationFrame(update);
+            } else {
+                el.textContent = text;
+            }
+        }
+
+        el.textContent = isInt ? '0' : '0.0';
+        requestAnimationFrame(update);
+    }
 
     const renderRankings = () => {
         if (!rankContainer) return;
@@ -208,6 +237,10 @@
             state.profile = profile || {};
             state.progress = progress || {};
             renderStats();
+            var statValues = statsContainer.querySelectorAll('.stat-info h2');
+            statValues.forEach(function(el, i) {
+                setTimeout(function() { animateCounter(el, 700); }, i * 100);
+            });
             renderRankings();
         } catch (error) {
             renderProgress('Could not load data');
@@ -466,7 +499,13 @@
         if (appLogo) appLogo.src = isDark ? '/Assets/images/logo-dark.png' : '/Assets/images/logo-light.png';
     };
     applyThemeAssets();
+    if (themeBtn) {
+        themeBtn.classList.remove('rotating');
+        void themeBtn.offsetWidth;
+    }
     themeBtn?.addEventListener('click', () => {
+        themeBtn.classList.add('rotating');
+        setTimeout(() => { themeBtn.classList.remove('rotating'); }, 500);
         const current = document.documentElement.getAttribute('data-theme');
         const next = current === 'light' ? 'dark' : 'light';
         document.documentElement.setAttribute('data-theme', next);
