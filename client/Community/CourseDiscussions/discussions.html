@@ -41,6 +41,19 @@
             <li class="nav-item"><a href="../../StudyRooms/rooms.html" class="nav-link"><i class="fa-solid fa-video"></i> Study Rooms</a></li>
         </ul>
 
+        <div class="user-profile">
+            <div class="avatar-circle">ZA</div>
+            <div class="user-info">
+                <h4>Ziad Alaa</h4>
+                <span>student</span>
+            </div>
+        </div>
+
+        <div class="reputation-box">
+            <span>Reputation</span>
+            <div class="rep-badge">0</div>
+        </div>
+
         <a href="../../Login/loginPage/login.html" class="logout-btn">
             <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
         </a>
@@ -55,7 +68,7 @@
 
             <div class="header-actions">
                 <button class="icon-btn" id="themeBtn" type="button" aria-label="Toggle theme"><i class="fa-regular fa-moon"></i></button>
-                <div class="profile-circle-small"></div>
+                <div class="profile-circle-small">ZA</div>
             </div>
         </header>
 
@@ -91,7 +104,11 @@
 
             <div id="ui-notice" class="notice" hidden></div>
 
-            <section id="threads-container" class="threads-container" aria-live="polite"></section>
+            <section id="threads-container" class="threads-container" aria-live="polite">
+                <div class="skeleton skeleton-thread-card"></div>
+                <div class="skeleton skeleton-thread-card"></div>
+                <div class="skeleton skeleton-thread-card"></div>
+            </section>
         </div>
     </main>
 

@@ -203,6 +203,8 @@ window.NibrasReact.run(() => {
         }
 
         elements.themeButton?.addEventListener("click", () => {
+            elements.themeButton.classList.add('rotating');
+            setTimeout(() => { elements.themeButton.classList.remove('rotating'); }, 500);
             const current = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
             const next = current === "dark" ? "light" : "dark";
             document.documentElement.setAttribute("data-theme", next);
@@ -255,8 +257,21 @@ window.NibrasReact.run(() => {
         });
     }
 
+    function updateSidebarUser() {
+        try {
+            var u = JSON.parse(localStorage.getItem('user'));
+            if (!u || !u.name) return;
+            document.querySelector('.user-info h4').textContent = u.name;
+            document.querySelector('.user-info span').textContent = (u.role?.name || u.role || 'student');
+            var initials = u.name.split(' ').map(function(n) { return n.charAt(0); }).join('').toUpperCase().slice(0, 2);
+            var avatars = document.querySelectorAll('.avatar-circle, .profile-circle-small');
+            avatars.forEach(function(el) { el.textContent = initials || 'U'; });
+        } catch (_) {}
+    }
+
     async function bootstrap() {
         await loadCurrentUser();
+        updateSidebarUser();
         if (!state.currentUser) return;
         await loadThreadAndPosts();
         configureBackLink();

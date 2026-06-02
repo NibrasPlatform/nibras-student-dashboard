@@ -210,6 +210,8 @@ window.NibrasReact.run(() => {
             elements.logo.src = theme === "dark" ? "/Assets/images/logo-dark.png" : "/Assets/images/logo-light.png";
         }
         elements.themeButton?.addEventListener("click", () => {
+            elements.themeButton.classList.add('rotating');
+            setTimeout(() => { elements.themeButton.classList.remove('rotating'); }, 500);
             const currentTheme = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
             const nextTheme = currentTheme === "dark" ? "light" : "dark";
             document.documentElement.setAttribute("data-theme", nextTheme);
@@ -313,10 +315,23 @@ window.NibrasReact.run(() => {
         });
     }
 
+    function updateSidebarUser() {
+        try {
+            var u = JSON.parse(localStorage.getItem('user'));
+            if (!u || !u.name) return;
+            document.querySelector('.user-info h4').textContent = u.name;
+            document.querySelector('.user-info span').textContent = (u.role?.name || u.role || 'student');
+            var initials = u.name.split(' ').map(function(n) { return n.charAt(0); }).join('').toUpperCase().slice(0, 2);
+            var avatars = document.querySelectorAll('.avatar-circle, .profile-circle-small');
+            avatars.forEach(function(el) { el.textContent = initials || 'U'; });
+        } catch (_) {}
+    }
+
     async function bootstrap() {
         console.log('[Bootstrap] Starting...');
         try {
             await loadCurrentUser();
+            updateSidebarUser();
             if (window.NibrasShared?.session?.updateUserInfoDisplay) {
                 window.NibrasShared.session.updateUserInfoDisplay();
             }
