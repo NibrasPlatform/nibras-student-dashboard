@@ -108,16 +108,19 @@
             const msg = allProblems.length === 0
                 ? 'Sign in to view practice problems.'
                 : 'No problems match your filters.';
-            tbody.innerHTML = `<tr><td colspan="4" style="padding:2rem;text-align:center;color:var(--text-secondary);font-size:0.9rem;">${msg}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="4" style="padding:2rem;text-align:center;color:var(--text-secondary);font-size:0.9rem;">${shared.safeHtml(msg)}</td></tr>`;
         } else {
             tbody.innerHTML = page.map((p) => {
                 const pid = getProblemIdFromUrl(p.url) || p.id;
+                const safeTitle = shared.safeHtml(p.title);
+                const safeUrl = shared.safeHtml(p.url || '#');
+                const safeRating = p.rating != null ? shared.safeHtml(String(p.rating)) : '—';
                 const tagHtml = p.tags.length
-                    ? `<div class="tag-list">${p.tags.map((t) => `<span class="tag-chip">${t}</span>`).join('')}</div>`
+                    ? `<div class="tag-list">${p.tags.map((t) => `<span class="tag-chip">${shared.safeHtml(t)}</span>`).join('')}</div>`
                     : '<span style="color:var(--text-tertiary);font-size:0.75rem;">—</span>';
                 return `<tr>
-                    <td><div><a href="${p.url || '#'}" target="_blank" rel="noopener noreferrer" class="problem-link">${p.title}</a></div></td>
-                    <td><span class="problem-rating">${p.rating != null ? p.rating : '—'}</span></td>
+                    <td><div><a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="problem-link">${safeTitle}</a></div></td>
+                    <td><span class="problem-rating">${safeRating}</span></td>
                     <td>${tagHtml}</td>
                     <td>${getStatusIcon(p.status)}</td>
                 </tr>`;
@@ -207,7 +210,7 @@
             refreshView();
         } catch (error) {
             const msg = error?.message || 'Could not load practice data.';
-            if (tbody) tbody.innerHTML = `<tr><td colspan="4" style="padding:2rem;text-align:center;color:var(--text-secondary);">${msg}</td></tr>`;
+            if (tbody) tbody.innerHTML = `<tr><td colspan="4" style="padding:2rem;text-align:center;color:var(--text-secondary);">${shared.safeHtml(msg)}</td></tr>`;
         }
     };
 

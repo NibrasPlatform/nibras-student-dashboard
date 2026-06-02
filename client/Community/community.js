@@ -647,7 +647,7 @@ window.NibrasReact.run(() => {
             if (q.tags && Array.isArray(q.tags)) {
                 q.tags.forEach(t => {
                     let color = getVibrantColorClass(t.toLowerCase());
-                    tagHtml += `<span class="tag ${color}">${t}</span>`;
+                    tagHtml += `<span class="tag ${escapeHtml(color)}">${escapeHtml(t)}</span>`;
                 });
             }
 
@@ -936,8 +936,8 @@ window.NibrasReact.run(() => {
                 const activeStyle = isSelected ? 'background-color: var(--tag-bg); border-radius: 6px; padding: 4px; box-shadow: 0 0 0 1px var(--accent-blue);' : 'padding: 4px;';
                 
                 tagsHtml += `
-                    <div class="tag-row clickable-tag" role="button" tabindex="0" aria-pressed="${isSelected ? 'true' : 'false'}" data-tag="${t.name}" style="cursor: pointer; transition: all 0.2s; ${activeStyle}">
-                        <span class="tag ${t.color}">${t.name}</span>
+                    <div class="tag-row clickable-tag" role="button" tabindex="0" aria-pressed="${isSelected ? 'true' : 'false'}" data-tag="${escapeHtml(t.name)}" style="cursor: pointer; transition: all 0.2s; ${activeStyle}">
+                        <span class="tag ${escapeHtml(t.color)}">${escapeHtml(t.name)}</span>
                         <span class="tag-count">${t.count}</span>
                     </div>
                 `;
@@ -982,7 +982,7 @@ window.NibrasReact.run(() => {
         const tagsToRender = [...selectedModalTags, ...matchedUnselected];
 
         if (tagsToRender.length === 0) {
-            container.innerHTML = `<span style="color: var(--text-secondary); font-size: 0.9rem; padding: 10px 0; width: 100%; text-align: center;">No tags match "${searchTerm}". Try a different keyword.</span>`;
+            container.innerHTML = `<span style="color: var(--text-secondary); font-size: 0.9rem; padding: 10px 0; width: 100%; text-align: center;">No tags match "${escapeHtml(searchTerm)}". Try a different keyword.</span>`;
             return;
         }
         
@@ -999,11 +999,11 @@ window.NibrasReact.run(() => {
             const shadow = isSelected ? 'box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);' : '';
             
             tagHtml += `
-                <div class="modal-tag-pill" role="button" tabindex="0" aria-pressed="${isSelected ? 'true' : 'false'}" data-tag="${tag}" 
+                <div class="modal-tag-pill" role="button" tabindex="0" aria-pressed="${isSelected ? 'true' : 'false'}" data-tag="${escapeHtml(tag)}" 
                      style="background: ${bg}; color: ${color}; cursor: ${cursor}; opacity: ${opacity}; border: ${border}; ${shadow}
                             padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; 
                             transition: all 0.2s ease; user-select: none; display: flex; align-items: center; gap: 6px;">
-                    ${tag} 
+                    ${escapeHtml(tag)} 
                     ${isSelected ? '<i class="fa-solid fa-xmark" style="font-size:0.75rem; opacity: 0.8;"></i>' : ''}
                 </div>
             `;

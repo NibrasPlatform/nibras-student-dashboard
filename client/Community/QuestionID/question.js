@@ -799,34 +799,34 @@ window.NibrasReact.run(() => {
             }
 
             answersHtml += `
-                <div class="answer-card" data-comment-id="${ans.id}">
-                    <div class="q-vote-box" data-type="comment" data-id="${ans.id}">
-                        <button type="button" class="fa-solid fa-chevron-up vote-arrow up" data-type="comment" data-id="${ans.id}" aria-label="Upvote answer" aria-pressed="false"></button>
+                <div class="answer-card" data-comment-id="${escapeHtml(ans.id)}">
+                    <div class="q-vote-box" data-type="comment" data-id="${escapeHtml(ans.id)}">
+                        <button type="button" class="fa-solid fa-chevron-up vote-arrow up" data-type="comment" data-id="${escapeHtml(ans.id)}" aria-label="Upvote answer" aria-pressed="false"></button>
                         <span class="vote-count">${ans.votes}</span>
-                        <button type="button" class="fa-solid fa-chevron-down vote-arrow down" data-type="comment" data-id="${ans.id}" aria-label="Downvote answer" aria-pressed="false"></button>
+                        <button type="button" class="fa-solid fa-chevron-down vote-arrow down" data-type="comment" data-id="${escapeHtml(ans.id)}" aria-label="Downvote answer" aria-pressed="false"></button>
                     </div>
                     <div class="detail-content">
                         <div class="detail-body markdown-body" style="margin-bottom:1.5rem">${renderMarkdown(ans.text)}</div>
                         <div class="detail-footer" style="display:flex; justify-content:space-between; align-items:center;">
                             <div class="detail-actions" style="display:flex; align-items:center; gap:14px;">
-                                <span>${ans.time}</span>
+                                <span>${escapeHtml(ans.time)}</span>
                                 ${acceptButton}
                                 ${aiReviewButtons}
-                                <button type="button" class="fa-regular fa-flag report-btn" data-target-id="${ans.id}" data-target-type="answer" title="Report this answer" aria-label="Report this answer" style="background:none; border:none; cursor: pointer; font-size: 1rem; color: var(--text-secondary); transition: 0.2s;"></button>
+                                <button type="button" class="fa-regular fa-flag report-btn" data-target-id="${escapeHtml(ans.id)}" data-target-type="answer" title="Report this answer" aria-label="Report this answer" style="background:none; border:none; cursor: pointer; font-size: 1rem; color: var(--text-secondary); transition: 0.2s;"></button>
                                 ${commentActionMenuHtml}
                             </div>
                             <div class="detail-author-box">
-                                <div class="author-av" style="width:36px; height:36px;">${ans.initials}</div>
+                                <div class="author-av" style="width:36px; height:36px;">${escapeHtml(ans.initials)}</div>
                                 <div class="detail-author-info">
                                     <div style="display:flex; align-items:center">
-                                        <span class="detail-author-name">${ans.author}</span>
+                                        <span class="detail-author-name">${escapeHtml(ans.author)}</span>
                                         ${roleBadge}${pinnedBadge}
                                     </div>
-                                    <span class="detail-author-meta">${ans.authorRep} rep</span>
+                                    <span class="detail-author-meta">${escapeHtml(ans.authorRep)} rep</span>
                                 </div>
                             </div>
                         </div>
-                        ${ans.isFromAI ? '<div class="ai-feedback" data-answer-id="' + ans.id + '"><span class="ai-feedback-label">Was this helpful?</span><button type="button" class="ai-feedback-btn ai-feedback-up" data-answer-id="' + ans.id + '" title="Helpful" aria-label="Mark as helpful"><i class="fa-solid fa-thumbs-up"></i></button><button type="button" class="ai-feedback-btn ai-feedback-down" data-answer-id="' + ans.id + '" title="Not helpful" aria-label="Mark as not helpful"><i class="fa-solid fa-thumbs-down"></i></button><span class="ai-feedback-thanks" style="display:none;"><i class="fa-solid fa-check-circle"></i> Thanks for your feedback!</span></div>' : ''}
+                        ${ans.isFromAI ? '<div class="ai-feedback" data-answer-id="' + escapeHtml(ans.id) + '"><span class="ai-feedback-label">Was this helpful?</span><button type="button" class="ai-feedback-btn ai-feedback-up" data-answer-id="' + escapeHtml(ans.id) + '" title="Helpful" aria-label="Mark as helpful"><i class="fa-solid fa-thumbs-up"></i></button><button type="button" class="ai-feedback-btn ai-feedback-down" data-answer-id="' + escapeHtml(ans.id) + '" title="Not helpful" aria-label="Mark as not helpful"><i class="fa-solid fa-thumbs-down"></i></button><span class="ai-feedback-thanks" style="display:none;"><i class="fa-solid fa-check-circle"></i> Thanks for your feedback!</span></div>' : ''}
                     </div>
                 </div>
             `;

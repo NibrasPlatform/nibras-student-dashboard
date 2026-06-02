@@ -630,7 +630,7 @@ window.NibrasReact.run(() => {
                 modalTagsDisplay.innerHTML = '';
                 if (sessionTags && sessionTags.length > 0) {
                     sessionTags.forEach(tag => {
-                        modalTagsDisplay.innerHTML += `<span style="background: var(--tag-bg, #f3f4f6); color: var(--accent-blue, #2563eb); border: 1px solid var(--accent-blue, #2563eb); padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">${tag}</span>`;
+                        modalTagsDisplay.innerHTML += `<span style="background: var(--tag-bg, #f3f4f6); color: var(--accent-blue, #2563eb); border: 1px solid var(--accent-blue, #2563eb); padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">${escapeHtml(tag)}</span>`;
                     });
                 } else {
                     modalTagsDisplay.innerHTML = `<span style="color: #9ca3af; font-size: 0.9rem;">No tags generated</span>`;

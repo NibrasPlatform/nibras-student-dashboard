@@ -297,7 +297,7 @@ window.NibrasReact.run(function () {
         }
 
         var body = problem.description || problem.statement || problem.body || 'No description available.';
-        els.problemBody.innerHTML = body;
+        els.problemBody.innerHTML = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(body) : body;
 
         els.problemSample.innerHTML = '';
         var samples = problem.sampleIO || problem.samples || problem.testCases?.filter(function (tc) { return tc.isSample; }) || problem.sampleTestCases || [];

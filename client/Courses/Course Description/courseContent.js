@@ -1,4 +1,6 @@
 window.NibrasReact.run(async () => {
+    var _safeHtml = window.NibrasShared?.safeHtml || function(v) { return String(v ?? '').replace(/[&<>"']/g, function(c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); };
+
     // If a backend MongoDB ID is stored (e.g. from instructor pages),
     // resolve it to a local slug so the correct course renders
     try {
@@ -292,7 +294,7 @@ window.NibrasReact.run(async () => {
                             ? '<span class="status-badge">Available</span>'
                             : isComplete ? '<span class="status-badge" style="background:#16a34a">Completed</span>' : "";
                         const activeClass = isAvailable && !isComplete ? 'week-card-active' : "";
-                        return `<div class="curriculum-week">${iconHtml}<div class="week-content ${activeClass}"><div class="week-header"><span class="week-title">${s.title || "Section " + (i + 1)}</span>${badgeHtml}</div></div></div>`;
+                        return `<div class="curriculum-week">${iconHtml}<div class="week-content ${activeClass}"><div class="week-header"><span class="week-title">${_safeHtml(s.title || "Section " + (i + 1))}</span>${badgeHtml}</div></div></div>`;
                     }).join("");
 
                     if (completedCount > 0 || sections.length > 0) {
