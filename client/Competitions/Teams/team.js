@@ -494,6 +494,32 @@ window.NibrasReact.run(function () {
         });
     }
 
+    function getRoleLabel(role) {
+        if (!role) return 'Student';
+        if (typeof role === 'object') return role.name || 'Student';
+        if (typeof role === 'string') return role.charAt(0).toUpperCase() + role.slice(1);
+        return 'Student';
+    }
+
+    function populateSidebarUser() {
+        try {
+            var u = JSON.parse(localStorage.getItem('user') || '{}');
+            if (!u.name) return;
+            var initials = getInitials(u.name);
+            var q = function(s) { return document.querySelector('.sidebar ' + s); };
+            var avatarEl = q('.avatar-circle');
+            var nameEl = q('.user-info h4');
+            var roleEl = q('.user-info span');
+            var repEl = q('.rep-badge');
+            if (avatarEl) avatarEl.textContent = initials;
+            if (nameEl) nameEl.textContent = u.name;
+            if (roleEl) roleEl.textContent = getRoleLabel(u.role);
+            if (repEl) repEl.textContent = u.reputation || '0';
+            var headerAvatars = document.querySelectorAll('.header-actions .avatar-circle');
+            if (headerAvatars.length) headerAvatars[headerAvatars.length - 1].textContent = initials;
+        } catch (_) {}
+    }
+
     function getCurrentUserInfo() {
         if (!authEnabled) return;
         var user = shared.auth?.getUser?.() || null;
@@ -534,6 +560,36 @@ window.NibrasReact.run(function () {
 
     // Init
     getCurrentUserInfo();
+    populateSidebarUser();
+
+    // Fetch fresh user data from backend + reputation
+    if (authEnabled) {
+        var S = window.NibrasServices;
+        if (S && S.authService && typeof S.authService.getMe === 'function') {
+            S.authService.getMe().then(function (meData) {
+                var freshUser = meData && (meData.user || (meData.data && meData.data.user) || meData.data || meData);
+                if (freshUser && freshUser.name) {
+                    localStorage.setItem('user', JSON.stringify(freshUser));
+                    populateSidebarUser();
+                }
+            }).catch(function () {});
+        }
+        if (S && S.reputationService && typeof S.reputationService.getMyReputation === 'function') {
+            S.reputationService.getMyReputation().then(function (repData) {
+                var rep = repData && (repData.reputation != null ? repData.reputation : repData.data && repData.data.reputation != null ? repData.data.reputation : repData.points != null ? repData.points : null);
+                if (rep != null) {
+                    var badge = document.querySelector('.sidebar .rep-badge');
+                    if (badge) badge.textContent = rep;
+                    try {
+                        var stored = JSON.parse(localStorage.getItem('user') || '{}');
+                        stored.reputation = rep;
+                        localStorage.setItem('user', JSON.stringify(stored));
+                    } catch (_) {}
+                }
+            }).catch(function () {});
+        }
+    }
+
     loadMyTeams();
     loadDiscover();
     loadInvitations();
