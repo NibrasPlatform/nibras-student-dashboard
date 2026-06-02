@@ -85,30 +85,30 @@
             </div>
 
             <div class="teams-stats-grid" id="teams-stats">
-                <div class="stat-card">
+                <div class="stat-card" data-color="purple">
                     <div class="stat-info">
                         <span>My Teams</span>
                         <h2 id="my-team-count">0</h2>
                     </div>
-                    <div class="stat-icon" style="background-color: var(--stat-blue-bg); color: var(--stat-blue-text);">
+                    <div class="stat-icon" style="background-color: var(--stat-icon-bg-purple); color: var(--stat-icon-text-purple);">
                         <i class="fa-solid fa-users"></i>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" data-color="green">
                     <div class="stat-info">
                         <span>Open Teams</span>
                         <h2 id="open-team-count">0</h2>
                     </div>
-                    <div class="stat-icon" style="background-color: var(--stat-green-bg); color: var(--stat-green-text);">
+                    <div class="stat-icon" style="background-color: var(--stat-icon-bg-green); color: var(--stat-icon-text-green);">
                         <i class="fa-solid fa-user-plus"></i>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" data-color="blue">
                     <div class="stat-info">
                         <span>Pending Invites</span>
                         <h2 id="pending-invite-count">0</h2>
                     </div>
-                    <div class="stat-icon" style="background-color: var(--stat-yellow-bg); color: var(--stat-yellow-text);">
+                    <div class="stat-icon" style="background-color: var(--stat-icon-bg-blue); color: var(--stat-icon-text-blue);">
                         <i class="fa-solid fa-envelope"></i>
                     </div>
                 </div>
@@ -122,32 +122,44 @@
 
             <div id="tab-my-teams" class="tab-content active">
                 <div id="my-teams-container">
-                    <div class="empty-state" id="my-teams-empty">
+                    <div class="empty-state" id="my-teams-empty" style="display:none;">
                         <i class="fa-solid fa-users"></i>
                         <p>You haven't joined any teams yet.</p>
                         <p style="font-size:0.85rem;color:var(--text-tertiary);margin-top:4px;">Create a team or discover one to join!</p>
                     </div>
-                    <div class="teams-grid" id="my-teams-grid" style="display:none;"></div>
+                    <div class="teams-grid" id="my-teams-grid">
+                        <div class="skeleton skeleton-team-card"></div>
+                        <div class="skeleton skeleton-team-card"></div>
+                        <div class="skeleton skeleton-team-card"></div>
+                    </div>
                 </div>
             </div>
 
             <div id="tab-discover" class="tab-content">
                 <div id="discover-container">
-                    <div class="empty-state" id="discover-empty">
+                    <div class="empty-state" id="discover-empty" style="display:none;">
                         <i class="fa-solid fa-compass"></i>
                         <p>No open teams found.</p>
                     </div>
-                    <div class="teams-grid" id="discover-grid" style="display:none;"></div>
+                    <div class="teams-grid" id="discover-grid">
+                        <div class="skeleton skeleton-team-card"></div>
+                        <div class="skeleton skeleton-team-card"></div>
+                        <div class="skeleton skeleton-team-card"></div>
+                    </div>
                 </div>
             </div>
 
             <div id="tab-invitations" class="tab-content">
                 <div id="invitations-container">
-                    <div class="empty-state" id="invitations-empty">
+                    <div class="empty-state" id="invitations-empty" style="display:none;">
                         <i class="fa-solid fa-envelope"></i>
                         <p>No pending invitations.</p>
                     </div>
-                    <div class="teams-grid" id="invitations-grid" style="display:none;"></div>
+                    <div class="teams-grid" id="invitations-grid">
+                        <div class="skeleton skeleton-team-card-sm"></div>
+                        <div class="skeleton skeleton-team-card-sm"></div>
+                        <div class="skeleton skeleton-team-card-sm"></div>
+                    </div>
                 </div>
             </div>
         </div>

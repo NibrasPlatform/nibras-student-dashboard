@@ -633,4 +633,15 @@ window.NibrasReact.run(function () {
 
     // Search
     els.teamSearchInput?.addEventListener('input', handleSearch);
+
+    // Theme toggle rotation
+    var themeBtn = document.getElementById('themeBtn');
+    if (themeBtn) {
+        themeBtn.classList.remove('rotating');
+        void themeBtn.offsetWidth;
+        themeBtn.addEventListener('click', function () {
+            themeBtn.classList.add('rotating');
+            setTimeout(function () { themeBtn.classList.remove('rotating'); }, 500);
+        });
+    }
 });
