@@ -170,6 +170,8 @@ window.NibrasReact.run(() => {
         currentUser: null,
         votesByTargetId: new Map(),
         socket: null,
+        typingTimer: null,
+        typingUsers: {},
     };
 
     if (!state.threadId) {
@@ -259,6 +261,8 @@ window.NibrasReact.run(() => {
         await loadThreadAndPosts();
         configureBackLink();
         initSocket();
+        setupTypingListeners();
+        setInterval(updateTypingIndicator, 2000);
     }
 
     async function loadCurrentUser() {
@@ -582,9 +586,78 @@ window.NibrasReact.run(() => {
                 renderPosts();
             }
         });
+        state.socket.on("typing:update", (payload) => {
+            if (!payload || payload.userId === getCurrentUserId()) return;
+            if (normalizeIdentifier(payload.threadId) !== state.threadId) return;
+            state.typingUsers[payload.userId] = { name: payload.name || "Someone", timestamp: Date.now() };
+            updateTypingIndicator();
+        });
         window.addEventListener("beforeunload", () => {
             if (state.socket) state.socket.disconnect();
         });
+    }
+
+    function getCurrentUserId() {
+        return normalizeIdentifier(state.currentUser?._id || state.currentUser?.id || "");
+    }
+
+    function setupTypingListeners() {
+        if (!elements.replyInput) return;
+        elements.replyInput.addEventListener("input", function () {
+            if (!state.socket || !state.threadId) return;
+            state.socket.emit("typing:start", {
+                threadId: state.threadId,
+                userId: getCurrentUserId(),
+                name: state.currentUser?.name || "Someone",
+            });
+            if (state.typingTimer) clearTimeout(state.typingTimer);
+            state.typingTimer = setTimeout(stopTyping, 2000);
+        });
+        elements.replyInput.addEventListener("blur", stopTyping);
+    }
+
+    function stopTyping() {
+        if (state.typingTimer) {
+            clearTimeout(state.typingTimer);
+            state.typingTimer = null;
+        }
+        if (state.socket && state.threadId) {
+            state.socket.emit("typing:stop", {
+                threadId: state.threadId,
+                userId: getCurrentUserId(),
+            });
+        }
+    }
+
+    function updateTypingIndicator() {
+        var indicator = document.getElementById("typing-indicator");
+        if (!indicator) return;
+        var now = Date.now();
+        var active = [];
+        for (var id in state.typingUsers) {
+            if (now - state.typingUsers[id].timestamp > 3000) {
+                delete state.typingUsers[id];
+            } else {
+                active.push(state.typingUsers[id].name);
+            }
+        }
+        if (active.length === 0) {
+            indicator.style.opacity = "0";
+            indicator.textContent = "";
+            return;
+        }
+        var text = active.length === 1
+            ? active[0] + " is typing..."
+            : active.length === 2
+                ? active[0] + " and " + active[1] + " are typing..."
+                : "Multiple people are typing...";
+        indicator.textContent = text;
+        indicator.style.opacity = "1";
+        clearTimeout(indicator._hideTimer);
+        indicator._hideTimer = setTimeout(function () {
+            indicator.style.opacity = "0";
+            setTimeout(function () { if (indicator.textContent === text) indicator.textContent = ""; }, 200);
+        }, 3000);
     }
 
     function showErrorNotice(error, fallbackMessage) {

@@ -230,6 +230,21 @@
                             <p>No resources linked for this project.</p>
                         </div>
                     </div>
+
+                    <!-- Webhook Activity Feed -->
+                    <div class="project-card webhook-card">
+                        <div class="card-header-row">
+                            <h3>Webhook Activity</h3>
+                            <span class="webhook-badge-live" id="webhook-badge"><i class="fa-solid fa-circle"></i> Live</span>
+                        </div>
+                        <div class="webhook-feed" id="webhook-feed">
+                            <div class="empty-state">
+                                <i class="fa-solid fa-code-branch"></i>
+                                <p>Waiting for webhook events...</p>
+                                <p class="empty-state-sub">Connect GitHub or GitLab in Integrations to see commit and PR activity here in real time.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -290,6 +305,7 @@
     <script src="../Courses/Projects/projectsApi.js"></script>
     <script src="./projects.js"></script>
     <script src="../services/gamification-ui.js"></script>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script>
     (function() {
         try {

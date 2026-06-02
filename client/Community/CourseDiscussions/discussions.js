@@ -188,6 +188,8 @@ window.NibrasReact.run(() => {
         },
         socket: null,
         refreshTimer: null,
+        typingTimer: null,
+        typingUsers: {},
     };
 
     initializeThemeToggle();
@@ -330,6 +332,8 @@ window.NibrasReact.run(() => {
             renderCourseSelect();
             updateUI();
             initSocket();
+            setupTypingListeners();
+            setInterval(updateTypingIndicator, 2000);
             await loadThreads({ announce: true });
             console.log('[Bootstrap] Done');
         } catch (error) {
@@ -689,9 +693,78 @@ window.NibrasReact.run(() => {
                 loadThreads({ announce: false });
             }, 250);
         });
+        state.socket.on("typing:update", (payload) => {
+            if (!payload || payload.userId === getCurrentUserId()) return;
+            var payloadCourse = normalizeIdentifier(payload.courseId);
+            if (payloadCourse && payloadCourse !== normalizeIdentifier(state.communityCourseId)) return;
+            state.typingUsers[payload.userId] = { name: payload.name || "Someone", timestamp: Date.now() };
+            updateTypingIndicator();
+        });
         window.addEventListener("beforeunload", () => {
             if (state.socket) state.socket.disconnect();
         });
+    }
+
+    function getCurrentUserId() {
+        return normalizeIdentifier(state.user?._id || state.user?.id || "");
+    }
+
+    function setupTypingListeners() {
+        if (!elements.titleInput || !elements.bodyInput) return;
+        function onInput() {
+            if (!state.socket || !state.communityCourseId) return;
+            state.socket.emit("typing:start", {
+                courseId: state.communityCourseId,
+                userId: getCurrentUserId(),
+                name: state.user?.name || "Someone",
+            });
+            if (state.typingTimer) clearTimeout(state.typingTimer);
+            state.typingTimer = setTimeout(stopTyping, 2000);
+        }
+        elements.titleInput.addEventListener("input", onInput);
+        elements.bodyInput.addEventListener("input", onInput);
+        elements.titleInput.addEventListener("blur", stopTyping);
+        elements.bodyInput.addEventListener("blur", stopTyping);
+    }
+
+    function stopTyping() {
+        if (state.typingTimer) {
+            clearTimeout(state.typingTimer);
+            state.typingTimer = null;
+        }
+        if (state.socket && state.communityCourseId) {
+            state.socket.emit("typing:stop", {
+                courseId: state.communityCourseId,
+                userId: getCurrentUserId(),
+            });
+        }
+    }
+
+    function updateTypingIndicator() {
+        var indicator = document.getElementById("typing-indicator");
+        if (!indicator) return;
+        var now = Date.now();
+        var active = [];
+        for (var id in state.typingUsers) {
+            if (now - state.typingUsers[id].timestamp > 3000) {
+                delete state.typingUsers[id];
+            } else {
+                active.push(state.typingUsers[id].name);
+            }
+        }
+        if (active.length === 0) {
+            indicator.style.opacity = "0";
+            return;
+        }
+        var text = active.length === 1
+            ? active[0] + " is creating a thread..."
+            : "Multiple people are creating threads...";
+        indicator.textContent = text;
+        indicator.style.opacity = "1";
+        clearTimeout(indicator._hideTimer);
+        indicator._hideTimer = setTimeout(function () {
+            indicator.style.opacity = "0";
+        }, 3000);
     }
 
     function joinCourseRoom() {

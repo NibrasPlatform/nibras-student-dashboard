@@ -1,4 +1,4 @@
-var projectsPage = { courseId: '', activeCourse: null, activeProgress: null };
+var projectsPage = { courseId: '', activeCourse: null, activeProgress: null, webhookSocket: null, webhookEvents: [], maxWebhookEvents: 50 }; function getSocketBaseUrl() { var base = window.NIBRAS_BACKEND_URL || window.location.origin; return base.replace(/\/api\/?$/, '').replace(/\/+$/, ''); }
 
 function updateSidebarUser() {
     try {
@@ -349,4 +349,143 @@ async function handleSubmit(event) {
 document.addEventListener('click', function (event) {
     var modal = document.getElementById('submissionModal');
     if (modal && modal.classList.contains('active') && event.target === modal) closeSubmissionModal();
+});
+
+// ============================================================
+// Webhook Activity Feed (Socket.io)
+// ============================================================
+function initWebhookSocket() {
+    if (projectsPage.webhookSocket && projectsPage.webhookSocket.connected) return;
+    var baseUrl = getSocketBaseUrl();
+    if (typeof io === 'undefined' || !baseUrl) return;
+    projectsPage.webhookSocket = io(baseUrl, { transports: ['websocket', 'polling'] });
+    projectsPage.webhookSocket.on('connect', function () {
+        if (projectsPage.courseId) {
+            projectsPage.webhookSocket.emit('project:join', { courseId: projectsPage.courseId });
+        }
+    });
+    projectsPage.webhookSocket.on('project:commit', function (payload) {
+        addWebhookEvent({ type: 'commit', payload: payload });
+    });
+    projectsPage.webhookSocket.on('project:pr', function (payload) {
+        addWebhookEvent({ type: 'pr', payload: payload });
+    });
+    projectsPage.webhookSocket.on('reconnect', function () {
+        if (projectsPage.courseId) {
+            projectsPage.webhookSocket.emit('project:join', { courseId: projectsPage.courseId });
+        }
+    });
+}
+
+function joinProjectRoom(courseId) {
+    projectsPage.courseId = courseId;
+    if (projectsPage.webhookSocket && projectsPage.webhookSocket.connected) {
+        projectsPage.webhookSocket.emit('project:join', { courseId: courseId });
+    }
+    fetchRecentWebhookEvents(courseId);
+}
+
+function addWebhookEvent(event) {
+    event.timestamp = event.timestamp || Date.now();
+    event.id = event.id || 'wh_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+    projectsPage.webhookEvents.unshift(event);
+    if (projectsPage.webhookEvents.length > projectsPage.maxWebhookEvents) {
+        projectsPage.webhookEvents.length = projectsPage.maxWebhookEvents;
+    }
+    renderWebhookFeed();
+    updateWebhookBadge(true);
+}
+
+function renderWebhookFeed() {
+    var feed = document.getElementById('webhook-feed');
+    if (!feed) return;
+    if (!projectsPage.webhookEvents.length) {
+        feed.innerHTML = '<div class="empty-state"><i class="fa-solid fa-code-branch"></i><p>Waiting for webhook events...</p><p class="empty-state-sub">Connect GitHub or GitLab in Integrations to see commit and PR activity here in real time.</p></div>';
+        return;
+    }
+    var html = '<div class="webhook-list">';
+    projectsPage.webhookEvents.forEach(function (ev) {
+        var p = ev.payload || {};
+        var isCommit = ev.type === 'commit';
+        var icon = isCommit ? '<i class="fa-solid fa-code-commit"></i>' : '<i class="fa-solid fa-code-pull-request"></i>';
+        var title = isCommit ? (p.message || 'Commit') : (p.title || 'Pull Request');
+        var repo = p.repository || p.repo || '';
+        var author = p.author || p.pusher || p.sender || '';
+        var branch = p.branch || p.ref ? (p.ref || '').replace('refs/heads/', '') : '';
+        var time = '';
+        if (p.timestamp || ev.timestamp) {
+            var diff = Date.now() - new Date(p.timestamp || ev.timestamp).getTime();
+            var mins = Math.floor(diff / 60000);
+            if (mins < 1) time = 'just now';
+            else if (mins < 60) time = mins + 'm ago';
+            else if (mins < 1440) time = Math.floor(mins / 60) + 'h ago';
+            else time = Math.floor(mins / 1440) + 'd ago';
+        }
+        var url = p.url || p.html_url || '';
+        var authorName = '';
+        if (typeof author === 'object') authorName = author.name || author.login || '';
+        else authorName = String(author);
+        var branchStr = branch ? '<span class="wh-branch"><i class="fa-solid fa-code-branch"></i> ' + esc(branch) + '</span>' : '';
+        var repoStr = repo ? '<span class="wh-repo">' + esc(typeof repo === 'object' ? (repo.name || repo.full_name || '') : repo) + '</span>' : '';
+        var shaStr = isCommit && p.sha ? '<span class="wh-sha">' + esc(p.sha.slice(0, 7)) + '</span>' : '';
+        html += '<div class="webhook-item wh-' + ev.type + '" data-id="' + esc(ev.id) + '">';
+        html += '<div class="wh-icon">' + icon + '</div>';
+        html += '<div class="wh-body">';
+        html += '<div class="wh-title">' + esc(title) + '</div>';
+        html += '<div class="wh-meta">' + repoStr + branchStr + shaStr + '</div>';
+        if (authorName) html += '<div class="wh-author"><i class="fa-solid fa-user"></i> ' + esc(authorName) + '</div>';
+        html += '</div>';
+        html += '<div class="wh-time">' + time + '</div>';
+        if (url) html += '<a href="' + esc(url) + '" target="_blank" class="wh-link" title="Open"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>';
+        html += '</div>';
+    });
+    html += '</div>';
+    feed.innerHTML = html;
+}
+
+function updateWebhookBadge(hasActivity) {
+    var badge = document.getElementById('webhook-badge');
+    if (!badge) return;
+    if (hasActivity) {
+        badge.innerHTML = '<i class="fa-solid fa-circle" style="color:#22c55e"></i> Live';
+        badge.style.background = 'rgba(34,197,94,0.15)';
+        badge.style.color = '#22c55e';
+    } else {
+        badge.innerHTML = '<i class="fa-solid fa-circle"></i> Connected';
+        badge.style.background = '';
+        badge.style.color = '';
+    }
+}
+
+function fetchRecentWebhookEvents(courseId) {
+    var baseUrl = window.NIBRAS_BACKEND_URL || '';
+    if (!baseUrl) return;
+    fetch(baseUrl + '/webhooks/activity?courseId=' + encodeURIComponent(courseId), {
+        method: 'GET',
+        headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('token') || '') }
+    }).then(function (r) { return r.json(); }).then(function (data) {
+        var items = Array.isArray(data) ? data : (data?.events || data?.data || []);
+        if (!items.length) return;
+        items.forEach(function (ev) {
+            addWebhookEvent({
+                type: ev.type || 'commit',
+                payload: ev.payload || ev,
+                timestamp: ev.timestamp || ev.createdAt || Date.now(),
+                id: ev._id || ev.id,
+            });
+        });
+        updateWebhookBadge(true);
+    }).catch(function () {});
+}
+
+// Patch loadCourse to join project room
+var _origLoadCourse = loadCourse;
+loadCourse = function (courseId) {
+    if (!courseId) { showEmpty(); return; }
+    joinProjectRoom(courseId);
+    _origLoadCourse(courseId);
+};
+
+window.NibrasReact.run(function () {
+    if (typeof io !== 'undefined') initWebhookSocket();
 });

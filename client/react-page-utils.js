@@ -964,6 +964,8 @@
                     else if (n.type === 'badge_earned') icon = '🏅';
                     else if (n.type === 'at_risk_alert') icon = '⚠️';
                     else if (n.type === 'grade_posted') icon = '📊';
+                    else if (n.type === 'project_commit') icon = '🔀';
+                    else if (n.type === 'project_pr') icon = '🔄';
                     var time = '';
                     if (n.createdAt) {
                         var diff = Date.now() - new Date(n.createdAt).getTime();
@@ -1005,6 +1007,7 @@
                         else if (type === 'badge_earned') url = '/Achievements/Achievements/achievements.html';
                         else if (type === 'grade_posted') url = '/Courses/Grades/grades.html';
                         else if (type === 'at_risk_alert') url = '/Analytics/Students/students.html';
+                        else if (type === 'project_commit' || type === 'project_pr') url = '/Projects/projects.html';
                         if (url) { dd.classList.remove('show'); window.location.href = url; }
                     });
                 }

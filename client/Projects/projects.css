@@ -223,6 +223,7 @@ body {
 .empty-state { text-align: center; padding: 2rem 0; color: var(--text-tertiary); }
 .empty-state i { font-size: 1.5rem; margin-bottom: 10px; display: block; }
 .empty-state p { font-size: 0.8rem; }
+.empty-state-sub { font-size: 0.72rem; color: var(--text-tertiary); margin-top: 0.5rem; max-width: 280px; margin-left: auto; margin-right: auto; line-height: 1.4; }
 
 /* --- MODAL --- */
 .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(2px); }
@@ -252,6 +253,33 @@ body {
 .pulse-step .step-text { display: flex; flex-direction: column; }
 .pulse-step .step-title { font-size: 0.9rem; font-weight: 500; }
 .pulse-step .step-desc { font-size: 0.75rem; color: var(--text-secondary); }
+
+/* --- WEBHOOK ACTIVITY FEED --- */
+.webhook-card { min-height: 200px; }
+.webhook-badge-live { font-size: 0.7rem; font-weight: 600; padding: 3px 10px; border-radius: 12px; background: var(--tag-bg); color: var(--text-secondary); display: inline-flex; align-items: center; gap: 4px; }
+.webhook-badge-live i { font-size: 0.5rem; }
+.webhook-feed { max-height: 400px; overflow-y: auto; }
+.webhook-feed::-webkit-scrollbar { width: 4px; }
+.webhook-feed::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 2px; }
+.webhook-list { display: flex; flex-direction: column; gap: 8px; }
+.webhook-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-radius: 8px; background: var(--bg-input); border: 1px solid var(--border-color); transition: 0.2s; position: relative; }
+.webhook-item:hover { border-color: var(--accent-blue); }
+.webhook-item.wh-commit .wh-icon { color: #22c55e; }
+.webhook-item.wh-pr .wh-icon { color: #a855f7; }
+.wh-icon { font-size: 1rem; width: 24px; text-align: center; flex-shrink: 0; margin-top: 2px; }
+.wh-body { flex: 1; min-width: 0; }
+.wh-title { font-size: 0.85rem; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wh-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+.wh-repo, .wh-branch, .wh-sha { font-size: 0.7rem; padding: 1px 6px; border-radius: 4px; background: var(--tag-bg); color: var(--text-secondary); }
+.wh-sha { font-family: monospace; }
+.wh-author { font-size: 0.72rem; color: var(--text-tertiary); margin-top: 2px; display: flex; align-items: center; gap: 4px; }
+.wh-author i { font-size: 0.6rem; }
+.wh-time { font-size: 0.68rem; color: var(--text-tertiary); white-space: nowrap; flex-shrink: 0; margin-top: 3px; }
+.wh-link { color: var(--text-tertiary); font-size: 0.7rem; flex-shrink: 0; margin-top: 3px; padding: 2px; border-radius: 4px; transition: 0.2s; }
+.wh-link:hover { color: var(--accent-blue); background: var(--tag-bg); }
+
+@keyframes wh-fade-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+.webhook-item:first-child { animation: wh-fade-in 0.3s ease; }
 
 @media (max-width: 1024px) {
     .sidebar { display: none; }
