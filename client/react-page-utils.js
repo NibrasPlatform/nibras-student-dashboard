@@ -1299,4 +1299,84 @@
             }
         });
     })();
+
+    // --- Admin page quick-navigator for search bar ---
+    (function () {
+        var ADMIN_PAGES = [
+            { keywords: ['dashboard', 'home', 'main', 'admin dashboard'], url: 'Dashboard/dashboard.html' },
+            { keywords: ['users', 'user management', 'accounts', 'people'], url: 'Users/users.html' },
+            { keywords: ['courses', 'course management'], url: 'Courses/courses.html' },
+            { keywords: ['roles', 'permissions', 'role management'], url: 'Roles/roles.html' },
+            { keywords: ['backups', 'backup'], url: 'Backups/backups.html' },
+            { keywords: ['audit', 'audit logs', 'logs'], url: 'AuditLogs/audit-logs.html' },
+            { keywords: ['config', 'system config', 'configuration', 'settings'], url: 'Config/config.html' },
+            { keywords: ['moderation', 'moderate', 'reports', 'report'], url: 'moderation.html' },
+            { keywords: ['badges', 'badge', 'achievements'], url: 'badges.html' },
+            { keywords: ['sections', 'section'], url: 'Sections/section-detail.html' },
+            { keywords: ['create section', 'new section', 'add section'], url: 'Sections/create-section.html' },
+            { keywords: ['create user', 'bulk create', 'bulk', 'create users', 'import users'], url: 'Users/bulk-create.html' },
+            { keywords: ['course form', 'create course', 'new course', 'add course'], url: 'Courses/course-form.html' },
+            { keywords: ['role form', 'new role', 'create role', 'add role'], url: 'Roles/role-form.html' },
+        ];
+
+        function findBestMatch(query) {
+            var q = query.trim().toLowerCase();
+            if (!q) return null;
+
+            var bestScore = -1;
+            var bestUrl = null;
+
+            for (var i = 0; i < ADMIN_PAGES.length; i++) {
+                var page = ADMIN_PAGES[i];
+                var score = 0;
+
+                for (var j = 0; j < page.keywords.length; j++) {
+                    var kw = page.keywords[j].toLowerCase();
+                    if (kw === q) {
+                        score = 100;
+                        break;
+                    }
+                    if (q.indexOf(kw) !== -1) {
+                        score = Math.max(score, 50);
+                    }
+                    if (kw.indexOf(q) !== -1) {
+                        score = Math.max(score, 30 + (kw.length / 50));
+                    }
+                }
+
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestUrl = page.url;
+                }
+            }
+
+            return bestScore > 0 ? bestUrl : null;
+        }
+
+        onReady(function () {
+            var inputs = document.querySelectorAll('.search-bar-global input[type="text"]');
+            for (var i = 0; i < inputs.length; i++) {
+                var input = inputs[i];
+                input.removeAttribute('disabled');
+                input.placeholder = 'Search admin pages...';
+
+                input.addEventListener('keydown', function (e) {
+                    if (e.key !== 'Enter') return;
+                    var query = e.target.value;
+                    if (!query || !query.trim()) return;
+
+                    var target = findBestMatch(query);
+                    if (target) {
+                        var base = window.location.origin;
+                        var currentPath = window.location.pathname.replace(/\/$/, '');
+                        var targetPath = '/Admin/' + target;
+
+                        if (currentPath !== targetPath.replace(/\/$/, '')) {
+                            window.location.href = base + targetPath;
+                        }
+                    }
+                });
+            }
+        });
+    })();
 })();
