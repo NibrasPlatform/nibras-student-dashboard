@@ -1426,6 +1426,8 @@ window.NibrasReact.run(() => {
     }
 
     themeBtn?.addEventListener('click', () => {
+        themeBtn.classList.add('rotating');
+        setTimeout(() => { themeBtn.classList.remove('rotating'); }, 500);
         const html = document.documentElement;
         const current = html.getAttribute('data-theme');
         if (current === 'light') {
@@ -1611,10 +1613,25 @@ window.NibrasReact.run(() => {
         }
     }
 
+    function updateSidebarUser() {
+        try {
+            var u = JSON.parse(localStorage.getItem('user'));
+            if (!u || !u.name) return;
+            document.querySelector('.user-info h4').textContent = u.name;
+            document.querySelector('.user-info span').textContent = (u.role?.name || u.role || 'student');
+            var initials = u.name.split(' ').map(function(n) { return n.charAt(0); }).join('').toUpperCase().slice(0, 2);
+            var avatars = document.querySelectorAll('.avatar-circle, .profile-circle-small');
+            avatars.forEach(function(el) { el.textContent = initials || 'U'; });
+            var repEl = document.querySelector('.rep-badge');
+            if (repEl) repEl.textContent = u.reputation || u.rep || 0;
+        } catch (_) {}
+    }
+
     // --- INITIALIZATION ---
     async function initPage() {
-        await loadCurrentUser(); 
-        
+        await loadCurrentUser();
+        updateSidebarUser();
+
         const questionId = getQuestionIdFromUrl();
         if (questionId) {
             loadQuestion(questionId);
