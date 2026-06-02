@@ -220,6 +220,7 @@
     gap: 1.5rem;
     border-bottom: 1px solid var(--border-color);
     margin-bottom: 1.5rem;
+    flex-wrap: nowrap;
     animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
     animation-delay: 0.2s;
 }
@@ -252,6 +253,9 @@
 .tab-btn.active {
     color: var(--accent-blue);
     font-weight: 600;
+    background: none;
+    border: none;
+    box-shadow: none;
 }
 
 .tab-btn.active::after {
@@ -260,6 +264,8 @@
 
 .tab-btn:hover:not(.active) {
     color: var(--text-primary);
+    background: none;
+    border: none;
 }
 
 /* Tab Content */

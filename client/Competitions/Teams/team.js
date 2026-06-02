@@ -634,14 +634,44 @@ window.NibrasReact.run(function () {
     // Search
     els.teamSearchInput?.addEventListener('input', handleSearch);
 
-    // Theme toggle rotation
+    // Theme toggle
     var themeBtn = document.getElementById('themeBtn');
+    var themeIcon = themeBtn ? themeBtn.querySelector('i') : null;
+    var appLogo = document.getElementById('app-logo');
+
     if (themeBtn) {
         themeBtn.classList.remove('rotating');
         void themeBtn.offsetWidth;
+    }
+
+    var currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    if (currentTheme === 'dark') {
+        if (themeIcon) themeIcon.className = 'fa-solid fa-sun';
+        if (appLogo) appLogo.src = '/Assets/images/logo-dark.png';
+    } else {
+        if (themeIcon) themeIcon.className = 'fa-regular fa-moon';
+        if (appLogo) appLogo.src = '/Assets/images/logo-light.png';
+    }
+
+    if (themeBtn) {
         themeBtn.addEventListener('click', function () {
             themeBtn.classList.add('rotating');
             setTimeout(function () { themeBtn.classList.remove('rotating'); }, 500);
+
+            var html = document.documentElement;
+            var current = html.getAttribute('data-theme');
+            var newTheme = current === 'light' ? 'dark' : 'light';
+
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+
+            if (newTheme === 'dark') {
+                if (themeIcon) themeIcon.className = 'fa-solid fa-sun';
+                if (appLogo) appLogo.src = '/Assets/images/logo-dark.png';
+            } else {
+                if (themeIcon) themeIcon.className = 'fa-regular fa-moon';
+                if (appLogo) appLogo.src = '/Assets/images/logo-light.png';
+            }
         });
     }
 });
