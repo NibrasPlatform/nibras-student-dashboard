@@ -560,7 +560,7 @@ window.NibrasReact.run(function () {
     getCurrentUserInfo();
     populateSidebarUser();
 
-    // Fetch fresh user data from backend
+    // Fetch fresh user data from backend + reputation
     if (authEnabled) {
         var S = window.NibrasServices;
         if (S && S.authService && typeof S.authService.getMe === 'function') {
@@ -570,6 +570,15 @@ window.NibrasReact.run(function () {
                     localStorage.setItem('user', JSON.stringify(freshUser));
                     populateSidebarUser();
                 }
+            }).catch(function () {});
+        }
+        if (S && S.reputationService && typeof S.reputationService.getMyReputation === 'function') {
+            S.reputationService.getMyReputation().then(function (repRes) {
+                var repTotal = 0;
+                if (repRes && repRes.data) repTotal = repRes.data.total || 0;
+                else if (repRes && repRes.total) repTotal = repRes.total;
+                var badge = document.querySelector('.sidebar .rep-badge');
+                if (badge) badge.textContent = repTotal;
             }).catch(function () {});
         }
     }
