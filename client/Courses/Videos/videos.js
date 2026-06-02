@@ -298,7 +298,11 @@ function initThemeToggle() {
     }
 
     if (themeBtn) {
+        themeBtn.classList.remove('rotating');
+        void themeBtn.offsetWidth;
         themeBtn.addEventListener("click", () => {
+            themeBtn.classList.add('rotating');
+            setTimeout(() => { themeBtn.classList.remove('rotating'); }, 500);
             const htmlEl = document.documentElement;
             const currentTheme = htmlEl.getAttribute("data-theme");
             const newTheme = currentTheme === "light" ? "dark" : "light";
