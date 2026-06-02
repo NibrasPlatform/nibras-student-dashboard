@@ -158,7 +158,7 @@
             if (stat.color === 'blue') { bgVar = 'var(--stat-blue-bg)'; textVar = 'var(--stat-blue-text)'; }
             if (stat.color === 'purple') { bgVar = 'var(--stat-purple-bg)'; textVar = 'var(--stat-purple-text)'; }
             statsContainer.innerHTML += `
-                <div class="stat-card" ${stat.action ? `style="cursor:pointer" data-action="${stat.action}"` : ''}>
+                <div class="stat-card" data-color="${stat.color}" ${stat.action ? `style="cursor:pointer" data-action="${stat.action}"` : ''}>
                     <div class="stat-info">
                         <span>${stat.label}</span>
                         <h2>${stat.value}</h2>
@@ -904,6 +904,8 @@
         if (appLogo) appLogo.src = isDark ? '/Assets/images/logo-dark.png' : '/Assets/images/logo-light.png';
     };
     applyThemeAssets();
+    themeBtn?.classList.remove('rotating');
+    if (themeBtn) void themeBtn.offsetWidth;
     themeBtn?.addEventListener('click', () => {
         const current = document.documentElement.getAttribute('data-theme');
         const next = current === 'light' ? 'dark' : 'light';
@@ -914,6 +916,8 @@
             // ignore storage write errors
         }
         applyThemeAssets();
+        themeBtn.classList.add('rotating');
+        setTimeout(() => { themeBtn.classList.remove('rotating'); }, 500);
     });
 
     const contentTabs = document.querySelectorAll('.tab-btn');
