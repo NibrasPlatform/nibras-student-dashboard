@@ -30,12 +30,16 @@ window.NibrasReact.run(function () {
         var saved = localStorage.getItem('theme') || 'light';
         htmlEl.setAttribute('data-theme', saved);
         updateUI(themeIcon, saved);
+        themeToggle.classList.remove('rotating');
+        void themeToggle.offsetWidth;
         themeToggle.addEventListener('click', function () {
             var cur = htmlEl.getAttribute('data-theme');
             var next = cur === 'light' ? 'dark' : 'light';
             htmlEl.setAttribute('data-theme', next);
             localStorage.setItem('theme', next);
             updateUI(themeIcon, next);
+            themeToggle.classList.add('rotating');
+            setTimeout(function () { themeToggle.classList.remove('rotating'); }, 500);
         });
     }
     function updateUI(el, theme) {
