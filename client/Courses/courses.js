@@ -309,7 +309,11 @@ async function initCourses() {
     }
 
     if (themeBtn) {
+        themeBtn.classList.remove('rotating');
+        void themeBtn.offsetWidth;
         themeBtn.addEventListener('click', function () {
+            themeBtn.classList.add('rotating');
+            setTimeout(function () { themeBtn.classList.remove('rotating'); }, 500);
             var html = document.documentElement;
             var current = html.getAttribute('data-theme');
 
