@@ -1300,34 +1300,85 @@
         });
     })();
 
-    // --- Admin page quick-navigator for search bar ---
+    // --- Role-based page quick-navigator for search bar ---
     (function () {
-        var ADMIN_PAGES = [
-            { keywords: ['dashboard', 'home', 'main', 'admin dashboard'], url: 'Dashboard/dashboard.html' },
-            { keywords: ['users', 'user management', 'accounts', 'people'], url: 'Users/users.html' },
-            { keywords: ['courses', 'course management'], url: 'Courses/courses.html' },
-            { keywords: ['roles', 'permissions', 'role management'], url: 'Roles/roles.html' },
-            { keywords: ['backups', 'backup'], url: 'Backups/backups.html' },
-            { keywords: ['audit', 'audit logs', 'logs'], url: 'AuditLogs/audit-logs.html' },
-            { keywords: ['config', 'system config', 'configuration', 'settings'], url: 'Config/config.html' },
-            { keywords: ['moderation', 'moderate', 'reports', 'report'], url: 'moderation.html' },
-            { keywords: ['badges', 'badge', 'achievements'], url: 'badges.html' },
-            { keywords: ['sections', 'section'], url: 'Sections/section-detail.html' },
-            { keywords: ['create section', 'new section', 'add section'], url: 'Sections/create-section.html' },
-            { keywords: ['create user', 'bulk create', 'bulk', 'create users', 'import users'], url: 'Users/bulk-create.html' },
-            { keywords: ['course form', 'create course', 'new course', 'add course'], url: 'Courses/course-form.html' },
-            { keywords: ['role form', 'new role', 'create role', 'add role'], url: 'Roles/role-form.html' },
+        var STUDENT_PAGES = [
+            { keywords: ['dashboard', 'home', 'main', 'student dashboard'], url: 'Dashboard/dashboard.html' },
+            { keywords: ['courses', 'my courses', 'course list'], url: 'Courses/courses.html' },
+            { keywords: ['assignments', 'homework', 'tasks'], url: 'Courses/Assignments/Assignments.html' },
+            { keywords: ['assignment content', 'assignment detail'], url: 'Courses/Assignments/Assignments Content/AssignmentContent.html' },
+            { keywords: ['course content', 'course description', 'syllabus'], url: 'Courses/Course Description/courseContent.html' },
+            { keywords: ['grades', 'my grades', 'scores'], url: 'Courses/Grades/grades.html' },
+            { keywords: ['videos', 'course videos', 'lectures'], url: 'Courses/Videos/videos.html' },
+            { keywords: ['course projects', 'course project'], url: 'Courses/Projects/Projects.html' },
+            { keywords: ['intermediate courses'], url: 'Courses/intermediateCourses.html' },
+            { keywords: ['community', 'feed', 'discussions'], url: 'Community/community.html' },
+            { keywords: ['question', 'q&a', 'help', 'ask'], url: 'Community/QuestionID/question.html' },
+            { keywords: ['course discussions', 'discussions'], url: 'Community/CourseDiscussions/discussions.html' },
+            { keywords: ['thread', 'discussion thread'], url: 'Community/CourseDiscussions/thread.html' },
+            { keywords: ['mentorship', 'mentors', 'mentor'], url: 'Community/mentorship.html' },
+            { keywords: ['achievements', 'badges', 'trophies', 'awards'], url: 'Achievements/Achievements/achievements.html' },
+            { keywords: ['leaderboard', 'ranking', 'top students'], url: 'Achievements/Leaderboard/leaderboard.html' },
+            { keywords: ['reputation', 'rep', 'xp', 'points'], url: 'Achievements/Reputation/reputation.html' },
+            { keywords: ['ai tutor', 'tutor', 'ai assistant'], url: 'Ai-tutor/Ai Tutor/ai_tutor.html' },
+            { keywords: ['learning insights', 'insights', 'learning analytics'], url: 'Ai-tutor/Learning Insights/learning_insights.html' },
+            { keywords: ['recommendations', 'ai recommendations', 'suggestions'], url: 'Ai-tutor/Recommendations/recommendation.html' },
+            { keywords: ['smart routing', 'routing', 'learning path'], url: 'Ai-tutor/Smart Routing/smart_routing.html' },
+            { keywords: ['analytics overview', 'overview', 'analytics'], url: 'Analytics/Overview/overview.html' },
+            { keywords: ['analytics courses', 'course analytics'], url: 'Analytics/Courses/courses.html' },
+            { keywords: ['analytics engagement', 'engagement', 'student engagement'], url: 'Analytics/Engagement/engagement.html' },
+            { keywords: ['analytics students', 'student analytics', 'my students'], url: 'Analytics/Students/students.html' },
+            { keywords: ['contests', 'competitions', 'challenges'], url: 'Competitions/Contests/contest.html' },
+            { keywords: ['contest details', 'competition details', 'challenge detail'], url: 'Competitions/ContestDetail/contestDetail.html' },
+            { keywords: ['competition history', 'contest history', 'past contests'], url: 'Competitions/History/history.html' },
+            { keywords: ['competition practice', 'contest practice', 'practice'], url: 'Competitions/Practice/practice.html' },
+            { keywords: ['competition ranking', 'contest ranking', 'rankings'], url: 'Competitions/Ranking/ranking.html' },
+            { keywords: ['teams', 'competition teams', 'my team'], url: 'Competitions/Teams/team.html' },
+            { keywords: ['projects', 'my projects', 'student projects'], url: 'Projects/projects.html' },
+            { keywords: ['project planner', 'planner', 'project planning'], url: 'Projects/planner.html' },
+            { keywords: ['project catalog', 'catalog', 'project templates'], url: 'Projects/catalog.html' },
+            { keywords: ['settings', 'preferences', 'profile settings'], url: 'Settings/settings.html' },
+            { keywords: ['cli', 'command line', 'terminal'], url: 'CLI/cli.html' },
+            { keywords: ['levels', 'leveling', 'xp levels', 'experience'], url: 'Levels/level.html' },
+            { keywords: ['portfolio', 'profile', 'student profile'], url: 'Portfolio/portfolio.html' },
+            { keywords: ['integrations', 'connected apps', 'connections'], url: 'Integrations/integrations.html' },
+            { keywords: ['study rooms', 'rooms', 'study', 'collaborate'], url: 'StudyRooms/rooms.html' },
+            { keywords: ['study room', 'room detail'], url: 'StudyRooms/room.html' },
+            { keywords: ['recommendation system', 'recommendations', 'suggestions'], url: 'Recommendation System/recommendation.html' },
         ];
 
-        function findBestMatch(query) {
+        var INSTRUCTOR_PAGES = [
+            { keywords: ['dashboard', 'home', 'instructor dashboard', 'main'], url: 'Dashboard/instructor-dashboard.html' },
+            { keywords: ['courses', 'my courses', 'instructor courses'], url: 'Courses/instructor-courses.html' },
+            { keywords: ['projects', 'instructor projects', 'student projects'], url: 'Projects/instructor-projects.html' },
+        ];
+
+        var ADMIN_PAGES = [
+            { keywords: ['dashboard', 'home', 'main', 'admin dashboard'], url: 'Admin/Dashboard/dashboard.html' },
+            { keywords: ['users', 'user management', 'accounts', 'people'], url: 'Admin/Users/users.html' },
+            { keywords: ['courses', 'course management', 'admin courses'], url: 'Admin/Courses/courses.html' },
+            { keywords: ['roles', 'permissions', 'role management'], url: 'Admin/Roles/roles.html' },
+            { keywords: ['backups', 'backup'], url: 'Admin/Backups/backups.html' },
+            { keywords: ['audit', 'audit logs', 'logs'], url: 'Admin/AuditLogs/audit-logs.html' },
+            { keywords: ['config', 'system config', 'configuration', 'settings'], url: 'Admin/Config/config.html' },
+            { keywords: ['moderation', 'moderate', 'reports', 'report'], url: 'Admin/moderation.html' },
+            { keywords: ['badges', 'badge', 'achievements'], url: 'Admin/badges.html' },
+            { keywords: ['sections', 'section'], url: 'Admin/Sections/section-detail.html' },
+            { keywords: ['create section', 'new section', 'add section'], url: 'Admin/Sections/create-section.html' },
+            { keywords: ['create user', 'bulk create', 'bulk', 'create users', 'import users'], url: 'Admin/Users/bulk-create.html' },
+            { keywords: ['course form', 'create course', 'new course', 'add course'], url: 'Admin/Courses/course-form.html' },
+            { keywords: ['role form', 'new role', 'create role', 'add role'], url: 'Admin/Roles/role-form.html' },
+        ];
+
+        function findBestMatch(query, pages) {
             var q = query.trim().toLowerCase();
             if (!q) return null;
 
             var bestScore = -1;
             var bestUrl = null;
 
-            for (var i = 0; i < ADMIN_PAGES.length; i++) {
-                var page = ADMIN_PAGES[i];
+            for (var i = 0; i < pages.length; i++) {
+                var page = pages[i];
                 var score = 0;
 
                 for (var j = 0; j < page.keywords.length; j++) {
@@ -1354,25 +1405,44 @@
         }
 
         onReady(function () {
+            var raw = safeStorageGet(window.localStorage, 'user');
+            var parsed = tryParseJson(raw);
+            var user = parsed.ok ? parsed.value : null;
+            var role = String(user?.role?.name || user?.role || '').toLowerCase();
+            var isAdmin = role === 'admin' || role === 'super admin' || role === 'super-admin';
+            var isInstructor = role === 'instructor' || role === 'ta';
+
+            var pages;
+            var placeholder;
+            if (isAdmin) {
+                pages = ADMIN_PAGES;
+                placeholder = 'Search admin pages...';
+            } else if (isInstructor) {
+                pages = INSTRUCTOR_PAGES;
+                placeholder = 'Search instructor pages...';
+            } else {
+                pages = STUDENT_PAGES;
+                placeholder = 'Search pages...';
+            }
+
             var inputs = document.querySelectorAll('.search-bar-global input[type="text"]');
             for (var i = 0; i < inputs.length; i++) {
                 var input = inputs[i];
                 input.removeAttribute('disabled');
-                input.placeholder = 'Search admin pages...';
+                input.placeholder = placeholder;
 
                 input.addEventListener('keydown', function (e) {
                     if (e.key !== 'Enter') return;
                     var query = e.target.value;
                     if (!query || !query.trim()) return;
 
-                    var target = findBestMatch(query);
+                    var target = findBestMatch(query, pages);
                     if (target) {
-                        var base = window.location.origin;
                         var currentPath = window.location.pathname.replace(/\/$/, '');
-                        var targetPath = '/Admin/' + target;
+                        var targetPath = '/' + target;
 
                         if (currentPath !== targetPath.replace(/\/$/, '')) {
-                            window.location.href = base + targetPath;
+                            window.location.href = window.location.origin + targetPath;
                         }
                     }
                 });
