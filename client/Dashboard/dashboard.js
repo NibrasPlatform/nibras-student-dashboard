@@ -306,11 +306,16 @@ function initDashboard() {
     }
     console.log('[DASHBOARD.JS] Theme after load:', document.documentElement.getAttribute('data-theme'));
 
-    const themeBtn = document.getElementById('themeBtn');
-    console.log('[DASHBOARD.JS] themeBtn found:', !!themeBtn);
-    
-    const themeIcon = themeBtn?.querySelector('i');
-    const appLogo = document.getElementById('app-logo');
+            const themeBtn = document.getElementById('themeBtn');
+            console.log('[DASHBOARD.JS] themeBtn found:', !!themeBtn);
+            
+            const themeIcon = themeBtn?.querySelector('i');
+            const appLogo = document.getElementById('app-logo');
+            
+            if (themeBtn) {
+                themeBtn.classList.remove('rotating');
+                void themeBtn.offsetWidth;
+            }
 
     const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
     if (currentTheme === 'dark') {
@@ -325,9 +330,9 @@ function initDashboard() {
         console.log('[DASHBOARD.JS] Attaching click listener to themeBtn');
         themeBtn.addEventListener('click', () => {
             console.log('[DASHBOARD.JS] Theme button clicked!');
-            // Visual feedback - flash the button
-            themeBtn.style.transform = 'scale(1.2)';
-            setTimeout(() => { themeBtn.style.transform = 'scale(1)'; }, 200);
+            // Rotation animation
+            themeBtn.classList.add('rotating');
+            setTimeout(() => { themeBtn.classList.remove('rotating'); }, 500);
             
             const html = document.documentElement;
             const current = html.getAttribute('data-theme');
@@ -347,6 +352,35 @@ function initDashboard() {
     }
 
     console.log('[DASHBOARD.JS] Initialization complete');
+}
+
+function animateCounter(el, duration) {
+    if (!el) return;
+    var text = el.textContent.trim();
+    var num = Number(text);
+    if (isNaN(num) || text.indexOf('/') !== -1 || text.indexOf('days') !== -1) return;
+    if (num === 0) return;
+
+    var isInt = Number.isInteger(num);
+    var startTime = performance.now();
+
+    function update(now) {
+        var elapsed = now - startTime;
+        var progress = Math.min(elapsed / duration, 1);
+        var eased = 1 - Math.pow(1 - progress, 3);
+        var current = num * eased;
+
+        el.textContent = isInt ? Math.round(current).toString() : current.toFixed(1);
+
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        } else {
+            el.textContent = text;
+        }
+    }
+
+    el.textContent = isInt ? '0' : '0.0';
+    requestAnimationFrame(update);
 }
 
 function renderDashboard(data) {
@@ -380,7 +414,7 @@ function renderDashboard(data) {
         const valueId = stat.id ? `id="${stat.id}-value"` : '';
 
         statsContainer.innerHTML += `
-            <div class="stat-card ${pointerClass}" ${idAttr}>
+            <div class="stat-card ${pointerClass}" ${idAttr} data-color="${stat.color}">
                 <div class="stat-info">
                     <span>${stat.label}</span>
                     <h2 ${valueId}>${stat.value}</h2>
@@ -390,6 +424,12 @@ function renderDashboard(data) {
                 </div>
             </div>
         `;
+    });
+
+    // Animate stat counters with stagger
+    var statValues = statsContainer.querySelectorAll('.stat-info h2');
+    statValues.forEach(function (el, i) {
+        setTimeout(function () { animateCounter(el, 700); }, i * 100);
     });
 
     console.log('[DASHBOARD.JS] Rendered stats and dashboard');
