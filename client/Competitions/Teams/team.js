@@ -510,11 +510,9 @@ window.NibrasReact.run(function () {
             var avatarEl = q('.avatar-circle');
             var nameEl = q('.user-info h4');
             var roleEl = q('.user-info span');
-            var repEl = q('.rep-badge');
             if (avatarEl) avatarEl.textContent = initials;
             if (nameEl) nameEl.textContent = u.name;
             if (roleEl) roleEl.textContent = getRoleLabel(u.role);
-            if (repEl) repEl.textContent = u.reputation || '0';
             var headerAvatars = document.querySelectorAll('.header-actions .avatar-circle');
             if (headerAvatars.length) headerAvatars[headerAvatars.length - 1].textContent = initials;
         } catch (_) {}
@@ -562,7 +560,7 @@ window.NibrasReact.run(function () {
     getCurrentUserInfo();
     populateSidebarUser();
 
-    // Fetch fresh user data from backend + reputation
+    // Fetch fresh user data from backend
     if (authEnabled) {
         var S = window.NibrasServices;
         if (S && S.authService && typeof S.authService.getMe === 'function') {
@@ -571,28 +569,6 @@ window.NibrasReact.run(function () {
                 if (freshUser && freshUser.name) {
                     localStorage.setItem('user', JSON.stringify(freshUser));
                     populateSidebarUser();
-                }
-            }).catch(function () {});
-        }
-        if (S && S.reputationService && typeof S.reputationService.getMyReputation === 'function') {
-            S.reputationService.getMyReputation().then(function (repData) {
-                var rep = repData && (
-                    typeof repData.reputation === 'number' ? repData.reputation :
-                    repData.reputation && typeof repData.reputation.total === 'number' ? repData.reputation.total :
-                    repData.data && typeof repData.data.reputation === 'number' ? repData.data.reputation :
-                    repData.data && repData.data.reputation && typeof repData.data.reputation.total === 'number' ? repData.data.reputation.total :
-                    typeof repData.points === 'number' ? repData.points :
-                    repData.data && typeof repData.data.points === 'number' ? repData.data.points :
-                    null
-                );
-                if (rep != null) {
-                    var badge = document.querySelector('.sidebar .rep-badge');
-                    if (badge) badge.textContent = rep;
-                    try {
-                        var stored = JSON.parse(localStorage.getItem('user') || '{}');
-                        stored.reputation = rep;
-                        localStorage.setItem('user', JSON.stringify(stored));
-                    } catch (_) {}
                 }
             }).catch(function () {});
         }
