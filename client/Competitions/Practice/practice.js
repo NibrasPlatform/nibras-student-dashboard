@@ -191,12 +191,16 @@
         if (appLogo) appLogo.src = isDark ? '/Assets/images/logo-dark.png' : '/Assets/images/logo-light.png';
     };
     applyThemeAssets();
+    themeBtn?.classList.remove('rotating');
+    if (themeBtn) void themeBtn.offsetWidth;
     themeBtn?.addEventListener('click', () => {
         const current = document.documentElement.getAttribute('data-theme');
         const next = current === 'light' ? 'dark' : 'light';
         document.documentElement.setAttribute('data-theme', next);
         try { localStorage.setItem('theme', next); } catch (_) {}
         applyThemeAssets();
+        themeBtn.classList.add('rotating');
+        setTimeout(() => { themeBtn.classList.remove('rotating'); }, 500);
     });
 
     const mainTabs = document.querySelectorAll('.tab-btn');
