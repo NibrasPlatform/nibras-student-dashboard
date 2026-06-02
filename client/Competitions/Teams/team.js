@@ -576,7 +576,15 @@ window.NibrasReact.run(function () {
         }
         if (S && S.reputationService && typeof S.reputationService.getMyReputation === 'function') {
             S.reputationService.getMyReputation().then(function (repData) {
-                var rep = repData && (repData.reputation != null ? repData.reputation : repData.data && repData.data.reputation != null ? repData.data.reputation : repData.points != null ? repData.points : null);
+                var rep = repData && (
+                    typeof repData.reputation === 'number' ? repData.reputation :
+                    repData.reputation && typeof repData.reputation.total === 'number' ? repData.reputation.total :
+                    repData.data && typeof repData.data.reputation === 'number' ? repData.data.reputation :
+                    repData.data && repData.data.reputation && typeof repData.data.reputation.total === 'number' ? repData.data.reputation.total :
+                    typeof repData.points === 'number' ? repData.points :
+                    repData.data && typeof repData.data.points === 'number' ? repData.data.points :
+                    null
+                );
                 if (rep != null) {
                     var badge = document.querySelector('.sidebar .rep-badge');
                     if (badge) badge.textContent = rep;
