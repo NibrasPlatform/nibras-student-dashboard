@@ -396,6 +396,11 @@ window.NibrasReact.run(() => {
             </div>
         `;
 
+        var replyCountEl = document.getElementById("reply-count");
+        if (replyCountEl) {
+            replyCountEl.textContent = "(" + Number(state.thread?.postsCount || 0) + ")";
+        }
+
         if (elements.replyInput && elements.postReplyButton) {
             elements.replyInput.disabled = isClosed;
             elements.postReplyButton.disabled = isClosed;
@@ -411,8 +416,8 @@ window.NibrasReact.run(() => {
 
         if (!state.posts.length) {
             const empty = document.createElement("div");
-            empty.className = "notice";
-            empty.textContent = "No replies yet. Be the first to contribute.";
+            empty.className = "empty-state";
+            empty.innerHTML = '<i class="fa-regular fa-message"></i><p>No replies yet. Be the first to contribute.</p>';
             elements.postsContainer.appendChild(empty);
             return;
         }
@@ -433,9 +438,14 @@ window.NibrasReact.run(() => {
         const canAccept = isThreadOwner || isInstructor;
         const canDelete = isPostOwner || isAdmin || isInstructor;
 
+        const authorName = String(post?.author?.name || "Unknown");
+        const authorInitials = getInitials(authorName);
+        const isOP = Boolean(getId(post?.author)) && getId(post?.author) === getId(state.thread?.author);
+
         const badges = [];
         if (post?.isPinned) badges.push('<span class="badge pinned">Pinned</span>');
-        if (post?.isAccepted) badges.push('<span class="badge">Accepted</span>');
+        if (post?.isAccepted) badges.push('<span class="badge accepted">Accepted</span>');
+        if (isOP) badges.push('<span class="badge op-badge">OP</span>');
 
         const actionButtons = [];
         if (canPin) {
@@ -453,7 +463,7 @@ window.NibrasReact.run(() => {
         card.innerHTML = `
             <p class="post-body">${escapeHtml(String(post?.body || ""))}</p>
             <div class="post-meta">
-                <span>${escapeHtml(String(post?.author?.name || "Unknown"))}</span>
+                <span class="post-author"><span class="post-avatar">${escapeHtml(authorInitials)}</span> ${escapeHtml(authorName)}</span>
                 <span>${formatTimestamp(post?.createdAt)}</span>
                 ${badges.join("")}
             </div>
@@ -467,6 +477,16 @@ window.NibrasReact.run(() => {
             </div>
         `;
         return card;
+    }
+
+    function getInitials(name) {
+        return String(name || "")
+            .split(/\s+/)
+            .filter(Boolean)
+            .map(function(n) { return n.charAt(0); })
+            .join("")
+            .toUpperCase()
+            .slice(0, 2) || "U";
     }
 
     async function createReply() {
@@ -659,21 +679,21 @@ window.NibrasReact.run(() => {
             }
         }
         if (active.length === 0) {
-            indicator.style.opacity = "0";
+            indicator.classList.remove("active");
             indicator.textContent = "";
             return;
         }
         var text = active.length === 1
-            ? active[0] + " is typing..."
+            ? active[0] + ' is typing<span class="dots"><span>.</span><span>.</span><span>.</span></span>'
             : active.length === 2
-                ? active[0] + " and " + active[1] + " are typing..."
-                : "Multiple people are typing...";
-        indicator.textContent = text;
-        indicator.style.opacity = "1";
+                ? active[0] + " and " + active[1] + ' are typing<span class="dots"><span>.</span><span>.</span><span>.</span></span>'
+                : 'Multiple people are typing<span class="dots"><span>.</span><span>.</span><span>.</span></span>';
+        indicator.innerHTML = text;
+        indicator.classList.add("active");
         clearTimeout(indicator._hideTimer);
         indicator._hideTimer = setTimeout(function () {
-            indicator.style.opacity = "0";
-            setTimeout(function () { if (indicator.textContent === text) indicator.textContent = ""; }, 200);
+            indicator.classList.remove("active");
+            setTimeout(function () { if (indicator.innerHTML === text) indicator.innerHTML = ""; }, 200);
         }, 3000);
     }
 

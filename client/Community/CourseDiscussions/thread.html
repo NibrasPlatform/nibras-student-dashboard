@@ -72,8 +72,9 @@
             <section id="thread-container" class="thread-container">
                 <div class="skeleton skeleton-thread"></div>
             </section>
+            <div class="section-divider"></div>
             <section>
-                <h3 class="section-title">Replies</h3>
+                <h3 class="section-title">Replies <span class="reply-count" id="reply-count"></span></h3>
                 <div id="posts-container" class="posts-container">
                     <div class="skeleton skeleton-post"></div>
                     <div class="skeleton skeleton-post"></div>
@@ -85,7 +86,7 @@
                 <div class="composer-actions">
                     <button class="btn-primary" id="post-reply-btn" type="button">Post Reply</button>
                 </div>
-                <div id="typing-indicator" style="font-size:0.8rem;color:var(--text-tertiary);font-style:italic;margin-top:0.5rem;min-height:1.2rem;transition:opacity 0.2s;opacity:0;"></div>
+                <div id="typing-indicator"></div>
             </section>
         </div>
     </main>
