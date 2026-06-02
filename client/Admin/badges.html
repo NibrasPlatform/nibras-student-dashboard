@@ -38,24 +38,30 @@
         .empty-state i { font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.4; display: block; }
         .loading-state { text-align: center; padding: 3rem; color: var(--text-secondary); }
         .loading-state i { font-size: 2rem; margin-bottom: 1rem; display: block; }
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
         .modal-overlay.active { display: flex; }
-        .modal-box { background: var(--card-bg); border-radius: 14px; padding: 2rem; width: 90%; max-width: 540px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
-        .modal-box h2 { margin: 0 0 1.5rem; }
+        .modal-box { background: var(--card-bg, #ffffff); border-radius: 16px; padding: 2rem; width: 90%; max-width: 520px; box-shadow: 0 25px 60px rgba(0,0,0,0.25); max-height: 85vh; overflow-y: auto; }
+        .modal-box h2 { margin: 0 0 0.25rem; font-size: 1.3rem; font-weight: 700; color: var(--text-primary, #1e293b); }
+        .modal-box .modal-subtitle { margin: 0 0 1.5rem; font-size: 0.88rem; color: var(--text-secondary, #64748b); }
         .form-group { margin-bottom: 1.25rem; }
-        .form-group label { display: block; font-weight: 500; margin-bottom: 6px; font-size: 0.9rem; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; background: transparent; color: inherit; font-family: inherit; font-size: 0.95rem; box-sizing: border-box; }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--accent-blue); }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-primary, #1e293b); }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border-color, #e2e8f0); border-radius: 8px; background: var(--bg-input, #f8fafc); color: inherit; font-family: inherit; font-size: 0.9rem; box-sizing: border-box; transition: border-color 0.2s, box-shadow 0.2s; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--accent-blue, #3b82f6); box-shadow: 0 0 0 3px rgba(59,130,246,0.12); }
+        .form-group input::placeholder, .form-group textarea::placeholder { color: var(--text-tertiary, #94a3b8); }
         .form-group textarea { min-height: 80px; resize: vertical; }
-        .form-group .icon-picker { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
-        .form-group .icon-option { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; font-size: 1.2rem; transition: all 0.2s; }
-        .form-group .icon-option:hover { border-color: var(--accent-blue); }
-        .form-group .icon-option.selected { border-color: var(--accent-blue); background: var(--accent-blue); color: #fff; }
-        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-color); }
-        .modal-footer button { padding: 10px 24px; border-radius: 8px; border: none; font-weight: 500; cursor: pointer; font-size: 0.9rem; }
-        .modal-footer .btn-cancel { background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); }
-        .modal-footer .btn-submit { background: var(--accent-blue); color: #fff; }
+        .form-group .icon-picker { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+        .form-group .icon-option { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color, #e2e8f0); border-radius: 8px; cursor: pointer; font-size: 1.1rem; transition: all 0.2s; background: var(--bg-input, #f8fafc); }
+        .form-group .icon-option:hover { border-color: var(--accent-blue, #3b82f6); background: rgba(59,130,246,0.06); }
+        .form-group .icon-option.selected { border-color: var(--accent-blue, #3b82f6); background: var(--accent-blue, #3b82f6); color: #fff; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border-color, #e2e8f0); }
+        .modal-footer button { padding: 10px 24px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; font-size: 0.88rem; transition: opacity 0.2s; }
+        .modal-footer .btn-cancel { background: var(--bg-secondary, #f1f5f9); border: 1px solid var(--border-color, #e2e8f0); color: var(--text-secondary, #64748b); }
+        .modal-footer .btn-cancel:hover { background: var(--border-color, #e2e8f0); }
+        .modal-footer .btn-submit { background: var(--accent-blue, #3b82f6); color: #fff; }
+        .modal-footer .btn-submit:hover:not(:disabled) { opacity: 0.9; }
         .modal-footer .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+        .modal-footer .btn-submit:not(:disabled):active { transform: scale(0.97); }
+        input[type="color"] { height: 40px; padding: 4px !important; cursor: pointer; }
         .toast { position: fixed; bottom: 2rem; right: 2rem; padding: 12px 24px; border-radius: 10px; color: #fff; font-weight: 500; z-index: 2000; opacity: 0; transform: translateY(20px); transition: opacity 0.3s, transform 0.3s; pointer-events: none; }
         .toast.show { opacity: 1; transform: translateY(0); }
         .toast.success { background: #065f46; }
@@ -143,6 +149,7 @@
     <div class="modal-overlay" id="create-badge-modal">
         <div class="modal-box">
             <h2>Create Badge</h2>
+            <p class="modal-subtitle">Create a new achievement badge for the platform</p>
             <div class="form-group">
                 <label>Badge Name <span style="color:#ef4444;">*</span></label>
                 <input type="text" id="badge-name" placeholder="e.g., Algorithm Master" maxlength="100">
