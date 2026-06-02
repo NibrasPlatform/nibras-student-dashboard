@@ -2298,6 +2298,13 @@
             if (filters.difficulty) queryFilters.difficulty = filters.difficulty;
             if (Array.isArray(filters.tags)) queryFilters.tags = filters.tags.join(',');
             else if (filters.tags) queryFilters.tags = filters.tags;
+            if (filters.page) queryFilters.page = filters.page;
+            if (filters.limit) queryFilters.limit = filters.limit;
+            if (filters.search) queryFilters.search = filters.search;
+            if (filters.platform) queryFilters.platform = filters.platform;
+            if (filters.minRating) queryFilters.minRating = filters.minRating;
+            if (filters.maxRating) queryFilters.maxRating = filters.maxRating;
+            if (filters.solved) queryFilters.solved = filters.solved;
             const payload = await requestCompetitionsWithCompatibility(`/problems${buildQueryString(queryFilters)}`, {
                 method: 'GET',
                 auth: true,

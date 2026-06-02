@@ -399,52 +399,68 @@ window.NibrasReact.run(() => {
         }
     }
 
-    async function loadQuestions() {
-        try {
-            if(feedContainer && communityData.questions.length === 0) {
-                renderFeedState('loading', 'Loading questions from server...');
-            }
+    async function loadQuestions(page = 1, filterType = 'Recent', searchQuery = '', tag = '') {
+        const params = new URLSearchParams();
+        params.set('page', String(page));
+        params.set('limit', String(QUESTIONS_PER_PAGE));
 
-            const allQuestions = [];
-            let page = 1;
-            const limit = 100;
-            let total = Infinity;
+        if (filterType === 'Popular') {
+            params.set('sort', '-votes');
+        } else if (filterType === 'Unanswered') {
+            params.set('unanswered', 'true');
+        } else if (filterType === 'My Questions') {
+            const userId = currentUserId || localStorage.getItem('userId');
+            if (userId) params.set('author', userId);
+        }
 
-            while (allQuestions.length < total) {
-                const data = await requestLegacyApi(`/questions?page=${page}&limit=${limit}`, { auth: false });
-                console.log('[DEBUG] Questions response page', page, ':', data);
+        if (searchQuery) params.set('search', searchQuery);
+        if (tag) params.set('tag', tag);
 
-                const questionsArray = data?.data?.questions || data?.questions || (Array.isArray(data?.data) ? data.data : []);
-                const pagination = data?.data?.pagination || data?.pagination || {};
+        const data = await requestLegacyApi(`/questions?${params.toString()}`, { auth: false });
 
-                if (pagination.total !== undefined) {
-                    total = pagination.total;
-                }
+        let questions = data?.data?.questions || data?.questions || (Array.isArray(data?.data) ? data.data : []);
+        const pagination = data?.data?.pagination || data?.pagination || {};
 
-                if (Array.isArray(questionsArray) && questionsArray.length > 0) {
-                    allQuestions.push(...questionsArray);
-                }
+        const serverHadFilter = (param) => params.has(param);
 
-                if (!Array.isArray(questionsArray) || questionsArray.length === 0 || allQuestions.length >= total) {
-                    break;
-                }
+        if (filterType === 'Unanswered' && !serverHadFilter('unanswered')) {
+            questions = questions.filter(q => {
+                const count = q.answersCount ?? q.commentsCount ?? (Array.isArray(q.answers) ? q.answers.length : (Number(q.answers) || 0));
+                return count === 0;
+            });
+        }
 
-                page++;
-            }
-
-            communityData.questions = allQuestions;
-            console.log('[DEBUG] Total questions loaded:', communityData.questions.length);
-
-            await filterAndRender('Recent', { resetPage: true });
-            renderWidgets();
-
-        } catch (error) {
-            console.error("Failed to fetch questions:", error);
-            if(feedContainer && communityData.questions.length === 0) {
-                const uiState = resolveUiStateFromError(error, 'Unable to load questions right now. Please try again.');
-                renderFeedState(uiState.state, uiState.message);
+        if (filterType === 'My Questions' && !serverHadFilter('author')) {
+            const userId = currentUserId || localStorage.getItem('userId');
+            if (userId) {
+                questions = questions.filter(q => {
+                    const authorId = q.author?._id || q.author?.id || q.author;
+                    return authorId && String(authorId) === String(userId);
+                });
             }
         }
+
+        if (searchQuery && !serverHadFilter('search')) {
+            const q = searchQuery.toLowerCase();
+            questions = questions.filter(qs => {
+                const titleMatch = qs.title?.toLowerCase().includes(q);
+                const bodyMatch = qs.body?.toLowerCase().includes(q);
+                const tagsMatch = qs.tags?.some(t => t.toLowerCase().includes(q));
+                const authorMatch = qs.author?.name?.toLowerCase().includes(q) ||
+                    (typeof qs.author === 'string' && qs.author.toLowerCase().includes(q));
+                return titleMatch || bodyMatch || tagsMatch || authorMatch;
+            });
+        }
+
+        if (tag && !serverHadFilter('tag')) {
+            questions = questions.filter(q => {
+                if (!q.tags || !Array.isArray(q.tags)) return false;
+                return q.tags.some(t => t.toLowerCase() === tag.toLowerCase());
+            });
+        }
+
+        communityData.questions = questions;
+        communityData.pagination = pagination;
     }
 
     // --- 3. RENDER FEED LOGIC ---
@@ -515,82 +531,39 @@ window.NibrasReact.run(() => {
     }
 
     async function filterAndRender(filterType, options = {}) {
-        let filteredData =[...communityData.questions];
         const shouldResetPage = options.resetPage !== false;
         currentFilter = filterType || currentFilter;
-
-        if (currentFilter === 'Recent') {
-            filteredData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        } else if (currentFilter === 'Popular') {
-            filteredData.sort((a, b) => (b.votesCount || b.votes || 0) - (a.votesCount || a.votes || 0));
-        } else if (currentFilter === 'Unanswered') {
-            filteredData = filteredData.filter(q => {
-                const count = q.answersCount ?? q.commentsCount ?? (Array.isArray(q.answers) ? q.answers.length : (Number(q.answers) || 0));
-                return count === 0;
-            });
-        } else if (currentFilter === 'My Questions') {   
-            const token = getToken();
-            if (!token) {
-                renderFeedState('unauthorized', 'Please sign in to view your questions.');
-                return;
-            }
-
-            let userId = currentUserId || localStorage.getItem('userId');
-            if (!userId) {
-                try {
-                    const u = JSON.parse(localStorage.getItem('user'));
-                    if (u) userId = u._id || u.id;
-                } catch(e) {}
-            }
-
-            if (!userId) {
-                await loadCurrentUser();
-                userId = currentUserId;
-            }
-
-            if (userId) {
-                filteredData = filteredData.filter(q => {
-                    const authorId = q.author?._id || q.author?.id || q.author;
-                    return authorId && String(authorId) === String(userId);
-                });
-            } else {
-                filteredData =[];
-            }
-        }
-
-        const searchQuery = searchInput?.value?.trim().toLowerCase();
-        if (searchQuery) {
-            filteredData = filteredData.filter(q => {
-                const titleMatch = q.title?.toLowerCase().includes(searchQuery);
-                const bodyMatch = q.body?.toLowerCase().includes(searchQuery);
-                const tagsMatch = q.tags?.some(tag => tag.toLowerCase().includes(searchQuery));
-                const authorMatch = q.author?.name?.toLowerCase().includes(searchQuery) ||
-                (typeof q.author === 'string' && q.author.toLowerCase().includes(searchQuery));
-                return titleMatch || bodyMatch || tagsMatch || authorMatch;
-            });
-        }
-
-        if (currentSelectedTag) {
-            filteredData = filteredData.filter(q => {
-                if (!q.tags || !Array.isArray(q.tags)) return false;
-                return q.tags.some(t => t.toLowerCase() === currentSelectedTag.toLowerCase());
-            });
-        }
 
         if (shouldResetPage) {
             currentPage = 1;
         }
 
-        const totalItems = filteredData.length;
-        const totalPages = Math.max(1, Math.ceil(totalItems / QUESTIONS_PER_PAGE));
-        if (currentPage > totalPages) {
-            currentPage = totalPages;
-        }
+        const searchQuery = searchInput?.value?.trim() || '';
+        const tag = currentSelectedTag || '';
 
-        const startIndex = (currentPage - 1) * QUESTIONS_PER_PAGE;
-        const pagedQuestions = filteredData.slice(startIndex, startIndex + QUESTIONS_PER_PAGE);
-        renderQuestions(pagedQuestions, { totalItems, totalPages, currentPage });
-        renderPagination({ totalItems, totalPages, currentPage });
+        try {
+            if (feedContainer) {
+                renderFeedState('loading', 'Loading questions...');
+            }
+
+            await loadQuestions(currentPage, currentFilter, searchQuery, tag);
+
+            const pagination = communityData.pagination || {};
+            const totalItems = pagination.total || communityData.questions.length || 0;
+
+            renderQuestions(communityData.questions);
+            renderPagination({
+                totalItems,
+                totalPages: pagination.totalPages || Math.max(1, Math.ceil(totalItems / QUESTIONS_PER_PAGE)),
+                currentPage,
+            });
+        } catch (error) {
+            console.error("Failed to fetch questions:", error);
+            if (feedContainer) {
+                const uiState = resolveUiStateFromError(error, 'Unable to load questions right now. Please try again.');
+                renderFeedState(uiState.state, uiState.message);
+            }
+        }
     }
 
     function getVibrantColorClass(tagName) {
@@ -1145,7 +1118,7 @@ window.NibrasReact.run(() => {
             renderModalTags();
             if (tagWarning) tagWarning.style.display = 'none';
 
-            await loadQuestions();
+            await filterAndRender('Recent', { resetPage: true });
             showToast('Question posted successfully');
 
         } catch (error) {
@@ -1327,9 +1300,10 @@ window.NibrasReact.run(() => {
     // 🚀 Initialization
     async function initPage() {
         await loadCurrentUser();
-        await loadTags(); // Fetch tags from backend
-        await loadQuestions();
-        loadRecommendations(); // Fire-and-forget, silent fail
+        await loadTags();
+        await filterAndRender('Recent', { resetPage: true });
+        renderWidgets();
+        loadRecommendations();
     }
     initPage();
 });

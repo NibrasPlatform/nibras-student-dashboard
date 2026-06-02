@@ -140,11 +140,11 @@
             <button class="pagination-btn" id="next-page" ${currentPage >= totalPages ? 'disabled' : ''}>Next</button>
         `;
         document.getElementById('prev-page')?.addEventListener('click', () => {
-            if (currentPage > 1) { currentPage--; refreshView(); }
+            if (currentPage > 1) { currentPage--; void loadPracticeData(); }
         });
         document.getElementById('next-page')?.addEventListener('click', () => {
             const total = Math.ceil(filterProblems().length / pageSize);
-            if (currentPage < total) { currentPage++; refreshView(); }
+            if (currentPage < total) { currentPage++; void loadPracticeData(); }
         });
     };
 
@@ -166,7 +166,7 @@
             chip.classList.toggle('active', chip.dataset.platform === platform);
         });
         updateTitle();
-        refreshView();
+        void loadPracticeData();
     };
 
     const setSolvedFilter = (filter) => {
@@ -175,7 +175,7 @@
         document.querySelectorAll('.solve-chip').forEach((chip) => {
             chip.classList.toggle('active', chip.dataset.solved === filter);
         });
-        refreshView();
+        void loadPracticeData();
     };
 
     const loadPracticeData = async () => {
@@ -192,10 +192,18 @@
         if (tbody) tbody.innerHTML = `<tr><td colspan="4" style="padding:2rem;text-align:center;color:var(--text-secondary);">Loading problems...</td></tr>`;
 
         try {
-            const [problems] = await Promise.all([
-                competitionsService.listProblems({}),
-            ]);
-            allProblems = (Array.isArray(problems) ? problems : []).map(normalizeProblem);
+            const params = {
+                page: currentPage,
+                limit: pageSize,
+                search: searchTerm || undefined,
+                tags: tagsFilter || undefined,
+                minRating: minRating || undefined,
+                maxRating: maxRating || undefined,
+                solved: solvedFilter !== 'all' ? solvedFilter : undefined,
+            };
+            if (selectedPlatform !== 'all') params.platform = selectedPlatform;
+            const response = await competitionsService.listProblems(params);
+            allProblems = (Array.isArray(response) ? response : []).map(normalizeProblem);
             refreshView();
         } catch (error) {
             const msg = error?.message || 'Could not load practice data.';
