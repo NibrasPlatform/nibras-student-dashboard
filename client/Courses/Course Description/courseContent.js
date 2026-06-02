@@ -65,7 +65,15 @@ window.NibrasReact.run(async () => {
     updateThemeBtn(currentTheme);
     updateLogo(currentTheme);
 
+    if (themeBtn) {
+        themeBtn.classList.remove('rotating');
+        void themeBtn.offsetWidth;
+    }
     themeBtn?.addEventListener("click", () => {
+        if (themeBtn) {
+            themeBtn.classList.add('rotating');
+            setTimeout(() => { themeBtn.classList.remove('rotating'); }, 500);
+        }
         const htmlEl = document.documentElement;
         const currentTheme = htmlEl.getAttribute("data-theme");
         const newTheme = currentTheme === "light" ? "dark" : "light";

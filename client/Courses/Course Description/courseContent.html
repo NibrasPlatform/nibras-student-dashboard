@@ -152,7 +152,10 @@
                         <h3>Announcements</h3>
                     </div>
                     <!-- Container for JS to inject data -->
-                    <div id="announcements-container"></div>
+                    <div id="announcements-container">
+                        <div class="skeleton" style="height:80px; margin-bottom:0.75rem;"></div>
+                        <div class="skeleton" style="height:80px;"></div>
+                    </div>
                 </section>
 
                 <!-- Objectives (Dynamic) -->
@@ -162,7 +165,11 @@
                         <h3>Learning Objectives</h3>
                     </div>
                     <p style="margin-bottom: 1rem; font-size: 0.9rem; color: var(--text-secondary);">By the end of this course, you will be able to:</p>
-                    <ul class="objective-list" id="objectives-container"></ul>
+                    <ul class="objective-list" id="objectives-container">
+                        <li><i class="fa-regular fa-circle-check" style="color:var(--text-tertiary)"></i> <span class="skeleton skeleton-line-sm" style="display:inline-block; vertical-align:middle;"></span></li>
+                        <li><i class="fa-regular fa-circle-check" style="color:var(--text-tertiary)"></i> <span class="skeleton skeleton-line-sm" style="display:inline-block; vertical-align:middle; width:75%;"></span></li>
+                        <li><i class="fa-regular fa-circle-check" style="color:var(--text-tertiary)"></i> <span class="skeleton skeleton-line-sm" style="display:inline-block; vertical-align:middle; width:50%;"></span></li>
+                    </ul>
                 </section>
 
                 <!-- Curriculum (Dynamic) -->
@@ -172,7 +179,27 @@
                         <h3>Course Curriculum</h3>
                     </div>
                     <div class="curriculum-list" id="curriculum-container">
-                        <!-- JS will build the timeline here -->
+                        <div style="display:flex; gap:1rem; padding-bottom:1.5rem;">
+                            <div class="skeleton" style="width:36px; height:36px; border-radius:50%; flex-shrink:0;"></div>
+                            <div style="flex:1;">
+                                <div class="skeleton skeleton-line" style="width:70%;"></div>
+                                <div class="skeleton skeleton-line-sm" style="width:40%;"></div>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:1rem; padding-bottom:1.5rem;">
+                            <div class="skeleton" style="width:36px; height:36px; border-radius:50%; flex-shrink:0;"></div>
+                            <div style="flex:1;">
+                                <div class="skeleton skeleton-line" style="width:60%;"></div>
+                                <div class="skeleton skeleton-line-sm" style="width:35%;"></div>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:1rem;">
+                            <div class="skeleton" style="width:36px; height:36px; border-radius:50%; flex-shrink:0;"></div>
+                            <div style="flex:1;">
+                                <div class="skeleton skeleton-line" style="width:50%;"></div>
+                                <div class="skeleton skeleton-line-sm" style="width:30%;"></div>
+                            </div>
+                        </div>
                     </div>
                 </section>
 
@@ -182,7 +209,11 @@
                         <i class="fa-regular fa-lightbulb"></i>
                         <h3>Prerequisites</h3>
                     </div>
-                    <ul class="prereq-list" id="prereq-container"></ul>
+                    <ul class="prereq-list" id="prereq-container">
+                        <li><span>•</span> <span class="skeleton skeleton-line-sm" style="display:inline-block; vertical-align:middle;"></span></li>
+                        <li><span>•</span> <span class="skeleton skeleton-line-sm" style="display:inline-block; vertical-align:middle; width:65%;"></span></li>
+                        <li><span>•</span> <span class="skeleton skeleton-line-sm" style="display:inline-block; vertical-align:middle; width:80%;"></span></li>
+                    </ul>
                 </section>
 
             </div>
