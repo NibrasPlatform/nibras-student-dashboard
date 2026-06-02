@@ -443,7 +443,7 @@ window.NibrasReact.run(() => {
         const body = document.createElement('div');
         body.className = 'markdown-body';
         body.dir = 'auto';
-        body.innerHTML = marked.parse(sessionFinalAnswer || '*No answer text.*');
+        body.innerHTML = DOMPurify.sanitize(marked.parse(sessionFinalAnswer || '*No answer text.*'));
         fullAnswerContainer.appendChild(head);
         fullAnswerContainer.appendChild(body);
     };
@@ -593,7 +593,7 @@ window.NibrasReact.run(() => {
             const strong = document.createElement('strong');
             strong.innerHTML = '<i class="fa-regular fa-lightbulb"></i> ';
             const span = document.createElement('span');
-            span.innerHTML = marked.parseInline(sessionHints[currentHintIndex]);
+            span.innerHTML = DOMPurify.sanitize(marked.parseInline(sessionHints[currentHintIndex]));
             hintEl.appendChild(strong);
             hintEl.appendChild(span);
             hintsContainer.appendChild(hintEl);
@@ -624,7 +624,7 @@ window.NibrasReact.run(() => {
             }
             modalQuestionDisplay.textContent = sessionQuestion;
             modalAnswerDisplay.className = 'modal-text-box markdown-body';
-            modalAnswerDisplay.innerHTML = marked.parse(sessionFinalAnswer);
+            modalAnswerDisplay.innerHTML = DOMPurify.sanitize(marked.parse(sessionFinalAnswer));
             modalTitleInput.value = '';
                         if (modalTagsDisplay) {
                 modalTagsDisplay.innerHTML = '';
@@ -665,23 +665,23 @@ window.NibrasReact.run(() => {
             var xaiData = typeof sessionXai === 'string' ? JSON.parse(sessionXai) : sessionXai;
             var xaiHtml = '';
             if (xaiData.reasoning) {
-                xaiHtml += '<div style="margin-bottom:1rem;"><strong style="font-size:0.9rem;display:block;margin-bottom:6px;">Reasoning</strong><p style="color:var(--text-secondary);line-height:1.6;font-size:0.9rem;">' + xaiData.reasoning + '</p></div>';
+                xaiHtml += '<div style="margin-bottom:1rem;"><strong style="font-size:0.9rem;display:block;margin-bottom:6px;">Reasoning</strong><p style="color:var(--text-secondary);line-height:1.6;font-size:0.9rem;">' + escapeHtml(xaiData.reasoning) + '</p></div>';
             }
             if (xaiData.concepts_used && xaiData.concepts_used.length) {
                 xaiHtml += '<div style="margin-bottom:1rem;"><strong style="font-size:0.9rem;display:block;margin-bottom:8px;">Concepts Used</strong><div style="display:flex;flex-wrap:wrap;gap:6px;">';
                 xaiData.concepts_used.forEach(function (c) {
-                    xaiHtml += '<span style="background:var(--tag-bg);color:var(--text-primary);padding:4px 12px;border-radius:6px;font-size:0.85rem;">' + c + '</span>';
+                    xaiHtml += '<span style="background:var(--tag-bg);color:var(--text-primary);padding:4px 12px;border-radius:6px;font-size:0.85rem;">' + escapeHtml(c) + '</span>';
                 });
                 xaiHtml += '</div></div>';
             }
             if (xaiData.might_be_unclear && xaiData.might_be_unclear.length) {
                 xaiHtml += '<div><strong style="font-size:0.9rem;display:block;margin-bottom:8px;">Might Be Unclear</strong><div style="display:flex;flex-wrap:wrap;gap:6px;">';
                 xaiData.might_be_unclear.forEach(function (c) {
-                    xaiHtml += '<span style="background:rgba(245,158,11,0.15);color:#f59e0b;padding:4px 12px;border-radius:6px;font-size:0.85rem;">' + c + '</span>';
+                    xaiHtml += '<span style="background:rgba(245,158,11,0.15);color:#f59e0b;padding:4px 12px;border-radius:6px;font-size:0.85rem;">' + escapeHtml(c) + '</span>';
                 });
                 xaiHtml += '</div></div>';
             }
-            explainContent.innerHTML = xaiHtml || '<p style="color:var(--text-secondary);">No explanation available.</p>';
+            explainContent.innerHTML = DOMPurify.sanitize(xaiHtml || '<p style="color:var(--text-secondary);">No explanation available.</p>');
         });
     }
 

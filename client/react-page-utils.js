@@ -1042,6 +1042,21 @@
         } catch (_) {}
     })();
 
+    const safeHtml = (value) => String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+
+    const safeMarkdown = (text) => {
+        if (!text) return '';
+        const marked = window.marked;
+        const purify = window.DOMPurify;
+        if (!marked || !purify) return safeHtml(text);
+        return purify.sanitize(marked.parse(text));
+    };
+
     window.NibrasApi = nibrasApi;
     window.NibrasShared = {
         BACKEND_URL: resolveServiceUrl('admin'),
@@ -1060,6 +1075,8 @@
             fromError: resolveUiStateFromError,
             normalize: normalizeUiStateType,
         },
+        safeHtml,
+        safeMarkdown,
         api: nibrasApi,
         apiRequest: request,
         apiFetch,
