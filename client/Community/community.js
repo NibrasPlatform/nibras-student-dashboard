@@ -235,20 +235,31 @@ window.NibrasReact.run(() => {
     const questionVoteFetchCache = new Map();
     const questionVoteInFlight = new Map();
 
+    function getUserIdFromStorage() {
+        try {
+            const stored = JSON.parse(localStorage.getItem('user') || '{}');
+            return stored?._id || stored?.id || null;
+        } catch { return null; }
+    }
+
     async function loadCurrentUser() {
         const token = getToken();
         if (!token) return;
 
         try {
-            const data = await requestLegacyApi('/auth/me');
-            if (data?.user) {
-                currentUserId = data.user._id;
+            const res = await requestLegacyApi('/auth/me');
+            const user = res?.user || res?.data || null;
+            if (user) {
+                currentUserId = user._id || user.id;
                 localStorage.setItem('userId', currentUserId);
-                localStorage.setItem('user', JSON.stringify(data.user));
+                localStorage.setItem('user', JSON.stringify(user));
                 await loadVotesForRenderedQuestions();
             }
         } catch (error) {
             console.error('Error loading current user:', error);
+            if (!currentUserId) {
+                currentUserId = getUserIdFromStorage();
+            }
         }
     }
 
@@ -409,7 +420,7 @@ window.NibrasReact.run(() => {
         } else if (filterType === 'Unanswered') {
             params.set('unanswered', 'true');
         } else if (filterType === 'My Questions') {
-            const userId = currentUserId || localStorage.getItem('userId');
+            const userId = currentUserId || localStorage.getItem('userId') || getUserIdFromStorage();
             if (userId) params.set('author', userId);
         }
 
@@ -437,7 +448,7 @@ window.NibrasReact.run(() => {
         }
 
         if (filterType === 'My Questions') {
-            const userId = currentUserId || localStorage.getItem('userId');
+            const userId = currentUserId || localStorage.getItem('userId') || getUserIdFromStorage();
             if (userId) {
                 questions = questions.filter(q => {
                     const authorId = q.author?._id || q.author?.id || q.author;
