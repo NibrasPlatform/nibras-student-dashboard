@@ -71,11 +71,17 @@
         403: 'FORBIDDEN',
     });
 
+    const CLIENT_ERROR_CODES = Object.freeze({
+        429: 'RATE_LIMITED',
+    });
+
     const AUTH_ERROR_EVENT = 'nibras:auth-error';
 
     const isAuthErrorStatus = (status) => status === 401 || status === 403;
 
-    const getErrorCode = (status, explicitCode = null) => explicitCode || AUTH_ERROR_CODES[status] || 'REQUEST_FAILED';
+    const isRateLimitError = (status) => status === 429;
+
+    const getErrorCode = (status, explicitCode = null) => explicitCode || AUTH_ERROR_CODES[status] || CLIENT_ERROR_CODES[status] || 'REQUEST_FAILED';
 
     const pickTokenCandidate = (value) => {
         if (!value) return null;
@@ -180,6 +186,9 @@
         }
         if (status === 403) {
             return 'You do not have permission to perform this action.';
+        }
+        if (status === 429) {
+            return 'Too many attempts. Please wait a moment before trying again.';
         }
 
         const candidates = [
