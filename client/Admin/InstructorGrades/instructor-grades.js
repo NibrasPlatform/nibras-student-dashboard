@@ -43,6 +43,9 @@
             var curTheme = document.documentElement.getAttribute('data-theme') || 'light';
             if (curTheme === 'dark') { themeIcon.className = 'fa-solid fa-sun'; themeText.textContent = 'Light Mode'; }
             themeBtn.addEventListener('click', function () {
+                themeBtn.classList.remove('rotating');
+                void themeBtn.offsetWidth;
+                themeBtn.classList.add('rotating');
                 var html = document.documentElement;
                 var current = html.getAttribute('data-theme');
                 var newTheme = current === 'light' ? 'dark' : 'light';
