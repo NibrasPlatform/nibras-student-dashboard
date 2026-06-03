@@ -247,7 +247,11 @@ window.NibrasReact.run(function () {
     }
 
     if (themeBtn) {
+        themeBtn.classList.remove('rotating');
+        void themeBtn.offsetWidth;
         themeBtn.addEventListener('click', function () {
+            themeBtn.classList.add('rotating');
+            setTimeout(function () { themeBtn.classList.remove('rotating'); }, 500);
             var html = document.documentElement;
             var cur = html.getAttribute('data-theme');
             var next = cur === 'light' ? 'dark' : 'light';
