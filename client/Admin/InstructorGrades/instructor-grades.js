@@ -149,18 +149,13 @@
         var thead = document.getElementById('table-header');
 
         // Build assignment columns
-        var assignThs = document.getElementById('th-assignments');
-        if (assignThs && assignments.length) {
-            assignThs.colSpan = assignments.length;
-            // Insert assignment header cells after "Email" and before "Total"
-            var headerRow = thead;
-            var emailIndex = 2; // Student, Email, then assignments
-            assignments.forEach(function (a) {
+        if (assignments.length) {
+            assignments.forEach(function (a, idx) {
                 var th = document.createElement('th');
                 th.className = 'assign-th';
                 th.textContent = a.title || 'Assignment';
                 th.title = (a.title || '') + ' (' + (a.points || '') + ' pts)';
-                headerRow.insertBefore(th, headerRow.children[emailIndex + 1]);
+                thead.insertBefore(th, thead.children[2 + idx]);
             });
         }
 
