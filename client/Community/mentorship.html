@@ -18,58 +18,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../Dashboard/dashboard.css">
     <link rel="stylesheet" href="../Community/community.css">
-    <style>
-        .mentorship-container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
-        .mentorship-header { margin-bottom: 2rem; }
-        .mentorship-header h1 { margin: 0 0 0.5rem; }
-        .mentorship-header p { margin: 0; color: var(--text-secondary); }
-        .mentor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.25rem; }
-        .mentor-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; transition: box-shadow 0.2s, transform 0.2s; }
-        .mentor-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); transform: translateY(-2px); }
-        .mentor-card .mentor-avatar { width: 56px; height: 56px; border-radius: 50%; background: var(--accent-blue); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 1.2rem; margin-bottom: 1rem; }
-        .mentor-card .mentor-name { font-size: 1.1rem; font-weight: 600; margin: 0 0 0.25rem; }
-        .mentor-card .mentor-role { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem; }
-        .mentor-card .mentor-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 0.75rem; }
-        .mentor-card .mentor-tag { background: var(--accent-blue); color: #fff; padding: 3px 10px; border-radius: 12px; font-size: 0.78rem; font-weight: 500; }
-        .mentor-card .mentor-stats { display: flex; gap: 1rem; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem; }
-        .mentor-card .mentor-stats span { display: flex; align-items: center; gap: 4px; }
-        .mentor-card .mentor-stats i { width: 14px; }
-        .mentor-actions { display: flex; gap: 8px; }
-        .btn-request { padding: 8px 20px; border-radius: 8px; border: none; background: var(--accent-blue); color: #fff; font-weight: 500; cursor: pointer; font-size: 0.9rem; transition: opacity 0.2s; }
-        .btn-request:hover { opacity: 0.85; }
-        .btn-request:disabled { opacity: 0.4; cursor: not-allowed; }
-        .btn-request.requested { background: var(--text-secondary); }
-        .my-requests-section { margin-top: 3rem; }
-        .my-requests-section h2 { margin-bottom: 1rem; }
-        .request-item { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem; border: 1px solid var(--border-color); border-radius: 10px; margin-bottom: 0.75rem; background: var(--card-bg); }
-        .request-item .request-info { flex: 1; }
-        .request-item .request-info strong { display: block; margin-bottom: 0.25rem; }
-        .request-item .request-info span { font-size: 0.85rem; color: var(--text-secondary); }
-        .status-badge { padding: 4px 12px; border-radius: 12px; font-size: 0.8rem; font-weight: 500; }
-        .status-badge.pending { background: #fef3c7; color: #92400e; }
-        .status-badge.accepted { background: #d1fae5; color: #065f46; }
-        .status-badge.rejected { background: #fee2e2; color: #991b1b; }
-        .status-badge.cancelled { background: #f3f4f6; color: #6b7280; }
-        .loading-state { text-align: center; padding: 3rem; color: var(--text-secondary); }
-        .empty-state { text-align: center; padding: 3rem; color: var(--text-secondary); }
-        .empty-state i { font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.4; }
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
-        .modal-overlay.active { display: flex; }
-        .modal-box { background: var(--card-bg); border-radius: 14px; padding: 2rem; width: 90%; max-width: 480px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
-        .modal-box h2 { margin: 0 0 0.5rem; }
-        .modal-box p { color: var(--text-secondary); margin: 0 0 1.25rem; font-size: 0.9rem; }
-        .modal-box textarea { width: 100%; min-height: 100px; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; background: transparent; color: inherit; font-family: inherit; font-size: 0.95rem; resize: vertical; margin-bottom: 1.25rem; box-sizing: border-box; }
-        .modal-box textarea:focus { outline: none; border-color: var(--accent-blue); }
-        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; }
-        .modal-footer button { padding: 10px 24px; border-radius: 8px; border: none; font-weight: 500; cursor: pointer; font-size: 0.9rem; }
-        .modal-footer .btn-cancel { background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); }
-        .modal-footer .btn-submit { background: var(--accent-blue); color: #fff; }
-        .modal-footer .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
-        .toast { position: fixed; bottom: 2rem; right: 2rem; padding: 12px 24px; border-radius: 10px; color: #fff; font-weight: 500; z-index: 2000; opacity: 0; transform: translateY(20px); transition: opacity 0.3s, transform 0.3s; pointer-events: none; }
-        .toast.show { opacity: 1; transform: translateY(0); }
-        .toast.success { background: #065f46; }
-        .toast.error { background: #991b1b; }
-    </style>
+    <link rel="stylesheet" href="./mentorship.css">
 </head>
 <body>
     <div id="app-root" hidden></div>
@@ -134,9 +83,10 @@
                 </div>
 
                 <div id="mentor-suggestions">
-                    <div class="loading-state">
-                        <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
-                        <p>Finding mentors for you...</p>
+                    <div class="skeleton-grid" id="skeleton-mentors">
+                        <div class="skeleton skeleton-mentor-card"></div>
+                        <div class="skeleton skeleton-mentor-card"></div>
+                        <div class="skeleton skeleton-mentor-card"></div>
                     </div>
                 </div>
 
