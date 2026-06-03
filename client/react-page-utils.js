@@ -866,7 +866,9 @@
 
             var dd = document.createElement('div');
             dd.className = 'profile-dropdown-menu';
-            var isInstructor = String(user?.role?.name || user?.role || '').toLowerCase() === 'instructor';
+            var role = String(user?.role?.name || user?.role || '').toLowerCase();
+            var isInstructor = role === 'instructor';
+            var isAdmin = role === 'admin';
             var menuItems = [
                 '<div class="dd-header">',
                 '  <div class="dd-avatar-circle">' + initials + '</div>',
@@ -877,11 +879,26 @@
                 '  </div>',
                 '</div>',
                 '<div class="dd-divider"></div>',
-                '<a class="dd-item" data-href="/Dashboard/dashboard.html"><span>📊</span> Dashboard</a>',
-                '<a class="dd-item" data-href="/Courses/courses.html"><span>📚</span> My Courses</a>',
             ];
-            if (!isInstructor) {
-                menuItems.push('<a class="dd-item" data-href="/Achievements/Achievements/achievements.html"><span>🏆</span> Achievements</a>');
+            if (isAdmin) {
+                menuItems.push(
+                    '<a class="dd-item" data-href="/Admin/Dashboard/dashboard.html"><span>📊</span> Admin Dashboard</a>',
+                    '<a class="dd-item" data-href="/Admin/Courses/courses.html"><span>📚</span> Course Management</a>',
+                    '<a class="dd-item" data-href="/Admin/Users/users.html"><span>👥</span> User Management</a>'
+                );
+            } else if (isInstructor) {
+                menuItems.push(
+                    '<a class="dd-item" data-href="/Dashboard/instructor-dashboard.html"><span>📊</span> Dashboard</a>',
+                    '<a class="dd-item" data-href="/Courses/instructor-courses.html"><span>📚</span> My Courses</a>',
+                    '<a class="dd-item" data-href="/Analytics/Overview/overview.html"><span>📈</span> Analytics</a>',
+                    '<a class="dd-item" data-href="/Community/community.html"><span>👥</span> Community</a>'
+                );
+            } else {
+                menuItems.push(
+                    '<a class="dd-item" data-href="/Dashboard/dashboard.html"><span>📊</span> Dashboard</a>',
+                    '<a class="dd-item" data-href="/Courses/courses.html"><span>📚</span> My Courses</a>',
+                    '<a class="dd-item" data-href="/Achievements/Achievements/achievements.html"><span>🏆</span> Achievements</a>'
+                );
             }
             menuItems.push(
                 '<div class="dd-divider"></div>',
