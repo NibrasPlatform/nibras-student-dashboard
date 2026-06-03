@@ -1,6 +1,6 @@
 /* Instructor-specific styles — extends dashboard.css */
 
-/* --- Course Overview List --- */
+/* ===== COURSE OVERVIEW LIST ===== */
 .instructor-course-list {
     display: flex;
     flex-direction: column;
@@ -11,17 +11,29 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem;
-    background-color: var(--bg-body);
+    padding: 1rem 1.25rem;
+    background-color: var(--bg-card);
     border: 1px solid var(--border-color);
-    border-radius: 6px;
-    transition: transform 0.2s;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .inst-course-item:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: rgba(37, 99, 235, 0.15);
 }
+
+.inst-course-item:nth-child(1) { animation-delay: 0.04s; }
+.inst-course-item:nth-child(2) { animation-delay: 0.08s; }
+.inst-course-item:nth-child(3) { animation-delay: 0.12s; }
+.inst-course-item:nth-child(4) { animation-delay: 0.16s; }
+.inst-course-item:nth-child(5) { animation-delay: 0.20s; }
+.inst-course-item:nth-child(6) { animation-delay: 0.24s; }
+.inst-course-item:nth-child(7) { animation-delay: 0.28s; }
+.inst-course-item:nth-child(8) { animation-delay: 0.32s; }
 
 .inst-course-main {
     display: flex;
@@ -61,20 +73,23 @@
 .inst-manage-btn {
     padding: 0.4rem 0.8rem;
     border: none;
-    background-color: var(--accent-blue);
+    background: linear-gradient(135deg, var(--accent-blue), #4f46e5);
     color: white;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     font-size: 0.8rem;
     font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
 }
 
 .inst-manage-btn:hover {
-    background-color: var(--accent-blue-hover);
+    background: linear-gradient(135deg, var(--accent-blue-hover), #4338ca);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+    transform: translateY(-1px);
 }
 
-/* --- Recent Submissions List --- */
+/* ===== RECENT SUBMISSIONS LIST ===== */
 .inst-submission-list {
     display: flex;
     flex-direction: column;
@@ -85,11 +100,29 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem;
-    background-color: var(--bg-body);
+    padding: 1rem 1.25rem;
+    background-color: var(--bg-card);
     border: 1px solid var(--border-color);
-    border-radius: 6px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+
+.inst-submission-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: rgba(37, 99, 235, 0.15);
+}
+
+.inst-submission-item:nth-child(1) { animation-delay: 0.04s; }
+.inst-submission-item:nth-child(2) { animation-delay: 0.08s; }
+.inst-submission-item:nth-child(3) { animation-delay: 0.12s; }
+.inst-submission-item:nth-child(4) { animation-delay: 0.16s; }
+.inst-submission-item:nth-child(5) { animation-delay: 0.20s; }
+.inst-submission-item:nth-child(6) { animation-delay: 0.24s; }
+.inst-submission-item:nth-child(7) { animation-delay: 0.28s; }
+.inst-submission-item:nth-child(8) { animation-delay: 0.32s; }
 
 .inst-sub-info {
     display: flex;
@@ -116,22 +149,25 @@
 .inst-review-btn,
 .inst-view-btn {
     padding: 0.4rem 0.8rem;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     font-size: 0.8rem;
     font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     white-space: nowrap;
 }
 
 .inst-review-btn {
     border: none;
-    background-color: var(--accent-blue);
+    background: linear-gradient(135deg, var(--accent-blue), #4f46e5);
     color: white;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
 }
 
 .inst-review-btn:hover {
-    background-color: var(--accent-blue-hover);
+    background: linear-gradient(135deg, var(--accent-blue-hover), #4338ca);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+    transform: translateY(-1px);
 }
 
 .inst-view-btn {
@@ -142,9 +178,11 @@
 
 .inst-view-btn:hover {
     background-color: var(--tag-bg);
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
 }
 
-/* --- Analytics Grid --- */
+/* ===== ANALYTICS GRID ===== */
 .inst-analytics-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -157,11 +195,24 @@
     align-items: center;
     gap: 0.5rem;
     padding: 1.5rem;
-    background-color: var(--bg-body);
+    background-color: var(--bg-card);
     border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     text-align: center;
+    box-shadow: var(--shadow);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+
+.inst-analytic-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: rgba(37, 99, 235, 0.15);
+}
+
+.inst-analytic-item:nth-child(1) { animation-delay: 0.35s; }
+.inst-analytic-item:nth-child(2) { animation-delay: 0.40s; }
+.inst-analytic-item:nth-child(3) { animation-delay: 0.45s; }
 
 .inst-analytic-val {
     font-size: 2rem;
@@ -185,7 +236,7 @@
     color: var(--text-secondary);
 }
 
-/* --- Quick Actions --- */
+/* ===== QUICK ACTIONS ===== */
 .inst-quick-actions {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -198,22 +249,36 @@
     align-items: center;
     gap: 0.75rem;
     padding: 1.5rem 1rem;
-    background-color: var(--bg-body);
+    background-color: var(--bg-card);
     border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     text-align: center;
+    box-shadow: var(--shadow);
+    animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .inst-action-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+    border-color: rgba(37, 99, 235, 0.15);
 }
+
+.inst-action-card:nth-child(1) { animation-delay: 0.40s; }
+.inst-action-card:nth-child(2) { animation-delay: 0.45s; }
+.inst-action-card:nth-child(3) { animation-delay: 0.50s; }
+.inst-action-card:nth-child(4) { animation-delay: 0.55s; }
 
 .inst-action-card i {
     font-size: 1.5rem;
     color: var(--accent-blue);
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.inst-action-card:hover i {
+    transform: scale(1.15);
+    color: var(--accent-blue-hover);
 }
 
 .inst-action-card span {
@@ -222,7 +287,18 @@
     color: var(--text-primary);
 }
 
-/* --- Responsive --- */
+/* ===== SKELETON LOADING ===== */
+.skeleton-course-item {
+    height: 60px;
+    border-radius: var(--radius-md);
+}
+
+.skeleton-submission-item {
+    height: 60px;
+    border-radius: var(--radius-md);
+}
+
+/* ===== RESPONSIVE ===== */
 @media (max-width: 1024px) {
     .inst-analytics-grid {
         grid-template-columns: 1fr;

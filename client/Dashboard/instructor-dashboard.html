@@ -86,7 +86,7 @@
 
             <!-- Stats Grid -->
             <div class="stats-grid" id="stats-container">
-                <div class="stat-card">
+                <div class="stat-card" data-color="blue">
                     <div class="stat-info">
                         <span>Active Courses</span>
                         <h2>4</h2>
@@ -95,7 +95,7 @@
                         <i class="fa-solid fa-book"></i>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" data-color="green">
                     <div class="stat-info">
                         <span>Total Students</span>
                         <h2>287</h2>
@@ -104,7 +104,7 @@
                         <i class="fa-solid fa-users"></i>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" data-color="orange">
                     <div class="stat-info">
                         <span>Pending Reviews</span>
                         <h2>23</h2>
@@ -113,7 +113,7 @@
                         <i class="fa-solid fa-clock"></i>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" data-color="purple">
                     <div class="stat-info">
                         <span>Questions Asked</span>
                         <h2>12</h2>
@@ -132,58 +132,10 @@
                         <p class="section-sub">Your active courses and their progress</p>
                     </div>
                     <div class="instructor-course-list" id="course-overview-container">
-                        <div class="inst-course-item">
-                            <div class="inst-course-main">
-                                <span class="inst-course-name">Data Structures & Algorithms</span>
-                                <div class="inst-course-meta">
-                                    <span><i class="fa-solid fa-user"></i> 89 students</span>
-                                    <span>78% avg completion</span>
-                                </div>
-                            </div>
-                            <div class="inst-course-actions">
-                                <span class="inst-course-code">CS 201</span>
-                                <button class="inst-manage-btn">Manage</button>
-                            </div>
-                        </div>
-                        <div class="inst-course-item">
-                            <div class="inst-course-main">
-                                <span class="inst-course-name">Database Systems</span>
-                                <div class="inst-course-meta">
-                                    <span><i class="fa-solid fa-user"></i> 67 students</span>
-                                    <span>85% avg completion</span>
-                                </div>
-                            </div>
-                            <div class="inst-course-actions">
-                                <span class="inst-course-code">CS 301</span>
-                                <button class="inst-manage-btn">Manage</button>
-                            </div>
-                        </div>
-                        <div class="inst-course-item">
-                            <div class="inst-course-main">
-                                <span class="inst-course-name">Web Development</span>
-                                <div class="inst-course-meta">
-                                    <span><i class="fa-solid fa-user"></i> 92 students</span>
-                                    <span>72% avg completion</span>
-                                </div>
-                            </div>
-                            <div class="inst-course-actions">
-                                <span class="inst-course-code">CS 350</span>
-                                <button class="inst-manage-btn">Manage</button>
-                            </div>
-                        </div>
-                        <div class="inst-course-item">
-                            <div class="inst-course-main">
-                                <span class="inst-course-name">Competitive Programming</span>
-                                <div class="inst-course-meta">
-                                    <span><i class="fa-solid fa-user"></i> 39 students</span>
-                                    <span>91% avg completion</span>
-                                </div>
-                            </div>
-                            <div class="inst-course-actions">
-                                <span class="inst-course-code">CS 401</span>
-                                <button class="inst-manage-btn">Manage</button>
-                            </div>
-                        </div>
+                        <div class="skeleton skeleton-course-item"></div>
+                        <div class="skeleton skeleton-course-item"></div>
+                        <div class="skeleton skeleton-course-item"></div>
+                        <div class="skeleton skeleton-course-item"></div>
                     </div>
                 </div>
 
@@ -193,38 +145,10 @@
                         <p class="section-sub">Latest student submissions requiring attention</p>
                     </div>
                     <div class="inst-submission-list" id="submissions-container">
-                        <div class="inst-submission-item">
-                            <div class="inst-sub-info">
-                                <span class="inst-sub-name">Alice Johnson</span>
-                                <span class="inst-sub-title">Binary Tree Implementation</span>
-                                <span class="inst-sub-meta">CS 201 &bull; 2 hours ago</span>
-                            </div>
-                            <button class="inst-review-btn">Review</button>
-                        </div>
-                        <div class="inst-submission-item">
-                            <div class="inst-sub-info">
-                                <span class="inst-sub-name">Bob Smith</span>
-                                <span class="inst-sub-title">Database Design Project</span>
-                                <span class="inst-sub-meta">CS 301 &bull; 4 hours ago</span>
-                            </div>
-                            <button class="inst-view-btn">View</button>
-                        </div>
-                        <div class="inst-submission-item">
-                            <div class="inst-sub-info">
-                                <span class="inst-sub-name">Carol Davis</span>
-                                <span class="inst-sub-title">React Portfolio</span>
-                                <span class="inst-sub-meta">CS 350 &bull; 1 day ago</span>
-                            </div>
-                            <button class="inst-review-btn">Review</button>
-                        </div>
-                        <div class="inst-submission-item">
-                            <div class="inst-sub-info">
-                                <span class="inst-sub-name">David Wilson</span>
-                                <span class="inst-sub-title">Algorithm Analysis</span>
-                                <span class="inst-sub-meta">CS 401 &bull; 2 days ago</span>
-                            </div>
-                            <button class="inst-view-btn">View</button>
-                        </div>
+                        <div class="skeleton skeleton-submission-item"></div>
+                        <div class="skeleton skeleton-submission-item"></div>
+                        <div class="skeleton skeleton-submission-item"></div>
+                        <div class="skeleton skeleton-submission-item"></div>
                     </div>
                 </div>
             </div>
@@ -300,7 +224,10 @@
                 if (appLogo) appLogo.src = '/Assets/images/logo-light.png';
             }
             if (themeBtn) {
+                themeBtn.classList.remove('rotating');
+                void themeBtn.offsetWidth;
                 themeBtn.addEventListener('click', function () {
+                    themeBtn.classList.add('rotating');
                     const html = document.documentElement;
                     const current = html.getAttribute('data-theme');
                     const newTheme = current === 'light' ? 'dark' : 'light';
@@ -313,6 +240,7 @@
                         if (themeIcon) themeIcon.className = 'fa-regular fa-moon';
                         if (appLogo) appLogo.src = '/Assets/images/logo-light.png';
                     }
+                    setTimeout(function () { themeBtn.classList.remove('rotating'); }, 500);
                 });
             }
         })();
