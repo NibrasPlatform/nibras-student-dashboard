@@ -56,6 +56,10 @@
                 localStorage.setItem('theme', newTheme);
                 if (newTheme === 'dark') { themeIcon.className = 'fa-solid fa-sun'; themeText.textContent = 'Light Mode'; }
                 else { themeIcon.className = 'fa-solid fa-moon'; themeText.textContent = 'Dark Mode'; }
+                var btn = document.getElementById('themeBtn');
+                btn.classList.remove('rotating');
+                void btn.offsetWidth;
+                btn.classList.add('rotating');
             });
         }
 

@@ -1507,3 +1507,182 @@
     font-weight: 600;
     color: var(--text-primary);
 }
+
+/* ===== RECIPE ENHANCEMENTS ===== */
+
+/* Missing keyframes */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.15); }
+    50% { box-shadow: 0 0 0 8px rgba(37, 99, 235, 0); }
+}
+
+@keyframes rotateIn {
+    from { transform: rotate(-90deg) scale(0); opacity: 0; }
+    to { transform: rotate(0) scale(1); opacity: 1; }
+}
+
+@keyframes rotating {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Entrance animation classes */
+.animate-in {
+    animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-stagger-1 { animation-delay: 0.04s; }
+.animate-stagger-2 { animation-delay: 0.08s; }
+.animate-stagger-3 { animation-delay: 0.12s; }
+.animate-stagger-4 { animation-delay: 0.16s; }
+.animate-stagger-5 { animation-delay: 0.20s; }
+.animate-stagger-6 { animation-delay: 0.24s; }
+.animate-stagger-7 { animation-delay: 0.28s; }
+.animate-stagger-8 { animation-delay: 0.32s; }
+
+/* focus-visible */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+    outline: 2px solid var(--accent-blue);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+}
+
+/* Theme toggle rotation for #themeBtn (HTML uses this ID, projects.css has #theme-toggle) */
+#themeBtn i {
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+#themeBtn.rotating i {
+    transform: rotate(180deg);
+}
+
+/* Entrance animations on instructor-specific elements */
+.inst-proj-breadcrumb {
+    animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.inst-proj-header {
+    animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: 0.05s;
+}
+
+.inst-proj-selector-bar {
+    animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: 0.1s;
+}
+
+.inst-proj-stats {
+    animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: 0.15s;
+}
+
+.tab-bar {
+    animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: 0.15s;
+}
+
+/* Stat card hover lift + stagger */
+.inst-proj-stat-card {
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.inst-proj-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.inst-proj-stat-card:nth-child(1) { animation-delay: 0.04s; }
+.inst-proj-stat-card:nth-child(2) { animation-delay: 0.08s; }
+.inst-proj-stat-card:nth-child(3) { animation-delay: 0.12s; }
+.inst-proj-stat-card:nth-child(4) { animation-delay: 0.16s; }
+
+/* Panel entrance */
+.inst-proj-panel {
+    animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.inst-proj-panel:nth-child(1) { animation-delay: 0.2s; }
+.inst-proj-panel:nth-child(2) { animation-delay: 0.24s; }
+
+/* Project row entrance + stagger */
+.inst-proj-row {
+    animation: fadeSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.inst-proj-row:nth-child(1) { animation-delay: 0.04s; }
+.inst-proj-row:nth-child(2) { animation-delay: 0.08s; }
+.inst-proj-row:nth-child(3) { animation-delay: 0.12s; }
+.inst-proj-row:nth-child(4) { animation-delay: 0.16s; }
+.inst-proj-row:nth-child(5) { animation-delay: 0.20s; }
+.inst-proj-row:nth-child(6) { animation-delay: 0.24s; }
+.inst-proj-row:nth-child(7) { animation-delay: 0.28s; }
+.inst-proj-row:nth-child(8) { animation-delay: 0.32s; }
+.inst-proj-row:nth-child(9) { animation-delay: 0.36s; }
+.inst-proj-row:nth-child(10) { animation-delay: 0.40s; }
+
+/* Review item entrance + stagger */
+.inst-proj-review-item {
+    animation: fadeSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.inst-proj-review-item:nth-child(1) { animation-delay: 0.04s; }
+.inst-proj-review-item:nth-child(2) { animation-delay: 0.08s; }
+.inst-proj-review-item:nth-child(3) { animation-delay: 0.12s; }
+.inst-proj-review-item:nth-child(4) { animation-delay: 0.16s; }
+.inst-proj-review-item:nth-child(5) { animation-delay: 0.20s; }
+
+/* Submissions table row entrance */
+.inst-proj-table tbody tr {
+    animation: fadeSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.inst-proj-table tbody tr:nth-child(1) { animation-delay: 0.04s; }
+.inst-proj-table tbody tr:nth-child(2) { animation-delay: 0.08s; }
+.inst-proj-table tbody tr:nth-child(3) { animation-delay: 0.12s; }
+.inst-proj-table tbody tr:nth-child(4) { animation-delay: 0.16s; }
+.inst-proj-table tbody tr:nth-child(5) { animation-delay: 0.20s; }
+.inst-proj-table tbody tr:nth-child(6) { animation-delay: 0.24s; }
+.inst-proj-table tbody tr:nth-child(7) { animation-delay: 0.28s; }
+.inst-proj-table tbody tr:nth-child(8) { animation-delay: 0.32s; }
+.inst-proj-table tbody tr:nth-child(9) { animation-delay: 0.36s; }
+.inst-proj-table tbody tr:nth-child(10) { animation-delay: 0.40s; }
+
+/* Skeleton row for tables */
+.skeleton-row td {
+    padding: 0.6rem 0.75rem;
+}
+
+/* Grading tab entrance animations */
+#tab-grading .selector-bar {
+    animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: 0.1s;
+}
+
+#tab-grading .grade-stats {
+    animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: 0.15s;
+}
+
+#tab-grading .grade-final-summary {
+    animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: 0.2s;
+}
+
+#tab-grading .table-wrapper {
+    animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: 0.25s;
+}
+
+#tab-grading .empty-state {
+    animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
