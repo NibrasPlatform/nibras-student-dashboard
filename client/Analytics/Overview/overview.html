@@ -72,7 +72,7 @@
             </div>
             
             <div class="header-actions">
-                <button class="icon-btn" id="themeBtn" onclick="const t=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',t);localStorage.setItem('theme',t);"><i class="fa-regular fa-moon"></i></button>
+                <button class="icon-btn theme-toggle-btn" id="themeBtn"><i class="fa-regular fa-moon"></i></button>
                 <button class="icon-btn"><i class="fa-regular fa-bell"></i></button>
                 <div class="profile-circle-small">ZA</div>
             </div>
@@ -94,7 +94,10 @@
 
             <!-- Stats Overview -->
             <div class="stats-overview-grid" id="stats-container">
-                <!-- JS Injected -->
+                <div class="ana-stat-card skeleton-card"><div class="skeleton" style="height:16px;width:60%;margin-bottom:8px"></div><div class="skeleton" style="height:32px;width:40%;margin-bottom:6px"></div><div class="skeleton" style="height:14px;width:30%"></div></div>
+                <div class="ana-stat-card skeleton-card"><div class="skeleton" style="height:16px;width:60%;margin-bottom:8px"></div><div class="skeleton" style="height:32px;width:40%;margin-bottom:6px"></div><div class="skeleton" style="height:14px;width:30%"></div></div>
+                <div class="ana-stat-card skeleton-card"><div class="skeleton" style="height:16px;width:60%;margin-bottom:8px"></div><div class="skeleton" style="height:32px;width:40%;margin-bottom:6px"></div><div class="skeleton" style="height:14px;width:30%"></div></div>
+                <div class="ana-stat-card skeleton-card"><div class="skeleton" style="height:16px;width:60%;margin-bottom:8px"></div><div class="skeleton" style="height:32px;width:40%;margin-bottom:6px"></div><div class="skeleton" style="height:14px;width:30%"></div></div>
             </div>
 
             <!-- Tabs -->
@@ -139,7 +142,9 @@
                     <p class="section-desc">Latest platform activities and milestones</p>
                 </div>
                 <div class="summary-list" id="summary-container">
-                    <!-- JS Injected -->
+                    <div class="sum-item skeleton-row"><div class="sum-left"><div class="skeleton" style="width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:6px"></div><div style="flex:1"><div class="skeleton" style="height:16px;width:220px"></div><div class="skeleton" style="height:12px;width:120px;margin-top:6px"></div></div></div></div>
+                    <div class="sum-item skeleton-row"><div class="sum-left"><div class="skeleton" style="width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:6px"></div><div style="flex:1"><div class="skeleton" style="height:16px;width:220px"></div><div class="skeleton" style="height:12px;width:120px;margin-top:6px"></div></div></div></div>
+                    <div class="sum-item skeleton-row"><div class="sum-left"><div class="skeleton" style="width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:6px"></div><div style="flex:1"><div class="skeleton" style="height:16px;width:220px"></div><div class="skeleton" style="height:12px;width:120px;margin-top:6px"></div></div></div></div>
                 </div>
             </section>
 
