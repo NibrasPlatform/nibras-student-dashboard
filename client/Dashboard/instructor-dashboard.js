@@ -141,8 +141,53 @@
             if (analyticItems[1] && analytics.completionRate != null) analyticItems[1].textContent = analytics.completionRate + '%';
             if (analyticItems[2] && analytics.averageRating != null) analyticItems[2].textContent = analytics.averageRating;
         } catch (_) {
-            // Backend not ready, keep hardcoded fallback
+            // Backend not ready, will fallback below
         }
+
+        // Fallback: if containers still have skeletons (backend failed or returned empty)
+        ;(function renderHardcodedFallback() {
+            var courseContainer = document.getElementById('course-overview-container');
+            if (courseContainer && courseContainer.querySelector('.skeleton')) {
+                courseContainer.innerHTML = [
+                    { name: 'Data Structures & Algorithms', students: 89, completion: 78, code: 'CS 201' },
+                    { name: 'Database Systems', students: 67, completion: 85, code: 'CS 301' },
+                    { name: 'Web Development', students: 92, completion: 72, code: 'CS 350' },
+                    { name: 'Competitive Programming', students: 39, completion: 91, code: 'CS 401' }
+                ].map(function (c) {
+                    return '<div class="inst-course-item">'
+                        + '<div class="inst-course-main">'
+                        + '<span class="inst-course-name">' + c.name + '</span>'
+                        + '<div class="inst-course-meta">'
+                        + '<span><i class="fa-solid fa-user"></i> ' + c.students + ' students</span>'
+                        + '<span>' + c.completion + '% avg completion</span>'
+                        + '</div></div>'
+                        + '<div class="inst-course-actions">'
+                        + '<span class="inst-course-code">' + c.code + '</span>'
+                        + '<button class="inst-manage-btn">Manage</button>'
+                        + '</div></div>';
+                }).join('');
+            }
+
+            var subContainer = document.getElementById('submissions-container');
+            if (subContainer && subContainer.querySelector('.skeleton')) {
+                subContainer.innerHTML = [
+                    { name: 'Alice Johnson', title: 'Binary Tree Implementation', meta: 'CS 201 \u2022 2 hours ago', pending: true },
+                    { name: 'Bob Smith', title: 'Database Design Project', meta: 'CS 301 \u2022 4 hours ago', pending: false },
+                    { name: 'Carol Davis', title: 'React Portfolio', meta: 'CS 350 \u2022 1 day ago', pending: true },
+                    { name: 'David Wilson', title: 'Algorithm Analysis', meta: 'CS 401 \u2022 2 days ago', pending: false }
+                ].map(function (s) {
+                    return '<div class="inst-submission-item">'
+                        + '<div class="inst-sub-info">'
+                        + '<span class="inst-sub-name">' + s.name + '</span>'
+                        + '<span class="inst-sub-title">' + s.title + '</span>'
+                        + '<span class="inst-sub-meta">' + s.meta + '</span>'
+                        + '</div>'
+                        + '<button class="inst-' + (s.pending ? 'review' : 'view') + '-btn">'
+                        + (s.pending ? 'Review' : 'View') + '</button>'
+                        + '</div>';
+                }).join('');
+            }
+        })();
 
         // 5. Fallback: Active Courses count
         try {
