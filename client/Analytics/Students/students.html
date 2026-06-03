@@ -72,7 +72,7 @@
             </div>
             
             <div class="header-actions">
-                <button class="icon-btn" id="themeBtn" onclick="const t=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',t);localStorage.setItem('theme',t);"><i class="fa-regular fa-moon"></i></button>
+                <button class="icon-btn theme-toggle-btn" id="themeBtn"><i class="fa-regular fa-moon"></i></button>
                 <button class="icon-btn"><i class="fa-regular fa-bell"></i></button>
                 <div class="profile-circle-small">ZA</div>
             </div>
@@ -94,7 +94,10 @@
 
             <!-- Stats Overview -->
             <div class="stats-overview-grid" id="stats-container">
-                <!-- JS Injected -->
+                <div class="ana-stat-card skeleton-card"><div class="skeleton" style="height:16px;width:60%;margin-bottom:8px"></div><div class="skeleton" style="height:32px;width:40%;margin-bottom:6px"></div><div class="skeleton" style="height:14px;width:30%"></div></div>
+                <div class="ana-stat-card skeleton-card"><div class="skeleton" style="height:16px;width:60%;margin-bottom:8px"></div><div class="skeleton" style="height:32px;width:40%;margin-bottom:6px"></div><div class="skeleton" style="height:14px;width:30%"></div></div>
+                <div class="ana-stat-card skeleton-card"><div class="skeleton" style="height:16px;width:60%;margin-bottom:8px"></div><div class="skeleton" style="height:32px;width:40%;margin-bottom:6px"></div><div class="skeleton" style="height:14px;width:30%"></div></div>
+                <div class="ana-stat-card skeleton-card"><div class="skeleton" style="height:16px;width:60%;margin-bottom:8px"></div><div class="skeleton" style="height:32px;width:40%;margin-bottom:6px"></div><div class="skeleton" style="height:14px;width:30%"></div></div>
             </div>
 
             <!-- Progress Over Time -->
@@ -126,7 +129,9 @@
                         <p class="section-desc">Coding problems solved by difficulty</p>
                     </div>
                     <div class="performance-list" id="performance-container">
-                        <!-- JS Injected -->
+                        <div class="perf-item skeleton-row"><div class="skeleton" style="height:16px;width:50%"></div><div class="skeleton" style="height:6px;width:100%;margin-top:6px"></div></div>
+                        <div class="perf-item skeleton-row"><div class="skeleton" style="height:16px;width:50%"></div><div class="skeleton" style="height:6px;width:100%;margin-top:6px"></div></div>
+                        <div class="perf-item skeleton-row"><div class="skeleton" style="height:16px;width:50%"></div><div class="skeleton" style="height:6px;width:100%;margin-top:6px"></div></div>
                     </div>
                 </section>
 
@@ -137,7 +142,9 @@
                         <p class="section-desc">Achievements unlocked on your journey</p>
                     </div>
                     <div class="risk-list" id="badges-container">
-                        <!-- JS Injected -->
+                        <div class="risk-card-item skeleton-row"><div class="skeleton" style="width:24px;height:24px;border-radius:50%;flex-shrink:0"></div><div style="flex:1;margin:0 0.75rem"><div class="skeleton" style="height:16px;width:60%"></div><div class="skeleton" style="height:12px;width:40%;margin-top:4px"></div></div><div class="skeleton" style="width:50px;height:20px;border-radius:12px"></div></div>
+                        <div class="risk-card-item skeleton-row"><div class="skeleton" style="width:24px;height:24px;border-radius:50%;flex-shrink:0"></div><div style="flex:1;margin:0 0.75rem"><div class="skeleton" style="height:16px;width:60%"></div><div class="skeleton" style="height:12px;width:40%;margin-top:4px"></div></div><div class="skeleton" style="width:50px;height:20px;border-radius:12px"></div></div>
+                        <div class="risk-card-item skeleton-row"><div class="skeleton" style="width:24px;height:24px;border-radius:50%;flex-shrink:0"></div><div style="flex:1;margin:0 0.75rem"><div class="skeleton" style="height:16px;width:60%"></div><div class="skeleton" style="height:12px;width:40%;margin-top:4px"></div></div><div class="skeleton" style="width:50px;height:20px;border-radius:12px"></div></div>
                     </div>
                 </section>
 
