@@ -19,51 +19,6 @@
     <link rel="stylesheet" href="./ai_tutor.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
-    
-    <!-- Added CSS for the Modal -->
-    <style>
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.6); z-index: 1000;
-            display: none; align-items: center; justify-content: center;
-            backdrop-filter: blur(4px);
-        }
-        .modal-content {
-            background: var(--bg-card, #ffffff);
-            width: 90%; max-width: 600px;
-            border-radius: 12px; padding: 24px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            color: var(--text-primary, #333);
-        }
-        html[data-theme="dark"] .modal-content {
-            background: #1f2937; /* Dark theme card background */
-            color: #f3f4f6;
-        }
-        .modal-header {
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
-        }
-        .modal-header h3 { margin: 0; font-size: 1.25rem; }
-        .modal-text-box {
-            background: var(--tag-bg, #f3f4f6);
-            padding: 12px; border-radius: 8px; font-size: 0.95rem;
-            max-height: 150px; overflow-y: auto; margin-bottom: 15px;
-            line-height: 1.5;
-        }
-        html[data-theme="dark"] .modal-text-box {
-            background: #374151; /* Dark theme inner box */
-        }
-        .modal-footer {
-            margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;
-        }
-
-        .markdown-body pre { background: #1e1e1e; padding: 12px; border-radius: 8px; overflow-x: auto; margin: 10px 0; }
-        .markdown-body code { font-family: monospace; font-size: 0.9em; background: rgba(128,128,128,0.1); padding: 2px 4px; border-radius: 4px; }
-        .markdown-body pre code { background: none; padding: 0; color: #abb2bf; }
-        .markdown-body ul, .markdown-body ol { padding-left: 25px; margin-bottom: 15px; }
-        .markdown-body blockquote { border-left: 4px solid var(--accent-blue); padding-left: 15px; margin: 15px 0; color: var(--text-secondary); background: rgba(128,128,128,0.05); padding: 10px 15px; border-radius: 4px; }
-        .markdown-body a { color: var(--accent-blue); text-decoration: none; }
-        .markdown-body p { margin-bottom: 10px; }
-    </style>
 </head>
 <body>
     <div id="app-root" hidden></div>
@@ -233,7 +188,11 @@
                             <h3>Quick Topics</h3>
                         </div>
                         <div class="quick-topics-grid" id="quick-topics-container">
-                            <!-- JS Injected -->
+                            <div class="skeleton-container" aria-hidden="true">
+                                <div class="skeleton-row"><div class="skeleton-line skeleton"></div><div class="skeleton-line-sm skeleton"></div></div>
+                                <div class="skeleton-row"><div class="skeleton-line skeleton"></div><div class="skeleton-line-sm skeleton"></div></div>
+                                <div class="skeleton-row"><div class="skeleton-line skeleton"></div><div class="skeleton-line-sm skeleton"></div></div>
+                            </div>
                         </div>
                     </section>
 
@@ -243,7 +202,11 @@
                             <h3>Recent AI Conversations</h3>
                         </div>
                         <div class="recent-ai-list" id="recent-ai-container">
-                            <!-- JS Injected -->
+                            <div class="skeleton-container" aria-hidden="true">
+                                <div class="skeleton-row"><div class="skeleton-line skeleton"></div><div class="skeleton-line-sm skeleton"></div></div>
+                                <div class="skeleton-row"><div class="skeleton-line skeleton"></div><div class="skeleton-line-sm skeleton"></div></div>
+                                <div class="skeleton-row"><div class="skeleton-line skeleton"></div><div class="skeleton-line-sm skeleton"></div></div>
+                            </div>
                         </div>
                     </section>
 
@@ -258,7 +221,11 @@
                             <h3>AI Tutor Stats</h3>
                         </div>
                         <div class="stats-list" id="stats-container">
-                            <!-- JS Injected -->
+                            <div class="skeleton-container" aria-hidden="true">
+                                <div class="skeleton-card skeleton"></div>
+                                <div class="skeleton-card skeleton" style="margin-top: 0.75rem;"></div>
+                                <div class="skeleton-card skeleton" style="margin-top: 0.75rem;"></div>
+                            </div>
                         </div>
                     </section>
 
@@ -281,7 +248,11 @@
                             <h3>Popular Topics</h3>
                         </div>
                         <div class="pop-topics-list" id="pop-topics-container">
-                            <!-- JS Injected -->
+                            <div class="skeleton-container" aria-hidden="true">
+                                <div class="skeleton-row"><div class="skeleton-line skeleton"></div></div>
+                                <div class="skeleton-row"><div class="skeleton-line skeleton"></div></div>
+                                <div class="skeleton-row"><div class="skeleton-line skeleton"></div></div>
+                            </div>
                         </div>
                     </section>
 

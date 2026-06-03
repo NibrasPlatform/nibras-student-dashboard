@@ -116,6 +116,10 @@ window.NibrasReact.run(() => {
     }
 
     themeBtn.addEventListener('click', () => {
+        themeBtn.classList.remove('rotating');
+        void themeBtn.offsetWidth;
+        themeBtn.classList.add('rotating');
+        setTimeout(() => themeBtn.classList.remove('rotating'), 400);
         const html = document.documentElement;
         const current = html.getAttribute('data-theme');
         if (current === 'light') {
