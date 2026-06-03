@@ -45,16 +45,23 @@ window.NibrasReact.run(function () {
             ];
 
             statsContainer.innerHTML = '';
-            stats.forEach(function (s) {
+            stats.forEach(function (s, i) {
                 var changeClass = s.isPos ? 'pos' : 'neg';
                 statsContainer.innerHTML += [
-                    '<div class="ana-stat-card">',
+                    '<div class="ana-stat-card" data-position="' + (i + 1) + '">',
                     '<div class="as-label"><i class="' + s.icon + '"></i> ' + s.label + '</div>',
                     '<div class="as-val">' + s.value + '</div>',
                     '<div class="as-change ' + changeClass + '">' + s.change + '</div>',
                     '</div>',
                 ].join('');
             });
+
+            setTimeout(function () {
+                var statVals = statsContainer.querySelectorAll('.as-val');
+                statVals.forEach(function (el, i) {
+                    setTimeout(function () { animateCounter(el, 700); }, i * 100);
+                });
+            }, 100);
 
             renderEnrollmentChart(coursesSummary);
 
@@ -112,6 +119,10 @@ window.NibrasReact.run(function () {
             return '#ef4444';
         });
 
+        var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        var gridColor = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+        var tickColor = isDark ? '#94a3b8' : '#6b7280';
+
         new Chart(canvas.getContext('2d'), {
             type: 'bar',
             data: {
@@ -130,8 +141,8 @@ window.NibrasReact.run(function () {
                 maintainAspectRatio: true,
                 plugins: { legend: { display: false } },
                 scales: {
-                    y: { beginAtZero: true, max: 100, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'Inter' } } },
-                    x: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 11 } } }
+                    y: { beginAtZero: true, max: 100, grid: { color: gridColor }, ticks: { font: { family: 'Inter' }, color: tickColor } },
+                    x: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 11 }, color: tickColor } }
                 }
             }
         });
@@ -153,6 +164,10 @@ window.NibrasReact.run(function () {
         var labels = points.map(function (p) { return p.period || p.label || ''; });
         var gradeData = points.map(function (p) { return p.grade || 0; });
         var completionData = points.map(function (p) { return p.completion || p.completionRate || 0; });
+
+        var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        var gridColor = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+        var tickColor = isDark ? '#94a3b8' : '#6b7280';
 
         new Chart(canvas.getContext('2d'), {
             type: 'line',
@@ -186,11 +201,11 @@ window.NibrasReact.run(function () {
                 maintainAspectRatio: true,
                 interaction: { intersect: false, mode: 'index' },
                 plugins: {
-                    legend: { position: 'top', labels: { font: { family: 'Inter', size: 12 } } }
+                    legend: { position: 'top', labels: { font: { family: 'Inter', size: 12 }, color: tickColor } }
                 },
                 scales: {
-                    y: { beginAtZero: true, max: 100, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'Inter' } } },
-                    x: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 11 } } }
+                    y: { beginAtZero: true, max: 100, grid: { color: gridColor }, ticks: { font: { family: 'Inter' }, color: tickColor } },
+                    x: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 11 }, color: tickColor } }
                 }
             }
         });
@@ -204,9 +219,16 @@ window.NibrasReact.run(function () {
             { label: 'Approved Subs', value: '42', change: '8 pending', isPos: true, icon: 'fa-regular fa-circle-check' },
         ];
         statsContainer.innerHTML = '';
-        fallbackStats.forEach(function (s) {
-            statsContainer.innerHTML += '<div class="ana-stat-card"><div class="as-label"><i class="' + s.icon + '"></i> ' + s.label + '</div><div class="as-val">' + s.value + '</div><div class="as-change pos">' + s.change + '</div></div>';
+        fallbackStats.forEach(function (s, i) {
+            statsContainer.innerHTML += '<div class="ana-stat-card" data-position="' + (i + 1) + '"><div class="as-label"><i class="' + s.icon + '"></i> ' + s.label + '</div><div class="as-val">' + s.value + '</div><div class="as-change pos">' + s.change + '</div></div>';
         });
+
+        setTimeout(function () {
+            var statVals = statsContainer.querySelectorAll('.as-val');
+            statVals.forEach(function (el, i) {
+                setTimeout(function () { animateCounter(el, 700); }, i * 100);
+            });
+        }, 100);
 
         var fallbackActivities = [
             { title: 'Completed "Data Structures" assignment', time: '2 hours ago', tag: 'Submitted' },
@@ -227,6 +249,30 @@ window.NibrasReact.run(function () {
         var d = document.createElement('div');
         d.appendChild(document.createTextNode(String(str)));
         return d.innerHTML;
+    }
+
+    function animateCounter(el, duration) {
+        if (!el) return;
+        var text = el.textContent.trim();
+        var num = Number(text);
+        if (isNaN(num) || text.indexOf('/') !== -1 || text.indexOf('days') !== -1) return;
+        if (num === 0) return;
+        var isInt = Number.isInteger(num);
+        var startTime = performance.now();
+        function update(now) {
+            var elapsed = now - startTime;
+            var progress = Math.min(elapsed / duration, 1);
+            var eased = 1 - Math.pow(1 - progress, 3);
+            var current = num * eased;
+            el.textContent = isInt ? Math.round(current).toString() : current.toFixed(1);
+            if (progress < 1) {
+                requestAnimationFrame(update);
+            } else {
+                el.textContent = text;
+            }
+        }
+        el.textContent = isInt ? '0' : '0.0';
+        requestAnimationFrame(update);
     }
 
     function timeSince(date) {
@@ -270,6 +316,7 @@ window.NibrasReact.run(function () {
             themeBtn.classList.remove('rotating');
             void themeBtn.offsetWidth;
             themeBtn.classList.add('rotating');
+            setTimeout(function () { themeBtn.classList.remove('rotating'); }, 500);
         });
     }
 

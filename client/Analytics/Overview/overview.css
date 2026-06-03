@@ -188,19 +188,26 @@ body {
 .nav-link {
     display: flex;
     align-items: center;
-    padding: 0.75rem 1rem;
+    padding: 0.7rem 0.9rem;
     text-decoration: none;
     color: var(--text-secondary);
-    font-size: 0.9rem;
+    font-size: 0.875rem;
     border-radius: var(--radius-sm);
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    font-weight: 450;
 }
 
 .nav-link i {
     margin-right: 0.75rem;
-    width: 18px;
+    width: 20px;
     text-align: center;
+    font-size: 0.95rem;
     transition: transform 0.2s ease;
+}
+
+.nav-link:not(.active):hover i {
+    transform: scale(1.1);
 }
 
 .nav-link.active {
@@ -224,18 +231,29 @@ body {
     margin-top: auto;
     padding-top: 1rem;
     border-top: 1px solid var(--border-color);
+    transition: background-color 0.2s ease;
+    border-radius: var(--radius-sm);
+    padding: 0.75rem;
+    margin: 0 -0.5rem;
+    cursor: default;
+}
+
+.user-profile:hover {
+    background-color: var(--tag-bg);
 }
 
 .avatar-circle {
     width: 40px;
     height: 40px;
-    background-color: var(--accent-blue);
+    background: linear-gradient(135deg, var(--accent-blue), #4f46e5);
     color: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 600;
+    font-size: 0.85rem;
+    flex-shrink: 0;
 }
 
 .user-info h4 { font-size: 0.9rem; }
@@ -248,18 +266,21 @@ body {
 }
 
 .rep-badge {
-    display: inline-block;
-    padding: 2px 8px;
-    border: 1px solid var(--accent-blue);
-    color: var(--accent-blue);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 10px;
+    background: linear-gradient(135deg, var(--accent-blue), #4f46e5);
+    color: white;
     border-radius: 12px;
     margin-top: 4px;
     font-weight: 600;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
+    min-width: 24px;
 }
 
 .logout-btn {
-    margin-top: 1rem;
+    margin-top: 0.75rem;
     width: 100%;
     padding: 0.6rem;
     background: transparent;
@@ -269,6 +290,7 @@ body {
     color: var(--text-secondary);
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     font-size: 0.85rem;
     text-decoration: none;
@@ -276,12 +298,15 @@ body {
 }
 
 .logout-btn:hover {
-    background-color: var(--tag-bg);
-    color: var(--text-primary);
+    background-color: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #ef4444;
 }
 
 /* ===== TOP HEADER ===== */
 .top-header {
+    position: relative;
+    z-index: 1;
     height: 70px;
     display: flex;
     justify-content: space-between;
@@ -289,37 +314,40 @@ body {
     padding: 0 2rem;
     border-bottom: 1px solid var(--border-color);
     background-color: var(--bg-body);
-    animation: fadeSlideDown 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: fadeSlideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: 0.15s;
 }
 
 .search-bar-global {
     position: relative;
-    width: 400px;
+    width: 380px;
 }
 
 .search-bar-global i {
     position: absolute;
-    left: 12px;
+    left: 14px;
     top: 50%;
     transform: translateY(-50%);
     color: var(--text-tertiary);
     font-size: 0.9rem;
+    pointer-events: none;
 }
 
 .search-bar-global input {
     width: 100%;
-    padding: 0.6rem 1rem 0.6rem 2.2rem;
+    padding: 0.6rem 1rem 0.6rem 2.4rem;
     border: 1px solid var(--border-color);
-    border-radius: var(--radius-sm);
+    border-radius: 8px;
     background-color: var(--bg-input);
     color: var(--text-primary);
     outline: none;
-    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
 }
 
 .search-bar-global input:focus {
     border-color: var(--accent-blue);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 .header-actions { display: flex; align-items: center; gap: 1rem; }
@@ -327,13 +355,22 @@ body {
 .icon-btn {
     background: none;
     border: none;
-    font-size: 1.1rem;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.05rem;
     color: var(--text-secondary);
     cursor: pointer;
-    transition: color 0.2s ease;
+    transition: all 0.2s ease;
 }
 
-.icon-btn:hover { color: var(--text-primary); }
+.icon-btn:hover {
+    background-color: var(--tag-bg);
+    color: var(--text-primary);
+}
 
 .theme-toggle-btn i {
     transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -344,15 +381,23 @@ body {
 }
 
 .profile-circle-small {
-    width: 32px;
-    height: 32px;
-    background-color: var(--accent-blue);
+    width: 34px;
+    height: 34px;
+    background: linear-gradient(135deg, var(--accent-blue), #4f46e5);
     color: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.profile-circle-small:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
 /* ===== MAIN CONTENT ===== */
@@ -426,10 +471,14 @@ body {
 }
 
 .btn-outline:hover {
-    background-color: var(--tag-bg);
+    background: linear-gradient(135deg, var(--accent-blue), #4f46e5);
+    color: white;
+    border-color: transparent;
     transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
 }
+
+.btn-outline:hover i { color: white; }
 
 /* ===== STATS OVERVIEW ===== */
 .stats-overview-grid {
@@ -445,7 +494,7 @@ body {
     border-radius: var(--radius-md);
     padding: 1.5rem;
     box-shadow: var(--shadow);
-    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
@@ -455,9 +504,14 @@ body {
 .ana-stat-card:nth-child(4) { animation-delay: 0.16s; }
 
 .ana-stat-card:hover {
-    transform: translateY(-2px);
+    transform: translateY(-3px);
     box-shadow: var(--shadow-lg);
 }
+
+.ana-stat-card[data-position="1"]:hover { box-shadow: 0 10px 25px -5px rgba(219, 39, 119, 0.15), var(--shadow-lg); }
+.ana-stat-card[data-position="2"]:hover { box-shadow: 0 10px 25px -5px rgba(234, 88, 12, 0.15), var(--shadow-lg); }
+.ana-stat-card[data-position="3"]:hover { box-shadow: 0 10px 25px -5px rgba(22, 163, 74, 0.15), var(--shadow-lg); }
+.ana-stat-card[data-position="4"]:hover { box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.15), var(--shadow-lg); }
 
 .as-label {
     font-size: 0.85rem;
@@ -507,9 +561,10 @@ body {
 .ana-tab:last-child { border-right: none; }
 
 .ana-tab.active {
-    background-color: var(--ana-tab-active-bg);
-    color: var(--ana-tab-active-text);
+    background: linear-gradient(135deg, var(--accent-blue), #4f46e5);
+    color: white;
     font-weight: 600;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
 .ana-tab:hover:not(.active) {
@@ -528,10 +583,10 @@ body {
 .card {
     background-color: var(--bg-card);
     border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-md);
     padding: 1.5rem;
     box-shadow: var(--shadow);
-    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
     animation-delay: 0.25s;
 }
@@ -541,6 +596,7 @@ body {
 .card:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
+    border-color: rgba(37, 99, 235, 0.15);
 }
 
 .card-header-simple h3 {
@@ -629,6 +685,7 @@ body {
 .sum-item:hover {
     transform: translateX(3px);
     box-shadow: var(--shadow-md);
+    border-color: rgba(37, 99, 235, 0.15);
 }
 
 .sum-left {
@@ -667,14 +724,14 @@ body {
 
 /* ===== SKELETON LOADING ===== */
 .skeleton {
-    background: linear-gradient(90deg, var(--border-color) 25%, var(--tag-bg) 37%, var(--border-color) 63%);
+    background: linear-gradient(90deg, var(--tag-bg) 25%, rgba(37, 99, 235, 0.04) 50%, var(--tag-bg) 75%);
     background-size: 200% 100%;
     animation: shimmer 1.5s ease-in-out infinite;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
 }
 
 [data-theme="dark"] .skeleton {
-    background: linear-gradient(90deg, #1e293b 25%, #334155 37%, #1e293b 63%);
+    background: linear-gradient(90deg, var(--tag-bg) 25%, rgba(59, 130, 246, 0.06) 50%, var(--tag-bg) 75%);
     background-size: 200% 100%;
 }
 

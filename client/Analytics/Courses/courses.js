@@ -53,16 +53,23 @@ window.NibrasReact.run(function () {
             ];
 
             statsContainer.innerHTML = '';
-            stats.forEach(function (s) {
+            stats.forEach(function (s, i) {
                 var changeClass = s.isPos ? 'pos' : 'neg';
                 statsContainer.innerHTML += [
-                    '<div class="ana-stat-card">',
+                    '<div class="ana-stat-card" data-position="' + (i + 1) + '">',
                     '<div class="as-label"><i class="' + s.icon + '"></i> ' + s.label + '</div>',
                     '<div class="as-val">' + s.value + '</div>',
                     '<div class="as-change ' + changeClass + '">' + s.change + '</div>',
                     '</div>',
                 ].join('');
             });
+
+            setTimeout(function () {
+                var statVals = statsContainer.querySelectorAll('.as-val');
+                statVals.forEach(function (el, i) {
+                    setTimeout(function () { animateCounter(el, 700); }, i * 100);
+                });
+            }, 100);
 
             courseContainer.innerHTML = '';
             if (coursesSummary.length === 0) {
@@ -272,7 +279,7 @@ window.NibrasReact.run(function () {
                 '<span class="section-score">' + Math.round(avgScore) + '%</span>',
                 '</div>',
                 '<div class="section-track">',
-                '<div class="section-fill" style="width:' + avgScore + '%;background-color:var(--accent-blue);"></div>',
+                '<div class="section-fill" style="width:' + avgScore + '%;"></div>',
                 '</div>',
                 '<span class="section-completion">' + Math.round(completionRate) + '% completion</span>',
                 '</div>',
@@ -290,6 +297,10 @@ window.NibrasReact.run(function () {
                 if (s >= 40) return '#eab308';
                 return '#ef4444';
             });
+
+            var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            var gridColor = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+            var tickColor = isDark ? '#94a3b8' : '#6b7280';
 
             activeCharts.push(new Chart(canvas.getContext('2d'), {
                 type: 'bar',
@@ -310,8 +321,8 @@ window.NibrasReact.run(function () {
                     maintainAspectRatio: true,
                     plugins: { legend: { display: false } },
                     scales: {
-                        x: { beginAtZero: true, max: 100, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'Inter' } } },
-                        y: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 11 } } }
+                        x: { beginAtZero: true, max: 100, grid: { color: gridColor }, ticks: { font: { family: 'Inter' }, color: tickColor } },
+                        y: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 11 }, color: tickColor } }
                     }
                 }
             }));
@@ -380,6 +391,30 @@ window.NibrasReact.run(function () {
         return d.innerHTML;
     }
 
+    function animateCounter(el, duration) {
+        if (!el) return;
+        var text = el.textContent.trim();
+        var num = Number(text);
+        if (isNaN(num) || text.indexOf('/') !== -1 || text.indexOf('days') !== -1) return;
+        if (num === 0) return;
+        var isInt = Number.isInteger(num);
+        var startTime = performance.now();
+        function update(now) {
+            var elapsed = now - startTime;
+            var progress = Math.min(elapsed / duration, 1);
+            var eased = 1 - Math.pow(1 - progress, 3);
+            var current = num * eased;
+            el.textContent = isInt ? Math.round(current).toString() : current.toFixed(1);
+            if (progress < 1) {
+                requestAnimationFrame(update);
+            } else {
+                el.textContent = text;
+            }
+        }
+        el.textContent = isInt ? '0' : '0.0';
+        requestAnimationFrame(update);
+    }
+
     function renderFallbackData() {
         var fallbackStats = [
             { label: 'Enrolled', value: '6', change: 'total courses', isPos: true, icon: 'fa-solid fa-book-open' },
@@ -388,9 +423,16 @@ window.NibrasReact.run(function () {
             { label: 'Avg Grade', value: '74%', change: 'overall average', isPos: true, icon: 'fa-solid fa-graduation-cap' },
         ];
         statsContainer.innerHTML = '';
-        fallbackStats.forEach(function (s) {
-            statsContainer.innerHTML += '<div class="ana-stat-card"><div class="as-label"><i class="' + s.icon + '"></i> ' + s.label + '</div><div class="as-val">' + s.value + '</div><div class="as-change pos">' + s.change + '</div></div>';
+        fallbackStats.forEach(function (s, i) {
+            statsContainer.innerHTML += '<div class="ana-stat-card" data-position="' + (i + 1) + '"><div class="as-label"><i class="' + s.icon + '"></i> ' + s.label + '</div><div class="as-val">' + s.value + '</div><div class="as-change pos">' + s.change + '</div></div>';
         });
+
+        setTimeout(function () {
+            var statVals = statsContainer.querySelectorAll('.as-val');
+            statVals.forEach(function (el, i) {
+                setTimeout(function () { animateCounter(el, 700); }, i * 100);
+            });
+        }, 100);
 
         var demoCourse = { title: 'Data Structures', level: 'Intermediate', percentage: 82, weightedGrade: 78, status: 'in_progress' };
         var demoCourse2 = { title: 'Algorithms', level: 'Advanced', percentage: 65, weightedGrade: 71, status: 'in_progress' };
@@ -439,6 +481,7 @@ window.NibrasReact.run(function () {
             themeBtn.classList.remove('rotating');
             void themeBtn.offsetWidth;
             themeBtn.classList.add('rotating');
+            setTimeout(function () { themeBtn.classList.remove('rotating'); }, 500);
         });
     }
 
