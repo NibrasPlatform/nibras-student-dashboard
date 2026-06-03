@@ -103,13 +103,19 @@
 
                 <!-- Recommendation List -->
                 <div class="rec-list" id="rec-list-container">
-                    <!-- JS Injected -->
+                    <div class="skeleton-container" aria-hidden="true">
+                        <div class="skeleton-row"><div class="skeleton-line skeleton"></div><div class="skeleton-line-sm skeleton"></div></div>
+                        <div class="skeleton-row"><div class="skeleton-line skeleton"></div><div class="skeleton-line-sm skeleton"></div></div>
+                        <div class="skeleton-row"><div class="skeleton-line skeleton"></div><div class="skeleton-line-sm skeleton"></div></div>
+                    </div>
                 </div>
 
                 <section class="rec-explanation-card">
                     <h4><i class="fa-solid fa-robot"></i> Advisor explanation</h4>
                     <div id="rec-explanation-content">
-                        <p>The recommendation explanation will appear here after loading.</p>
+                        <div class="skeleton-container" aria-hidden="true">
+                            <div class="skeleton-row"><div class="skeleton-line skeleton"></div><div class="skeleton-line skeleton" style="width: 80%;"></div></div>
+                        </div>
                     </div>
                 </section>
             </div>
