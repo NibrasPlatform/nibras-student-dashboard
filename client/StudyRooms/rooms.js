@@ -90,13 +90,14 @@ window.NibrasReact.run(() => {
         if (countEl) countEl.textContent = rooms.length + ' room' + (rooms.length !== 1 ? 's' : '');
 
         grid.innerHTML = '';
-        rooms.forEach(function (room) {
+        rooms.forEach(function (room, idx) {
             var isLive = room.status === 'live' || room.status === 'active';
             var participantCount = Array.isArray(room.participants) ? room.participants.length : (room.participantCount || 0);
             var shortDesc = (room.description || '').substring(0, 120);
 
             var card = document.createElement('div');
-            card.className = 'room-card';
+            var stagger = Math.min(idx + 1, 8);
+            card.className = 'room-card animate-in animate-stagger-' + stagger;
 
             card.innerHTML = [
                 '<div class="room-card-header">',

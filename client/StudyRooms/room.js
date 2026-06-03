@@ -290,7 +290,7 @@ window.NibrasReact.run(function () {
         if (existing) return;
 
         var container = document.createElement('div');
-        container.className = 'video-container';
+        container.className = 'video-container animate-in';
         container.id = 'video-' + id;
 
         var name = displayName || 'Peer';
@@ -338,7 +338,7 @@ window.NibrasReact.run(function () {
         if (existing) return;
 
         var container = document.createElement('div');
-        container.className = 'video-container local';
+        container.className = 'video-container local animate-in';
         container.id = 'video-local';
 
         container.innerHTML = [
@@ -405,11 +405,14 @@ window.NibrasReact.run(function () {
         if (countEl) countEl.textContent = count;
 
         list.innerHTML = '';
+        var pIdx = 0;
         for (var pid in allParticipants) {
             var p = allParticipants[pid];
             var isOnline = pid === localUserId || peers[pid] !== undefined;
             var item = document.createElement('div');
-            item.className = 'participant-item';
+            var stg = Math.min(pIdx + 1, 8);
+            item.className = 'participant-item animate-in animate-stagger-' + stg;
+            pIdx++;
             item.innerHTML = [
                 '<span class="dot ' + (isOnline ? 'online' : 'muted') + '"></span>',
                 '<span class="name">' + escapeHtml(p.name || 'User') + '</span>',
