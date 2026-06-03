@@ -102,8 +102,11 @@
             </div>
 
             <!-- Course Cards Grid -->
-            <div class="inst-course-grid">
-                <p style="text-align:center;padding:48px 16px;color:var(--text-secondary,#64748b);font-size:1rem;">Loading courses...</p>
+            <div class="inst-course-grid" id="inst-course-grid">
+                <div class="skeleton skeleton-course-card"></div>
+                <div class="skeleton skeleton-course-card"></div>
+                <div class="skeleton skeleton-course-card"></div>
+                <div class="skeleton skeleton-course-card"></div>
             </div>
 
         </div>
@@ -129,7 +132,10 @@
                 if (appLogo) appLogo.src = '/Assets/images/logo-light.png';
             }
             if (themeBtn) {
+                themeBtn.classList.remove('rotating');
+                void themeBtn.offsetWidth;
                 themeBtn.addEventListener('click', function () {
+                    themeBtn.classList.add('rotating');
                     const html = document.documentElement;
                     const current = html.getAttribute('data-theme');
                     const newTheme = current === 'light' ? 'dark' : 'light';
@@ -142,6 +148,7 @@
                         if (themeIcon) themeIcon.className = 'fa-regular fa-moon';
                         if (appLogo) appLogo.src = '/Assets/images/logo-light.png';
                     }
+                    setTimeout(function () { themeBtn.classList.remove('rotating'); }, 500);
                 });
             }
         })();
