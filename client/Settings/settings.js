@@ -599,6 +599,10 @@ window.NibrasReact.run(() => {
 
     // --- 6. THEME TOGGLE (apply only on save) ---
     const appLogo = document.getElementById('app-logo');
+    var currentTheme = localStorage.getItem('theme');
+    if (currentTheme === 'dark' && appLogo) {
+        appLogo.src = '/Assets/images/logo-dark.png';
+    }
     const themeSelector = document.getElementById('theme-selector');
     var pendingTheme = null;
 

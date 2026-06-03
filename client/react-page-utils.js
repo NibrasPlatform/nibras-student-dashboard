@@ -900,9 +900,13 @@
                     '<a class="dd-item" data-href="/Achievements/Achievements/achievements.html"><span>🏆</span> Achievements</a>'
                 );
             }
+            if (!isAdmin) {
+                menuItems.push(
+                    '<div class="dd-divider"></div>',
+                    '<a class="dd-item" data-href="/Settings/settings.html"><span>⚙️</span> Settings</a>'
+                );
+            }
             menuItems.push(
-                '<div class="dd-divider"></div>',
-                '<a class="dd-item" data-href="/Settings/settings.html"><span>⚙️</span> Settings</a>',
                 '<div class="dd-divider"></div>',
                 '<a class="dd-item dd-action" data-action="theme"><span>' + tIcon + '</span> ' + tLabel + '</a>',
                 '<a class="dd-item dd-signout" data-action="logout"><span>🚪</span> Sign Out</a>'
@@ -1002,6 +1006,7 @@
             '.dd-item { display:flex; align-items:center; gap:10px; padding:10px 16px; font-size:0.85rem; color:var(--text-primary,#1e293b); text-decoration:none; cursor:pointer; transition:background 0.15s; }',
             '.dd-item:hover { background:var(--bg-secondary,#f1f5f9); }',
             '.dd-item span { font-size:1rem; }',
+            '[data-theme="dark"] .dd-item:hover { background:rgba(255,255,255,0.08); }',
             '.dd-signout { color:var(--tag-red-text,#dc2626) !important; }',
             '.dd-signout:hover { background:rgba(220,38,38,0.08) !important; }',
             '.notif-dropdown-menu { position:absolute; top:calc(100% + 8px); right:0; min-width:240px; background:var(--bg-body,#fff); border:1px solid var(--border-color,#e2e8f0); border-radius:12px; box-shadow:0 10px 40px rgba(0,0,0,0.15); z-index:9999; display:none; overflow:hidden; }',

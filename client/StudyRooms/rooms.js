@@ -1,5 +1,11 @@
 window.NibrasReact.run(() => {
 
+    var appLogo = document.getElementById('app-logo');
+    if (appLogo) {
+        var savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') appLogo.src = '/Assets/images/logo-dark.png';
+    }
+
     const navLinks = document.querySelectorAll('.nav-link');
     navLinks.forEach(link => {
         link.addEventListener('click', () => {
