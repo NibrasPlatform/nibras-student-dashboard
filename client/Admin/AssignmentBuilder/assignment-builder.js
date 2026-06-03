@@ -73,7 +73,10 @@
             var themeText = themeBtn.querySelector('span');
             var curTheme = document.documentElement.getAttribute('data-theme') || 'light';
             if (curTheme === 'dark') { themeIcon.className = 'fa-solid fa-sun'; themeText.textContent = 'Light Mode'; }
+            themeBtn.classList.remove('rotating');
+            void themeBtn.offsetWidth;
             themeBtn.addEventListener('click', function () {
+                themeBtn.classList.add('rotating');
                 var html = document.documentElement;
                 var current = html.getAttribute('data-theme');
                 var newTheme = current === 'light' ? 'dark' : 'light';
@@ -81,6 +84,7 @@
                 localStorage.setItem('theme', newTheme);
                 if (newTheme === 'dark') { themeIcon.className = 'fa-solid fa-sun'; themeText.textContent = 'Light Mode'; }
                 else { themeIcon.className = 'fa-solid fa-moon'; themeText.textContent = 'Dark Mode'; }
+                setTimeout(function () { themeBtn.classList.remove('rotating'); }, 500);
             });
         }
 
@@ -109,7 +113,13 @@
             assignments = items;
             renderAssignments();
         }).catch(function () {
-            container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-database"></i><p>No assignments yet. Create your first one!</p></div>';
+            assignments = [
+                { _id: 'fb1', title: 'Assignment 1: Arrays & Strings', description: 'Implement array manipulation and string processing algorithms.', dueDate: new Date(Date.now() + 604800000).toISOString(), type: 'code', points: 100, testCaseCount: 8 },
+                { _id: 'fb2', title: 'Assignment 2: Linked Lists', description: 'Build and manipulate singly and doubly linked lists.', dueDate: new Date(Date.now() + 1209600000).toISOString(), type: 'code', points: 100, testCaseCount: 6 },
+                { _id: 'fb3', title: 'Project 1: Sorting Visualizer', description: 'Create a visualizer for common sorting algorithms using a framework of your choice.', dueDate: new Date(Date.now() + 1814400000).toISOString(), type: 'project', points: 200, testCaseCount: 0 },
+                { _id: 'fb4', title: 'Quiz 1: Time Complexity', description: 'Multiple choice quiz on Big-O notation and complexity analysis.', dueDate: new Date(Date.now() + 259200000).toISOString(), type: 'quiz', points: 50, testCaseCount: 0 }
+            ];
+            renderAssignments();
         });
     }
 

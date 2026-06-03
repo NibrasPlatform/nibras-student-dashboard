@@ -52,6 +52,9 @@
             var curTheme = document.documentElement.getAttribute('data-theme') || 'light';
             if (curTheme === 'dark') { themeIcon.className = 'fa-solid fa-sun'; themeText.textContent = 'Light Mode'; }
             themeBtn.addEventListener('click', function () {
+                themeBtn.classList.remove('rotating');
+                void themeBtn.offsetWidth;
+                themeBtn.classList.add('rotating');
                 var html = document.documentElement;
                 var current = html.getAttribute('data-theme');
                 var newTheme = current === 'light' ? 'dark' : 'light';
@@ -121,6 +124,15 @@
                 // Fallback to local data
                 if (selectedCourse && selectedCourse.assignments && selectedCourse.assignments.items) {
                     assignments = selectedCourse.assignments.items;
+                    populateSelect(select, assignments);
+                } else {
+                    assignments = [
+                        { _id: 'hw1', title: 'Homework 1: Arrays & Strings', points: 100 },
+                        { _id: 'hw2', title: 'Homework 2: Linked Lists', points: 100 },
+                        { _id: 'hw3', title: 'Homework 3: Trees & Graphs', points: 100 },
+                        { _id: 'project1', title: 'Project 1: Sorting Visualizer', points: 150 },
+                        { _id: 'project2', title: 'Project 2: Pathfinding', points: 200 },
+                    ];
                     populateSelect(select, assignments);
                 }
             });
