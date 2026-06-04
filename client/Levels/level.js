@@ -136,7 +136,7 @@ window.NibrasReact.run(function () {
 
             var buttonHtml = '';
             if (unlocked && level.page) {
-                buttonHtml = '<a href="javascript:;" onclick="window.selectLevel(' + level.id + ', \'' + level.page + '\')" class="btn-level-action btn-start">' + (level.id === 4 ? 'Coming Soon' : 'Start Learning') + '</a>';
+                buttonHtml = '<a href="javascript:;" onclick="window.selectLevel(' + level.id + ', \'' + level.page + '\')" class="btn-level-action btn-start">Start Learning</a>';
             } else if (unlocked) {
                 buttonHtml = '<button class="btn-level-action btn-start">Start Learning</button>';
             }

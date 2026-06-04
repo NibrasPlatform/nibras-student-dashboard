@@ -92,6 +92,24 @@
         { code: "STS options", title: "Science, Technology, and Society courses", category: "elective" },
     ];
 
+    const advancedCourseRows = [
+        { code: "CS 221", title: "Artificial Intelligence: Principles and Techniques", category: "AI" },
+        { code: "CS 229", title: "Machine Learning", category: "AI" },
+        { code: "CS 224N", title: "Natural Language Processing with Deep Learning", category: "AI" },
+        { code: "CS 140", title: "Operating Systems & Systems Programming", category: "Systems" },
+        { code: "CS 143", title: "Compilers", category: "Systems" },
+        { code: "CS 144", title: "Introduction to Computer Networking", category: "Systems" },
+        { code: "CS 149", title: "Parallel Computing", category: "Systems" },
+    ];
+
+    const expertCourseRows = [
+        { code: "CS 231N", title: "Deep Learning for Computer Vision", category: "AI" },
+        { code: "CS 234", title: "Reinforcement Learning", category: "AI" },
+        { code: "CS 238", title: "Decision Making under Uncertainty", category: "AI" },
+        { code: "CS 155", title: "Computer and Network Security", category: "Systems" },
+        { code: "CS 240", title: "Adv. Topics in Operating Systems", category: "Systems" },
+    ];
+
     function normalizeCourseField(value) {
         return String(value || "").replace(/\s+/g, " ").trim();
     }
@@ -142,6 +160,8 @@
     const coursesMeta = [
         ...mapSpreadsheetRowsToMeta(beginnerCourseRows, "Beginner", 0),
         ...mapSpreadsheetRowsToMeta(intermediateCourseRows, "Intermediate", beginnerCourseRows.length),
+        ...mapSpreadsheetRowsToMeta(advancedCourseRows, "Advanced", beginnerCourseRows.length + intermediateCourseRows.length),
+        ...mapSpreadsheetRowsToMeta(expertCourseRows, "Expert", beginnerCourseRows.length + intermediateCourseRows.length + advancedCourseRows.length),
     ];
 
     const cs106aMultiVideoLectures = [
@@ -975,6 +995,426 @@
         { title: "Applying Chemical Principles", videos: [{ title: "Lecture 35", youtubeId: "pn1cxuBmhtI" }] },
     ];
 
+    const cs221MultiVideoLectures = [
+        { title: "Intro & Course Overview", videos: [{ title: "General Intro", youtubeId: "ZiwogMtbjr4" }, { title: "AI History", youtubeId: "z8fEXuH0mu0" }] },
+        { title: "AI Today & Linear Models", videos: [{ title: "Artificial Intelligence Today", youtubeId: "C0IhR4D5KYc" }, { title: "AI & ML 1 - Overview", youtubeId: "mtrYwgIrRNk" }, { title: "AI & ML 2 - Linear Regression", youtubeId: "nEWNNt2KmfQ" }] },
+        { title: "ML: Classification & SGD", videos: [{ title: "AI & ML 3 - Linear Classification", youtubeId: "WcaMiqJR09s" }, { title: "AI & ML 4 - Stochastic Gradient Descent", youtubeId: "bl2WgBLH0tI" }, { title: "AI & ML 5 - Group DRO", youtubeId: "ZFK2XtWqUbw" }] },
+        { title: "ML: Features & Neural Networks", videos: [{ title: "AI & ML 6 - Non Linear Features", youtubeId: "eIxbNkB4byY" }, { title: "AI & ML 7 - Feature Templates", youtubeId: "2QfSBLtvioE" }, { title: "AI & ML 8 - Neural Networks", youtubeId: "pnKXgBHuN58" }, { title: "ML 9 - Backpropagation", youtubeId: "OcAF-l2xB9Y" }] },
+        { title: "ML: Differentiable Programming & Generalization", videos: [{ title: "ML 10 - Differentiable Programming", youtubeId: "c5btEEisp_g" }, { title: "AI & ML 11 - Generalization", youtubeId: "Gq-Ah-QrOQM" }, { title: "AI & ML 12 - Best Practices", youtubeId: "ouvGV2YZEEM" }] },
+        { title: "ML: K-means & Search", videos: [{ title: "ML 13 - K-means", youtubeId: "5-Fn8R9fH7A" }, { title: "Search 1 - Dynamic Programming, Uniform Cost Search", youtubeId: "aIsgJJYrlXk" }, { title: "Search 2 - A*", youtubeId: "HEs1ZCvLH2s" }] },
+        { title: "Markov Decision Processes", videos: [{ title: "MDPs 1 - Value Iteration", youtubeId: "9g32v7bK3Co" }, { title: "MDPs 2 - Reinforcement Learning", youtubeId: "HpaHTfY52RQ" }] },
+        { title: "Game Playing", videos: [{ title: "Game Playing 1 - Minimax, Alpha-beta Pruning", youtubeId: "3pU-Hrz_xy4" }, { title: "Game Playing 2 - TD Learning, Game Theory", youtubeId: "WoFwXj4p4Sc" }] },
+        { title: "Constraint Satisfaction Problems", videos: [{ title: "CSPs 1 - Overview", youtubeId: "-IO4fPO0rxk" }, { title: "CSPs 2 - Definitions", youtubeId: "uj5wCcHsSlA" }, { title: "CSPs 3 - Examples", youtubeId: "Tu6BiZhMDCc" }, { title: "CSPs 4 - Dynamic Ordering", youtubeId: "Lyu8VzbIe_A" }, { title: "CSPs 5 - Arc Consistency", youtubeId: "5rlIYGJdPy4" }, { title: "CSPs 6 - Beam Search", youtubeId: "XuWMeIHGkus" }, { title: "CSPs 7 - Local Search", youtubeId: "VwZKPlK6jUg" }] },
+        { title: "Markov & Bayesian Networks", videos: [{ title: "Markov Networks 1 - Overview", youtubeId: "neeaJb3wCYw" }, { title: "Markov Networks 2 - Gibbs Sampling", youtubeId: "k6aZZF2pk7k" }, { title: "Bayesian Networks 1 - Overview", youtubeId: "fA7zP6EcVdw" }, { title: "Bayesian Networks 2 - Definition", youtubeId: "xvC6XmZmR_U" }] },
+        { title: "Bayesian Networks: Programming & Inference", videos: [{ title: "Bayesian Networks 3 - Probabilistic Programming", youtubeId: "ZVk8y1zVoD4" }, { title: "Bayesian Networks 4 - Probabilistic Inference", youtubeId: "-dGOWB9Zh8s" }, { title: "Bayesian Networks 5 - Forward-backward Algorithm", youtubeId: "N-ZPbpJOQs0" }, { title: "Bayesian Networks 6 - Particle Filtering", youtubeId: "8sOtXbQIOuE" }] },
+        { title: "Bayesian Networks: Learning", videos: [{ title: "Bayesian Networks 7 - Supervised Learning", youtubeId: "_rbDjsJTgm8" }, { title: "Bayesian Networks 8 - Smoothing", youtubeId: "M7rWvN_0xbw" }, { title: "Bayesian Networks 9 - EM Algorithm", youtubeId: "CPVFJBd-Qcg" }] },
+        { title: "Logic", videos: [{ title: "Logic 1 - Overview: Logic Based Models", youtubeId: "oM5LUGPO7Zk" }, { title: "Logic 2 - Propositional Logic Syntax", youtubeId: "LBjNaewGJzk" }, { title: "Logic 3 - Propositional Logic Semantics", youtubeId: "N37yIn1jX98" }, { title: "Logic 4 - Inference Rules", youtubeId: "RIk67yGMVv4" }, { title: "Logic 5 - Propositional Modus Ponens", youtubeId: "6bj4z2mt1KE" }, { title: "Logic 6 - Propositional Resolutions", youtubeId: "egLAF4dFdBo" }, { title: "Logic 7 - First Order Logic", youtubeId: "Z-O0Q3_oTJM" }, { title: "Logic 8 - First Order Modus Ponens", youtubeId: "mndzhfBpyUw" }, { title: "Logic 9 - First Order Resolution", youtubeId: "iG_tz7ZjZAI" }, { title: "Logic 10 - Recap", youtubeId: "LYsOjtmLpPo" }] },
+        { title: "Special Topics & Fireside Talks", videos: [{ title: "AI and Law", youtubeId: "_-hBu3_Jz-0" }, { title: "Fireside Talks: Robustness in ML", youtubeId: "xr8AHGlieOE" }, { title: "Fireside Talks: State of Robotics", youtubeId: "hVsR9DdR3qE" }, { title: "Inequality in Healthcare, AI & Data Science", youtubeId: "0IZhDmh1dmI" }, { title: "Fireside Talks: AI and Language", youtubeId: "pI72PseZQo8" }] },
+        { title: "Conclusion & AI Safety", videos: [{ title: "General Conclusion", youtubeId: "iUGmupxCdjs" }, { title: "Externalities and Dual-Use Technologies", youtubeId: "2xQLCXqOtdU" }, { title: "The AI Alignment Problem", youtubeId: "5WHObJWE1FE" }, { title: "Encoding Human Values", youtubeId: "aWAqgzXENr0" }, { title: "Algorithms and Distribution", youtubeId: "olhFrDHP7iU" }] },
+    ];
+
+    const cs229MultiVideoLectures = [
+        { title: "Course Introduction", videos: [{ title: "Lecture 1", youtubeId: "jGwO_UgTS7I" }] },
+        { title: "Linear Regression & Gradient Descent", videos: [{ title: "Lecture 2", youtubeId: "4b4MUYve_U8" }] },
+        { title: "Locally Weighted & Logistic Regression", videos: [{ title: "Lecture 3", youtubeId: "het9HFqo1TQ" }] },
+        { title: "Perceptron & Generalized Linear Models", videos: [{ title: "Lecture 4", youtubeId: "iZTeva0WSTQ" }] },
+        { title: "GDA & Naive Bayes", videos: [{ title: "Lecture 5", youtubeId: "nt63k3bfXS0" }] },
+        { title: "Support Vector Machines", videos: [{ title: "Lecture 6", youtubeId: "lDwow4aOrtg" }] },
+        { title: "Kernels", videos: [{ title: "Lecture 7", youtubeId: "8NYoQiRANpg" }] },
+        { title: "Data Splits, Models & Cross-Validation", videos: [{ title: "Lecture 8", youtubeId: "rjbkWSTjHzM" }] },
+        { title: "Learning Theory (Discussion Section)", videos: [{ title: "Discussion Section", youtubeId: "iVOxMcumR4A" }] },
+        { title: "Decision Trees & Ensemble Methods", videos: [{ title: "Lecture 9", youtubeId: "wr9gUr-eWdA" }] },
+        { title: "Introduction to Neural Networks", videos: [{ title: "Lecture 10", youtubeId: "MfIjxPh6Pys" }] },
+        { title: "Backpropagation & Improving Neural Networks", videos: [{ title: "Lecture 11", youtubeId: "zUazLXZZA2U" }] },
+        { title: "Debugging ML Models & Error Analysis", videos: [{ title: "Lecture 12", youtubeId: "ORrStCArmP4" }] },
+        { title: "Expectation-Maximization Algorithms", videos: [{ title: "Lecture 13", youtubeId: "rVfZHWTwXSA" }] },
+        { title: "EM Algorithm & Factor Analysis", videos: [{ title: "Lecture 14", youtubeId: "tw6cmL5STuY" }] },
+        { title: "PCA & ICA", videos: [{ title: "Lecture 15", youtubeId: "dyb_cFywuik" }] },
+        { title: "Independent Component Analysis & RL", videos: [{ title: "Lecture 16", youtubeId: "YQA9lLdLig8" }] },
+        { title: "MDPs & Value/Policy Iteration", videos: [{ title: "Lecture 17", youtubeId: "d5gaWTo6kDM" }] },
+        { title: "Continuous State MDP & Model Simulation", videos: [{ title: "Lecture 18", youtubeId: "QFu5nuc-S0s" }] },
+        { title: "Reward Model & Linear Dynamical Systems", videos: [{ title: "Lecture 19", youtubeId: "0rt2CsEQv6U" }] },
+        { title: "RL Debugging & Diagnostics", videos: [{ title: "Lecture 20", youtubeId: "pLhPQynL0tY" }] },
+    ];
+
+    const cs224nMultiVideoLectures = [
+        { title: "Intro and Word Vectors", videos: [{ title: "Lecture 1", youtubeId: "DzpHeXVSC5I" }] },
+        { title: "Word Vectors and Language Models", videos: [{ title: "Lecture 2", youtubeId: "nBor4jfWetQ" }] },
+        { title: "Backpropagation, Neural Network", videos: [{ title: "Lecture 3", youtubeId: "HnliVHU2g9U" }] },
+        { title: "Dependency Parsing", videos: [{ title: "Lecture 4", youtubeId: "KVKvde-_MYc" }] },
+        { title: "Recurrent Neural Networks", videos: [{ title: "Lecture 5", youtubeId: "fyc0Jzr74y4" }] },
+        { title: "Sequence to Sequence Models", videos: [{ title: "Lecture 6", youtubeId: "Ba6Fn1-Jsfw" }] },
+        { title: "Attention, Final Projects and LLM Intro", videos: [{ title: "Lecture 7", youtubeId: "J7ruSOIzhrE" }] },
+        { title: "Self-Attention and Transformers", videos: [{ title: "Lecture 8", youtubeId: "LWMzyfvuehA" }] },
+        { title: "Pretraining", videos: [{ title: "Lecture 9", youtubeId: "DGfCRXuNA2w" }] },
+        { title: "Natural Language Generation", videos: [{ title: "Lecture 11 (2023)", youtubeId: "N9L32bFieEY" }] },
+        { title: "Post-training", videos: [{ title: "Lecture 10 - Archit Sharma", youtubeId: "35X6zlhoCy4" }] },
+        { title: "Benchmarking", videos: [{ title: "Lecture 11 - Yann Dubois", youtubeId: "TO0CqzqiArM" }] },
+        { title: "Efficient Training", videos: [{ title: "Lecture 12 - Shikhar Murty", youtubeId: "UVX7SYGCKkA" }] },
+        { title: "Brain-Computer Interfaces", videos: [{ title: "Lecture 13 - Chaofei Fan", youtubeId: "tfVgHsKpRC8" }] },
+        { title: "Reasoning and Agents", videos: [{ title: "Lecture 14 - Shikhar Murty", youtubeId: "I0tj4Y7xaOQ" }] },
+        { title: "After DPO", videos: [{ title: "Lecture 15 - Nathan Lambert", youtubeId: "dnF463_Ar9I" }] },
+        { title: "ConvNets and TreeRNNs", videos: [{ title: "Lecture 16", youtubeId: "S8d-7v3f5MQ" }] },
+        { title: "NLP, Linguistics, Philosophy", videos: [{ title: "Lecture 18", youtubeId: "NxH0Y78xcF4" }] },
+        { title: "Multimodal Deep Learning", videos: [{ title: "Lecture 16 (2023) - Douwe Kiela", youtubeId: "5vfIT5LOkR0" }] },
+        { title: "Model Interpretability & Editing", videos: [{ title: "Lec. 19 (2023) - Been Kim", youtubeId: "cd3pRpEtjLs" }] },
+        { title: "Python Tutorial", videos: [{ title: "Python Tutorial - Manasi Sharma", youtubeId: "8j4wpU98Q74" }] },
+        { title: "PyTorch Tutorial", videos: [{ title: "PyTorch Tutorial - Drew Kaul", youtubeId: "Uv0AIRr3ptg" }] },
+        { title: "Hugging Face Tutorial", videos: [{ title: "Hugging Face Tutorial - Eric Frankel", youtubeId: "b80by3Xk_A8" }] },
+    ];
+
+    const cs231nMultiVideoLectures = [
+        { title: "Introduction", videos: [{ title: "Lecture 1", youtubeId: "2fq9wYslV0A" }] },
+        { title: "Image Classification with Linear Classifiers", videos: [{ title: "Lecture 2", youtubeId: "pdqofxJeBN8" }] },
+        { title: "Regularization and Optimization", videos: [{ title: "Lecture 3", youtubeId: "dyNGd06MWn4" }] },
+        { title: "Neural Networks and Backpropagation", videos: [{ title: "Lecture 4", youtubeId: "25zD5qJHYsk" }] },
+        { title: "Image Classification with CNNs", videos: [{ title: "Lecture 5", youtubeId: "f3g1zGdxptI" }] },
+        { title: "CNN Architectures", videos: [{ title: "Lecture 6", youtubeId: "aVJy4O5TOk8" }] },
+        { title: "Recurrent Neural Networks", videos: [{ title: "Lecture 7", youtubeId: "kG2lAPBF7zA" }] },
+        { title: "Attention and Transformers", videos: [{ title: "Lecture 8", youtubeId: "RQowiOF_FvQ" }] },
+        { title: "Object Detection, Image Segmentation, Visualizing", videos: [{ title: "Lecture 9", youtubeId: "PTypu6GqEd4" }] },
+        { title: "Video Understanding", videos: [{ title: "Lecture 10", youtubeId: "wElqklprhPE" }] },
+        { title: "Large Scale Distributed Training", videos: [{ title: "Lecture 11", youtubeId: "9MvD-XsowsE" }] },
+        { title: "Self-Supervised Learning", videos: [{ title: "Lecture 12", youtubeId: "4howBU7THbM" }] },
+        { title: "Generative Models 1", videos: [{ title: "Lecture 13", youtubeId: "zbHXQRUNlH0" }] },
+        { title: "Generative Models 2", videos: [{ title: "Lecture 14", youtubeId: "Edr4uZFh4EE" }] },
+        { title: "3D Vision", videos: [{ title: "Lecture 15", youtubeId: "7lxrKDKtykM" }] },
+        { title: "Vision and Language", videos: [{ title: "Lecture 16", youtubeId: "mQOK0Mfyrkk" }] },
+        { title: "Robot Learning", videos: [{ title: "Lecture 17", youtubeId: "XSfmOH_xVSU" }] },
+        { title: "Human-Centered AI", videos: [{ title: "Lecture 18", youtubeId: "g8UaBfj6Sh8" }] },
+    ];
+
+    const cs234MultiVideoLectures = [
+        { title: "Introduction to Reinforcement Learning", videos: [{ title: "Lecture 1", youtubeId: "WsvFL-LjA6U" }] },
+        { title: "Tabular MDP Planning", videos: [{ title: "Lecture 2", youtubeId: "gHdsUUGcBC0" }] },
+        { title: "Policy Evaluation", videos: [{ title: "Lecture 3", youtubeId: "jjq51TRNVvk" }] },
+        { title: "Q Learning and Function Approximation", videos: [{ title: "Lecture 4", youtubeId: "b_wvosA70f8" }] },
+        { title: "Policy Search 1", videos: [{ title: "Lecture 5", youtubeId: "L6OVEmV3NcE" }] },
+        { title: "Policy Search 2", videos: [{ title: "Lecture 6", youtubeId: "8PwvNQ5WS-o" }] },
+        { title: "Policy Search 3", videos: [{ title: "Lecture 7", youtubeId: "4ngb0IZTg8I" }] },
+        { title: "Offline RL 1", videos: [{ title: "Lecture 8", youtubeId: "IEbuJtjqtMU" }] },
+        { title: "Guest Lecture on DPO", videos: [{ title: "Lecture 9 - Rafailov, Sharma, Mitchell", youtubeId: "Q7rl8ovBWwQ" }] },
+        { title: "Offline RL 3", videos: [{ title: "Lecture 10", youtubeId: "F6APGIAm5fw" }] },
+        { title: "Exploration 1", videos: [{ title: "Lecture 11", youtubeId: "sqYii3nd78w" }] },
+        { title: "Exploration 2", videos: [{ title: "Lecture 12", youtubeId: "gFJNsfg_35E" }] },
+        { title: "Exploration 3", videos: [{ title: "Lecture 13", youtubeId: "pc7oayCSZmQ" }] },
+        { title: "Multi-Agent Game Playing", videos: [{ title: "Lecture 14", youtubeId: "UgANzoWc0nc" }] },
+        { title: "RL Applications", videos: [{ title: "Lecture 15 - Brunskill & Webber", youtubeId: "FOlPpjNbHjE" }] },
+        { title: "Value Alignment", videos: [{ title: "Lecture 16", youtubeId: "eenJzay5aLo" }] },
+    ];
+
+    const cs238MultiVideoLectures = [
+        { title: "Validation of Safety Critical Systems I Explainability", videos: [{ title: "Video 1", youtubeId: "_U0EUX2E3k0" }] },
+        { title: "The Internal Details of TeX82 - Session 12", videos: [{ title: "Video 2", youtubeId: "eKttYyTf_30" }] },
+        { title: "The Internal Details of TeX82 - Session 11", videos: [{ title: "Video 3", youtubeId: "eotEOydYrco" }] },
+        { title: "The Internal Details of TeX82 - Session 10", videos: [{ title: "Video 4", youtubeId: "Uf3vpKWpu7A" }] },
+        { title: "The Internal Details of TeX82 - Session 9", videos: [{ title: "Video 5", youtubeId: "gza2a-JuWJg" }] },
+        { title: "The Internal Details of TeX82 - Session 8", videos: [{ title: "Video 6", youtubeId: "BMq3cCQ8ysQ" }] },
+        { title: "The Internal Details of TeX82 - Session 7", videos: [{ title: "Video 7", youtubeId: "nLJnNZxLEnk" }] },
+        { title: "The Internal Details of TeX82 - Session 6", videos: [{ title: "Video 8", youtubeId: "mxOZ-fSvr9Y" }] },
+        { title: "The Internal Details of TeX82 - Session 5", videos: [{ title: "Video 9", youtubeId: "WiHIOn1bemg" }] },
+        { title: "The Internal Details of TeX82 - Session 4", videos: [{ title: "Video 10", youtubeId: "9astSKJdsV0" }] },
+        { title: "The Internal Details of TeX82 - Session 2", videos: [{ title: "Video 11", youtubeId: "3RDtSdN7jPI" }] },
+        { title: "The Internal Details of TeX82 - Session 3", videos: [{ title: "Video 12", youtubeId: "7B_9keAK6Qk" }] },
+        { title: "The Internal Details of TeX82 - Session 1", videos: [{ title: "Video 13", youtubeId: "kAk9GBVKsgk" }] },
+        { title: "Bayesian Structure Learning", videos: [{ title: "Video 14", youtubeId: "FfT5VTfHj_s" }] },
+        { title: "Online Planning and Policy Search", videos: [{ title: "Video 15", youtubeId: "iLMzsV0JOHk" }] },
+        { title: "Machine Learning from Human Preferences I Guest Lecture", videos: [{ title: "Video 16", youtubeId: "HFrCySzH9QI" }] },
+        { title: "Policy Gradient Estimation & Optimization", videos: [{ title: "Video 17", youtubeId: "PgPNfPhG4Wc" }] },
+        { title: "Linear Constrained Optimization", videos: [{ title: "Video 18", youtubeId: "gmdrc9vGnJ0" }] },
+        { title: "Policy Gradient Estimation and Optimization", videos: [{ title: "Video 19", youtubeId: "-at-usqAIMc" }] },
+        { title: "Pi and The Art of Computer Programming", videos: [{ title: "Video 20", youtubeId: "3DKo219ZHMw" }] },
+        { title: "Robert W Floyd, In Memoriam", videos: [{ title: "Video 21", youtubeId: "OJsMXu3EPCw" }] },
+        { title: "CS144C classroom lecture about disk storage and B-trees", videos: [{ title: "Video 22", youtubeId: "ab9_2VRI4-A" }] },
+        { title: "Can computers help produce beautiful books?", videos: [{ title: "Video 23", youtubeId: "H7CKoZpNF3M" }] },
+        { title: "TeX For Beginners - Session 1", videos: [{ title: "Video 24", youtubeId: "jbrMBOF61e0" }] },
+        { title: "TeX For Beginners - Session 2", videos: [{ title: "Video 25", youtubeId: "YRnpzxtdntw" }] },
+        { title: "TeX For Beginners - Session 4", videos: [{ title: "Video 26", youtubeId: "Yp9vAbvTo9I" }] },
+        { title: "TeX For Beginners - Session 3", videos: [{ title: "Video 27", youtubeId: "V1EmAqGQSFA" }] },
+        { title: "TeX For Beginners - Session 5", videos: [{ title: "Video 28", youtubeId: "JSOPnsFQGU8" }] },
+        { title: "Advanced TeXarcana - Session 1", videos: [{ title: "Video 29", youtubeId: "cUXgJfy7W7k" }] },
+        { title: "Advanced TeXarcana - Session 2", videos: [{ title: "Video 30", youtubeId: "VkbucteDmWQ" }] },
+        { title: "Advanced TeXarcana - Session 3", videos: [{ title: "Video 31", youtubeId: "qfGUdCDWINY" }] },
+        { title: "Advanced TeXarcana - Session 4", videos: [{ title: "Video 32", youtubeId: "mQrNOv77PLE" }] },
+        { title: "Advanced TeXarcana - Session 5", videos: [{ title: "Video 33", youtubeId: "fBRSfnwWixY" }] },
+        { title: "Mathematical Writing - Computer aids to writing", videos: [{ title: "Video 34", youtubeId: "KZy5p-uxh34" }] },
+        { title: "Dancing Links", videos: [{ title: "Video 35", youtubeId: "_cR9zDlvP88" }] },
+        { title: "A Conjecture That Had To Be True", videos: [{ title: "Video 36", youtubeId: "BxQw4CdxLr8" }] },
+        { title: "Kenneth Arrow (In Memoriam)", videos: [{ title: "Video 37", youtubeId: "3U72v8LJiJ0" }] },
+        { title: "The Analysis of Algorithms", videos: [{ title: "Video 38", youtubeId: "vkUNH9r6UCI" }] },
+        { title: "Hamiltonian Paths in Antiquity", videos: [{ title: "Video 39", youtubeId: "DjZB9HvddQk" }] },
+        { title: "Hamiltonian Paths in Antiquity (360 Degrees)", videos: [{ title: "Video 40", youtubeId: "ZK4jnuCWl0Y" }] },
+        { title: "Universal Commafree Codes", videos: [{ title: "Video 41", youtubeId: "48iJx8FVuis" }] },
+        { title: "Marcian Ted Hoff", videos: [{ title: "Video 42", youtubeId: "Ei2fiZ5tR7o" }] },
+        { title: "(3/2)-ary Trees", videos: [{ title: "Video 43", youtubeId: "P4AaGQIo0HY" }] },
+        { title: "2014 Kailath Lecture: Donald Knuth", videos: [{ title: "Video 44", youtubeId: "gAXdDEQveKw" }] },
+        { title: "Morris Chang in conversation with John L. Hennessy", videos: [{ title: "Video 45", youtubeId: "wEh3ZgbvBrE" }] },
+        { title: "Kenneth Arrow", videos: [{ title: "Video 46", youtubeId: "kHBZCSss3oM" }] },
+        { title: "William J. Perry on Energy, National Security and Technology", videos: [{ title: "Video 47", youtubeId: "2qXvFrS22Cg" }] },
+        { title: "Jim Clark in conversation with John Hennessy", videos: [{ title: "Video 48", youtubeId: "gXuOH9B6kTM" }] },
+        { title: "Martin Hellman Lecture", videos: [{ title: "Video 49", youtubeId: "EFiTgOx3Z7A" }] },
+        { title: "Martin Hellman: The Wisdom of Foolishness", videos: [{ title: "Video 50", youtubeId: "XDgLDsUU7og" }] },
+        { title: "Craig Barrett", videos: [{ title: "Video 51", youtubeId: "LM3sfeimcS8" }] },
+        { title: "Andreas Bechtolsheim: The Process of Innovation", videos: [{ title: "Video 52", youtubeId: "08frKEAtav4" }] },
+        { title: "Bradford Parkinson: GPS for Humanity", videos: [{ title: "Video 53", youtubeId: "d6I6wFf-X_c" }] },
+        { title: "All Questions Answered", videos: [{ title: "Video 54", youtubeId: "CDokMxVtB3k" }] },
+    ];
+
+    const cs140MultiVideoLectures = [
+        { title: "Introduction", videos: [{ title: "Lecture 1", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-01-2022-04-17.mp4" }] },
+        { title: "OS: A Bird's-Eye View (Part 1)", videos: [{ title: "Lecture 2", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-02-2022-04-17.mp4" }] },
+        { title: "OS: A Bird's-Eye View (Part 2)", videos: [{ title: "Lecture 3", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-03-2022-04-20.mp4" }] },
+        { title: "OS: A Bird's-Eye View (Part 2)", videos: [{ title: "Lecture 4", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-04-2022-04-20.mp4" }] },
+        { title: "Processes", videos: [{ title: "Lecture 5", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-05-2022-04-21.mp4" }] },
+        { title: "Threads: An Instant Primer", videos: [{ title: "Lecture 6", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-06-2022-04-21.mp4" }] },
+        { title: "Race Conditions", videos: [{ title: "Lecture 7", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-07-2022-04-24.mp4" }] },
+        { title: "Semaphores: A First Cut", videos: [{ title: "Lecture 8", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-08-2022-04-24.mp4" }] },
+        { title: "Semaphores: A First Cut (April 27)", videos: [{ title: "Lecture 9", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-09-2022-04-27.mp4" }] },
+        { title: "Threads and Context Switching in BLITZ", videos: [{ title: "Lecture 10", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-10-2022-04-27.mp4" }] },
+        { title: "Monitors and Condition Variables", videos: [{ title: "Lecture 11", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-11-2022-04-28.mp4" }] },
+        { title: "Monitors and Condition Variables", videos: [{ title: "Lecture 12", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-12-2022-04-28.mp4" }] },
+        { title: "The Dining Philosophers", videos: [{ title: "Lecture 13", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-13-2022-05-04.mp4" }] },
+        { title: "The Sleeping Barber", videos: [{ title: "Lecture 14", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-14-2022-05-04.mp4" }] },
+        { title: "Threads: A Deep Dive", videos: [{ title: "Lecture 15", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-15-2022-05-05.mp4" }] },
+        { title: "Threads: A Deep Dive", videos: [{ title: "Lecture 16", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-16-2022-05-05.mp4" }] },
+        { title: "Context Switching: A Deep Dive", videos: [{ title: "Lecture 17", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-17-2022-05-08.mp4" }] },
+        { title: "Context Switching: A Deep Dive", videos: [{ title: "Lecture 18", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-18-2022-05-08.mp4" }] },
+        { title: "Scheduling Policies: Introduction", videos: [{ title: "Lecture 19", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-19-2022-05-11.mp4" }] },
+        { title: "MLFQ Scheduling", videos: [{ title: "Lecture 20", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-20-2022-05-11.mp4" }] },
+        { title: "Proportional Share Scheduling", videos: [{ title: "Lecture 21", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-21-2022-05-12.mp4" }] },
+        { title: "Multiprocessor Scheduling", videos: [{ title: "Lecture 22", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-22-2022-05-12.mp4" }] },
+        { title: "Virtualizing Memory: Introduction", videos: [{ title: "Lecture 23", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-23-2022-05-15.mp4" }] },
+        { title: "Segmentation", videos: [{ title: "Lecture 24", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-24-2022-05-15.mp4" }] },
+        { title: "Free Space Management", videos: [{ title: "Lecture 25", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-25-2022-05-18.mp4" }] },
+        { title: "Paging: Introduction", videos: [{ title: "Lecture 26", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-26-2022-05-18.mp4" }] },
+        { title: "Paging: Smaller Tables", videos: [{ title: "Lecture 27", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-27-2022-05-19.mp4" }] },
+        { title: "Paging: Faster Translations", videos: [{ title: "Lecture 28", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-28-2022-05-19.mp4" }] },
+        { title: "Beyond Physical Memory", videos: [{ title: "Lecture 29", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-29-2022-05-22.mp4" }] },
+        { title: "Beyond Physical Memory", videos: [{ title: "Lecture 30", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-30-2022-05-22.mp4" }] },
+        { title: "Beyond Physical Memory", videos: [{ title: "Lecture 31", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-31-2022-05-25.mp4" }] },
+        { title: "Page Replacement", videos: [{ title: "Lecture 32", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-32-2022-05-25.mp4" }] },
+        { title: "Page Replacement", videos: [{ title: "Lecture 33", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-33-2022-05-26.mp4" }] },
+        { title: "Page Replacement", videos: [{ title: "Lecture 34", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-34-2022-05-26.mp4" }] },
+        { title: "File System Implementation", videos: [{ title: "Lecture 35", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-35-2022-05-29.mp4" }] },
+        { title: "File System Implementation", videos: [{ title: "Lecture 36", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-36-2022-05-29.mp4" }] },
+        { title: "File System Implementation", videos: [{ title: "Lecture 37", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-37-2022-06-01.mp4" }] },
+        { title: "Journaling File Systems", videos: [{ title: "Lecture 38", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-38-2022-06-01.mp4" }] },
+        { title: "Journaling File Systems", videos: [{ title: "Lecture 39", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-39-2022-06-05.mp4" }] },
+        { title: "Input/Output Devices", videos: [{ title: "Lecture 40", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-40-2022-06-05.mp4" }] },
+        { title: "Virtual Machine Monitors", videos: [{ title: "Lecture 41", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-41-2022-06-08.mp4" }] },
+        { title: "Security: An Introduction", videos: [{ title: "Lecture 42", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-42-2022-06-08.mp4" }] },
+        { title: "Systems Security", videos: [{ title: "Lecture 43", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-43-2022-06-09.mp4" }] },
+        { title: "Systems Security", videos: [{ title: "Lecture 44", mp4Url: "https://s3.us-west-1.wasabisys.com/oscourse/videos/lecture-44-2022-06-09.mp4" }] },
+    ];
+
+    const cs143MultiVideoLectures = [
+        { title: "01-01-_Introduction", videos: [{ title: "Video 1", bvid: "BV17K4y147Bz", page: 1 }] },
+        { title: "01-02-_Structure_of_a_Compiler", videos: [{ title: "Video 2", bvid: "BV17K4y147Bz", page: 2 }] },
+        { title: "01-03-_The_Economy_of_Programming_Languages", videos: [{ title: "Video 3", bvid: "BV17K4y147Bz", page: 3 }] },
+        { title: "02-01-_Cool_Overview", videos: [{ title: "Video 4", bvid: "BV17K4y147Bz", page: 4 }] },
+        { title: "02-02-_Cool_Example_II", videos: [{ title: "Video 5", bvid: "BV17K4y147Bz", page: 5 }] },
+        { title: "02-03-_Cool_Example_III", videos: [{ title: "Video 6", bvid: "BV17K4y147Bz", page: 6 }] },
+        { title: "03-01-_Lexical_Analysis", videos: [{ title: "Video 7", bvid: "BV17K4y147Bz", page: 7 }] },
+        { title: "03-02-_Lexical_Analysis_Examples", videos: [{ title: "Video 8", bvid: "BV17K4y147Bz", page: 8 }] },
+        { title: "03-03-_Regular_Languages", videos: [{ title: "Video 9", bvid: "BV17K4y147Bz", page: 9 }] },
+        { title: "03-04-_Formal_Languages", videos: [{ title: "Video 10", bvid: "BV17K4y147Bz", page: 10 }] },
+        { title: "03-05-_Lexical_Specifications", videos: [{ title: "Video 11", bvid: "BV17K4y147Bz", page: 11 }] },
+        { title: "04-01-_Lexical_Specification", videos: [{ title: "Video 12", bvid: "BV17K4y147Bz", page: 12 }] },
+        { title: "04-02-_Finite_Automata", videos: [{ title: "Video 13", bvid: "BV17K4y147Bz", page: 13 }] },
+        { title: "04-03-_Regular_Expressions_into_NFAs", videos: [{ title: "Video 14", bvid: "BV17K4y147Bz", page: 14 }] },
+        { title: "04-04-_NFA_to_DFA", videos: [{ title: "Video 15", bvid: "BV17K4y147Bz", page: 15 }] },
+        { title: "04-05-_Implementing_Finite_Automata", videos: [{ title: "Video 16", bvid: "BV17K4y147Bz", page: 16 }] },
+        { title: "05-01-_Introduction_to_Parsing", videos: [{ title: "Video 17", bvid: "BV17K4y147Bz", page: 17 }] },
+        { title: "05-02-_Context_Free_Grammars", videos: [{ title: "Video 18", bvid: "BV17K4y147Bz", page: 18 }] },
+        { title: "05-03-_Derivations", videos: [{ title: "Video 19", bvid: "BV17K4y147Bz", page: 19 }] },
+        { title: "05-04-_Ambiguity", videos: [{ title: "Video 20", bvid: "BV17K4y147Bz", page: 20 }] },
+        { title: "06-01-_Error_Handling", videos: [{ title: "Video 21", bvid: "BV17K4y147Bz", page: 21 }] },
+        { title: "06-02-_Abstract_Syntax_Trees", videos: [{ title: "Video 22", bvid: "BV17K4y147Bz", page: 22 }] },
+        { title: "06-03-_Recursive_Descent_Parsing", videos: [{ title: "Video 23", bvid: "BV17K4y147Bz", page: 23 }] },
+        { title: "06-04-_Recursive_Descent_Algorithm", videos: [{ title: "Video 24", bvid: "BV17K4y147Bz", page: 24 }] },
+        { title: "06-04-1-_Recursive_Descent_Limitations", videos: [{ title: "Video 25", bvid: "BV17K4y147Bz", page: 25 }] },
+        { title: "06-05-_Left_Recursion", videos: [{ title: "Video 26", bvid: "BV17K4y147Bz", page: 26 }] },
+        { title: "07-01-_Predictive_Parsing", videos: [{ title: "Video 27", bvid: "BV17K4y147Bz", page: 27 }] },
+        { title: "07-02-_First_Sets", videos: [{ title: "Video 28", bvid: "BV17K4y147Bz", page: 28 }] },
+        { title: "07-03-_Follow_Sets", videos: [{ title: "Video 29", bvid: "BV17K4y147Bz", page: 29 }] },
+        { title: "07-04-_LL1_Parsing_Tables", videos: [{ title: "Video 30", bvid: "BV17K4y147Bz", page: 30 }] },
+        { title: "07-05-_Bottom-Up_Parsing", videos: [{ title: "Video 31", bvid: "BV17K4y147Bz", page: 31 }] },
+        { title: "07-06-_Shift-Reduce_Parsing", videos: [{ title: "Video 32", bvid: "BV17K4y147Bz", page: 32 }] },
+        { title: "08-01-_Handles", videos: [{ title: "Video 33", bvid: "BV17K4y147Bz", page: 33 }] },
+        { title: "08-02-_Recognizing_Handles", videos: [{ title: "Video 34", bvid: "BV17K4y147Bz", page: 34 }] },
+        { title: "08-03-_Recognizing_Viable_Prefixes", videos: [{ title: "Video 35", bvid: "BV17K4y147Bz", page: 35 }] },
+        { title: "08-04-_Valid_Items", videos: [{ title: "Video 36", bvid: "BV17K4y147Bz", page: 36 }] },
+        { title: "08-05-_SLR_Parsing", videos: [{ title: "Video 37", bvid: "BV17K4y147Bz", page: 37 }] },
+        { title: "08-06-_SLR_Parsing_Example", videos: [{ title: "Video 38", bvid: "BV17K4y147Bz", page: 38 }] },
+        { title: "08-07-_SLR_Improvements", videos: [{ title: "Video 39", bvid: "BV17K4y147Bz", page: 39 }] },
+        { title: "08-08-_SLR_Examples", videos: [{ title: "Video 40", bvid: "BV17K4y147Bz", page: 40 }] },
+        { title: "09_09-09-_Implementing_Type_Checking", videos: [{ title: "Video 41", bvid: "BV17K4y147Bz", page: 41 }] },
+        { title: "09-01-_Introduction_to_Semantic_Analysis", videos: [{ title: "Video 42", bvid: "BV17K4y147Bz", page: 42 }] },
+        { title: "09-02-_Scope", videos: [{ title: "Video 43", bvid: "BV17K4y147Bz", page: 43 }] },
+        { title: "09-03-_Symbol_Tables", videos: [{ title: "Video 44", bvid: "BV17K4y147Bz", page: 44 }] },
+        { title: "09-04-_Types", videos: [{ title: "Video 45", bvid: "BV17K4y147Bz", page: 45 }] },
+        { title: "09-05-_Type_Checking", videos: [{ title: "Video 46", bvid: "BV17K4y147Bz", page: 46 }] },
+        { title: "09-06-_Type_Environments", videos: [{ title: "Video 47", bvid: "BV17K4y147Bz", page: 47 }] },
+        { title: "09-07-_Subtyping", videos: [{ title: "Video 48", bvid: "BV17K4y147Bz", page: 48 }] },
+        { title: "09-08-_Typing_Methods", videos: [{ title: "Video 49", bvid: "BV17K4y147Bz", page: 49 }] },
+        { title: "10-01-_Static_vs._Dynamic_Typing", videos: [{ title: "Video 50", bvid: "BV17K4y147Bz", page: 50 }] },
+        { title: "10-02-_Self_Type", videos: [{ title: "Video 51", bvid: "BV17K4y147Bz", page: 51 }] },
+        { title: "10-03-_Self_Type_Operations", videos: [{ title: "Video 52", bvid: "BV17K4y147Bz", page: 52 }] },
+        { title: "10-04-_Self_Type_Usage", videos: [{ title: "Video 53", bvid: "BV17K4y147Bz", page: 53 }] },
+        { title: "10-05-_Self_Type_Checking", videos: [{ title: "Video 54", bvid: "BV17K4y147Bz", page: 54 }] },
+        { title: "10-06-_Error_Recovery", videos: [{ title: "Video 55", bvid: "BV17K4y147Bz", page: 55 }] },
+        { title: "11-01-_Runtime_Organization", videos: [{ title: "Video 56", bvid: "BV17K4y147Bz", page: 56 }] },
+        { title: "11-02-_Activations", videos: [{ title: "Video 57", bvid: "BV17K4y147Bz", page: 57 }] },
+        { title: "11-03-_Activation_Records", videos: [{ title: "Video 58", bvid: "BV17K4y147Bz", page: 58 }] },
+        { title: "11-04-_Globals_and_Heap", videos: [{ title: "Video 59", bvid: "BV17K4y147Bz", page: 59 }] },
+        { title: "11-05-_Alignment", videos: [{ title: "Video 60", bvid: "BV17K4y147Bz", page: 60 }] },
+        { title: "11-06-_Stack_Machines", videos: [{ title: "Video 61", bvid: "BV17K4y147Bz", page: 61 }] },
+        { title: "12-01-_Introduction_to_Code_Generation", videos: [{ title: "Video 62", bvid: "BV17K4y147Bz", page: 62 }] },
+        { title: "12-02-_Code_Generation_I", videos: [{ title: "Video 63", bvid: "BV17K4y147Bz", page: 63 }] },
+        { title: "12-03-_Code_Generation_II", videos: [{ title: "Video 64", bvid: "BV17K4y147Bz", page: 64 }] },
+        { title: "12-04-_Code_Generation_Example", videos: [{ title: "Video 65", bvid: "BV17K4y147Bz", page: 65 }] },
+        { title: "12-05-_Temporaries", videos: [{ title: "Video 66", bvid: "BV17K4y147Bz", page: 66 }] },
+        { title: "12-06-_Object_Layout", videos: [{ title: "Video 67", bvid: "BV17K4y147Bz", page: 67 }] },
+        { title: "13-01-_Semantics_Overview", videos: [{ title: "Video 68", bvid: "BV17K4y147Bz", page: 68 }] },
+        { title: "13-02-_Operational_Semantics", videos: [{ title: "Video 69", bvid: "BV17K4y147Bz", page: 69 }] },
+        { title: "13-03-_Cool_Semantics_I", videos: [{ title: "Video 70", bvid: "BV17K4y147Bz", page: 70 }] },
+        { title: "13-04-_Cool_Semantics_II", videos: [{ title: "Video 71", bvid: "BV17K4y147Bz", page: 71 }] },
+        { title: "14-01-_Intermediate_Code", videos: [{ title: "Video 72", bvid: "BV17K4y147Bz", page: 72 }] },
+        { title: "14-02-_Optimization_Overview", videos: [{ title: "Video 73", bvid: "BV17K4y147Bz", page: 73 }] },
+        { title: "14-03-_Local_Optimization", videos: [{ title: "Video 74", bvid: "BV17K4y147Bz", page: 74 }] },
+        { title: "14-04-_Peephole_Optimization", videos: [{ title: "Video 75", bvid: "BV17K4y147Bz", page: 75 }] },
+        { title: "15-01-_Dataflow_Analysis", videos: [{ title: "Video 76", bvid: "BV17K4y147Bz", page: 76 }] },
+        { title: "15-02-_Constant_Propagation", videos: [{ title: "Video 77", bvid: "BV17K4y147Bz", page: 77 }] },
+        { title: "15-03-_Analysis_of_Loops", videos: [{ title: "Video 78", bvid: "BV17K4y147Bz", page: 78 }] },
+        { title: "15-04-_Orderings", videos: [{ title: "Video 79", bvid: "BV17K4y147Bz", page: 79 }] },
+        { title: "15-05-_Liveness_Analysis", videos: [{ title: "Video 80", bvid: "BV17K4y147Bz", page: 80 }] },
+        { title: "16-01-_Register_Allocation", videos: [{ title: "Video 81", bvid: "BV17K4y147Bz", page: 81 }] },
+        { title: "16-02-_Graph_Coloring", videos: [{ title: "Video 82", bvid: "BV17K4y147Bz", page: 82 }] },
+        { title: "16-03-_Spilling", videos: [{ title: "Video 83", bvid: "BV17K4y147Bz", page: 83 }] },
+        { title: "16-04-_Managing_Caches", videos: [{ title: "Video 84", bvid: "BV17K4y147Bz", page: 84 }] },
+        { title: "17-01-_Automatic_Memory_Management", videos: [{ title: "Video 85", bvid: "BV17K4y147Bz", page: 85 }] },
+        { title: "17-02-_Mark_and_Sweep", videos: [{ title: "Video 86", bvid: "BV17K4y147Bz", page: 86 }] },
+        { title: "17-03-_Stop_and_Copy", videos: [{ title: "Video 87", bvid: "BV17K4y147Bz", page: 87 }] },
+        { title: "17-04-_Conservative_Collection", videos: [{ title: "Video 88", bvid: "BV17K4y147Bz", page: 88 }] },
+        { title: "17-05-_Reference_Counting", videos: [{ title: "Video 89", bvid: "BV17K4y147Bz", page: 89 }] },
+        { title: "18-01-_Java", videos: [{ title: "Video 90", bvid: "BV17K4y147Bz", page: 90 }] },
+        { title: "18-02-_Java_Arrays", videos: [{ title: "Video 91", bvid: "BV17K4y147Bz", page: 91 }] },
+        { title: "18-03-_Java_Exceptions", videos: [{ title: "Video 92", bvid: "BV17K4y147Bz", page: 92 }] },
+        { title: "18-04-_Java_Interfaces", videos: [{ title: "Video 93", bvid: "BV17K4y147Bz", page: 93 }] },
+        { title: "18-05-_Java_Coercions", videos: [{ title: "Video 94", bvid: "BV17K4y147Bz", page: 94 }] },
+        { title: "18-06-_Java_Threads", videos: [{ title: "Video 95", bvid: "BV17K4y147Bz", page: 95 }] },
+        { title: "18-07-_Other_Topics", videos: [{ title: "Video 96", bvid: "BV17K4y147Bz", page: 96 }] },
+        { title: "DeduceIt_Demo", videos: [{ title: "Video 97", bvid: "BV17K4y147Bz", page: 97 }] },
+    ];
+
+    const cs144MultiVideoLectures = [
+        { title: "CS144 Fall 2013, Video 2-5: Error detection", videos: [{ title: "Video 1", youtubeId: "8DRD-vQam60" }] },
+        { title: "CS144 Fall 2013, Video 2-6a: Finite state machines 1", videos: [{ title: "Video 2", youtubeId: "FYNk9VrMWwc" }] },
+        { title: "CS144 Fall 2013, Video 2-0: Transport (intro)", videos: [{ title: "Video 3", youtubeId: "1CP6aF09OjI" }] },
+        { title: "CS144 Fall 2013, Video 2-1: TCP service model", videos: [{ title: "Video 4", youtubeId: "l3AhPe4WK0E" }] },
+        { title: "CS144 Fall 2013, Video 2-2: UDP service model", videos: [{ title: "Video 5", youtubeId: "umqdobwwbFc" }] },
+        { title: "CS144 Fall 2013, Video 2-3: ICMP service model", videos: [{ title: "Video 6", youtubeId: "LSobIghyLGU" }] },
+        { title: "CS144 Fall 2013, Video 2-4: End to End Principle", videos: [{ title: "Video 7", youtubeId: "mZcthYLpF9Q" }] },
+        { title: "CS144 Fall 2013, Video 2-12: Transport (recap)", videos: [{ title: "Video 8", youtubeId: "vtJ2JzhWTsk" }] },
+        { title: "CS144 Fall 2013, Video 4-0: Congestion Control", videos: [{ title: "Video 9", youtubeId: "nh970YyKRDA" }] },
+        { title: "4-4 AIMD Multiple Flows", videos: [{ title: "Video 10", youtubeId: "OAHga4mQr_A" }] },
+        { title: "CS144 Fall 2013, Video 4-11: Congestion Control", videos: [{ title: "Video 11", youtubeId: "JMm2vDkCUJg" }] },
+        { title: "CS144 Fall 2013, Video 6-0: Routing", videos: [{ title: "Video 12", youtubeId: "yfIyxDhhWHU" }] },
+        { title: "CS144 Fall 2013, Video 6-9: Routing", videos: [{ title: "Video 13", youtubeId: "VJoYi6UZiCg" }] },
+        { title: "CS144 Fall 2013, Video 8-0: Security", videos: [{ title: "Video 14", youtubeId: "LHbynG7iYEY" }] },
+        { title: "CS144 Fall 2013, Video 8-1: Introduction to Network Security", videos: [{ title: "Video 15", youtubeId: "SERez34ww5c" }] },
+        { title: "CS144 Fall 2013, Video 8-2: Layer 2 Attacks", videos: [{ title: "Video 16", youtubeId: "GkqPLrCqkeo" }] },
+        { title: "CS144 Fall 2013, Video 8-2a: MAC Overflow Attack", videos: [{ title: "Video 17", youtubeId: "YC_oLgYd_qU" }] },
+        { title: "CS144 Fall 2013, Video 8-2b: DHCP Attack Demo", videos: [{ title: "Video 18", youtubeId: "_eW_SDyhj-U" }] },
+        { title: "CS144 Fall 2013, Video 8-3: Layer 3 Attacks", videos: [{ title: "Video 19", youtubeId: "6vudh-STvBM" }] },
+        { title: "CS144 Fall 2013, Video 8-5: Security Principles", videos: [{ title: "Video 20", youtubeId: "LxtJoXxeDyE" }] },
+        { title: "CS144 Fall 2013, Video 8-6a: Confidentiality", videos: [{ title: "Video 21", youtubeId: "Pr_vrfRYuvQ" }] },
+        { title: "CS144 Fall 2013, Video 8-7: Integrity", videos: [{ title: "Video 22", youtubeId: "sRBuAB0reNY" }] },
+        { title: "CS144 Fall 2013, Video 8-8: Public Key Cryptography", videos: [{ title: "Video 23", youtubeId: "aSh16igtLf4" }] },
+        { title: "CS144 Fall 2013, Video 8-9: Certificates", videos: [{ title: "Video 24", youtubeId: "gQ33dMv1aJ8" }] },
+        { title: "CS144 Fall 2013, Video 8-10a: TLS", videos: [{ title: "Video 25", youtubeId: "gsLEz6sRPr8" }] },
+        { title: "CS144 Fall 2013, Video 8-11: Security", videos: [{ title: "Video 26", youtubeId: "CxuyR9G1HwA" }] },
+        { title: "4 Nandita Interview", videos: [{ title: "Video 27", youtubeId: "OVhJEn3cu5M" }] },
+        { title: "BGP: Putting the Inter in Internet", videos: [{ title: "Video 28", youtubeId: "HAhzj1E1ejI" }] },
+        { title: "Sanjit Biswas, CEO of Meraki (interviewed by Nick M)", videos: [{ title: "Video 29", youtubeId: "pHULhFc8pwA" }] },
+        { title: "Reed Hundt on security and openness", videos: [{ title: "Video 30", youtubeId: "0jwuR8YANIk" }] },
+    ];
+
+    const cs149MultiVideoLectures = [
+        { title: "Lecture 1 - Why Parallelism? Why Efficiency?", videos: [{ title: "Video 1", youtubeId: "V1tINV2-9p4" }] },
+        { title: "Lecture 2 - A Modern Multi-Core Processor", videos: [{ title: "Video 2", youtubeId: "CKmNpAO5rS4" }] },
+        { title: "Lecture 3 - Multi-core Arch Part II + ISPC Programming Abstractions", videos: [{ title: "Video 3", youtubeId: "F4bVSyz_jxo" }] },
+        { title: "Lecture 4 - Parallel Programming Basics", videos: [{ title: "Video 4", youtubeId: "0-ztm8SKq70" }] },
+        { title: "Lecture 5 - Performance Optimization I: Work Distribution and Scheduling", videos: [{ title: "Video 5", youtubeId: "mmO2Ri_dJkk" }] },
+        { title: "Lecture 6 - Performance Optimization II: Locality, Communication, and Contention", videos: [{ title: "Video 6", youtubeId: "Mhdny2JNhmc" }] },
+        { title: "Lecture 7 - GPU architecture and CUDA Programming", videos: [{ title: "Video 7", youtubeId: "qQTDF0CBoxE" }] },
+        { title: "Lecture 8 - Data-Parallel Thinking", videos: [{ title: "Video 8", youtubeId: "Ba3TqxSgnTk" }] },
+        { title: "Lecture 9 - Distributed Data-Parallel Computing Using Spark", videos: [{ title: "Video 9", youtubeId: "jaMWmLq422U" }] },
+        { title: "Lecture 10 - Efficiently Evaluating DNNs on GPUs", videos: [{ title: "Video 10", youtubeId: "qbKtU0X6-WU" }] },
+        { title: "Lecture 11 - Cache Coherence", videos: [{ title: "Video 11", youtubeId: "lrCfG2CPDEw" }] },
+        { title: "Lecture 12 - Memory Consistency", videos: [{ title: "Video 12", youtubeId: "nFXWmo9MFiY" }] },
+        { title: "Lecture 13 - Fine-Grained Synchronization and Lock-Free Programming", videos: [{ title: "Video 13", youtubeId: "GA1ObImqaMo" }] },
+        { title: "Lecture 14 - Midterm Review", videos: [{ title: "Video 14", youtubeId: "nHPKVtLz5Ko" }] },
+        { title: "Lecture 15 - Domain Specific Programming Languages", videos: [{ title: "Video 15", youtubeId: "sRuyBNxCkGQ" }] },
+        { title: "Lecture 16 - Transactional Memory 1", videos: [{ title: "Video 16", youtubeId: "rFFf3WIJ7BA" }] },
+        { title: "Lecture 17 - Transactional Memory 2", videos: [{ title: "Video 17", youtubeId: "Tbk1vnYLQqI" }] },
+        { title: "Lecture 18 - Hardware Specialization", videos: [{ title: "Video 18", youtubeId: "2tAb3EgyjNw" }] },
+        { title: "Lecture 19 - Accessing Memory + Course Wrap Up", videos: [{ title: "Video 19", youtubeId: "J7v_ubArrno" }] },
+    ];
+
+    const cs155MultiVideoLectures = [
+        { title: "1. Introduction, Threat Models", videos: [{ title: "Video 1", youtubeId: "GqmQg-cszw4" }] },
+        { title: "2. Control Hijacking Attacks", videos: [{ title: "Video 2", youtubeId: "r4KjHEgg9Wg" }] },
+        { title: "3. Buffer Overflow Exploits and Defenses", videos: [{ title: "Video 3", youtubeId: "xSQxaie_h1o" }] },
+        { title: "4. Privilege Separation", videos: [{ title: "Video 4", youtubeId: "dNl22h1kW1k" }] },
+        { title: "6. Capabilities", videos: [{ title: "Video 5", youtubeId: "TQhmua7Z2cY" }] },
+        { title: "7. Sandboxing Native Code", videos: [{ title: "Video 6", youtubeId: "I0Psvvky-44" }] },
+        { title: "8. Web Security Model", videos: [{ title: "Video 7", youtubeId: "eRJ_r8WF1Y0" }] },
+        { title: "9. Securing Web Applications", videos: [{ title: "Video 8", youtubeId: "WlmKwIe9z1Q" }] },
+        { title: "10. Symbolic Execution", videos: [{ title: "Video 9", youtubeId: "yRVZPvHYHzw" }] },
+        { title: "11. Ur/Web", videos: [{ title: "Video 10", youtubeId: "XMEFdofERLI" }] },
+        { title: "12. Network Security", videos: [{ title: "Video 11", youtubeId: "BZTWXl9QNK8" }] },
+        { title: "13. Network Protocols", videos: [{ title: "Video 12", youtubeId: "QOtA76ga_fY" }] },
+        { title: "14. SSL and HTTPS", videos: [{ title: "Video 13", youtubeId: "q1OF_0ICt9A" }] },
+        { title: "15. Medical Software", videos: [{ title: "Video 14", youtubeId: "bA3xCpYLA34" }] },
+        { title: "16. Side-Channel Attacks", videos: [{ title: "Video 15", youtubeId: "3v5Von-oNUg" }] },
+        { title: "17. User Authentication", videos: [{ title: "Video 16", youtubeId: "MT7X17ZRo1U" }] },
+        { title: "18. Private Browsing", videos: [{ title: "Video 17", youtubeId: "YTWXAFJf8bw" }] },
+        { title: "19. Anonymous Communication", videos: [{ title: "Video 18", youtubeId: "OgGTJIgNewE" }] },
+        { title: "20. Mobile Phone Security", videos: [{ title: "Video 19", youtubeId: "uT7BXusDgDM" }] },
+        { title: "21. Data Tracking", videos: [{ title: "Video 20", youtubeId: "WG5UbMrUiLU" }] },
+        { title: "22. Guest Lecture by MIT IS&T", videos: [{ title: "Video 21", youtubeId: "2PO8h1pVW50" }] },
+        { title: "23. Security Economics", videos: [{ title: "Video 22", youtubeId: "8PdnOZI7H5E" }] },
+    ];
+
+    const cs240MultiVideoLectures = [
+        { title: "1. What is an Operating System?", videos: [{ title: "Video 1", archiveId: "ucberkeley_webcast_ToySNfwFOyc" }] },
+        { title: "2. TDD (Test-Driven Design), BDD (Behavior-Driven Design), and all that", videos: [{ title: "Video 2", archiveId: "ucberkeley_webcast_f9Fr7y5FJ94" }] },
+        { title: "3. OS Structure: Monolithic, Microkernel, Exokernel, Multikernel", videos: [{ title: "Video 3", archiveId: "ucberkeley_webcast_5bwLaaP4weo" }] },
+        { title: "4. OS Structure (cont.): Modern Architecture", videos: [{ title: "Video 4", archiveId: "ucberkeley_webcast_34QM3PLk_Lo" }] },
+        { title: "5. Processes, Fork, Exec, Interprocess Communication/Optimization", videos: [{ title: "Video 5", archiveId: "ucberkeley_webcast_cBZE8Id2vlI" }] },
+        { title: "6. Parallelism and Synchronization", videos: [{ title: "Video 6", archiveId: "ucberkeley_webcast_XlFv3t5Hy28" }] },
+        { title: "7. Synchronization and Scheduling Review", videos: [{ title: "Video 7", archiveId: "ucberkeley_webcast_oEdqyWM_30o" }] },
+        { title: "8. Synchronization Approaches", videos: [{ title: "Video 8", archiveId: "ucberkeley_webcast_wCFhmu2Csxk" }] },
+        { title: "9. Synchronization (cont.), Scheduling Review", videos: [{ title: "Video 9", archiveId: "ucberkeley_webcast_aK2wUT251aA" }] },
+        { title: "10. Scheduling (cont.), Real-Time Scheduling", videos: [{ title: "Video 10", archiveId: "ucberkeley_webcast_hYl_i9iK3pw" }] },
+        { title: "11. Scheduling (cont.), Real-Time Scheduling", videos: [{ title: "Video 11", archiveId: "ucberkeley_webcast_PavfiyTgqAs" }] },
+        { title: "12. Dominant Resource Fairness (DRF), Two-Level Scheduling", videos: [{ title: "Video 12", archiveId: "ucberkeley_webcast_nBOwIkNu3q0" }] },
+        { title: "13. Two-Level Scheduling (cont.), Segmentation/Paging/Virtual Memory", videos: [{ title: "Video 13", archiveId: "ucberkeley_webcast_s7TNsvbq9tI" }] },
+        { title: "14. Segmentation, Paging, Virtual Memory", videos: [{ title: "Video 14", archiveId: "ucberkeley_webcast_lOhENu_LY7U" }] },
+        { title: "15. Virtual Memory and Paging", videos: [{ title: "Video 15", archiveId: "ucberkeley_webcast_gh90w5pItf8" }] },
+        { title: "16. Virtual Memory and Paging (cont.), Devices", videos: [{ title: "Video 16", archiveId: "ucberkeley_webcast_foz4oaErIFw" }] },
+        { title: "17. Device Drivers: Slab Allocator", videos: [{ title: "Video 17", archiveId: "ucberkeley_webcast_-QI3Nc_Ymjg" }] },
+        { title: "18. Device Drivers (cont.): IO Buses, Interrupts, Device Driver Structure", videos: [{ title: "Video 18", archiveId: "ucberkeley_webcast_xXb_Wt-DBKU" }] },
+        { title: "19. Disk Modeling, File Systems Intro", videos: [{ title: "Video 19", archiveId: "ucberkeley_webcast_uJnakBXap9M" }] },
+        { title: "20. File Systems (cont.): Reliability, Journaling, Durability, Scheduling", videos: [{ title: "Video 20", archiveId: "ucberkeley_webcast_eeU1K2gB5Ig" }] },
+        { title: "21. File Systems (cont.): Distributed Storage, File Cache, Virtual Filesystem Switch", videos: [{ title: "Video 21", archiveId: "ucberkeley_webcast_JoOTk3Y6TQw" }] },
+        { title: "22. Distributed File Systems (cont.): VFS Layer, Application-Specific File Systems", videos: [{ title: "Video 22", archiveId: "ucberkeley_webcast_4oPjQdT07EY" }] },
+        { title: "23. Application-Specific File Systems, Deep Archival Storage", videos: [{ title: "Video 23", archiveId: "ucberkeley_webcast_hBrNyhyH7rk" }] },
+        { title: "24. Security and Protection (cont.)", videos: [{ title: "Video 24", archiveId: "ucberkeley_webcast_TlF4F6eZeUg" }] },
+        { title: "25. The Swarm, Extreme Distributed Storage, Quantum Computing", videos: [{ title: "Video 25", archiveId: "ucberkeley_webcast_AAlJtNKU1LQ" }] },
+    ];
+
     const practiceLabMeta = {
         id: PRACTICE_LAB_COURSE_ID,
         code: "PRACTICE 001",
@@ -1771,6 +2211,390 @@
         });
     }
 
+    function buildCs221Lessons(meta, completedLessons) {
+        return cs221MultiVideoLectures.map((lecture, lectureIndex) => {
+            const lectureNumber = lectureIndex + 1;
+            const lessonId = `${meta.id}-lecture-${lectureNumber}`;
+            const isCompleted = false;
+            const isOpen = lectureNumber <= Math.max(completedLessons + 1, 3);
+
+            const videoItems = lecture.videos.map((video, videoIndex) => ({
+                id: `${lessonId}-video-${videoIndex + 1}`,
+                title: video.title,
+                duration: `${50 + ((lectureIndex + videoIndex) % 15)}:00`,
+                sourceType: "youtube",
+                youtube: `https://www.youtube.com/embed/${video.youtubeId}`,
+            }));
+
+            return {
+                id: lessonId,
+                title: `Lecture ${lectureNumber}: ${lecture.title}`,
+                duration: `${videoItems.length} video${videoItems.length > 1 ? "s" : ""}`,
+                completed: isCompleted,
+                locked: !isOpen,
+                videoItems,
+                activeVideoItemId: videoItems[0]?.id || "",
+                videoSources: {
+                    youtube: videoItems[0]?.youtube || "",
+                    html5: "",
+                },
+                captions: { en: null },
+            };
+        });
+    }
+
+    function buildCs229Lessons(meta, completedLessons) {
+        return cs229MultiVideoLectures.map((lecture, lectureIndex) => {
+            const lectureNumber = lectureIndex + 1;
+            const lessonId = `${meta.id}-lecture-${lectureNumber}`;
+            const isCompleted = false;
+            const isOpen = lectureNumber <= Math.max(completedLessons + 1, 3);
+
+            const videoItems = lecture.videos.map((video, videoIndex) => ({
+                id: `${lessonId}-video-${videoIndex + 1}`,
+                title: video.title,
+                duration: `${50 + ((lectureIndex + videoIndex) % 15)}:00`,
+                sourceType: "youtube",
+                youtube: `https://www.youtube.com/embed/${video.youtubeId}`,
+            }));
+
+            return {
+                id: lessonId,
+                title: `Lecture ${lectureNumber}: ${lecture.title}`,
+                duration: `${videoItems.length} video${videoItems.length > 1 ? "s" : ""}`,
+                completed: isCompleted,
+                locked: !isOpen,
+                videoItems,
+                activeVideoItemId: videoItems[0]?.id || "",
+                videoSources: {
+                    youtube: videoItems[0]?.youtube || "",
+                    html5: "",
+                },
+                captions: { en: null },
+            };
+        });
+    }
+
+    function buildCs224nLessons(meta, completedLessons) {
+        return cs224nMultiVideoLectures.map((lecture, lectureIndex) => {
+            const lectureNumber = lectureIndex + 1;
+            const lessonId = `${meta.id}-lecture-${lectureNumber}`;
+            const isCompleted = false;
+            const isOpen = lectureNumber <= Math.max(completedLessons + 1, 3);
+
+            const videoItems = lecture.videos.map((video, videoIndex) => ({
+                id: `${lessonId}-video-${videoIndex + 1}`,
+                title: video.title,
+                duration: `${50 + ((lectureIndex + videoIndex) % 15)}:00`,
+                sourceType: "youtube",
+                youtube: `https://www.youtube.com/embed/${video.youtubeId}`,
+            }));
+
+            return {
+                id: lessonId,
+                title: `Lecture ${lectureNumber}: ${lecture.title}`,
+                duration: `${videoItems.length} video${videoItems.length > 1 ? "s" : ""}`,
+                completed: isCompleted,
+                locked: !isOpen,
+                videoItems,
+                activeVideoItemId: videoItems[0]?.id || "",
+                videoSources: {
+                    youtube: videoItems[0]?.youtube || "",
+                    html5: "",
+                },
+                captions: { en: null },
+            };
+        });
+    }
+
+    function buildCs231nLessons(meta, completedLessons) {
+        return cs231nMultiVideoLectures.map((lecture, lectureIndex) => {
+            const lectureNumber = lectureIndex + 1;
+            const lessonId = `${meta.id}-lecture-${lectureNumber}`;
+            const isCompleted = false;
+            const isOpen = lectureNumber <= Math.max(completedLessons + 1, 3);
+
+            const videoItems = lecture.videos.map((video, videoIndex) => ({
+                id: `${lessonId}-video-${videoIndex + 1}`,
+                title: video.title,
+                duration: `${50 + ((lectureIndex + videoIndex) % 15)}:00`,
+                sourceType: "youtube",
+                youtube: `https://www.youtube.com/embed/${video.youtubeId}`,
+            }));
+
+            return {
+                id: lessonId,
+                title: `Lecture ${lectureNumber}: ${lecture.title}`,
+                duration: `${videoItems.length} video${videoItems.length > 1 ? "s" : ""}`,
+                completed: isCompleted,
+                locked: !isOpen,
+                videoItems,
+                activeVideoItemId: videoItems[0]?.id || "",
+                videoSources: {
+                    youtube: videoItems[0]?.youtube || "",
+                    html5: "",
+                },
+                captions: { en: null },
+            };
+        });
+    }
+
+    function buildCs234Lessons(meta, completedLessons) {
+        return cs234MultiVideoLectures.map((lecture, lectureIndex) => {
+            const lectureNumber = lectureIndex + 1;
+            const lessonId = `${meta.id}-lecture-${lectureNumber}`;
+            const isCompleted = false;
+            const isOpen = lectureNumber <= Math.max(completedLessons + 1, 3);
+
+            const videoItems = lecture.videos.map((video, videoIndex) => ({
+                id: `${lessonId}-video-${videoIndex + 1}`,
+                title: video.title,
+                duration: `${50 + ((lectureIndex + videoIndex) % 15)}:00`,
+                sourceType: "youtube",
+                youtube: `https://www.youtube.com/embed/${video.youtubeId}`,
+            }));
+
+            return {
+                id: lessonId,
+                title: `Lecture ${lectureNumber}: ${lecture.title}`,
+                duration: `${videoItems.length} video${videoItems.length > 1 ? "s" : ""}`,
+                completed: isCompleted,
+                locked: !isOpen,
+                videoItems,
+                activeVideoItemId: videoItems[0]?.id || "",
+                videoSources: {
+                    youtube: videoItems[0]?.youtube || "",
+                    html5: "",
+                },
+                captions: { en: null },
+            };
+        });
+    }
+
+    function buildCs238Lessons(meta, completedLessons) {
+        return cs238MultiVideoLectures.map((lecture, lectureIndex) => {
+            const lectureNumber = lectureIndex + 1;
+            const lessonId = `${meta.id}-lecture-${lectureNumber}`;
+            const isCompleted = false;
+            const isOpen = lectureNumber <= Math.max(completedLessons + 1, 3);
+
+            const videoItems = lecture.videos.map((video, videoIndex) => ({
+                id: `${lessonId}-video-${videoIndex + 1}`,
+                title: video.title,
+                duration: `${50 + ((lectureIndex + videoIndex) % 15)}:00`,
+                sourceType: "youtube",
+                youtube: `https://www.youtube.com/embed/${video.youtubeId}`,
+            }));
+
+            return {
+                id: lessonId,
+                title: `Video ${lectureNumber}: ${lecture.title}`,
+                duration: `${videoItems.length} video${videoItems.length > 1 ? "s" : ""}`,
+                completed: isCompleted,
+                locked: !isOpen,
+                videoItems,
+                activeVideoItemId: videoItems[0]?.id || "",
+                videoSources: {
+                    youtube: videoItems[0]?.youtube || "",
+                    html5: "",
+                },
+                captions: { en: null },
+            };
+        });
+    }
+
+    function buildCs140Lessons(meta, completedLessons) {
+        return cs140MultiVideoLectures.map((lecture, lectureIndex) => {
+            const lectureNumber = lectureIndex + 1;
+            const lessonId = `${meta.id}-lecture-${lectureNumber}`;
+            const isCompleted = false;
+            const isOpen = lectureNumber <= Math.max(completedLessons + 1, 3);
+
+            const videoItems = lecture.videos.map((video, videoIndex) => ({
+                id: `${lessonId}-video-${videoIndex + 1}`,
+                title: video.title,
+                duration: `${50 + ((lectureIndex + videoIndex) % 15)}:00`,
+                sourceType: "html5",
+                html5: video.mp4Url,
+            }));
+
+            return {
+                id: lessonId,
+                title: `Lecture ${lectureNumber}: ${lecture.title}`,
+                duration: `${videoItems.length} video${videoItems.length > 1 ? "s" : ""}`,
+                completed: isCompleted,
+                locked: !isOpen,
+                videoItems,
+                activeVideoItemId: videoItems[0]?.id || "",
+                videoSources: {
+                    youtube: "",
+                    html5: videoItems[0]?.html5 || "",
+                },
+                captions: { en: null },
+            };
+        });
+    }
+
+    function buildCs143Lessons(meta, completedLessons) {
+        return cs143MultiVideoLectures.map((lecture, lectureIndex) => {
+            const lectureNumber = lectureIndex + 1;
+            const lessonId = `${meta.id}-lecture-${lectureNumber}`;
+            const isCompleted = false;
+            const isOpen = lectureNumber <= Math.max(completedLessons + 1, 3);
+
+            const videoItems = lecture.videos.map((video, videoIndex) => ({
+                id: `${lessonId}-video-${videoIndex + 1}`,
+                title: video.title,
+                duration: `${50 + ((lectureIndex + videoIndex) % 15)}:00`,
+                sourceType: "youtube",
+                youtube: `https://player.bilibili.com/player.html?bvid=${video.bvid}&p=${video.page}`,
+            }));
+
+            return {
+                id: lessonId,
+                title: `Video ${lectureNumber}: ${lecture.title}`,
+                duration: `${videoItems.length} video${videoItems.length > 1 ? "s" : ""}`,
+                completed: isCompleted,
+                locked: !isOpen,
+                videoItems,
+                activeVideoItemId: videoItems[0]?.id || "",
+                videoSources: {
+                    youtube: videoItems[0]?.youtube || "",
+                    html5: "",
+                },
+                captions: { en: null },
+            };
+        });
+    }
+
+    function buildCs144Lessons(meta, completedLessons) {
+        return cs144MultiVideoLectures.map((lecture, lectureIndex) => {
+            const lectureNumber = lectureIndex + 1;
+            const lessonId = `${meta.id}-lecture-${lectureNumber}`;
+            const isCompleted = false;
+            const isOpen = lectureNumber <= Math.max(completedLessons + 1, 3);
+
+            const videoItems = lecture.videos.map((video, videoIndex) => ({
+                id: `${lessonId}-video-${videoIndex + 1}`,
+                title: video.title,
+                duration: `${50 + ((lectureIndex + videoIndex) % 15)}:00`,
+                sourceType: "youtube",
+                youtube: `https://www.youtube.com/embed/${video.youtubeId}`,
+            }));
+
+            return {
+                id: lessonId,
+                title: `Video ${lectureNumber}: ${lecture.title}`,
+                duration: `${videoItems.length} video${videoItems.length > 1 ? "s" : ""}`,
+                completed: isCompleted,
+                locked: !isOpen,
+                videoItems,
+                activeVideoItemId: videoItems[0]?.id || "",
+                videoSources: {
+                    youtube: videoItems[0]?.youtube || "",
+                    html5: "",
+                },
+                captions: { en: null },
+            };
+        });
+    }
+
+    function buildCs149Lessons(meta, completedLessons) {
+        return cs149MultiVideoLectures.map((lecture, lectureIndex) => {
+            const lectureNumber = lectureIndex + 1;
+            const lessonId = `${meta.id}-lecture-${lectureNumber}`;
+            const isCompleted = false;
+            const isOpen = lectureNumber <= Math.max(completedLessons + 1, 3);
+
+            const videoItems = lecture.videos.map((video, videoIndex) => ({
+                id: `${lessonId}-video-${videoIndex + 1}`,
+                title: video.title,
+                duration: `${50 + ((lectureIndex + videoIndex) % 15)}:00`,
+                sourceType: "youtube",
+                youtube: `https://www.youtube.com/embed/${video.youtubeId}`,
+            }));
+
+            return {
+                id: lessonId,
+                title: `Video ${lectureNumber}: ${lecture.title}`,
+                duration: `${videoItems.length} video${videoItems.length > 1 ? "s" : ""}`,
+                completed: isCompleted,
+                locked: !isOpen,
+                videoItems,
+                activeVideoItemId: videoItems[0]?.id || "",
+                videoSources: {
+                    youtube: videoItems[0]?.youtube || "",
+                    html5: "",
+                },
+                captions: { en: null },
+            };
+        });
+    }
+
+    function buildCs155Lessons(meta, completedLessons) {
+        return cs155MultiVideoLectures.map((lecture, lectureIndex) => {
+            const lectureNumber = lectureIndex + 1;
+            const lessonId = `${meta.id}-lecture-${lectureNumber}`;
+            const isCompleted = false;
+            const isOpen = lectureNumber <= Math.max(completedLessons + 1, 3);
+
+            const videoItems = lecture.videos.map((video, videoIndex) => ({
+                id: `${lessonId}-video-${videoIndex + 1}`,
+                title: video.title,
+                duration: `${50 + ((lectureIndex + videoIndex) % 15)}:00`,
+                sourceType: "youtube",
+                youtube: `https://www.youtube.com/embed/${video.youtubeId}`,
+            }));
+
+            return {
+                id: lessonId,
+                title: `Video ${lectureNumber}: ${lecture.title}`,
+                duration: `${videoItems.length} video${videoItems.length > 1 ? "s" : ""}`,
+                completed: isCompleted,
+                locked: !isOpen,
+                videoItems,
+                activeVideoItemId: videoItems[0]?.id || "",
+                videoSources: {
+                    youtube: videoItems[0]?.youtube || "",
+                    html5: "",
+                },
+                captions: { en: null },
+            };
+        });
+    }
+
+    function buildCs240Lessons(meta, completedLessons) {
+        return cs240MultiVideoLectures.map((lecture, lectureIndex) => {
+            const lectureNumber = lectureIndex + 1;
+            const lessonId = `${meta.id}-lecture-${lectureNumber}`;
+            const isCompleted = false;
+            const isOpen = lectureNumber <= Math.max(completedLessons + 1, 3);
+
+            const videoItems = lecture.videos.map((video, videoIndex) => ({
+                id: `${lessonId}-video-${videoIndex + 1}`,
+                title: video.title,
+                duration: `${50 + ((lectureIndex + videoIndex) % 15)}:00`,
+                sourceType: "youtube",
+                youtube: `https://archive.org/embed/${video.archiveId}`,
+            }));
+
+            return {
+                id: lessonId,
+                title: `Lecture ${lectureNumber}: ${lecture.title}`,
+                duration: `${videoItems.length} video${videoItems.length > 1 ? "s" : ""}`,
+                completed: isCompleted,
+                locked: !isOpen,
+                videoItems,
+                activeVideoItemId: videoItems[0]?.id || "",
+                videoSources: {
+                    youtube: videoItems[0]?.youtube || "",
+                    html5: "",
+                },
+                captions: { en: null },
+            };
+        });
+    }
+
     function buildAssignments(meta, completedAssignments, seed) {
         const statuses = ["graded", "submitted", "not_started", "late", "not_started"];
         const statusLabels = {
@@ -1882,6 +2706,18 @@
             "phys-43-electricity-and-magnetism": phys43MultiVideoLectures.length,
             "bio-biology": bioMultiVideoLectures.length,
             "chem-chemistry": chemMultiVideoLectures.length,
+            "cs-221-artificial-intelligence-principles-and-techniques": cs221MultiVideoLectures.length,
+            "cs-229-machine-learning": cs229MultiVideoLectures.length,
+            "cs-224n-natural-language-processing-with-deep-learning": cs224nMultiVideoLectures.length,
+            "cs-231n-deep-learning-for-computer-vision": cs231nMultiVideoLectures.length,
+            "cs-234-reinforcement-learning": cs234MultiVideoLectures.length,
+            "cs-238-decision-making-under-uncertainty": cs238MultiVideoLectures.length,
+            "cs-140-operating-systems-systems-programming": cs140MultiVideoLectures.length,
+            "cs-143-compilers": cs143MultiVideoLectures.length,
+            "cs-144-introduction-to-computer-networking": cs144MultiVideoLectures.length,
+            "cs-149-parallel-computing": cs149MultiVideoLectures.length,
+            "cs-155-computer-and-network-security": cs155MultiVideoLectures.length,
+            "cs-240-adv-topics-in-operating-systems": cs240MultiVideoLectures.length,
         };
         const lectureCount = lectureCountMap[meta.id] || 8;
         const completedLectures = Math.max(1, Math.min(lectureCount, Math.round((progressPercent / 100) * lectureCount)));
@@ -1936,7 +2772,31 @@
                                                                                 ? buildBioLessons(meta, completedLectures)
                                                                                 : meta.id === "chem-chemistry"
                                                                                     ? buildChemLessons(meta, completedLectures)
-                                                                                    : buildLessons(meta, completedLectures, index);
+                                                                                    : meta.id === "cs-221-artificial-intelligence-principles-and-techniques"
+                                                                                        ? buildCs221Lessons(meta, completedLectures)
+                                                                                        : meta.id === "cs-229-machine-learning"
+                                                                                            ? buildCs229Lessons(meta, completedLectures)
+                                                                                            : meta.id === "cs-224n-natural-language-processing-with-deep-learning"
+                                                                                                ? buildCs224nLessons(meta, completedLectures)
+                                                                                                : meta.id === "cs-231n-deep-learning-for-computer-vision"
+                                                                                                    ? buildCs231nLessons(meta, completedLectures)
+                                                                                                     : meta.id === "cs-234-reinforcement-learning"
+                                                                                                        ? buildCs234Lessons(meta, completedLectures)
+                                                                                                         : meta.id === "cs-238-decision-making-under-uncertainty"
+                                                                                                            ? buildCs238Lessons(meta, completedLectures)
+                                                                                                             : meta.id === "cs-140-operating-systems-systems-programming"
+                                                                                                                ? buildCs140Lessons(meta, completedLectures)
+                                                                                                                 : meta.id === "cs-143-compilers"
+                                                                                                                     ? buildCs143Lessons(meta, completedLectures)
+                                                                                                                      : meta.id === "cs-144-introduction-to-computer-networking"
+                                                                                                                          ? buildCs144Lessons(meta, completedLectures)
+                                                                                                                           : meta.id === "cs-149-parallel-computing"
+                                                                                                                               ? buildCs149Lessons(meta, completedLectures)
+                                                                : meta.id === "cs-155-computer-and-network-security"
+                                                                                                                                    ? buildCs155Lessons(meta, completedLectures)
+                                                                                                                                    : meta.id === "cs-240-adv-topics-in-operating-systems"
+                                                                                                                                        ? buildCs240Lessons(meta, completedLectures)
+                                                                                                                                        : buildLessons(meta, completedLectures, index);
         const currentLessonId = lessons[0]?.id || "";
 
         return {
@@ -2777,6 +3637,14 @@
         return getAllCoursesList().filter((course) => course.level === "Intermediate");
     }
 
+    function getAdvancedCoursesList() {
+        return getAllCoursesList().filter((course) => course.level === "Advanced");
+    }
+
+    function getExpertCoursesList() {
+        return getAllCoursesList().filter((course) => course.level === "Expert");
+    }
+
     function getCourseIdFromUrl() {
         const params = new URLSearchParams(window.location.search);
         return params.get("courseId");
@@ -2864,6 +3732,8 @@
         getCoursesList,
         getAdminCoursesList,
         getIntermediateCoursesList,
+        getAdvancedCoursesList,
+        getExpertCoursesList,
         getCourseById,
         getSelectedCourse,
         getAdminAssignmentsByCourseId,
