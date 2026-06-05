@@ -1165,7 +1165,7 @@
          * @returns {Promise<{question: string, hints: Array, tags: Array, finalAnswer: string}>}
          */
         async ask(question) {
-            return apiFetch('/api/chatbot/ask', {
+            return apiFetch('/api/community/chatbot/ask', {
                 baseUrl: 'https://nibras-backend.up.railway.app',
                 method: 'POST',
                 auth: true,

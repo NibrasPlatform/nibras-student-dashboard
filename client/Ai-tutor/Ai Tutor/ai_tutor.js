@@ -508,7 +508,7 @@ window.NibrasReact.run(() => {
                 const chatbotService = window.NibrasServices?.chatbotService || null;
                 const payload = chatbotService?.ask
                     ? await chatbotService.ask(trimmed)
-                    : await postJson('https://nibras-backend.up.railway.app/api/chatbot/ask', { question: trimmed });
+                    : await postJson('https://nibras-backend.up.railway.app/api/community/chatbot/ask', { question: trimmed });
                 const data = extractPayloadData(payload);
                 if (!data) {
                     throw new Error('Unexpected response from server.');
