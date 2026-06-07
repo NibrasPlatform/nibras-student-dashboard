@@ -424,8 +424,8 @@ window.NibrasReact.run(() => {
             params.set('limit', '100');
             params.set('page', '1');
         } else {
-            params.set('page', '1');
-            params.set('limit', '100');
+            params.set('page', String(page));
+            params.set('limit', String(QUESTIONS_PER_PAGE));
         }
 
         if (filterType === 'Popular') {
@@ -489,13 +489,16 @@ window.NibrasReact.run(() => {
             });
         }
 
-        const totalFiltered = questions.length;
+        const totalFiltered = needsClientPagination
+            ? questions.length
+            : (serverPagination.total || questions.length);
         const totalPages = needsClientPagination
             ? Math.max(1, Math.ceil(totalFiltered / QUESTIONS_PER_PAGE))
             : (serverPagination.totalPages || Math.max(1, Math.ceil(totalFiltered / QUESTIONS_PER_PAGE)));
         const validPage = Math.min(page, totalPages);
-        const start = (validPage - 1) * QUESTIONS_PER_PAGE;
-        const paginatedQuestions = questions.slice(start, start + QUESTIONS_PER_PAGE);
+        const paginatedQuestions = needsClientPagination
+            ? questions.slice((validPage - 1) * QUESTIONS_PER_PAGE, (validPage - 1) * QUESTIONS_PER_PAGE + QUESTIONS_PER_PAGE)
+            : questions;
 
         communityData.questions = paginatedQuestions;
         communityData.pagination = {
