@@ -424,8 +424,8 @@ window.NibrasReact.run(() => {
             params.set('limit', '100');
             params.set('page', '1');
         } else {
-            params.set('page', String(page));
-            params.set('limit', String(QUESTIONS_PER_PAGE));
+            params.set('page', '1');
+            params.set('limit', '100');
         }
 
         if (filterType === 'Popular') {
