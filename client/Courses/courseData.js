@@ -100,6 +100,7 @@
         { code: "CS 143", title: "Compilers", category: "Systems" },
         { code: "CS 144", title: "Introduction to Computer Networking", category: "Systems" },
         { code: "CS 149", title: "Parallel Computing", category: "Systems" },
+        { code: "CS 154", title: "Introduction to Automata and Complexity Theory", category: "Theory" },
     ];
 
     const expertCourseRows = [
@@ -1362,6 +1363,24 @@
         { title: "Lecture 19 - Accessing Memory + Course Wrap Up", videos: [{ title: "Video 19", youtubeId: "J7v_ubArrno" }] },
     ];
 
+    const cs154MultiVideoLectures = [
+        { title: "Introduction & Mathematical Foundations", videos: [{ title: "What is Computing?", youtubeId: "YzKmKcBHogg" }, { title: "Course Curriculum", youtubeId: "SrXZPzgJ3Jc" }, { title: "Proofs", youtubeId: "FSf7KnMR4Is" }] },
+        { title: "Deterministic Finite Automata", videos: [{ title: "DFA Overview", youtubeId: "-PJY5bHl_HA" }, { title: "DFA Deep Dive", youtubeId: "mQqB7KER3r8" }, { title: "DFA Closure Properties", youtubeId: "VDUs9g6rU7E" }] },
+        { title: "Nondeterminism & Regular Expressions", videos: [{ title: "NFA Introduction", youtubeId: "n_EG8J-VFJ4" }, { title: "NFA to DFA Conversion", youtubeId: "AsAb2BiUw8c" }, { title: "DFA Closure Properties II", youtubeId: "ukk9ZL3_Ff4" }, { title: "Regular Expressions", youtubeId: "9NMfJNDoZhQ" }] },
+        { title: "Non-Regular Languages", videos: [{ title: "Pumping Lemma", youtubeId: "4XRR3UurDoQ" }, { title: "DFA Minimization", youtubeId: "WzrXOMw_cEI" }, { title: "Myhill-Nerode Theorem", youtubeId: "BJOABHS_OuM" }] },
+        { title: "DFA Learning & Streaming", videos: [{ title: "Learning DFAs", youtubeId: "85QZN45-CoQ" }, { title: "Streaming Algorithms", youtubeId: "0xXV1jALAdQ" }] },
+        { title: "Communication Complexity", videos: [{ title: "Communication Complexity", youtubeId: "6iNbuivj1ZA" }] },
+        { title: "Turing Machines", videos: [{ title: "TM Overview", youtubeId: "DRBDcMAB2qg" }, { title: "Turing Machines", youtubeId: "dope-PGUbUM" }, { title: "TM Variants", youtubeId: "Fz1hBSZC5mY" }, { title: "Universal TM", youtubeId: "hFbnLn4bD58" }] },
+        { title: "Undecidability", videos: [{ title: "Counting Argument", youtubeId: "T0RJqD_yTLs" }, { title: "Concrete Undecidable Problems", youtubeId: "S3bYfIAdEmM" }, { title: "Mapping Reductions", youtubeId: "_0163dZIBvw" }] },
+        { title: "Rice's Theorem & Oracle Reductions", videos: [{ title: "Rice's Theorem", youtubeId: "KHMyz1pAWg8" }, { title: "Oracle Reductions", youtubeId: "-EBYph6R1eI" }, { title: "Self-Reference", youtubeId: "vUHmltEPXIk" }] },
+        { title: "Logic & Kolmogorov Complexity", videos: [{ title: "Logic", youtubeId: "KBhoU7sfR3k" }, { title: "Kolmogorov Complexity", youtubeId: "PwNIDjc9cYc" }] },
+        { title: "Time Complexity & NP", videos: [{ title: "Complexity Overview", youtubeId: "r6lW-3Rttb0" }, { title: "Time Complexity", youtubeId: "SqG_D1Mp5CY" }, { title: "Introduction to NP", youtubeId: "ioq7srEOWvw" }] },
+        { title: "NP-Completeness", videos: [{ title: "Polynomial-Time Reductions", youtubeId: "mYwVCePIzG8" }, { title: "Cook-Levin Theorem", youtubeId: "-lLBjGmVqNY" }, { title: "More NP-Complete Problems", youtubeId: "Ds5LKk73oZQ" }] },
+        { title: "Beyond NP", videos: [{ title: "co-NP", youtubeId: "LbLP_wIAJe4" }, { title: "Polynomial Hierarchy", youtubeId: "IS1A0N1EF2o" }] },
+        { title: "Space Complexity", videos: [{ title: "Space Complexity", youtubeId: "fvNeT3n8Ubk" }, { title: "Interactive Proofs", youtubeId: "1XF9V-5YrIE" }] },
+        { title: "Advanced Topics", videos: [{ title: "Algorithmic Fairness", youtubeId: "YjRS91Mv-f4" }, { title: "Randomness", youtubeId: "jmSSkC7yVog" }, { title: "Parting Thoughts", youtubeId: "gt_pqWJy210" }] },
+    ];
+
     const cs155MultiVideoLectures = [
         { title: "1. Introduction, Threat Models", videos: [{ title: "Video 1", youtubeId: "GqmQg-cszw4" }] },
         { title: "2. Control Hijacking Attacks", videos: [{ title: "Video 2", youtubeId: "r4KjHEgg9Wg" }] },
@@ -2531,6 +2550,38 @@
         });
     }
 
+    function buildCs154Lessons(meta, completedLessons) {
+        return cs154MultiVideoLectures.map((lecture, lectureIndex) => {
+            const lectureNumber = lectureIndex + 1;
+            const lessonId = `${meta.id}-lecture-${lectureNumber}`;
+            const isCompleted = false;
+            const isOpen = lectureNumber <= Math.max(completedLessons + 1, 3);
+
+            const videoItems = lecture.videos.map((video, videoIndex) => ({
+                id: `${lessonId}-video-${videoIndex + 1}`,
+                title: video.title,
+                duration: `${15 + ((lectureIndex + videoIndex) % 30)}:00`,
+                sourceType: "youtube",
+                youtube: `https://www.youtube.com/embed/${video.youtubeId}`,
+            }));
+
+            return {
+                id: lessonId,
+                title: `Lecture ${lectureNumber}: ${lecture.title}`,
+                duration: `${videoItems.length} video${videoItems.length > 1 ? "s" : ""}`,
+                completed: isCompleted,
+                locked: !isOpen,
+                videoItems,
+                activeVideoItemId: videoItems[0]?.id || "",
+                videoSources: {
+                    youtube: videoItems[0]?.youtube || "",
+                    html5: "",
+                },
+                captions: { en: null },
+            };
+        });
+    }
+
     function buildCs155Lessons(meta, completedLessons) {
         return cs155MultiVideoLectures.map((lecture, lectureIndex) => {
             const lectureNumber = lectureIndex + 1;
@@ -2716,6 +2767,7 @@
             "cs-143-compilers": cs143MultiVideoLectures.length,
             "cs-144-introduction-to-computer-networking": cs144MultiVideoLectures.length,
             "cs-149-parallel-computing": cs149MultiVideoLectures.length,
+            "cs-154-introduction-to-automata-and-complexity-theory": cs154MultiVideoLectures.length,
             "cs-155-computer-and-network-security": cs155MultiVideoLectures.length,
             "cs-240-adv-topics-in-operating-systems": cs240MultiVideoLectures.length,
         };
@@ -2790,9 +2842,11 @@
                                                                                                                      ? buildCs143Lessons(meta, completedLectures)
                                                                                                                       : meta.id === "cs-144-introduction-to-computer-networking"
                                                                                                                           ? buildCs144Lessons(meta, completedLectures)
-                                                                                                                           : meta.id === "cs-149-parallel-computing"
-                                                                                                                               ? buildCs149Lessons(meta, completedLectures)
-                                                                : meta.id === "cs-155-computer-and-network-security"
+                                                            : meta.id === "cs-149-parallel-computing"
+                                                                                                                                ? buildCs149Lessons(meta, completedLectures)
+                                                                 : meta.id === "cs-154-introduction-to-automata-and-complexity-theory"
+                                                                                                                                     ? buildCs154Lessons(meta, completedLectures)
+                                                                 : meta.id === "cs-155-computer-and-network-security"
                                                                                                                                     ? buildCs155Lessons(meta, completedLectures)
                                                                                                                                     : meta.id === "cs-240-adv-topics-in-operating-systems"
                                                                                                                                         ? buildCs240Lessons(meta, completedLectures)

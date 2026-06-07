@@ -40,7 +40,7 @@
     if (window.location.hostname.includes('vercel.app')) DEFAULT_TRACKING_API = window.location.origin;
   } catch (_) {}
   const DEFAULT_COMPETITIONS_API = 'https://nibras-backend.up.railway.app';
-  const DEFAULT_RECOMMENDATION_API = 'https://recommendationmodel-production-0f8e.up.railway.app/api/recommend';
+  const DEFAULT_RECOMMENDATION_API = 'https://recommendationmodel-production-c22c.up.railway.app/api/recommend';
   const DEFAULT_COURSES_API = 'https://nibras-backend.up.railway.app/api';
   const DEFAULT_GOOGLE_CLIENT_ID = 'your_google_oauth_client_id';
 
