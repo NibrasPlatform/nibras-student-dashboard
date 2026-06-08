@@ -2199,44 +2199,23 @@
         },
 
         async linkAccounts(accounts) {
-            const results = [];
-            if (accounts.codeforcesHandle) {
-                const payload = await requestCompetitionsWithCompatibility([
-                    '/contests/accounts/link',
-                ], {
-                    method: 'POST',
-                    auth: true,
-                    body: { platform: 'codeforces', handle: accounts.codeforcesHandle },
-                    timeoutMs: 60000,
-                });
-                results.push({ platform: 'codeforces', data: unwrapApiData(payload) });
+            const body = {};
+            if (accounts.codeforcesHandle) body.codeforcesHandle = accounts.codeforcesHandle;
+            if (accounts.leetcodeUsername) body.leetcodeUsername = accounts.leetcodeUsername;
+            if (accounts.hackerrankHandle) body.hackerrankHandle = accounts.hackerrankHandle;
+
+            if (Object.keys(body).length === 0) {
+                return { message: 'No accounts to link', data: [] };
             }
-            if (accounts.leetcodeUsername) {
-                const payload = await requestCompetitionsWithCompatibility([
-                    '/contests/accounts/link',
-                ], {
-                    method: 'POST',
-                    auth: true,
-                    body: { platform: 'leetcode', handle: accounts.leetcodeUsername },
-                    timeoutMs: 60000,
-                });
-                results.push({ platform: 'leetcode', data: unwrapApiData(payload) });
-            }
-            if (accounts.hackerrankHandle) {
-                const payload = await requestCompetitionsWithCompatibility([
-                    '/contests/accounts/link',
-                ], {
-                    method: 'POST',
-                    auth: true,
-                    body: { platform: 'hackerrank', handle: accounts.hackerrankHandle },
-                    timeoutMs: 60000,
-                });
-                results.push({ platform: 'hackerrank', data: unwrapApiData(payload) });
-            }
-            return {
-                message: results.length > 0 ? 'Accounts linked successfully' : 'No accounts to link',
-                data: results,
-            };
+
+            const payload = await requestCompetitionsWithCompatibility('/contests/accounts/link', {
+                method: 'POST',
+                auth: true,
+                body,
+                timeoutMs: 60000,
+            });
+
+            return { message: 'Accounts linked successfully', data: [unwrapApiData(payload)] };
         },
 
         async startVerification(platform) {

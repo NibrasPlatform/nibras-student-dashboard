@@ -355,6 +355,8 @@
                 renderRankings();
             } else if (data?.status === 'pending' || data?.token) {
                 renderVerificationPending(platform, platformName, data);
+            } else if (data?.verified === false) {
+                renderProgress(`${platformName} verification still pending. Complete the verification step and check again.`);
             } else {
                 renderProgress(`${platformName} verification not started. Use "Start Verification" first.`);
             }
