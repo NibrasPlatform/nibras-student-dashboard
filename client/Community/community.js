@@ -234,6 +234,9 @@ window.NibrasReact.run(() => {
     const previewCache = new Map();
     const questionVoteFetchCache = new Map();
     const questionVoteInFlight = new Map();
+    let communitySocket = null;
+    let communitySocketIoPromise = null;
+    const joinedQuestionRooms = new Set();
 
     function getUserIdFromStorage() {
         try {
@@ -576,6 +579,93 @@ window.NibrasReact.run(() => {
         });
     }
 
+    function getCommunitySocketBaseUrl() {
+        const url = BACKEND_URL || DEFAULT_LEGACY_COMMUNITY_URL;
+        const normalized = String(url).replace(/\/api(?:\/community)?$/i, '');
+        return normalized || 'https://nibras-backend.up.railway.app';
+    }
+
+    function ensureCommunitySocketLoaded() {
+        if (typeof io !== 'undefined') return Promise.resolve(true);
+        if (communitySocketIoPromise) return communitySocketIoPromise;
+
+        const socketScriptUrl = `${getCommunitySocketBaseUrl()}/socket.io/socket.io.js`;
+        communitySocketIoPromise = new Promise((resolve) => {
+            const existing = Array.from(document.scripts).find((s) => s.src === socketScriptUrl);
+            if (existing) {
+                if (typeof io !== 'undefined') { resolve(true); return; }
+                existing.addEventListener('load', () => resolve(typeof io !== 'undefined'), { once: true });
+                existing.addEventListener('error', () => resolve(false), { once: true });
+                return;
+            }
+            const script = document.createElement('script');
+            script.src = socketScriptUrl;
+            script.async = true;
+            script.addEventListener('load', () => resolve(typeof io !== 'undefined'), { once: true });
+            script.addEventListener('error', () => resolve(false), { once: true });
+            document.head.appendChild(script);
+        });
+        return communitySocketIoPromise;
+    }
+
+    function initCommunitySocket() {
+        if (typeof io === 'undefined') {
+            console.log('[SOCKET] Socket.io not available for community feed');
+            return;
+        }
+        if (communitySocket) {
+            communitySocket.disconnect();
+            communitySocket = null;
+        }
+        const baseUrl = getCommunitySocketBaseUrl();
+        console.log('[SOCKET] Community feed connecting to:', baseUrl);
+        communitySocket = io(baseUrl, { transports: ['websocket', 'polling'] });
+
+        communitySocket.on('connect', () => {
+            console.log('[SOCKET] Community feed connected:', communitySocket.id);
+            joinRenderedQuestionRooms();
+        });
+
+        communitySocket.on('connect_error', (err) => {
+            console.log('[SOCKET] Community feed connection error:', err.message);
+        });
+
+        communitySocket.on('vote:updated', (data) => {
+            console.log('[SOCKET] Community feed vote:updated received:', data);
+            const targetId = String(data.targetId || '');
+            if (!targetId) return;
+
+            const upBtn = feedContainer?.querySelector(`.upvote-btn[data-id="${targetId}"]`);
+            if (!upBtn) return;
+            const voteBox = upBtn.closest('.q-vote-box');
+            if (!voteBox) return;
+            const countSpan = voteBox.querySelector('.vote-count');
+            if (countSpan) {
+                countSpan.innerText = data.votesCount;
+                countSpan.classList.remove('changed');
+                void countSpan.offsetWidth;
+                countSpan.classList.add('changed');
+            }
+        });
+
+        communitySocket.on('disconnect', (reason) => {
+            console.log('[SOCKET] Community feed disconnected:', reason);
+        });
+    }
+
+    function joinRenderedQuestionRooms() {
+        if (!communitySocket || !communitySocket.connected) return;
+        const ids = renderedQuestionIds || [];
+        ids.forEach((id) => {
+            const room = `question:${id}`;
+            if (!joinedQuestionRooms.has(room)) {
+                communitySocket.emit('question:join', id);
+                joinedQuestionRooms.add(room);
+                console.log('[SOCKET] Joined room:', room);
+            }
+        });
+    }
+
     async function filterAndRender(filterType, options = {}) {
         const shouldResetPage = options.resetPage !== false;
         currentFilter = filterType || currentFilter;
@@ -603,6 +693,15 @@ window.NibrasReact.run(() => {
                 totalPages: pagination.totalPages || Math.max(1, Math.ceil(totalItems / QUESTIONS_PER_PAGE)),
                 currentPage,
             });
+            if (!communitySocket) {
+                ensureCommunitySocketLoaded().then((ok) => {
+                    if (ok && !communitySocket) {
+                        initCommunitySocket();
+                    }
+                });
+            } else {
+                joinRenderedQuestionRooms();
+            }
         } catch (error) {
             console.error("Failed to fetch questions:", error);
             if (feedContainer) {

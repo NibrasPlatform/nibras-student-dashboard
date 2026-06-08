@@ -137,20 +137,30 @@ window.NibrasReact.run(() => {
 
     function initSocket(questionId) {
         if (typeof io === 'undefined') {
-            console.log('Socket.io not available');
+            console.log('[SOCKET] Socket.io not available — script may have failed to load from:', getSocketBaseUrl());
             return;
         }
-        socket = io(getSocketBaseUrl());
+        if (socket) {
+            socket.disconnect();
+            socket = null;
+        }
+        const baseUrl = getSocketBaseUrl();
+        console.log('[SOCKET] Connecting to:', baseUrl);
+        socket = io(baseUrl, { transports: ['websocket', 'polling'] });
         socket.on('connect', () => {
-            console.log('Socket connected:', socket.id);
+            console.log('[SOCKET] Connected:', socket.id);
             socket.emit('question:join', questionId);
+            console.log('[SOCKET] Emitted question:join for:', questionId);
+        });
+        socket.on('connect_error', (err) => {
+            console.log('[SOCKET] Connection error:', err.message);
         });
         socket.on('answer:created', (data) => {
-            console.log('New answer received:', data);
+            console.log('[SOCKET] New answer received:', data);
             loadQuestion(questionId);
         });
         socket.on('vote:updated', (data) => {
-            console.log('Vote updated:', data);
+            console.log('[SOCKET] vote:updated received:', data);
             const voteBox = document.querySelector(`.q-vote-box[data-type="${data.targetType === 'question' ? 'question' : 'comment'}"][data-id="${data.targetId}"]`);
             if (voteBox) {
                 const countSpan = voteBox.querySelector('.vote-count');
@@ -162,8 +172,8 @@ window.NibrasReact.run(() => {
                 saveVoteToStorage(targetType, data.targetId, Number(data.userVoteValue ?? 0));
             }
         });
-        socket.on('disconnect', () => {
-            console.log('Socket disconnected');
+        socket.on('disconnect', (reason) => {
+            console.log('[SOCKET] Disconnected:', reason);
         });
     }
 
