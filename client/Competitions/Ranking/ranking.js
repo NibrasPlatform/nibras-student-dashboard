@@ -608,6 +608,9 @@
                 const result = await competitionsService.linkAccounts(body);
                 console.log('[Link Account] Response:', result);
                 if (accountLinkStatus) accountLinkStatus.innerHTML = `<span class="status-msg-success">${platformName} account linked! Reloading profile...</span>`;
+                if (competitionsService?.syncProfile) {
+                    await competitionsService.syncProfile({ force: true }).catch(() => {});
+                }
                 await loadRankingData();
                 console.log('[Link Account] Profile after reload:', state.profile);
             } else {
