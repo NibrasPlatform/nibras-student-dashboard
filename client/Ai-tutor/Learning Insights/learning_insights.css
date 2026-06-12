@@ -681,3 +681,219 @@ select:focus-visible,
     .search-bar-global { width: 160px; }
     .page-title-section h1 { font-size: 1.35rem; }
 }
+
+/* ===== INSIGHTS RESULT STYLES (from nibras_insights_result) ===== */
+
+/* Stats row */
+.stat-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 16px;
+    animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.stat-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: rgba(37, 99, 235, 0.15);
+}
+
+.stat-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+
+.stat-val {
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.stat-sub {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 4px;
+}
+
+.stat-card:nth-child(1) { animation-delay: 0.25s; }
+.stat-card:nth-child(2) { animation-delay: 0.28s; }
+.stat-card:nth-child(3) { animation-delay: 0.31s; }
+
+/* Two-column strengths/weaknesses */
+.insights-two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+@media (max-width: 768px) {
+    .stat-cards-grid {
+        grid-template-columns: 1fr;
+    }
+    .insights-two-col {
+        grid-template-columns: 1fr;
+    }
+}
+
+.insights-full-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.insights-full-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: rgba(37, 99, 235, 0.15);
+}
+
+.insights-two-col > .insights-full-card:nth-child(1) { animation-delay: 0.34s; }
+.insights-two-col > .insights-full-card:nth-child(2) { animation-delay: 0.37s; }
+
+.insights-card-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 16px;
+}
+
+/* Bar rows */
+.bar-row {
+    margin-bottom: 14px;
+}
+.bar-row:last-child {
+    margin-bottom: 0;
+}
+
+.bar-top {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    align-items: center;
+}
+
+.bar-name {
+    font-size: 13px;
+    color: var(--text-primary);
+}
+
+.bar-pct {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.bar-track {
+    background: var(--border-color);
+    border-radius: 4px;
+    height: 6px;
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    width: 0;
+}
+
+/* Percentage color classes */
+.pct-green { color: var(--str-green); }
+.pct-yellow { color: var(--str-orange); }
+.pct-red { color: var(--str-red); }
+
+/* Next actions card */
+.actions-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+    animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: 0.40s;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.actions-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: rgba(37, 99, 235, 0.15);
+}
+
+.action-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.action-row:last-child {
+    border-bottom: none;
+}
+
+.action-num {
+    width: 22px;
+    height: 22px;
+    background: rgba(37, 99, 235, 0.15);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: var(--accent-blue);
+    font-weight: 500;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.action-text {
+    font-size: 13px;
+    color: var(--text-primary);
+    line-height: 1.5;
+}
+
+/* Overall assessment card */
+.assessment-card {
+    background: rgba(37, 99, 235, 0.06);
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    border-radius: 12px;
+    padding: 20px;
+    animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: 0.43s;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.assessment-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: rgba(37, 99, 235, 0.3);
+}
+
+.assessment-card .insights-card-title {
+    color: var(--accent-blue);
+}
+
+.assessment-text {
+    font-size: 13px;
+    color: var(--text-primary);
+    line-height: 1.6;
+    opacity: 0.85;
+}
+
+/* Hover effect for stat cards */
+.stat-card, .bar-row, .action-row {
+    cursor: default;
+}

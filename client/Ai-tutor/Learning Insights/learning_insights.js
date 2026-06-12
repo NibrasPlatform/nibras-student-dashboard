@@ -9,58 +9,118 @@ window.NibrasReact.run(() => {
         });
     });
 
-    // --- 2. BACKEND DATA ---
+    // --- 2. INSIGHTS DATA ---
     const insightsData = {
-        analytics: [
-            { label: "Problem Solving Speed", icon: "fa-solid fa-arrow-trend-up", val: "+15% this week" },
-            { label: "Concept Retention", icon: "fa-solid fa-brain", val: "87%" },
-            { label: "Difficulty Progression", icon: "fa-solid fa-chart-simple", val: "Medium → Hard" },
-            { label: "Study Consistency", icon: "fa-regular fa-calendar", val: "6 days/week" }
+        stats: [
+            { label: "Total questions", val: "25", sub: "across all topics" },
+            { label: "Streak", val: "7 days", sub: "keep it up" },
+            { label: "Topics covered", val: "5", sub: "out of 24 tracks" }
         ],
         strengths: [
-            { label: "Arrays & Strings", val: "92%", pct: 92, color: "var(--str-green)" },
-            { label: "Dynamic Programming", val: "45%", pct: 45, color: "var(--str-red)" },
-            { label: "Graph Algorithms", val: "78%", pct: 78, color: "var(--str-orange)" }
-        ]
+            { label: "Algorithms", pct: 90, color: "#4ade80", cls: "pct-green" },
+            { label: "Data Structures", pct: 80, color: "#4ade80", cls: "pct-green" },
+            { label: "Operating Systems", pct: 70, color: "#4ade80", cls: "pct-green" },
+            { label: "Security", pct: 60, color: "#facc15", cls: "pct-yellow" },
+            { label: "Machine Learning", pct: 50, color: "#facc15", cls: "pct-yellow" }
+        ],
+        weaknesses: [
+            { label: "Networking", pct: 20, color: "#f87171", cls: "pct-red" },
+            { label: "Databases", pct: 20, color: "#f87171", cls: "pct-red" },
+            { label: "Software Engineering", pct: 30, color: "#f87171", cls: "pct-red" },
+            { label: "Web Development", pct: 30, color: "#f87171", cls: "pct-red" },
+            { label: "Theory of Computation", pct: 40, color: "#facc15", cls: "pct-yellow" }
+        ],
+        actions: [
+            { num: 1, text: "Explore foundational concepts in networking to strengthen understanding of system communications." },
+            { num: 2, text: "Engage with database management topics to enhance data handling skills." },
+            { num: 3, text: "Practice software engineering principles through project-based learning." }
+        ],
+        assessment: "The student shows strong engagement in algorithms and data structures, indicating a solid foundation in core computer science concepts. However, there are notable gaps in networking and databases that should be addressed to ensure a well-rounded skill set."
     };
 
     // --- 3. RENDER UI ---
-    
-    // Analytics
-    const anaContainer = document.getElementById('analytics-container');
-    anaContainer.innerHTML = '';
-    insightsData.analytics.forEach(item => {
-        anaContainer.innerHTML += `
-            <div class="analytic-item">
-                <div class="an-label"><i class="${item.icon}"></i> ${item.label}</div>
-                <div class="an-val">${item.val}</div>
+
+    // Stats cards
+    const statsContainer = document.getElementById('stats-container');
+    statsContainer.innerHTML = '';
+    insightsData.stats.forEach(stat => {
+        statsContainer.innerHTML += `
+            <div class="stat-card">
+                <div class="stat-label">${stat.label}</div>
+                <div class="stat-val">${stat.val}</div>
+                <div class="stat-sub">${stat.sub}</div>
             </div>
         `;
     });
 
-    // Strength & Weakness
+    // Strengths
     const strContainer = document.getElementById('strength-container');
+    const strTitle = strContainer.querySelector('.insights-card-title');
     strContainer.innerHTML = '';
+    strContainer.appendChild(strTitle);
     insightsData.strengths.forEach(item => {
-        strContainer.innerHTML += `
-            <div class="str-item">
-                <div class="str-header">
-                    <span>${item.label}</span>
-                    <span>${item.val}</span>
-                </div>
-                <div class="str-bar-track">
-                    <div class="str-bar-fill" style="width: ${item.pct}%; background-color: ${item.color};"></div>
-                </div>
+        const row = document.createElement('div');
+        row.className = 'bar-row';
+        row.innerHTML = `
+            <div class="bar-top">
+                <span class="bar-name">${item.label}</span>
+                <span class="bar-pct ${item.cls}">${item.pct}%</span>
+            </div>
+            <div class="bar-track">
+                <div class="bar-fill" style="width:${item.pct}%;background:${item.color}"></div>
+            </div>
+        `;
+        strContainer.appendChild(row);
+    });
+
+    // Weaknesses
+    const weakContainer = document.getElementById('weakness-container');
+    const weakTitle = weakContainer.querySelector('.insights-card-title');
+    weakContainer.innerHTML = '';
+    weakContainer.appendChild(weakTitle);
+    insightsData.weaknesses.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'bar-row';
+        row.innerHTML = `
+            <div class="bar-top">
+                <span class="bar-name">${item.label}</span>
+                <span class="bar-pct ${item.cls}">${item.pct}%</span>
+            </div>
+            <div class="bar-track">
+                <div class="bar-fill" style="width:${item.pct}%;background:${item.color}"></div>
+            </div>
+        `;
+        weakContainer.appendChild(row);
+    });
+
+    // Next actions
+    const actionsContainer = document.getElementById('actions-container');
+    const actionsTitle = actionsContainer.querySelector('.insights-card-title');
+    actionsContainer.innerHTML = '';
+    actionsContainer.appendChild(actionsTitle);
+    insightsData.actions.forEach(item => {
+        actionsContainer.innerHTML += `
+            <div class="action-row">
+                <div class="action-num">${item.num}</div>
+                <div class="action-text">${item.text}</div>
             </div>
         `;
     });
+
+    // Overall assessment
+    const assessContainer = document.getElementById('assessment-container');
+    const assessTitle = assessContainer.querySelector('.insights-card-title');
+    assessContainer.innerHTML = '';
+    assessContainer.appendChild(assessTitle);
+    assessContainer.innerHTML += `
+        <div class="assessment-text">${insightsData.assessment}</div>
+    `;
 
     // --- 4. THEME TOGGLE & LOGO SWAP ---
     const themeBtn = document.getElementById('themeBtn');
     const themeIcon = themeBtn ? themeBtn.querySelector('i') : null;
     const appLogo = document.getElementById('app-logo');
 
-    // Ensure theme is set on page load
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme) {
         document.documentElement.setAttribute('data-theme', savedTheme);

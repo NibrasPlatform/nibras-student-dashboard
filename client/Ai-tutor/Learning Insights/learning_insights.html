@@ -93,39 +93,50 @@
                 <a href="../Smart%20Routing/smart_routing.html" class="ai-tab">Smart Routing</a>
             </div>
 
-            <!-- Insights Grid -->
-            <div class="insights-grid">
-                
-                <!-- Learning Analytics Card -->
-                <section class="card insight-card">
-                    <div class="card-header-simple">
-                        <h3>Learning Analytics</h3>
-                    </div>
-                    <div class="analytics-list" id="analytics-container">
-                        <div class="skeleton-container" aria-hidden="true">
-                            <div class="skeleton-row"><div class="skeleton-line skeleton"></div><div class="skeleton-line-sm skeleton"></div></div>
-                            <div class="skeleton-row"><div class="skeleton-line skeleton"></div><div class="skeleton-line-sm skeleton"></div></div>
-                            <div class="skeleton-row"><div class="skeleton-line skeleton"></div><div class="skeleton-line-sm skeleton"></div></div>
-                            <div class="skeleton-row"><div class="skeleton-line skeleton"></div><div class="skeleton-line-sm skeleton"></div></div>
-                        </div>
+            <!-- Stats Row -->
+            <div class="stat-cards-grid" id="stats-container"></div>
+
+            <!-- Strengths & Weaknesses -->
+            <div class="insights-two-col">
+                <section class="insights-full-card" id="strength-container">
+                    <div class="insights-card-title">Strengths</div>
+                    <div class="skeleton-container" aria-hidden="true">
+                        <div class="skeleton-row"><div class="skeleton-line skeleton"></div><div class="skeleton-progress skeleton"></div></div>
+                        <div class="skeleton-row"><div class="skeleton-line skeleton"></div><div class="skeleton-progress skeleton"></div></div>
+                        <div class="skeleton-row"><div class="skeleton-line skeleton"></div><div class="skeleton-progress skeleton"></div></div>
+                        <div class="skeleton-row"><div class="skeleton-line skeleton"></div><div class="skeleton-progress skeleton"></div></div>
+                        <div class="skeleton-row"><div class="skeleton-line skeleton"></div><div class="skeleton-progress skeleton"></div></div>
                     </div>
                 </section>
-
-                <!-- Strength & Weakness Analysis Card -->
-                <section class="card insight-card">
-                    <div class="card-header-simple">
-                        <h3>Strength & Weakness Analysis</h3>
-                    </div>
-                    <div class="strength-list" id="strength-container">
-                        <div class="skeleton-container" aria-hidden="true">
-                            <div class="skeleton-row"><div class="skeleton-line skeleton"></div><div class="skeleton-progress skeleton"></div></div>
-                            <div class="skeleton-row"><div class="skeleton-line skeleton"></div><div class="skeleton-progress skeleton"></div></div>
-                            <div class="skeleton-row"><div class="skeleton-line skeleton"></div><div class="skeleton-progress skeleton"></div></div>
-                        </div>
+                <section class="insights-full-card" id="weakness-container">
+                    <div class="insights-card-title">Weaknesses — gaps</div>
+                    <div class="skeleton-container" aria-hidden="true">
+                        <div class="skeleton-row"><div class="skeleton-line skeleton"></div><div class="skeleton-progress skeleton"></div></div>
+                        <div class="skeleton-row"><div class="skeleton-line skeleton"></div><div class="skeleton-progress skeleton"></div></div>
+                        <div class="skeleton-row"><div class="skeleton-line skeleton"></div><div class="skeleton-progress skeleton"></div></div>
+                        <div class="skeleton-row"><div class="skeleton-line skeleton"></div><div class="skeleton-progress skeleton"></div></div>
+                        <div class="skeleton-row"><div class="skeleton-line skeleton"></div><div class="skeleton-progress skeleton"></div></div>
                     </div>
                 </section>
-
             </div>
+
+            <!-- Next Actions -->
+            <section class="actions-card" id="actions-container">
+                <div class="insights-card-title">Next actions</div>
+                <div class="skeleton-container" aria-hidden="true">
+                    <div class="skeleton-row"><div class="skeleton-line skeleton" style="width:80%"></div></div>
+                    <div class="skeleton-row"><div class="skeleton-line skeleton" style="width:80%"></div></div>
+                    <div class="skeleton-row"><div class="skeleton-line skeleton" style="width:80%"></div></div>
+                </div>
+            </section>
+
+            <!-- Overall Assessment -->
+            <section class="assessment-card" id="assessment-container">
+                <div class="insights-card-title">Overall assessment</div>
+                <div class="skeleton-container" aria-hidden="true">
+                    <div class="skeleton-row"><div class="skeleton-line skeleton" style="width:90%"></div></div>
+                </div>
+            </section>
 
         </div>
     </main>
